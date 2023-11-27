@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
 
+<<<<<<< HEAD
 permissions:
   contents: read
 
@@ -48,3 +49,18 @@ jobs:
       with:
         name: metadataLog
         path: tests/org.eclipse.epsilon.test/target/work/data/.metadata/.log
+=======
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven
+      run: ./build-and-test.sh
+>>>>>>> fea30e40b (Create build-and-test.yml)

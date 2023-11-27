@@ -67,4 +67,12 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: ./build-and-test.sh
+<<<<<<< Upstream, based on a77f10cc0e37be9e835be057f8b96616e7ecd757
 >>>>>>> fea30e40b (Create build-and-test.yml)
+=======
+    - name: Upload Log
+      uses: actions/upload-artifact@v3.1.3
+      with:
+        name: metadataLog
+        path: tests/org.eclipse.epsilon.test/target/work/data/.metadata/.log
+>>>>>>> 9985b6f Update build-and-test.yml

@@ -122,6 +122,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 	
 	
+	public EolStaticAnalyser() {
+		context.modelFactory = new StaticModelFactory();
+	}
+	
 	public EolStaticAnalyser(IModelFactory modelFactory) {
 		context.modelFactory = modelFactory;
 	}

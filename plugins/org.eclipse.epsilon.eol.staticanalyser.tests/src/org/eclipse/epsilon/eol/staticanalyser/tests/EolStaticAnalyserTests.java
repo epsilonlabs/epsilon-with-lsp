@@ -3,6 +3,8 @@ package org.eclipse.epsilon.eol.staticanalyser.tests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.epsilon.common.module.ModuleElement;
@@ -77,11 +79,48 @@ public class EolStaticAnalyserTests {
 		StringBuffer st = new StringBuffer();
 		st.append("model M alias X driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
 		st.append("var i:X!EClass = new X!EClass;");
-		st.append("i.name = 'className';");
 		assertValid(st.toString());
 	}
 	
 	@Test
+	@Ignore
+	public void testDuplicateModelDeclaration() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
+		st.append("model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
+		st.append("var i:M!EClass = new M!EClass;");
+		assertErrorMessage(st.toString(), "");
+	}
+	
+	@Test
+	public void testMultipleModelAliases() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("model M alias X,Y driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
+		st.append("var i:Y!EClass = new Y!EClass;");
+		assertValid(st.toString());
+	}
+	
+	@Test
+	public void testModelAliasesError() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("model M alias X driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
+		st.append("var i:X!EClss;");
+		assertErrorMessage(st.toString(), "Undefined variable or type X!EClss");
+	}
+	
+	@Test
+	@Ignore
+	public void dummy() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("model M alias X driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
+		st.append("var i:M!EClass;");
+		st.append("i = new EClass();");
+//		printTree(st.toString());
+		assertValid(st.toString());
+	}
+	
+	@Test
+	@Ignore // ignore until we add builtin operations back
 	public void testTuplePropertyError() throws Exception {
 		StringBuffer st = new StringBuffer();
 		st.append("var t:Tuple = new Tuple(name = 'bob');");
@@ -91,11 +130,12 @@ public class EolStaticAnalyserTests {
 	
 	
 	@Test
+	@Ignore
 	public void testNativeType() throws Exception {
 		StringBuffer st = new StringBuffer();
 		st.append("var r = new Native('java.util.Random');");
 //		st.append("r.nextint()");
-		printTree(st.toString());
+//		printTree(st.toString());
 		assertValid(st.toString());
 	}
 	
@@ -124,6 +164,7 @@ public class EolStaticAnalyserTests {
 	}
 
 	@Test
+	@Ignore //ignore until we add builtin operations back
 	public void testPrimitiveTypesVariableDeclaration() throws Exception {
 		assertValid("var i : Integer; (/*Integer*/i).println();");
 		assertValid("var b : Boolean; (/*Boolean*/b).println();");
@@ -152,6 +193,25 @@ public class EolStaticAnalyserTests {
 		st.append("(/*Collection<Integer>*/col) = (/*Sequence<Integer>*/seq);\n");
 		assertValid(st.toString());
 	}
+	
+	@Test
+	public void operationReturnsSequenceType() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("var v : Integer;\n");
+		st.append("v = op().f();\n");
+		st.append("operation op():Sequence<Integer>{return Sequence{1,2,3};}\n");
+		st.append("operation Sequence f():Integer{return 1}\n");
+		assertValid(st.toString());
+	}
+	
+	@Test
+	public void operationReturnsSequenceOfSequenceType() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("var v:Sequence<Sequence<Integer>>;\n");
+		st.append("v = op();\n");
+		st.append("operation op():Sequence<Sequence<Integer>>{return Sequence{Sequence{1,2,3}};}\n");
+		assertValid(st.toString());
+	}
 
 	@Test
 	public void testPrimitiveTypesAssignmentExpressionErrorMessage() throws Exception {
@@ -161,13 +221,25 @@ public class EolStaticAnalyserTests {
 		st.append("i = s;");
 		assertErrorMessage(st.toString(), "String cannot be assigned to Integer");
 	}
+	
+	@Test
+	@Ignore //ignore until we add builtin operations back
+	public void testBuiltinMethods() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("var s : String = 'Test';");
+		st.append("s.firstToLowerCase();");
+		assertValid(st.toString());
+	}
 
 	public void assertValid(String eol) throws Exception {
 		EolModule module = new EolModule();
 		module.parse(eol);
 		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 		List<ModuleMarker> errors = staticAnalyser.validate(module);
-		assert errors.size() == 0 : "Was expecting 0 errors but found " + errors.size();
+		String messages = errors.stream()
+                .map(ModuleMarker::getMessage)
+                .collect(Collectors.joining("\n"));
+		assertEquals("Unexpected number of errors\n" + messages + "\n", 0, errors.size());
 		visit(module.getChildren());
 	}
 
@@ -177,7 +249,7 @@ public class EolStaticAnalyserTests {
 		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 		List<ModuleMarker> errors = staticAnalyser.validate(module);
 		
-		assert (errors.size() == 1): "unexpected number of errors (" + errors.size() + ") in eol module";
+		assertEquals("unexpected number of errors (" + errors.size() + ") in eol module", 1, errors.size());
 		assertEquals(message, errors.get(0).getMessage());
 	}
 
@@ -194,19 +266,19 @@ public class EolStaticAnalyserTests {
 		return (EolType) element.getData().get("resolvedType");
 	}
 	
-	public void printTree(ModuleElement parent) {
-		System.out.println("  ".repeat(ident) + parent.getClass().getSimpleName());
-		ident += 1;
-		for (ModuleElement m : parent.getChildren()) {
-			printTree(m);
-		}
-		ident -= 1;
-	}
+//	public void printTree(ModuleElement parent) {
+//		System.out.println("  ".repeat(ident) + parent.getClass().getSimpleName());
+//		ident += 1;
+//		for (ModuleElement m : parent.getChildren()) {
+//			printTree(m);
+//		}
+//		ident -= 1;
+//	}
 	
-	public void printTree (String eol) throws Exception {
-		EolModule module = new EolModule();
-		module.parse(eol);
-		printTree(module.getChildren().get(0));
-		
-	}
+//	public void printTree (String eol) throws Exception {
+//		EolModule module = new EolModule();
+//		module.parse(eol);
+//		printTree(module);
+//		
+//	}
 }

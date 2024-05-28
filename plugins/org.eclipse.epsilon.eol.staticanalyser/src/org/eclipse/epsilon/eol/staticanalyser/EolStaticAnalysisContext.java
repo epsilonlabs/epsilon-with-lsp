@@ -1,7 +1,9 @@
 package org.eclipse.epsilon.eol.staticanalyser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
@@ -9,9 +11,15 @@ import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.dom.ModelDeclaration;
 import org.eclipse.epsilon.eol.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributorRegistry;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.m3.Metamodel;
+import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
+import org.eclipse.epsilon.eol.models.Model;
+import org.eclipse.epsilon.eol.models.ModelGroup;
+import org.eclipse.epsilon.eol.models.ModelRepository;
+import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
 
 public class EolStaticAnalysisContext {
@@ -21,8 +29,23 @@ public class EolStaticAnalysisContext {
 	protected FrameStack frameStack = new FrameStack();
 	protected IModelFactory modelFactory;
 	protected IRelativePathResolver relativePathResolver;
-	protected List<ModelDeclaration> modelDeclarations = new ArrayList<>();
+	protected Map<String, ModelDeclaration> modelDeclarations = new HashMap<>();
+	protected ModelRepository repository = new ModelRepository();
+	protected OperationContributorRegistry  operationContributorRegistry = new OperationContributorRegistry();
 	
+	
+	public Map<String, ModelDeclaration> getModelDeclarations() {
+		return modelDeclarations;
+	}
+	
+	public ModelRepository getRepository() {
+		return repository;
+	}
+
+	public void setRepository(ModelRepository repository) {
+		this.repository = repository;
+	}
+
 	public List<ModuleMarker> getMarkers() {
 		return markers;
 	}
@@ -58,30 +81,4 @@ public class EolStaticAnalysisContext {
 	public void setRelativePathResolver(IRelativePathResolver relativePathResolver) {
 		this.relativePathResolver = relativePathResolver;
 	}
-	
-	public void setModelDeclarations(List<ModelDeclaration> modelDeclarations) {
-		this.modelDeclarations = modelDeclarations;
-	}
-	
-	public List<ModelDeclaration> getModelDeclarations() {
-		return modelDeclarations;
-	}
-	
-	public EolModelElementType getModelElementType(String modelAndType) {
-		EolModelElementType modelElementType = new EolModelElementType(modelAndType);
-		
-		for (ModelDeclaration modelDeclaration : modelDeclarations) {
-			if (modelElementType.getModelName().isEmpty() || modelDeclaration.getNameExpression().getName().equals(modelElementType.getModelName())) {
-				Metamodel metamodel = modelDeclaration.getMetamodel();
-				if (metamodel != null) {
-					MetaClass metaClass = metamodel.getMetaClass(modelElementType.getTypeName());
-					modelElementType.setMetaClass(metaClass);
-					return modelElementType;
-				}
-			}
-		}
-		
-		return modelElementType;
-	}
-	
 }

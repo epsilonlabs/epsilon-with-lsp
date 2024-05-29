@@ -1801,7 +1801,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		}
 
-		Metamodel metamodel = context.modelDeclarations.get(modelName).getMetamodel();
+		Metamodel metamodel = context.modelDeclarations.get(model.getName()).getMetamodel();
 		if (metamodel != null) {
 			EolModelElementType modelElementType = new EolModelElementType(modelAndType);
 			modelElementType.setMetaClass(metamodel.getMetaClass(typeName));

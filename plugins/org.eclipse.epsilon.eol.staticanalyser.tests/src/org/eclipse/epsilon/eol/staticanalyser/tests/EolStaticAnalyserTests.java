@@ -5,8 +5,14 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.eol.EolModule;
@@ -23,7 +29,28 @@ public class EolStaticAnalyserTests {
 	@BeforeClass
 	public static void registerEcore() {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
+		registerPackage("src/org/eclipse/epsilon/eol/staticanalyser/tests/meta1.ecore");
 	}
+	
+	public static void registerPackage(String path) {
+        // Create a ResourceSet and register the default resource factory
+        ResourceSet resourceSet = new ResourceSetImpl();
+        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
+        
+        // Load the .ecore file
+        URI fileURI = URI.createFileURI(path);
+        Resource resource = resourceSet.getResource(fileURI, true);
+        
+        // Extract the EPackage from the loaded resource
+        EObject eObject = resource.getContents().get(0);
+        if (eObject instanceof EPackage) {
+            EPackage ePackage = (EPackage) eObject;
+            
+            // Register the EPackage
+            EPackage.Registry.INSTANCE.put(ePackage.getNsURI(), ePackage);
+        }
+	}
+	
 	@Test
 	public void testModelElementTypeVariableDeclaration() throws Exception {
 		StringBuffer st = new StringBuffer();
@@ -228,6 +255,29 @@ public class EolStaticAnalyserTests {
 		StringBuffer st = new StringBuffer();
 		st.append("var s : String = 'Test';");
 		st.append("s.firstToLowerCase();");
+		assertValid(st.toString());
+	}
+	
+	@Test
+	public void testMultiplePossibleTypes() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("model M driver EMF {nsuri='sa'};");
+		st.append("for (a in B.all) {\n"
+				+ "    var v1 = a.foo();\n" //why no resolved type for this assignment statement?
+				+ "    var v2 = v1.foo();\n"
+				+ "}\n"
+				+ "operation B foo() : B {return self;}\n"
+				+ "operation C foo() : C {return self;}");
+		assertValid(st.toString());
+	}
+	
+	@Test
+	public void testTypeResolutionWithAll() throws Exception {
+		StringBuffer st = new StringBuffer();
+		st.append("model M driver EMF {nsuri='sa'};");
+		st.append("for (a in B.all) {\n"
+				+ "    /*B*/var v = a;\n" //why no resolved type for this assignment statement?
+				+ "}\n");
 		assertValid(st.toString());
 	}
 

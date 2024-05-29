@@ -1,0 +1,17 @@
+@namespace(uri="sa", prefix="")
+package sa;
+
+class container{
+	val A[*] objects;
+}
+
+abstract class A {
+}
+
+class B extends A {
+}
+
+class C extends A {
+}
+
+

@@ -262,8 +262,8 @@ public class EolStaticAnalyserTests {
 	public void testMultiplePossibleTypes() throws Exception {
 		StringBuffer st = new StringBuffer();
 		st.append("model M driver EMF {nsuri='sa'};");
-		st.append("for (a in B.all) {\n"
-				+ "    var v1 = a.foo();\n" //why no resolved type for this assignment statement?
+		st.append("for (a in A.all) {\n"
+				+ "    var v1 = a.foo();\n"
 				+ "    var v2 = v1.foo();\n"
 				+ "}\n"
 				+ "operation B foo() : B {return self;}\n"
@@ -276,7 +276,7 @@ public class EolStaticAnalyserTests {
 		StringBuffer st = new StringBuffer();
 		st.append("model M driver EMF {nsuri='sa'};");
 		st.append("for (a in B.all) {\n"
-				+ "    /*B*/var v = a;\n" //why no resolved type for this assignment statement?
+				+ "    var v = (/*B*/a);\n"
 				+ "}\n");
 		assertValid(st.toString());
 	}

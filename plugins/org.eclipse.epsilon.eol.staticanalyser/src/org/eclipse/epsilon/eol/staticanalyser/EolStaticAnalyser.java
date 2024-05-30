@@ -1776,20 +1776,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			typeName = modelAndType;
 		}
 
-//		for (ModelDeclaration modelDeclaration : modelDeclarations) {
-//			if (modelElementType.getModelName().isEmpty()
-//					|| modelDeclaration.getNameExpression().getName().equals(modelElementType.getModelName())
-//					|| modelDeclaration.getAliasNameExpressions().get(0).getName()
-//							.equals(modelElementType.getModelName())) {
-//				Metamodel metamodel = modelDeclaration.getMetamodel();
-//				if (metamodel != null) {
-//					MetaClass metaClass = metamodel.getMetaClass(modelElementType.getTypeName());
-//					modelElementType.setMetaClass(metaClass);
-//					return modelElementType;
-//				}
-//			}
-//		}
-
 		IModel model = context.repository.getModelByNameSafe(modelName);
 		if (model == null) {
 			return null;
@@ -1808,8 +1794,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 
 		}
-
-		Metamodel metamodel = context.modelDeclarations.get(model.getName()).getMetamodel();
+		if (modelName == "") {
+			modelName = model.getName();
+		}
+		Metamodel metamodel = context.modelDeclarations.get(modelName).getMetamodel();
 		if (metamodel != null) {
 			EolModelElementType modelElementType = new EolModelElementType(modelAndType);
 			modelElementType.setMetaClass(metamodel.getMetaClass(typeName));

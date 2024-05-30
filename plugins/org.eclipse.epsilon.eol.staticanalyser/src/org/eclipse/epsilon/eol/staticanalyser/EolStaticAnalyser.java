@@ -404,7 +404,15 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, forStatement.getBodyStatementBlock(),
 				new Variable("loopCount", EolPrimitiveType.Integer), new Variable("hasMore", EolPrimitiveType.Boolean));
 
-		forStatement.getIteratorParameter().accept(this);
+		Parameter iteratorParameter = forStatement.getIteratorParameter();
+		iteratorParameter.accept(this);
+		if (getType(iteratorParameter) == EolAnyType.Instance) {
+			EolType iteratorType = getResolvedType(forStatement.getIteratedExpression());
+			if (iteratorType instanceof EolCollectionType) {
+				context.getFrameStack().get(iteratorParameter.getName())
+						.setType(((EolCollectionType) iteratorType).getContentType());
+			}
+		}
 		forStatement.getBodyStatementBlock().accept(this);
 		context.getFrameStack().leaveLocal(forStatement.getBodyStatementBlock());
 

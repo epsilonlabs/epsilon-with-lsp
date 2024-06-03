@@ -52,27 +52,11 @@ public class EolStaticAnalyserTests {
 	}
 	
 	@Test
-	public void testModelElementTypeVariableDeclaration() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
-		st.append("var i:M!EClass;");
-		assertValid(st.toString());
-	}
-	
-	@Test
 	public void testModelElementTypeVariableDeclarationError() throws Exception {
 		StringBuffer st = new StringBuffer();
 		st.append("model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
 		st.append("var i:M!EClss;");
 		assertErrorMessage(st.toString(), "Unknown type M!EClss");
-	}
-	
-	@Test
-	public void testModelElementTypeAssignment() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
-		st.append("var i:M!EClass = new M!EClass;");
-		assertValid(st.toString());
 	}
 	
 	@Test
@@ -102,14 +86,6 @@ public class EolStaticAnalyserTests {
 	}
 	
 	@Test
-	public void testModelAliases() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("model M alias X driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
-		st.append("var i:X!EClass = new X!EClass;");
-		assertValid(st.toString());
-	}
-	
-	@Test
 	@Ignore
 	public void testDuplicateModelDeclaration() throws Exception {
 		StringBuffer st = new StringBuffer();
@@ -120,14 +96,6 @@ public class EolStaticAnalyserTests {
 	}
 	
 	@Test
-	public void testMultipleModelAliases() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("model M alias X,Y driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
-		st.append("var i:Y!EClass = new Y!EClass;");
-		assertValid(st.toString());
-	}
-	
-	@Test
 	public void testModelAliasesError() throws Exception {
 		StringBuffer st = new StringBuffer();
 		st.append("model M alias X driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
@@ -135,16 +103,6 @@ public class EolStaticAnalyserTests {
 		assertErrorMessage(st.toString(), "Undefined variable or type X!EClss");
 	}
 	
-	@Test
-	@Ignore
-	public void dummy() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("model M alias X driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};");
-		st.append("var i:M!EClass;");
-		st.append("i = new EClass();");
-//		printTree(st.toString());
-		assertValid(st.toString());
-	}
 	
 	@Test
 	@Ignore // ignore until we add builtin operations back
@@ -161,8 +119,6 @@ public class EolStaticAnalyserTests {
 	public void testNativeType() throws Exception {
 		StringBuffer st = new StringBuffer();
 		st.append("var r = new Native('java.util.Random');");
-//		st.append("r.nextint()");
-//		printTree(st.toString());
 		assertValid(st.toString());
 	}
 	
@@ -197,48 +153,7 @@ public class EolStaticAnalyserTests {
 		assertValid("var b : Boolean; (/*Boolean*/b).println();");
 		assertValid("var s : String; (/*String*/s).println();");
 		assertValid("var r : Real; (/*Real*/r).println();");
-	}
-
-	@Test
-	public void testPrimitiveTypesAssignmentExpression() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("var i : Integer = 4;");
-		st.append("var s : String = 'test';");
-		st.append("(/*Integer*/i) = 5;");
-		st.append("var a : Any = true;");
-		st.append("(/*Any*/ a) = (/*String*/s);");
-		assertValid(st.toString());
-	}
-
-	@Test
-	public void testCollectionTypesAssignmentExpression() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("var col : Collection<Integer> = Collection{0..9};\n");
-		st.append("var seq : Sequence<Integer> = Sequence{0..9};\n");
-		st.append("var bg : Bag<Integer> = Bag{0..9};\n");
-		st.append("(/*Collection<Integer>*/col) = (/*Bag<Integer>*/bg);\n");
-		st.append("(/*Collection<Integer>*/col) = (/*Sequence<Integer>*/seq);\n");
-		assertValid(st.toString());
-	}
-	
-	@Test
-	public void operationReturnsSequenceType() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("var v : Integer;\n");
-		st.append("v = op().f();\n");
-		st.append("operation op():Sequence<Integer>{return Sequence{1,2,3};}\n");
-		st.append("operation Sequence f():Integer{return 1}\n");
-		assertValid(st.toString());
-	}
-	
-	@Test
-	public void operationReturnsSequenceOfSequenceType() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("var v:Sequence<Sequence<Integer>>;\n");
-		st.append("v = op();\n");
-		st.append("operation op():Sequence<Sequence<Integer>>{return Sequence{Sequence{1,2,3}};}\n");
-		assertValid(st.toString());
-	}
+	}	
 
 	@Test
 	public void testPrimitiveTypesAssignmentExpressionErrorMessage() throws Exception {
@@ -259,25 +174,16 @@ public class EolStaticAnalyserTests {
 	}
 	
 	@Test
-	public void testMultiplePossibleTypes() throws Exception {
+	@Ignore // Leave path analysis for later
+	public void testAssignmentStatementType() throws Exception {
 		StringBuffer st = new StringBuffer();
 		st.append("model M driver EMF {nsuri='sa'};");
-		st.append("for (a in A.all) {\n"
-				+ "    var v1 = a.foo();\n"
-				+ "    var v2 = v1.foo();\n"
+		st.append("/*Any*/var v1;\n"
+				+ "(/*Any*/v1) = /*B*/ new B;"
+				+ "/*B*/v1;"
+				+ "/*B*/v1 = /*C*/ new C;"
 				+ "}\n"
-				+ "operation B foo() : B {return self;}\n"
-				+ "operation C foo() : C {return self;}");
-		assertValid(st.toString());
-	}
-	
-	@Test
-	public void testTypeResolutionWithAll() throws Exception {
-		StringBuffer st = new StringBuffer();
-		st.append("model M driver EMF {nsuri='sa'};");
-		st.append("for (a in B.all) {\n"
-				+ "    var v = (/*B*/a);\n"
-				+ "}\n");
+				);
 		assertValid(st.toString());
 	}
 

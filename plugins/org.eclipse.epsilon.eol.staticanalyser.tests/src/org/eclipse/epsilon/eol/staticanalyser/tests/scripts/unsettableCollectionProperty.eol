@@ -1,0 +1,11 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var c : EClass;
+
+// This should fail as c.ePackage.eClassifiers.name is a shorthand for
+// c.ePackage.eClassifiers.collect(c|c.name) and therefore not settable
+c.ePackage.eClassifiers.name = new Sequence<String>;
+
+// FIXME: I've added the line below to make the test fail until a better way
+// to specify expected errors is devised
+c.ePackage = c;

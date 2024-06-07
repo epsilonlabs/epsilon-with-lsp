@@ -1,0 +1,9 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var c : EClass;
+
+/*Sequence<String>*/c.ePackage.eClassifiers.name;
+
+/*Sequence<String>*/c.ePackage.eSuperPackage.eClassifiers.name;
+
+/*Sequence<OrderedSet<EClassifier>>*/c.ePackage.eClassifiers.ePackage.eClassifiers;

@@ -99,7 +99,8 @@ public class EolStaticAnalyserTests2 {
 
 	protected void visit(List<ModuleElement> elements) {
 		for (ModuleElement element : elements) {
-			if (!element.getComments().isEmpty()) {
+			// Multiline comments are used to capture the expected type of expressions
+			if (!element.getComments().isEmpty() && element.getComments().get(0).isMultiline()) {
 				assertEquals(element.getComments().get(0).toString(), getResolvedType(element).toString());
 			}
 			visit(element.getChildren());

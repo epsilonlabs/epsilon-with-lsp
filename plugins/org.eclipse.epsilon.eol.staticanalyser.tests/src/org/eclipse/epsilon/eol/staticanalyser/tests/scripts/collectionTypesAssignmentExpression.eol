@@ -1,0 +1,5 @@
+var col : Collection<Integer> = Collection{0..9};
+var seq : Sequence<Integer> = Sequence{0..9};
+var bg : Bag<Integer> = Bag{0..9};
+(/*Collection<Integer>*/col) = (/*Bag<Integer>*/bg);
+(/*Collection<Integer>*/col) = (/*Sequence<Integer>*/seq);

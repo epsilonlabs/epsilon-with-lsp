@@ -1672,7 +1672,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	public boolean getReturnFlag(Operation op) {
-		return returnFlags.get(op);
+		return returnFlags.containsKey(op) ? returnFlags.get(op) : false;
 	}
 
 	public void setReturnFlag(Operation op, boolean returnFlag) {

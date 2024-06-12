@@ -83,16 +83,34 @@ public class EolStaticAnalyserTests2 {
 
 	private void parseFile(File file) throws Exception {
 		String content = new String(Files.readAllBytes(file.toPath()));
-		assertValid(content);
+		String firstLine = content.split("\n")[0];
+		if (firstLine.substring(0,3).equals("//!")) {
+			assertErrorMessage(content, firstLine.substring(3));
+		}
+		else {
+			assertValid(content);
+		}
+		
 
 	}
 
+	public void assertErrorMessage(String eol, String message) throws Exception {
+		EolModule module = new EolModule();
+		module.parse(eol);
+		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+		List<ModuleMarker> errors = staticAnalyser.validate(module);
+		
+		assertEquals("unexpected number of errors (" + errors.size() + ") in eol module", 1, errors.size());
+		assertEquals(message, errors.get(0).getMessage());
+	}
+	
 	public void assertValid(String eol) throws Exception {
 		EolModule module = new EolModule();
 		module.parse(eol);
 		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 		List<ModuleMarker> errors = staticAnalyser.validate(module);
-		String messages = errors.stream().map(ModuleMarker::getMessage).collect(Collectors.joining("\n"));
+		String messages = errors.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
+				.collect(Collectors.joining("\n"));
 		assertEquals("Unexpected number of errors\n" + messages + "\n", 0, errors.size());
 		visit(module.getChildren());
 	}

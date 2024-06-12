@@ -1341,14 +1341,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 			}
 		}
+		
+		module.getDeclaredOperations().forEach(o -> o.accept(this));
 	}
 
 	public void mainValidate(IEolModule module) {
 
 		if (module.getMain() != null)
 			module.getMain().accept(this);
-
-		module.getDeclaredOperations().forEach(o -> o.accept(this));
 	}
 
 	public void postValidate(IEolModule module) {

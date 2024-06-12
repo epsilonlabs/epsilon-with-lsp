@@ -100,6 +100,7 @@ import org.eclipse.epsilon.eol.types.EolType;
 public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	protected List<ModuleMarker> errors = new ArrayList<>();
+	protected List<ModuleMarker> warnings = new ArrayList<>();
 	protected EolModule module;
 	protected BuiltinEolModule builtinModule = new BuiltinEolModule();
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
@@ -127,7 +128,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	public EolStaticAnalyser() {
-		context.modelFactory = new StaticModelFactory();
+		this(new StaticModelFactory());
 	}
 
 	public EolStaticAnalyser(IModelFactory modelFactory) {
@@ -173,10 +174,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			valueType = new EolModelElementType(((EolModelElementType) valueType).getMetaClass());
 
 		if (!(isCompatible(targetType, valueType))) {
-			if (canBeCompatible(targetType, valueType))
+			if (canBeCompatible(targetType, valueType)) {
 				createTypeCompatibilityWarning(targetExpression, valueExpression);
-			else
+			}
+			else {
 				createTypeCompatibilityError(targetExpression, valueExpression);
+			}
 		}
 	}
 
@@ -577,7 +580,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					errors.add(new ModuleMarker(modelDeclaration, error, Severity.Error));
 				}
 				for (String warning : modelDeclaration.getMetamodel().getWarnings()) {
-					errors.add(new ModuleMarker(modelDeclaration, warning, Severity.Warning));
+					warnings.add(new ModuleMarker(modelDeclaration, warning, Severity.Warning));
 				}
 			}
 		}
@@ -725,11 +728,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		List<Parameter> reqParams = null;
 		EolType contentType, collectionType, expType;
 
+		//We further analyze all potential matches to decide whether there are errors or not
 		for (Operation op : getOperations(operationCallExpression)) {
 
 			successMatch = false;
 
 			reqParams = op.getFormalParameters();
+			//TODO we should not be visiting any Operations here
 			if (op.getReturnTypeExpression() != null) {
 				op.getReturnTypeExpression().accept(this);
 
@@ -766,15 +771,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 			if (!operationCallExpression.isContextless() && !getMatched(operationCallExpression)) {
 
-				contextType = getResolvedType(targetExpression);
+				contextType = getResolvedType(targetExpression);// The context type of the operation call expression
 				op.getContextTypeExpression().accept(this);
 				EolType reqContextType = getResolvedType(op.getContextTypeExpression());
-				if (reqContextType instanceof EolModelElementType
-						&& ((EolModelElementType) reqContextType).getMetaClass() != null)
-					reqContextType = new EolModelElementType(((EolModelElementType) reqContextType).getMetaClass());
-				if (contextType instanceof EolModelElementType
-						&& ((EolModelElementType) contextType).getMetaClass() != null)
-					contextType = new EolModelElementType(((EolModelElementType) contextType).getMetaClass());
 
 				if (isCompatible(reqContextType, contextType)) {
 
@@ -783,7 +782,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 				} else if (canBeCompatible(reqContextType, contextType)) {
 
-					errors.add(new ModuleMarker(
+					warnings.add(new ModuleMarker(
 							targetExpression, nameExpression.getName() + " may not be invoked on "
 									+ getResolvedType(targetExpression) + ", as it requires " + reqContextType,
 							Severity.Warning));
@@ -871,7 +870,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 							} else if (canBeCompatible(reqParameter, provPrameter)) {
 								setMatched(operationCallExpression, true);
 								successMatch = true;
-								errors.add(new ModuleMarker(
+								warnings.add(new ModuleMarker(
 										nameExpression, " Parameter " + provPrameter
 												+ " might not match, as it requires " + reqParameter,
 										Severity.Warning));
@@ -1044,7 +1043,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 							}
 						} else {
 							errors.add(new ModuleMarker(nameExpression, "Structural feature " + nameExpression.getName()
-									+ " not found in type " + metaClass.getName(), Severity.Warning));
+									+ " not found in type " + metaClass.getName(), Severity.Error));
 						}
 					}
 
@@ -1091,7 +1090,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 				} else {
 					errors.add(new ModuleMarker(nameExpression, "Structural feature " + nameExpression.getName()
-							+ " not found in type " + metaClass.getName(), Severity.Warning));
+							+ " not found in type " + metaClass.getName(), Severity.Error));
 				}
 			}
 
@@ -1131,7 +1130,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 				if (!(isCompatible(requiredReturnType, providedReturnType))) {
 					if (canBeCompatible(requiredReturnType, providedReturnType))
-						errors.add(new ModuleMarker(returnedExpression, "Return type might be " + requiredReturnType
+						warnings.add(new ModuleMarker(returnedExpression, "Return type might be " + requiredReturnType
 								+ " instead of " + getResolvedType(returnedExpression), Severity.Warning));
 					else
 						errors.add(new ModuleMarker(returnedExpression, "Return type should be " + requiredReturnType
@@ -1376,7 +1375,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	public void createTypeCompatibilityWarning(Expression requiredExpression, Expression providedExpression) {
-		errors.add(new ModuleMarker(providedExpression,
+		warnings.add(new ModuleMarker(providedExpression,
 				getResolvedType(providedExpression) + " may not be assigned to " + getResolvedType(requiredExpression),
 				Severity.Warning));
 	}
@@ -1789,7 +1788,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 			modelName = result.nameOfSelectedModel;
 			if (result.isAmbiguous) {
-				errors.add(new ModuleMarker(element,
+				warnings.add(new ModuleMarker(element,
 						"Ambiguous type, consider using a concrete model name istead of an alias", Severity.Warning));
 			}
 

@@ -1321,26 +1321,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (ModelDeclaration modelDeclaration : module.getDeclaredModelDeclarations()) {
 			modelDeclaration.accept(this);
 		}
-
-		// Check the signature of functions
-		for (Operation operation : module.getOperations()) {
-			if (operation.getReturnTypeExpression() == null) {
-
-				if (hasReturnStatement(operation)) {
-					setReturnFlag(operation, true);
-					operation.setReturnTypeExpression(new TypeExpression("Any"));
-				} else
-					setReturnFlag(operation, false);
-
-			}
-			// when returnType is not null
-			else {
-
-				if (hasReturnStatement(operation))
-					setReturnFlag(operation, true);
-
-			}
-		}
 		
 		module.getDeclaredOperations().forEach(o -> o.accept(this));
 	}

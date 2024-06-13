@@ -680,19 +680,17 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Expression targetExpression = operationCallExpression.getTargetExpression();
 		List<Expression> parameterExpressions = operationCallExpression.getParameterExpressions();
 		NameExpression nameExpression = operationCallExpression.getNameExpression();
-		setOperations(operationCallExpression, new ArrayList<Operation>()); // Assigning an empty array to
-																			// OperationCallExpression
-		setMatchedOperations(operationCallExpression, new ArrayList<Operation>()); // Assigning an empty array to
-																					// OperationCallExpression
-		setMatchedReturnType(operationCallExpression, new ArrayList<EolType>()); // Assigning an empty array to
-																					// OperationCallExpression
-		setMatched(operationCallExpression, false);// for find at least one perfect match/ It doesn't change for every
-													// mismatch
+		setOperations(operationCallExpression, new ArrayList<Operation>());
+		setMatchedOperations(operationCallExpression, new ArrayList<Operation>());
+		setMatchedReturnType(operationCallExpression, new ArrayList<EolType>());
+		// True if there is at least one perfect match. It doesn't change for every
+		// mismatch because one match is enough.
+		setMatched(operationCallExpression, false);
 
-		// because one match is enough
-		int errorCode = 0; // 1 = mismatch Target 2=number of parameters mismatch 3=parameters type
-		// mismatch 4 =undefined Operation // 5 = No-type as target // 6 = No-type as
-		// parameter
+		// 1 = mismatch Target 2 = number of parameters mismatch 
+		// 3 = parameters type mismatch 4 =undefined Operation
+		// 5 = No-type as target 6 = No-type as parameter
+		int errorCode = 0; 
 		EolType contextType = EolAnyType.Instance;
 
 		if (targetExpression != null) {
@@ -704,8 +702,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			parameterExpression.accept(this);
 		}
 		boolean operations_contextless;
-		boolean successMatch = false; // for a perfect match -> we should keep it for every closest matched
-										// possibility as true
+		// for a perfect match -> we should keep it for every closest matched
+		// possibility as true
+		boolean successMatch = false; 
 		boolean goForward = false; // for keep checking forward
 
 		for (Operation o : allOperations) {
@@ -730,11 +729,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		//We further analyze all potential matches to decide whether there are errors or not
 		for (Operation op : getOperations(operationCallExpression)) {
-
 			successMatch = false;
-
 			reqParams = op.getFormalParameters();
-			//TODO we should not be visiting any Operations here
+			// TODO we are revisiting each operation's return type expression to overwrite
+			// possible previous specializations (eg. from EolSelf to Integer). Is there a
+			// better way?
 			if (op.getReturnTypeExpression() != null) {
 				op.getReturnTypeExpression().accept(this);
 

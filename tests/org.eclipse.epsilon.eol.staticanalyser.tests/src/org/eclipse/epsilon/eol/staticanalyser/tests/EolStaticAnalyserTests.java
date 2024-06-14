@@ -25,12 +25,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
@@ -105,30 +106,65 @@ public class EolStaticAnalyserTests {
 		assertValid(content, errorMessages, warningMessages);
 	}
 
-	public void assertValid(String eol, List<String> expectedErrorMessages, List<String> expectedWarningMessages) throws Exception {
+	public void assertValid(String eol, List<String> expectedErrorMessages, List<String> expectedWarningMessages)
+			throws Exception {
 		EolModule module = new EolModule();
 		module.parse(eol);
 		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 		List<ModuleMarker> markers = staticAnalyser.validate(module);
-		List<ModuleMarker> errors = markers.stream().filter(m -> m.getSeverity()==Severity.Error).collect(Collectors.toList());
-		List<ModuleMarker> warnings = markers.stream().filter(m -> m.getSeverity()==Severity.Warning).collect(Collectors.toList());
-		
-		String errorMessages = errors.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
+		List<ModuleMarker> errors = markers.stream().filter(m -> m.getSeverity() == Severity.Error)
+				.collect(Collectors.toList());
+		List<ModuleMarker> warnings = markers.stream().filter(m -> m.getSeverity() == Severity.Warning)
+				.collect(Collectors.toList());
+
+		String errorMessages = errors.stream()
+				.map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
 				.collect(Collectors.joining("\n"));
-		assertEquals("Unexpected number of errors\n" + errorMessages + "\n", expectedErrorMessages.size(), errors.size());
-		
-		Set<String> errorMessagesSet = new HashSet<String>();
-		errorMessagesSet.addAll(errors.stream().map(ModuleMarker::getMessage).collect(Collectors.toList()));
-		assertTrue(errorMessagesSet.containsAll(expectedErrorMessages));
-		
-		
-		String warningMessages = warnings.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
+		assertEquals("Unexpected number of errors\n" + errorMessages + "\n", expectedErrorMessages.size(),
+				errors.size());
+
+		Map<String, Integer> errorMessagesMap = new HashMap<String, Integer>();
+		for (String errorMessage : errors.stream().map(ModuleMarker::getMessage).collect(Collectors.toList())) {
+			if (errorMessagesMap.containsKey(errorMessage)) {
+				errorMessagesMap.put(errorMessage, errorMessagesMap.get(errorMessage) + 1);
+			} else {
+				errorMessagesMap.put(errorMessage, 1);
+			}
+		}
+		for (String errorMessage : expectedErrorMessages) {
+			assertTrue("An expected error was not found in the list of thrown errors",
+					errorMessagesMap.containsKey(errorMessage));
+			errorMessagesMap.put(errorMessage, errorMessagesMap.get(errorMessage) - 1);
+		}
+		for (Integer i : errorMessagesMap.values()) {
+			assertFalse("An error message was not matched enough times", i > 0);
+			assertFalse("An error message was matched too many times", i < 0);
+		}
+
+		String warningMessages = warnings.stream()
+				.map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
 				.collect(Collectors.joining("\n"));
-		assertEquals("Unexpected number of warnings\n" + warningMessages + "\n", expectedWarningMessages.size(), warnings.size());
-		Set<String> warningMessagesSet = new HashSet<String>();
-		warningMessagesSet.addAll(warnings.stream().map(ModuleMarker::getMessage).collect(Collectors.toList()));
-		assertTrue(warningMessagesSet.containsAll(expectedWarningMessages));
-		
+		assertEquals("Unexpected number of warnings\n" + warningMessages + "\n", expectedWarningMessages.size(),
+				warnings.size());
+
+		Map<String, Integer> warningMessagesMap = new HashMap<String, Integer>();
+		for (String warningMessage : warnings.stream().map(ModuleMarker::getMessage).collect(Collectors.toList())) {
+			if (warningMessagesMap.containsKey(warningMessage)) {
+				warningMessagesMap.put(warningMessage, warningMessagesMap.get(warningMessage) + 1);
+			} else {
+				warningMessagesMap.put(warningMessage, 1);
+			}
+		}
+		for (String warningMessage : expectedWarningMessages) {
+			assertTrue("An expected warning was not found in the list of thrown warnings",
+					warningMessagesMap.containsKey(warningMessage));
+			warningMessagesMap.put(warningMessage, warningMessagesMap.get(warningMessage) - 1);
+		}
+		for (Integer i : warningMessagesMap.values()) {
+			assertFalse("A warning message was not matched enough times", i > 0);
+			assertFalse("A warning message was matched too many times", i < 0);
+		}
+
 		visit(module.getChildren());
 	}
 

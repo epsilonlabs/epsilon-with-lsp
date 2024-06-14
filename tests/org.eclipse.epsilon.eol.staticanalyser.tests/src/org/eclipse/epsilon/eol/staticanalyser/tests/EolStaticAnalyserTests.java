@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
+import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.StaticModelFactory;
@@ -108,10 +109,17 @@ public class EolStaticAnalyserTests {
 		EolModule module = new EolModule();
 		module.parse(eol);
 		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
-		List<ModuleMarker> errors = staticAnalyser.validate(module);
-		String messages = errors.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
+		List<ModuleMarker> markers = staticAnalyser.validate(module);
+		List<ModuleMarker> errors = markers.stream().filter(m -> m.getSeverity()==Severity.Error).collect(Collectors.toList());
+		List<ModuleMarker> warnings = markers.stream().filter(m -> m.getSeverity()==Severity.Warning).collect(Collectors.toList());
+		
+		
+		String errorMessages = errors.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
 				.collect(Collectors.joining("\n"));
-		assertEquals("Unexpected number of errors\n" + messages + "\n", 0, errors.size());
+		assertEquals("Unexpected number of errors\n" + errorMessages + "\n", 0, errors.size());
+		String warningMessages = warnings.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
+				.collect(Collectors.joining("\n"));
+		assertEquals("Unexpected number of warnings\n" + warningMessages + "\n", 0, warnings.size());
 		visit(module.getChildren());
 	}
 

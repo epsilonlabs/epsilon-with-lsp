@@ -84,28 +84,25 @@ public class EolStaticAnalyserTests {
 
 	private void parseFile(File file) throws Exception {
 		String content = new String(Files.readAllBytes(file.toPath()));
-		String firstLine = content.split("\n")[0];
-		if (firstLine.substring(0,3).equals("//!")) {
-			assertErrorMessage(content, firstLine.substring(3));
-		}
-		else {
-			assertValid(content);
-		}
+		String[] lines = content.split("\n");
+		List<String> errorMessages = new ArrayList<String>();
+		List<String> warningMessages = new ArrayList<String>();
+		for (String line: lines) {
+			if (!line.substring(0,2).equals("//")){
+				break;
+			}
 		
-
+			if (line.substring(0,3).equals("//!")) {
+				errorMessages.add(line.substring(3));
+			}
+			else if (line.substring(0,3).equals("//?")){
+				warningMessages.add(line.substring(3));
+			}
+		}
+		assertValid(content, errorMessages, warningMessages);
 	}
 
-	public void assertErrorMessage(String eol, String message) throws Exception {
-		EolModule module = new EolModule();
-		module.parse(eol);
-		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
-		List<ModuleMarker> errors = staticAnalyser.validate(module);
-		
-		assertEquals("unexpected number of errors (" + errors.size() + ") in eol module", 1, errors.size());
-		assertEquals(message, errors.get(0).getMessage());
-	}
-	
-	public void assertValid(String eol) throws Exception {
+	public void assertValid(String eol, List<String> expectedErrorMessages, List<String> expectedWarningMessages) throws Exception {
 		EolModule module = new EolModule();
 		module.parse(eol);
 		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
@@ -113,13 +110,22 @@ public class EolStaticAnalyserTests {
 		List<ModuleMarker> errors = markers.stream().filter(m -> m.getSeverity()==Severity.Error).collect(Collectors.toList());
 		List<ModuleMarker> warnings = markers.stream().filter(m -> m.getSeverity()==Severity.Warning).collect(Collectors.toList());
 		
-		
 		String errorMessages = errors.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
 				.collect(Collectors.joining("\n"));
-		assertEquals("Unexpected number of errors\n" + errorMessages + "\n", 0, errors.size());
+		assertEquals("Unexpected number of errors\n" + errorMessages + "\n", expectedErrorMessages.size(), errors.size());
+		for (String expectedErrorMessage: expectedErrorMessages) {
+			//assume maximum one expected/thrown error for now
+			assertEquals(expectedErrorMessage, errors.get(0).getMessage());
+		}
+		
+		
 		String warningMessages = warnings.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
 				.collect(Collectors.joining("\n"));
-		assertEquals("Unexpected number of warnings\n" + warningMessages + "\n", 0, warnings.size());
+		assertEquals("Unexpected number of warnings\n" + warningMessages + "\n", expectedWarningMessages.size(), warnings.size());
+		for (String expectedWarningMessage: expectedWarningMessages) {
+			//assume maximum one expected/thrown warning for now
+			assertEquals(expectedWarningMessage, warnings.get(0).getMessage());
+		}
 		visit(module.getChildren());
 	}
 

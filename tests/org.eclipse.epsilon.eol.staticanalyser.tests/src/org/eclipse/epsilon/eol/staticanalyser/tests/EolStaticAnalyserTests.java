@@ -25,10 +25,13 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class EolStaticAnalyserTests {
@@ -113,19 +116,19 @@ public class EolStaticAnalyserTests {
 		String errorMessages = errors.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
 				.collect(Collectors.joining("\n"));
 		assertEquals("Unexpected number of errors\n" + errorMessages + "\n", expectedErrorMessages.size(), errors.size());
-		for (String expectedErrorMessage: expectedErrorMessages) {
-			//assume maximum one expected/thrown error for now
-			assertEquals(expectedErrorMessage, errors.get(0).getMessage());
-		}
+		
+		Set<String> errorMessagesSet = new HashSet<String>();
+		errorMessagesSet.addAll(errors.stream().map(ModuleMarker::getMessage).collect(Collectors.toList()));
+		assertTrue(errorMessagesSet.containsAll(expectedErrorMessages));
 		
 		
 		String warningMessages = warnings.stream().map((e) -> e.getMessage() + " line: " + e.getRegion().getStart().getLine())
 				.collect(Collectors.joining("\n"));
 		assertEquals("Unexpected number of warnings\n" + warningMessages + "\n", expectedWarningMessages.size(), warnings.size());
-		for (String expectedWarningMessage: expectedWarningMessages) {
-			//assume maximum one expected/thrown warning for now
-			assertEquals(expectedWarningMessage, warnings.get(0).getMessage());
-		}
+		Set<String> warningMessagesSet = new HashSet<String>();
+		warningMessagesSet.addAll(warnings.stream().map(ModuleMarker::getMessage).collect(Collectors.toList()));
+		assertTrue(warningMessagesSet.containsAll(expectedWarningMessages));
+		
 		visit(module.getChildren());
 	}
 

@@ -1120,12 +1120,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 			if (parent instanceof Operation) {
 				setReturnFlag(((Operation) parent), true);
-				// add for setting resolved type
-				if (((Operation) parent).getReturnTypeExpression() == null)
-					((Operation) parent).setReturnTypeExpression(new TypeExpression("Any"));
-
-				(((Operation) parent).getReturnTypeExpression()).accept(this);
-				EolType requiredReturnType = getResolvedType(((Operation) parent).getReturnTypeExpression());
+				EolType requiredReturnType = (EolType) parent.getData().get("returnType");
 
 				if (!(isCompatible(requiredReturnType, providedReturnType))) {
 					if (canBeCompatible(requiredReturnType, providedReturnType))

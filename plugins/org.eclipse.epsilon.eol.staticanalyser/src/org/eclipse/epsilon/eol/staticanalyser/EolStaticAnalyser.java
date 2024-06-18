@@ -1312,6 +1312,26 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		visitOperatorExpression(operatorExpression);
 	}
 
+	public void operationPreVisitor(Operation operation) {
+		TypeExpression contextTypeExpression = operation.getContextTypeExpression();
+		EolType contextType = EolNoType.Instance;
+		TypeExpression returnTypeExpression = operation.getReturnTypeExpression();
+		EolType returnType = EolAnyType.Instance;
+		
+		if (contextTypeExpression != null) {
+			contextTypeExpression.accept(this);
+			contextType = getResolvedType(contextTypeExpression);
+		}
+		
+		if (returnTypeExpression != null) {
+			returnTypeExpression.accept(this);
+			returnType = getResolvedType(returnTypeExpression);
+		}
+		
+		operation.getData().put("contextType", contextType);
+		operation.getData().put("returnType", returnType);
+	}
+	
 	public void preValidate(IEolModule imodule) {
 
 		EolModule eolModule = (EolModule) imodule;
@@ -1321,6 +1341,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			modelDeclaration.accept(this);
 		}
 		
+		module.getDeclaredOperations().forEach(o -> operationPreVisitor(o));
 		module.getDeclaredOperations().forEach(o -> o.accept(this));
 	}
 

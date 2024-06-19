@@ -649,15 +649,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(Operation operation) {
-		TypeExpression contextTypeExpression = operation.getContextTypeExpression();
-		EolType contextType = EolNoType.Instance;
+		EolType contextType = (EolType) operation.getData().get("contextType");
 		TypeExpression returnTypeExpression = operation.getReturnTypeExpression();
 		setReturnFlag(operation, false);
 
-		if (contextTypeExpression != null) {
-			contextTypeExpression.accept(this);
-			contextType = getResolvedType(contextTypeExpression);
-		}
 		// Variable class changed
 		context.getFrameStack().enterLocal(FrameType.PROTECTED, operation, new Variable("self", contextType));
 

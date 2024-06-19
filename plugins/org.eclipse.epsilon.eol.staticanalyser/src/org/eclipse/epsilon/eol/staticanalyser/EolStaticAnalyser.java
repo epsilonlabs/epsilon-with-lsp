@@ -691,6 +691,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (targetExpression != null) {
 			targetExpression.accept(this);
 			operationCallExpression.setContextless(false);
+			contextType = getResolvedType(targetExpression);
 		} else
 			operationCallExpression.setContextless(true);
 		for (Expression parameterExpression : parameterExpressions) {
@@ -703,10 +704,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		boolean goForward = false; // for keep checking forward
 
 		for (Operation o : allOperations) {
-			if (o.getContextTypeExpression() != null) {
-				operations_contextless = false;
-			} else {
+			if ((EolType)o.getData().get("contextType") == EolNoType.Instance) {
 				operations_contextless = true;
+			} else {
+				operations_contextless = false;
 			}
 
 			if (nameExpression.getName().equals(o.getName())
@@ -720,12 +721,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		List<Parameter> reqParams = null;
-		EolType contentType, collectionType, expType;
+		EolType contentType, collectionType, expType, opContextType, opReturnType;
 
 		//We further analyze all potential matches to decide whether there are errors or not
 		for (Operation op : getOperations(operationCallExpression)) {
 			successMatch = false;
 			reqParams = op.getFormalParameters();
+			opContextType = (EolType) op.getData().get("contextType");
+			opReturnType = (EolType) op.getData().get("returnType");
 			// TODO we are revisiting each operation's return type expression to overwrite
 			// possible previous specializations (eg. from EolSelf to Integer). Is there a
 			// better way?
@@ -733,11 +736,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				op.getReturnTypeExpression().accept(this);
 
 				if (getResolvedType(op.getReturnTypeExpression()).toString().equals("EolSelf")) {
-					setResolvedType(op.getReturnTypeExpression(), getResolvedType(targetExpression));
+					setResolvedType(op.getReturnTypeExpression(), contextType);
 				}
 
 				if (getResolvedType(op.getReturnTypeExpression()).toString().equals("EolSelfContentType")) {
-					contentType = ((EolCollectionType) getResolvedType(targetExpression)).getContentType();
+					contentType = ((EolCollectionType) contextType).getContentType();
 					// Change the condition here! It would be ModelElementType
 					while ((contentType instanceof EolCollectionType))
 						contentType = ((EolCollectionType) contentType).getContentType();
@@ -745,7 +748,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				}
 
 				if (getResolvedType(op.getReturnTypeExpression()).toString().equals("EolSelfCollectionType")) {
-					collectionType = getResolvedType(targetExpression);
+					collectionType = contextType;
 					setResolvedType(op.getReturnTypeExpression(), collectionType);
 				}
 
@@ -758,36 +761,30 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 						&& ((EolCollectionType) getResolvedType((op.getReturnTypeExpression()))).getContentType()
 								.toString().equals("EolSelf")) {
 					expType = getResolvedType(op.getReturnTypeExpression());
-					((EolCollectionType) expType).setContentType(getResolvedType(targetExpression));
+					((EolCollectionType) expType).setContentType(contextType);
 					setResolvedType(op.getReturnTypeExpression(), expType);
 				}
 			}
 
 			if (!operationCallExpression.isContextless() && !getMatched(operationCallExpression)) {
 
-				contextType = getResolvedType(targetExpression);// The context type of the operation call expression
-				op.getContextTypeExpression().accept(this);
-				EolType reqContextType = getResolvedType(op.getContextTypeExpression());
-
-				if (isCompatible(reqContextType, contextType)) {
+				if (isCompatible(opContextType, contextType)) {
 
 					errorCode = 0;
 					goForward = true;
 
-				} else if (canBeCompatible(reqContextType, contextType)) {
+				} else if (canBeCompatible(opContextType, contextType)) {
 
-					warnings.add(new ModuleMarker(
-							targetExpression, nameExpression.getName() + " may not be invoked on "
-									+ getResolvedType(targetExpression) + ", as it requires " + reqContextType,
-							Severity.Warning));
+					warnings.add(new ModuleMarker(targetExpression, nameExpression.getName() + " may not be invoked on "
+							+ contextType + ", as it requires " + opContextType, Severity.Warning));
 
 				} else if (targetExpression instanceof OperationCallExpression) {
 					if (!getMatchedReturnType(((OperationCallExpression) targetExpression)).isEmpty()) {
-						for (int i = 0; i < getMatchedReturnType(((OperationCallExpression) targetExpression))
-								.size(); i++) {
-							contextType = getMatchedReturnType(((OperationCallExpression) targetExpression)).get(i);
+						for (EolType potentialContextType : getMatchedReturnType(
+								((OperationCallExpression) targetExpression))) {
+							contextType = potentialContextType;
 
-							if (isCompatible(getResolvedType(op.getContextTypeExpression()), contextType)) {
+							if (isCompatible(opContextType, contextType)) {
 								errorCode = 0;
 								goForward = true;
 								break;
@@ -817,9 +814,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				goForward = true;
 
 			if (goForward) {
-
-				if (goForward && reqParams.size() > 0) {
-
+				if (reqParams.size() > 0) {
 					if (reqParams.size() == parameterExpressions.size()) {
 
 						int index = 0;
@@ -880,13 +875,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 						}
 
 						if (getMatched(operationCallExpression)) {
-							if (!(getReturnFlag(op)))
-								setResolvedType(operationCallExpression, EolNoType.Instance);
-							else {
-								setResolvedType(operationCallExpression, getResolvedType(op.getReturnTypeExpression()));
-								getMatchedReturnType(operationCallExpression)
-										.add(getResolvedType(operationCallExpression));
-							}
+							setResolvedType(operationCallExpression, opReturnType);
+							getMatchedReturnType(operationCallExpression).add(opReturnType);
 						}
 					} else {
 						errorCode = 2;
@@ -895,18 +885,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				} else if (parameterExpressions.size() == 0 && errorCode == 0) {
 					setMatched(operationCallExpression, true);
 					successMatch = true;
-
-					if (successMatch) {
-						if (!(getReturnFlag(op)))
-							setResolvedType(operationCallExpression, EolNoType.Instance);
-						else {
-							setResolvedType(operationCallExpression, getResolvedType(op.getReturnTypeExpression()));
-							getMatchedReturnType(operationCallExpression).add(getResolvedType(operationCallExpression));
-						}
-					}
+					setResolvedType(operationCallExpression, opReturnType);
+					getMatchedReturnType(operationCallExpression).add(opReturnType);
 
 				} else if (parameterExpressions.size() != 0) {
-
 					errorCode = 2;
 				}
 			}

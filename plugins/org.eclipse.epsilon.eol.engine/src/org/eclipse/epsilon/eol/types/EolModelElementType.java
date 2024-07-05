@@ -294,4 +294,13 @@ public class EolModelElementType extends EolType {
 			return super.getParentTypes();
 		}
 	}
+	
+	@Override
+	public List<EolType> getChildrenTypes() {
+		if (this.metaClass != null && !this.metaClass.getSubTypes().isEmpty()) {
+			return this.metaClass.getSubTypes().stream().map(s -> new EolModelElementType(s)).collect(Collectors.toList());
+		} else {
+			return super.getParentTypes();
+		}
+	}
 }

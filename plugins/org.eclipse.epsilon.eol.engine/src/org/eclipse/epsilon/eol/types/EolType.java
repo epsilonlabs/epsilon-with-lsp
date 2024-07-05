@@ -63,4 +63,8 @@ public abstract class EolType {
 	protected EolType getParentType() {
 		return EolAnyType.Instance;
 	}
+	
+	public List<EolType> getChildrenTypes(){
+		return Collections.emptyList();
+	}
 }

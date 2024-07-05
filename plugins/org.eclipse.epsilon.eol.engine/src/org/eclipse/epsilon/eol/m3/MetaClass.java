@@ -15,11 +15,16 @@ import java.util.List;
 public class MetaClass extends MetaType {
 	
 	protected List<MetaClass> superTypes = new ArrayList<>();
+	protected List<MetaClass> subTypes = new ArrayList<>();
 	protected List<StructuralFeature> structuralFeatures = new ArrayList<>();
 	protected boolean isAbstract;
 	
 	public List<MetaClass> getSuperTypes() {
 		return superTypes;
+	}
+	
+	public List<MetaClass> getSubTypes() {
+		return subTypes;
 	}
 	
 	public List<StructuralFeature> getStructuralFeatures() {

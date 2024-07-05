@@ -57,6 +57,14 @@ public class EmfModelMetamodel extends Metamodel {
 						if (superType != null) metaClass.getSuperTypes().add(superType);
 					}
 					
+					for (EClass possibleSubClass : eClassMetaClassMap.keySet()) {
+						if (eClass.isSuperTypeOf(possibleSubClass) && !possibleSubClass.equals(eClass)) {
+							MetaClass subType = eClassMetaClassMap.get(possibleSubClass);
+							if (subType != null) metaClass.getSubTypes().add(subType);
+						}
+					}
+					
+					
 					for (EAttribute eAttribute : eClass.getEAttributes()) {
 						Attribute attribute = new Attribute();
 						attribute.setName(eAttribute.getName());

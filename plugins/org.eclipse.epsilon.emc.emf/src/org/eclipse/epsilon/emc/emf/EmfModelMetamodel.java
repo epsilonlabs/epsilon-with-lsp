@@ -105,6 +105,8 @@ public class EmfModelMetamodel extends Metamodel {
 						}
 						metaClass.getStructuralFeatures().add(reference);
 					}
+					
+					 metaClass.setAbstract(eClass.isAbstract());
 				}
 			}
 		}

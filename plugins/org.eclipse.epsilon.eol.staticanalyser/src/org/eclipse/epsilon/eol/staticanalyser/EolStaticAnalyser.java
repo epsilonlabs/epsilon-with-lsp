@@ -2,7 +2,9 @@ package org.eclipse.epsilon.eol.staticanalyser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.epsilon.common.dt.editor.AbstractModuleEditor;
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
@@ -670,23 +672,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(OperationCallExpression operationCallExpression) {
-
-		OperationList allOperations = ((EolModule) module).getOperations();
+		List<Operation> remainingOperations = ((EolModule) module).getOperations();
 		Expression targetExpression = operationCallExpression.getTargetExpression();
 		List<Expression> parameterExpressions = operationCallExpression.getParameterExpressions();
 		NameExpression nameExpression = operationCallExpression.getNameExpression();
-		setOperations(operationCallExpression, new ArrayList<Operation>());
-		setMatchedOperations(operationCallExpression, new ArrayList<Operation>());
 		setMatchedReturnType(operationCallExpression, new ArrayList<EolType>());
-		// True if there is at least one perfect match. It doesn't change for every
-		// mismatch because one match is enough.
-		setMatched(operationCallExpression, false);
-
-		// 1 = mismatch Target 2 = number of parameters mismatch 
-		// 3 = parameters type mismatch 4 =undefined Operation
-		// 5 = No-type as target 6 = No-type as parameter
-		int errorCode = 0; 
-		EolType contextType = EolAnyType.Instance;
+		List<Operation> resolvedOperations = new ArrayList<Operation>(); 
+		EolType contextType = EolNoType.Instance;
 
 		if (targetExpression != null) {
 			targetExpression.accept(this);
@@ -697,234 +689,108 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (Expression parameterExpression : parameterExpressions) {
 			parameterExpression.accept(this);
 		}
-		boolean operations_contextless;
-		// for a perfect match -> we should keep it for every closest matched
-		// possibility as true
-		boolean successMatch = false; 
-		boolean goForward = false; // for keep checking forward
-
-		for (Operation o : allOperations) {
-			if ((EolType)o.getData().get("contextType") == EolNoType.Instance) {
-				operations_contextless = true;
-			} else {
-				operations_contextless = false;
+		
+		//Name check
+		List<Operation> temp = new ArrayList<Operation>();
+		for (Operation op: remainingOperations) {	
+			if(nameExpression.getName().equals(op.getName())) {
+				temp.add(op);
 			}
-
-			if (nameExpression.getName().equals(o.getName())
-					&& (operationCallExpression.isContextless() == operations_contextless)) {
-				getOperations(operationCallExpression).add(o);
+		}
+		remainingOperations = temp;
+		if (remainingOperations.size() == 0) {
+			errors.add(new ModuleMarker(nameExpression, "Undefined operation", Severity.Error));
+			return;
+		}
+		
+		//Context check
+		temp = new ArrayList<Operation>();
+		for (Operation op: remainingOperations) {	
+			EolType opContextType = (EolType) op.getData().get("contextType");
+			if(contextType == opContextType ||
+					isCompatible(opContextType, contextType) ||
+					canBeCompatible(opContextType, contextType)) {
+				temp.add(op);
 			}
+		}
+		remainingOperations = temp;
+		if (remainingOperations.size() == 0) {
+			errors.add(new ModuleMarker(targetExpression,
+					nameExpression.getName() + " can not be invoked on " + getResolvedType(targetExpression),
+					Severity.Error));
+			return;
+		}
+		
+//		Number of parameters check
+		temp = new ArrayList<Operation>();
+		for (Operation op: remainingOperations) {	
+			List<Parameter> reqParams = op.getFormalParameters();
+			if (reqParams.size() == parameterExpressions.size()) {
+				temp.add(op);
+			}
+		}
+		remainingOperations = temp;
+		if (remainingOperations.size() == 0) {
+			errors.add(new ModuleMarker(nameExpression, "Parameter number mismatch", Severity.Error));
+			return;
+		}
+		
+//		Parameter type checks
+		temp = new ArrayList<Operation>();
+		for (Operation op: remainingOperations) {	
+			int index = 0;
+			List<Parameter> reqParams = op.getFormalParameters();
+			boolean compatible = true;
+			for (Parameter reqParam : reqParams) {
+				EolType reqParameter = getResolvedType(reqParam.getTypeExpression());
+				EolType provParameter = getResolvedType(parameterExpressions.get(index));
+				index++;
+				if (!isCompatible(reqParameter, provParameter) 
+						&& !canBeCompatible(reqParameter, provParameter)) {
+					compatible = false;
+					break;
+				}
+			}
+			if (compatible) {
+				temp.add(op);
+			}
+		}
+		remainingOperations = temp;
+		if (remainingOperations.size() == 0) {
+			errors.add(new ModuleMarker(nameExpression, "Parameters type mismatch", Severity.Error));
+			return;
+		}
+		
+		//valid operations
+		//TODO we need union types here for scenarios with more than one resolved operations
+		for (Operation op: remainingOperations) {
+			EolType opReturnType = (EolType) op.getData().get("returnType");
+			resolvedOperations.add(op);
+			setResolvedType(operationCallExpression, opReturnType);
+			getMatchedReturnType(operationCallExpression).add(opReturnType);
 
 		}
-		if (getOperations(operationCallExpression).size() == 0) {
-			errorCode = 4;
+		
+//		Check for warning related to subtypes
+		Set<EolType> resolvedOperationContextTypes = new HashSet<EolType>();
+		for (Operation op : resolvedOperations) {
+			resolvedOperationContextTypes.add((EolType) op.getData().get("contextType"));
 		}
 
-		List<Parameter> reqParams = null;
-		EolType contentType, collectionType, expType, opContextType, opReturnType;
-
-		//We further analyze all potential matches to decide whether there are errors or not
-		for (Operation op : getOperations(operationCallExpression)) {
-			successMatch = false;
-			reqParams = op.getFormalParameters();
-			opContextType = (EolType) op.getData().get("contextType");
-			opReturnType = (EolType) op.getData().get("returnType");
-			// TODO we are revisiting each operation's return type expression to overwrite
-			// possible previous specializations (eg. from EolSelf to Integer). Is there a
-			// better way?
-			if (op.getReturnTypeExpression() != null) {
-				op.getReturnTypeExpression().accept(this);
-
-				if (getResolvedType(op.getReturnTypeExpression()).toString().equals("EolSelf")) {
-					setResolvedType(op.getReturnTypeExpression(), contextType);
-				}
-
-				if (getResolvedType(op.getReturnTypeExpression()).toString().equals("EolSelfContentType")) {
-					contentType = ((EolCollectionType) contextType).getContentType();
-					// Change the condition here! It would be ModelElementType
-					while ((contentType instanceof EolCollectionType))
-						contentType = ((EolCollectionType) contentType).getContentType();
-					setResolvedType(op.getReturnTypeExpression(), contentType);
-				}
-
-				if (getResolvedType(op.getReturnTypeExpression()).toString().equals("EolSelfCollectionType")) {
-					collectionType = contextType;
-					setResolvedType(op.getReturnTypeExpression(), collectionType);
-				}
-
-				if (getResolvedType(op.getReturnTypeExpression()).toString().equals("EolSelfExpressionType")) {
-					expType = getResolvedType(parameterExpressions.get(0));
-					setResolvedType(op.getReturnTypeExpression(), expType);
-				}
-
-				if (getResolvedType(op.getReturnTypeExpression()) instanceof EolCollectionType
-						&& ((EolCollectionType) getResolvedType((op.getReturnTypeExpression()))).getContentType()
-								.toString().equals("EolSelf")) {
-					expType = getResolvedType(op.getReturnTypeExpression());
-					((EolCollectionType) expType).setContentType(contextType);
-					setResolvedType(op.getReturnTypeExpression(), expType);
-				}
-			}
-
-			if (!operationCallExpression.isContextless() && !getMatched(operationCallExpression)) {
-
-				if (isCompatible(opContextType, contextType)) {
-
-					errorCode = 0;
-					goForward = true;
-
-				} else if (canBeCompatible(opContextType, contextType)) {
-
-					warnings.add(new ModuleMarker(targetExpression, nameExpression.getName() + " may not be invoked on "
-							+ contextType + ", as it requires " + opContextType, Severity.Warning));
-
-				} else if (targetExpression instanceof OperationCallExpression) {
-					if (!getMatchedReturnType(((OperationCallExpression) targetExpression)).isEmpty()) {
-						for (EolType potentialContextType : getMatchedReturnType(
-								((OperationCallExpression) targetExpression))) {
-							contextType = potentialContextType;
-
-							if (isCompatible(opContextType, contextType)) {
-								errorCode = 0;
-								goForward = true;
-								break;
-							} else {
-								errorCode = 1;
-								goForward = false;
-							}
-						}
-					}
-
-					else {
-						setMatched(operationCallExpression, false);
-						errorCode = 5;
-						goForward = false;
-						break;
-					}
-				}
-
-				else {
-
-					setMatched(operationCallExpression, false);
-					errorCode = 1;
-					goForward = false;
-				}
-
-			} else
-				goForward = true;
-
-			if (goForward) {
-				if (reqParams.size() > 0) {
-					if (reqParams.size() == parameterExpressions.size()) {
-
-						int index = 0;
-						errorCode = 0;
-
-						for (Parameter parameterExpression : reqParams) {
-
-							parameterExpression.getTypeExpression().accept(this);
-							if (parameterExpressions.get(index) instanceof OperationCallExpression
-									&& (getMatched((OperationCallExpression) parameterExpressions.get(index)))) {
-
-								ArrayList<EolType> matchTypes = new ArrayList<EolType>();
-								matchTypes = getMatchedReturnType(
-										(OperationCallExpression) parameterExpressions.get(index));
-
-								if (!(matchTypes.isEmpty()))
-
-									for (EolType matchType : matchTypes) {
-										if (getResolvedType(parameterExpression.getTypeExpression())
-												.equals(matchType)) {
-											setResolvedType(parameterExpressions.get(index), matchType);
-											break;
-										} else
-											setResolvedType(parameterExpressions.get(index), matchType);
-
-									}
-								else {
-									errorCode = 6;
-									goForward = false;
-									break;
-								}
-							}
-
-							EolType reqParameter = getResolvedType(parameterExpression.getTypeExpression());
-							EolType provPrameter = getResolvedType(parameterExpressions.get(index));
-
-							if (isCompatible(reqParameter, provPrameter)) {
-								setMatched(operationCallExpression, true);
-								successMatch = true;
-								errorCode = 0;
-
-							} else if (canBeCompatible(reqParameter, provPrameter)) {
-								setMatched(operationCallExpression, true);
-								successMatch = true;
-								warnings.add(new ModuleMarker(
-										nameExpression, " Parameter " + provPrameter
-												+ " might not match, as it requires " + reqParameter,
-										Severity.Warning));
-							} else if (getMatchedReturnType(operationCallExpression).isEmpty()) {
-								// Bcz if we found the perfect match before, no need to make success false at
-								// the end
-								errorCode = 3;
-								setMatched(operationCallExpression, false);
-								break;
-							}
-
-							index++;
-						}
-
-						if (getMatched(operationCallExpression)) {
-							setResolvedType(operationCallExpression, opReturnType);
-							getMatchedReturnType(operationCallExpression).add(opReturnType);
-						}
-					} else {
-						errorCode = 2;
-
-					}
-				} else if (parameterExpressions.size() == 0 && errorCode == 0) {
-					setMatched(operationCallExpression, true);
-					successMatch = true;
-					setResolvedType(operationCallExpression, opReturnType);
-					getMatchedReturnType(operationCallExpression).add(opReturnType);
-
-				} else if (parameterExpressions.size() != 0) {
-					errorCode = 2;
-				}
-			}
-
-			if (successMatch)
-				getMatchedOperations(operationCallExpression).add(op);
-			getExactMatchedOperation(operationCallExpression);
+		if (resolvedOperationContextTypes.contains(contextType)) {
+			return;
 		}
 
-		if (!getMatched(operationCallExpression) || getOperations(operationCallExpression).size() == 0)
-			switch (errorCode) {
-			case 1:
-				errors.add(new ModuleMarker(targetExpression,
-						nameExpression.getName() + " can not be invoked on " + getResolvedType(targetExpression),
-						Severity.Error));
-				break;
-			case 2:
-				errors.add(new ModuleMarker(nameExpression, "Number of parameters doesn't match, as "
-						+ nameExpression.getName() + " requires " + reqParams.size() + " parameters", Severity.Error));
-				break;
-			case 3:
-				errors.add(new ModuleMarker(nameExpression, "Parameters type mismatch", Severity.Error));
-				break;
-			case 4:
-				errors.add(new ModuleMarker(nameExpression, "Undefined operation", Severity.Error));
-				break;
-			case 5:
-				errors.add(new ModuleMarker(nameExpression, nameExpression.getName() + " can not be invoked on "
-						+ ((OperationCallExpression) targetExpression).getNameExpression().getName() + ", as it's void",
-						Severity.Error));
-				break;
-			case 6:
-				errors.add(new ModuleMarker(nameExpression, "Parameters type mismatch, as it's void", Severity.Error));
-				break;
+		for (EolType t : contextType.getChildrenTypes()) {
+			if (!resolvedOperationContextTypes.contains(t)) {
+				warnings.add(
+						new ModuleMarker(
+								operationCallExpression, "Method " + nameExpression.getName()
+										+ " is undefined for subtypes " + t.getName() + " of " + contextType.getName(),
+								Severity.Warning));
 			}
-
+		}
+		
 	}
 
 	@Override

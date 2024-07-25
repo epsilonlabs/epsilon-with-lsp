@@ -6,6 +6,7 @@ class container{
 }
 
 abstract class A {
+	val A feature1;
 }
 
 class B extends A {

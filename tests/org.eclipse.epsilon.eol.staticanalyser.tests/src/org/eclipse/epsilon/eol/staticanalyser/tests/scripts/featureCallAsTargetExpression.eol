@@ -1,0 +1,8 @@
+model M driver EMF {nsuri='sa'};
+
+for (a in A.all) {
+    var v1:A = a.feature1.foo();	
+}
+
+operation B foo() : B {return self;}
+operation C foo() : C {return self;}

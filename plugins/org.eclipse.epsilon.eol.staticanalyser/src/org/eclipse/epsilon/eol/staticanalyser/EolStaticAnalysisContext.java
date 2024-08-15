@@ -9,18 +9,11 @@ import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.dom.ModelDeclaration;
-import org.eclipse.epsilon.eol.execute.context.FrameStack;
+import org.eclipse.epsilon.eol.staticanalyser.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributorRegistry;
-import org.eclipse.epsilon.eol.m3.MetaClass;
-import org.eclipse.epsilon.eol.m3.Metamodel;
-import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
-import org.eclipse.epsilon.eol.models.Model;
-import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository;
-import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
-import org.eclipse.epsilon.eol.types.EolModelElementType;
 
 public class EolStaticAnalysisContext {
 

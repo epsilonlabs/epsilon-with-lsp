@@ -83,22 +83,28 @@ import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.dom.VariableDeclaration;
 import org.eclipse.epsilon.eol.dom.WhileStatement;
 import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
-import org.eclipse.epsilon.eol.execute.context.FrameStack;
+import org.eclipse.epsilon.eol.staticanalyser.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
-import org.eclipse.epsilon.eol.execute.context.Variable;
+import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.m3.Metamodel;
 import org.eclipse.epsilon.eol.m3.StructuralFeature;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
-import org.eclipse.epsilon.eol.types.EolAnyType;
-import org.eclipse.epsilon.eol.types.EolCollectionType;
-import org.eclipse.epsilon.eol.types.EolMapType;
-import org.eclipse.epsilon.eol.types.EolModelElementType;
-import org.eclipse.epsilon.eol.types.EolNoType;
-import org.eclipse.epsilon.eol.types.EolPrimitiveType;
-import org.eclipse.epsilon.eol.types.EolType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolSelf;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolSelfCollectionType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolSelfContentType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolSelfExpressionType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolUnionType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolTupleType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolCollectionType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolMapType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolModelElementType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolNoType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 
 public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
@@ -877,10 +883,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 									else
 										collectionType = new EolCollectionType("Bag");
 								}
-								collectionType.setContentType(structuralFeature.getType());
+								collectionType.setContentType(toStaticAnalyserType(structuralFeature.getType()));
 								setResolvedType(propertyCallExpression, collectionType);
 							} else {
-								setResolvedType(propertyCallExpression, structuralFeature.getType());
+								setResolvedType(propertyCallExpression, toStaticAnalyserType(structuralFeature.getType()));
 							}
 							if (many) {
 								setResolvedType(propertyCallExpression,
@@ -924,9 +930,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 						}
 						setResolvedType(propertyCallExpression, new EolCollectionType(collectionTypeName));
 						((EolCollectionType) getResolvedType(propertyCallExpression))
-								.setContentType(structuralFeature.getType());
+								.setContentType(toStaticAnalyserType(structuralFeature.getType()));
 					} else {
-						setResolvedType(propertyCallExpression, structuralFeature.getType());
+						setResolvedType(propertyCallExpression, toStaticAnalyserType(structuralFeature.getType()));
 					}
 					if (many) {
 						setResolvedType(propertyCallExpression,
@@ -1031,7 +1037,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(TypeExpression typeExpression) {
-		EolType type = TypeExpression.getType(typeExpression.getName()); // typeExpression.getCompilationType();
+		EolType type = toStaticAnalyserType(TypeExpression.getType(typeExpression.getName()));
 
 		for (TypeExpression typeExp : typeExpression.getParameterTypeExpressions()) {
 			typeExp.accept(this);
@@ -1681,6 +1687,49 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return modelElementType;
 		} else {
 			return null;
+		}
+
+	}
+	
+	private EolType toStaticAnalyserType(org.eclipse.epsilon.eol.types.EolType type) {
+		if (type == null) {
+			return null;
+		} else if (type instanceof org.eclipse.epsilon.eol.types.EolModelElementType) {
+			return new EolModelElementType(((org.eclipse.epsilon.eol.types.EolModelElementType) type).getMetaClass());
+		} else {
+			String name = type.getName();
+			switch (name) {
+			case "Integer":
+				return EolPrimitiveType.Integer;
+			case "Any":
+				return EolAnyType.Instance;
+			case "Boolean":
+				return EolPrimitiveType.Boolean;
+			case "String":
+				return EolPrimitiveType.String;
+			case "Real":
+				return EolPrimitiveType.Real;
+			case "Map":
+			case "ConcurrentMap":
+				return new EolMapType(name);
+			case "List":
+				name = "Sequence";
+			case "Bag":
+			case "Collection":
+			case "ConcurrentBag":
+			case "ConcurrentSet":
+			case "OrderedSet":
+			case "Sequence":
+			case "Set":
+				return new EolCollectionType(name);
+			case "Nothing":
+			case "None":
+				return EolNoType.Instance;
+			case "Tuple":
+				return new EolTupleType();
+			default:
+				return null;
+			}
 		}
 
 	}

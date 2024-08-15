@@ -9,7 +9,8 @@ Require-Bundle: org.eclipse.epsilon.common.dt;bundle-version="2.3.0",
  org.junit,
  org.eclipse.emf.ecore,
  org.eclipse.emf.ecore.xmi
-Export-Package: org.eclipse.epsilon.eol.staticanalyser
+Export-Package: org.eclipse.epsilon.eol.staticanalyser,
+ org.eclipse.epsilon.eol.staticanalyser.types
 Import-Package: org.eclipse.epsilon.emc.emf,
  org.eclipse.epsilon.evl,
  org.eclipse.epsilon.evl.dom

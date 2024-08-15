@@ -1,15 +1,11 @@
-package org.eclipse.epsilon.eol.staticanalyser;
+package org.eclipse.epsilon.eol.staticanalyser.types;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-import org.eclipse.epsilon.eol.types.EolType;
 
 public class EolUnionType extends EolType {
 	
@@ -29,30 +25,6 @@ public class EolUnionType extends EolType {
 	public String getName() {
 		return containedTypes.stream().map(t -> t.getName()).collect(Collectors.joining("|"));
 	}
-
-	@Override
-	public boolean isType(Object o) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isKind(Object o) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Object createInstance() throws EolRuntimeException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object createInstance(List<Object> parameters) throws EolRuntimeException {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	@Override
 	public List<EolType> getChildrenTypes(){
@@ -60,5 +32,4 @@ public class EolUnionType extends EolType {
 		children.addAll(containedTypes);
 		return children;
 	}
-
 }

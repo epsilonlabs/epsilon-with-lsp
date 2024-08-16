@@ -78,6 +78,7 @@
     <module>org.eclipse.epsilon.eol.dt.interpreter</module>
     <module>org.eclipse.epsilon.eol.dap</module>
     <module>org.eclipse.epsilon.eol.engine</module>
+    <module>org.eclipse.epsilon.eol.staticanalyser</module>
     <module>org.eclipse.epsilon.eol.tools</module>
     <module>org.eclipse.epsilon.epl.dt</module>
     <module>org.eclipse.epsilon.epl.engine</module>

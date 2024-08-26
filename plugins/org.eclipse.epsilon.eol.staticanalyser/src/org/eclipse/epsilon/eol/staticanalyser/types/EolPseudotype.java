@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.eol.staticanalyser.types;
 
-public class EolPseudotype extends EolType {
+public abstract class EolPseudotype extends EolType {
 	
 	@Override
 	public String getName() {

@@ -1682,7 +1682,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		Metamodel metamodel = context.modelDeclarations.get(modelName).getMetamodel();
 		if (metamodel != null) {
-			EolModelElementType modelElementType = new EolModelElementType(modelAndType);
+			EolModelElementType modelElementType = new EolModelElementType(modelAndType, module);
 			modelElementType.setMetaClass(metamodel.getMetaClass(typeName));
 			return modelElementType;
 		} else {
@@ -1695,7 +1695,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (type == null) {
 			return null;
 		} else if (type instanceof org.eclipse.epsilon.eol.types.EolModelElementType) {
-			return new EolModelElementType(((org.eclipse.epsilon.eol.types.EolModelElementType) type).getMetaClass());
+			org.eclipse.epsilon.eol.types.EolModelElementType type2 = (org.eclipse.epsilon.eol.types.EolModelElementType) type;
+			String modelAndMetaClass = type2.getModelName().equals("") ? type2.getMetaClass().getName() : 
+				type2.getModelName() + "!" + type2.getMetaClass().getName();
+			EolModelElementType newType =  new EolModelElementType(modelAndMetaClass, this.module);
+			newType.setMetaClass(type2.getMetaClass());
+			return newType;
 		} else {
 			String name = type.getName();
 			switch (name) {

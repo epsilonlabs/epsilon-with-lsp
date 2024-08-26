@@ -10,15 +10,19 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.staticanalyser.types;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.util.CollectionUtil;
 import org.eclipse.epsilon.eol.IEolModule;
+import org.eclipse.epsilon.eol.dom.ModelDeclaration;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelNotFoundException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
@@ -36,6 +40,7 @@ public class EolModelElementType extends EolType {
 	protected ModelRepository modelRepo;
 	protected MetaClass metaClass;
 	protected IModel cachedModelRef;
+	protected List<EolType> childrenTypes = null;
 	
 	public EolModelElementType(MetaClass metaClass) {
 		this.metaClass = metaClass;
@@ -52,6 +57,11 @@ public class EolModelElementType extends EolType {
 			modelName = "";
 			typeName = modelAndMetaClass;
 		}
+	}
+	
+	public EolModelElementType(String modelAndMetaClass, IEolModule module){
+		this(modelAndMetaClass);
+		this.module = module;
 	}
 	
 	public EolModelElementType(String modelAndMetaClass, IEolContext context) throws EolModelNotFoundException, EolModelElementTypeNotFoundException {
@@ -229,7 +239,6 @@ public class EolModelElementType extends EolType {
 		return Objects.hash(
 			super.hashCode(),
 			getName(),
-			module,
 			metaClass != null ? metaClass.getName() : metaClass
 		);
 	}
@@ -248,7 +257,6 @@ public class EolModelElementType extends EolType {
 			
 			eq = Objects.equals(this.metaClass.getName(), eme.metaClass.getName());
 		}
-		eq = eq && Objects.equals(this.module, eme.module);
 		
 		return eq;
 	}
@@ -264,10 +272,24 @@ public class EolModelElementType extends EolType {
 	
 	@Override
 	public List<EolType> getChildrenTypes() {
-		if (this.metaClass != null && !this.metaClass.getSubTypes().isEmpty()) {
-			return this.metaClass.getSubTypes().stream().map(s -> new EolModelElementType(s)).collect(Collectors.toList());
-		} else {
-			return super.getParentTypes();
+		if (childrenTypes != null) {
+			return childrenTypes;
+		}else {
+			if (module.getDeclaredModelDeclarations() == null) return null;
+			Set<EolType> children = new HashSet<EolType>();
+			for(ModelDeclaration md:module.getDeclaredModelDeclarations()) {
+				children.addAll(
+						md.getMetamodel().getTypes().stream()
+						.filter(t -> t instanceof MetaClass)
+						.map(t -> (MetaClass) t)
+						.filter(mc -> mc.getSuperTypes().contains(this.metaClass))
+						.map(mc -> new EolModelElementType(mc))
+						.collect(Collectors.toSet())
+						);
+			}
+			childrenTypes = new ArrayList<EolType>();
+			childrenTypes.addAll(children);
+			return childrenTypes;
 		}
 	}
 }

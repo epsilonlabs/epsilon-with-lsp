@@ -11,6 +11,7 @@ package org.eclipse.epsilon.eol.dap.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +41,8 @@ import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
 import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.eclipse.lsp4j.debug.ThreadEventArguments;
+import org.eclipse.lsp4j.debug.ThreadEventArgumentsReason;
 import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.VariablesArguments;
@@ -56,13 +59,14 @@ public abstract class AbstractEpsilonDebugAdapterTest {
 	public Timeout globalTimeout = Timeout.seconds(10);
 
 	protected class TestClient implements IDebugProtocolClient {
-		Semaphore isStopped = new Semaphore(0);
-		StoppedEventArguments stoppedArgs;
+		private Semaphore isStopped = new Semaphore(0);
+		private StoppedEventArguments stoppedArgs;
 
-		Semaphore isExited = new Semaphore(0);
-		ExitedEventArguments exitedArgs;
+		private Semaphore isExited = new Semaphore(0);
+		private ExitedEventArguments exitedArgs;
 
-		List<OutputEventArguments> outputs = new ArrayList<>();
+		private List<OutputEventArguments> outputs = new ArrayList<>();
+		private List<ThreadEventArguments> threadEvents = new ArrayList<>();
 
 		@Override
 		public void stopped(StoppedEventArguments args) {
@@ -80,9 +84,31 @@ public abstract class AbstractEpsilonDebugAdapterTest {
 		public void output(OutputEventArguments args) {
 			this.outputs.add(args);
 		}
+
+		@Override
+		public void thread(ThreadEventArguments args) {
+			this.threadEvents.add(args);
+		}
+
+		public StoppedEventArguments getStoppedArgs() {
+			return stoppedArgs;
+		}
+
+		public ExitedEventArguments getExitedArgs() {
+			return exitedArgs;
+		}
+
+		public List<OutputEventArguments> getOutputs() {
+			return outputs;
+		}
+
+		public List<ThreadEventArguments> getThreadEvents() {
+			return threadEvents;
+		}
 	}
 
 	protected static final File BASE_RESOURCE_FOLDER = new File("../org.eclipse.epsilon.eol.dap.test/epsilon/");
+	protected static final File BASE_MODELS_FOLDER = new File("../org.eclipse.epsilon.eol.dap.test/models/");
 
 	protected IEolModule module;
 	protected EpsilonDebugAdapter adapter;
@@ -120,27 +146,29 @@ public abstract class AbstractEpsilonDebugAdapterTest {
 	@After
 	public void teardown() {
 		adapter.disconnect(new DisconnectArguments());
+		if (module != null) {
+			module.getContext().getModelRepository().dispose();
+			module.getContext().dispose();
+			module = null;
+		}
 	}
 
 	protected void assertStoppedBecauseOf(final String reason) throws InterruptedException {
 		client.isStopped.tryAcquire(5, TimeUnit.SECONDS);
 		assertNotNull("The script should have stopped within 5s", client.stoppedArgs);
 		assertEquals("The debugger should say it stopped because of " + reason, reason, client.stoppedArgs.getReason());
-		client.stoppedArgs = null;
 	}
 
 	protected void assertProgramCompletedSuccessfully() throws InterruptedException {
 		client.isExited.tryAcquire(5, TimeUnit.SECONDS);
 		assertNotNull("The script should have exited within 5s", client.exitedArgs);
 		assertEquals("The script should have completed its execution successfully", 0, client.exitedArgs.getExitCode());
-		client.exitedArgs = null;
 	}
 
 	protected void assertProgramFailed() throws InterruptedException {
 		client.isExited.tryAcquire(5, TimeUnit.SECONDS);
 		assertNotNull("The script should have exited within 5s", client.exitedArgs);
 		assertEquals("The script should have completed its execution with an error", 1, client.exitedArgs.getExitCode());
-		client.exitedArgs = null;
 	}
 
 	protected StackTraceResponse getStackTrace() throws Exception {
@@ -148,6 +176,10 @@ public abstract class AbstractEpsilonDebugAdapterTest {
 		assertEquals("The debugger should report one thread", 1, threads.getThreads().length);
 
 		final int threadId = threads.getThreads()[0].getId();
+		return getStackTrace(threadId);
+	}
+
+	protected StackTraceResponse getStackTrace(final int threadId) throws Exception {
 		final StackTraceArguments stackTraceArgs = createStackTraceArgs(threadId);
 		StackTraceResponse stackTrace = adapter.stackTrace(stackTraceArgs).get(5, TimeUnit.SECONDS);
 		return stackTrace;
@@ -228,11 +260,19 @@ public abstract class AbstractEpsilonDebugAdapterTest {
 	}
 
 	protected String getStdout() {
+		return getOutputByCategory(OutputEventArgumentsCategory.STDOUT);
+	}
+
+	protected String getOutputByCategory(final String category) {
 		String allOutput = client.outputs.stream()
-			.filter(o -> OutputEventArgumentsCategory.STDOUT.equals(o.getCategory()))
+			.filter(o -> category.equals(o.getCategory()))
 			.map(o -> o.getOutput())
 			.reduce("", (a, b) -> a + b);
 		return allOutput;
+	}
+
+	protected String getStderr() {
+		return getOutputByCategory(OutputEventArgumentsCategory.STDERR);
 	}
 
 	protected void attach() throws InterruptedException, ExecutionException {
@@ -245,6 +285,24 @@ public abstract class AbstractEpsilonDebugAdapterTest {
 		VariablesResponse variables = getVariables(scopes.getScopes()[0]);
 		Map<String, Variable> variablesByName = getVariablesByName(variables);
 		return variablesByName;
+	}
+
+	protected void assertThreadStarted(int threadId) {
+		assertThreadEventWithReasonExists(threadId, ThreadEventArgumentsReason.STARTED);
+	}
+
+	protected void assertThreadExited(int threadId) {
+		assertThreadEventWithReasonExists(threadId, ThreadEventArgumentsReason.EXITED);
+	}
+
+	protected void assertThreadEventWithReasonExists(int threadId, final String reason) {
+		for (ThreadEventArguments ev : client.getThreadEvents()) {
+			if (ev.getThreadId() == threadId && reason.equals(ev.getReason())) {
+				return;
+			}
+		}
+
+		fail(String.format("Expected thread %d to have a %s event", threadId, reason));
 	}
 
 }

@@ -10,13 +10,19 @@
 package org.eclipse.epsilon.eol.dap.variables;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.epsilon.eol.dap.variables.collections.PerElementCollectionReference;
+import org.eclipse.epsilon.eol.dap.variables.collections.SlicedCollectionReference;
+import org.eclipse.epsilon.eol.dap.variables.maps.PerKeyMapReference;
+import org.eclipse.epsilon.eol.dap.variables.maps.SlicedMapReference;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.SingleFrame;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.IReflectiveModel;
 import org.eclipse.epsilon.eol.types.EolTuple;
+import org.eclipse.epsilon.eol.types.EolType;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -33,11 +39,6 @@ public class SuspendedState {
 
 	private final AtomicInteger nextReference = new AtomicInteger();
 	private final BiMap<Integer, IVariableReference> references = HashBiMap.create();
-	private final IEolContext context;
-
-	public SuspendedState(IEolContext context) {
-		this.context = context;
-	}
 
 	public void suspended() {
 		synchronized (references) {
@@ -46,9 +47,9 @@ public class SuspendedState {
 		}
 	}
 
-	public IVariableReference getReference(SingleFrame sc) {
+	public IVariableReference getReference(IEolContext context, SingleFrame sc) {
 		synchronized (references) {
-			return putOrGetReference(new SingleFrameReference(sc));
+			return putOrGetReference(new SingleFrameReference(context, sc));
 		}
 	}
 
@@ -64,16 +65,16 @@ public class SuspendedState {
 		}
 	}
 
-	public IEolContext getContext() {
-		return context;
-	}
-
 	@SuppressWarnings("unchecked")
-	protected IVariableReference getValueReference(String name, Object value) {
+	public IVariableReference getValueReference(IEolContext context, String name, Object value) {
+		if (value == null) {
+			return new OpaqueValueReference(context, name, value);
+		}
+
 		IModel model = context.getModelRepository().getOwningModel(value);
 		if (model instanceof IReflectiveModel) {
 			IReflectiveModel rModel = (IReflectiveModel) model;
-			return putOrGetReference(new ModelElementReference(rModel, name, value));
+			return putOrGetReference(new ModelElementReference(context, rModel, name, value));
 		}
 
 		if (value instanceof Collection) {
@@ -81,28 +82,50 @@ public class SuspendedState {
 
 			IdentifiableReference<?> ref;
 			if (c.size() >= LARGE_COLLECTION_THRESHOLD) {
-				ref = new SlicedCollectionReference(name, c, SLICE_SIZE);
+				ref = new SlicedCollectionReference(context, name, c, SLICE_SIZE);
 			} else {
-				ref = new PerElementCollectionReference(name, c);
+				ref = new PerElementCollectionReference(context, name, c);
 			}
 			return putOrGetReference(ref);
 		}
 
 		if (value instanceof EolTuple) {
-			return putOrGetReference(new TupleReference(name, (EolTuple) value));
+			return putOrGetReference(new TupleReference(context, name, (EolTuple) value));
 		}
 
-		return new OpaqueValueReference(name, value);
+		if (value instanceof Map) {
+			IdentifiableReference<?> ref;
+			Map<Object, Object> m = (Map<Object, Object>) value;
+			if (m.size() >= LARGE_COLLECTION_THRESHOLD) {
+				ref = new SlicedMapReference(context, name, m, SLICE_SIZE);
+			} else {
+				ref = new PerKeyMapReference(context, name, m);
+			}
+			return putOrGetReference(ref);
+		}
+
+		for (EolType t : IdentifiableReference.PREDEFINED_TYPES) {
+			if (t.isKind(value)) {
+				return new OpaqueValueReference(context, name, value);
+			}
+		}
+
+		return putOrGetReference(new JavaObjectReference(context, name, value));
 	}
 
-	protected IVariableReference putOrGetReference(IdentifiableReference<?> ref) {
+	public IVariableReference putOrGetReference(IdentifiableReference<?> ref) {
 		synchronized (references) {
+			/*
+			 * If we do not have an ID for this reference, generate one.
+			 *
+			 * Otherwise, reuse the ID.
+			 */
 			Integer reference = references.inverse().get(ref);
 			if (reference == null) {
 				reference = nextReference.incrementAndGet();
-				ref.setId(reference);
 				references.put(reference, ref);
 			}
+			ref.setId(reference);
 		}
 
 		return ref;

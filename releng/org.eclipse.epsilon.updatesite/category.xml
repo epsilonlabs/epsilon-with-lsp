@@ -90,9 +90,6 @@
    <feature id="org.eclipse.epsilon.emc.jdt.feature">
       <category name="Epsilon JDT Integration"/>
    </feature>
-   <feature id="org.eclipse.epsilon.sirius.widget.feature">
-      <category name="Epsilon Sirius Integration"/>
-   </feature>
    <feature id="org.eclipse.epsilon.emc.cdo.dt.feature">
       <category name="Epsilon CDO Integration"/>
    </feature>
@@ -179,7 +176,9 @@
       </description>
    </category-def>
    <category-def name="org.eclipse.epsilon.dap" label="Epsilon Debug Adapter Support"/>
-   <repository-reference location="http://download.eclipse.org/emfatic/update" enabled="true" />
-   <repository-reference location="http://download.eclipse.org/releases/2023-12" enabled="true" />
-   <repository-reference location="http://download.eclipse.org/tools/orbit/downloads/drops/R20211213173813/repository" enabled="true" />
+   <repository-reference location="http://download.eclipse.org/emfatic/update" name="" enabled="true" />
+   <repository-reference location="http://download.eclipse.org/releases/2023-12" name="" enabled="true" />
+   <repository-reference location="http://download.eclipse.org/tools/orbit/downloads/drops/R20211213173813/repository" name="" enabled="true" />
+   <repository-reference location="https://download.eclipse.org/lsp4e/releases/latest/" name="" enabled="true" />
+   <repository-reference location="https://download.eclipse.org/mylyn/updates/release/latest/" enabled="true" />
 </site>

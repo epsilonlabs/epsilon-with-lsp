@@ -37,6 +37,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Parameterized.class)
 public class EolStaticAnalyserTests {
 
+	private static final File SOURCE_FOLDER = new File("../org.eclipse.epsilon.eol.staticanalyser.tests/src");
 	private String fileName;
 
 	public EolStaticAnalyserTests(String fileName) {
@@ -46,7 +47,7 @@ public class EolStaticAnalyserTests {
 	@BeforeClass
 	public static void registerEcore() {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
-		registerPackage("src/org/eclipse/epsilon/eol/staticanalyser/tests/meta1.ecore");
+		registerPackage(new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/meta1.ecore").getPath());
 	}
 
 	public static void registerPackage(String path) {
@@ -70,7 +71,7 @@ public class EolStaticAnalyserTests {
 
 	@Parameters(name = "{0}")
 	public static Collection<String> data() {
-		File folder = new File("src/org/eclipse/epsilon/eol/staticanalyser/tests/scripts");
+		File folder = new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/scripts");
 		List<String> files = new ArrayList<>();
 		for (File file : folder.listFiles()) {
 			if (!file.isDirectory()) {
@@ -82,7 +83,7 @@ public class EolStaticAnalyserTests {
 
 	@Test
 	public void testFileParsing() throws Exception {
-		File file = new File("src/org/eclipse/epsilon/eol/staticanalyser/tests/scripts/" + fileName);
+		File file = new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/scripts/" + fileName);
 		parseFile(file);
 	}
 

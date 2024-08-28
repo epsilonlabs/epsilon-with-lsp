@@ -13,6 +13,8 @@ package org.eclipse.epsilon.eol.execute;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.eclipse.epsilon.common.function.BaseDelegate;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.eol.EolModule;
@@ -22,7 +24,10 @@ import org.eclipse.epsilon.eol.exceptions.EolInternalException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.exceptions.flowcontrol.EolTerminationException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
-import org.eclipse.epsilon.eol.execute.control.*;
+import org.eclipse.epsilon.eol.execute.control.DefaultExecutionController;
+import org.eclipse.epsilon.eol.execute.control.ExecutionController;
+import org.eclipse.epsilon.eol.execute.control.ExecutionProfiler;
+import org.eclipse.epsilon.eol.execute.control.IExecutionListener;
 
 /**
  * This class is not thread-safe.
@@ -72,7 +77,7 @@ public class ExecutorFactory implements BaseDelegate<ExecutorFactory> {
 	
 	public void addExecutionListener(IExecutionListener listener) {
 		if (executionListeners == null) {
-			executionListeners = new ArrayList<>(1);
+			executionListeners = new CopyOnWriteArrayList<>();
 		}
 		executionListeners.add(listener);
 	}

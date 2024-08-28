@@ -37,7 +37,13 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Parameterized.class)
 public class EolStaticAnalyserTests {
 
+	/*
+	 * When running from the main EpsilonJenkinsTestSuite, the current directory will be org.eclipse.epsilon.test
+	 * and not org.eclipse.epsilon.eol.staticanalyser.tests. This approach ensures that the right path will be used
+	 * regardless of whether this test suite is running directly from this plugin, or from org.eclipse.epsilon.test.
+	 */
 	private static final File SOURCE_FOLDER = new File("../org.eclipse.epsilon.eol.staticanalyser.tests/src");
+
 	private String fileName;
 
 	public EolStaticAnalyserTests(String fileName) {

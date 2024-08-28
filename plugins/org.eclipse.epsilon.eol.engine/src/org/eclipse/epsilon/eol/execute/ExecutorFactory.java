@@ -77,7 +77,7 @@ public class ExecutorFactory implements BaseDelegate<ExecutorFactory> {
 	
 	public void addExecutionListener(IExecutionListener listener) {
 		if (executionListeners == null) {
-			executionListeners = new CopyOnWriteArrayList<>();
+			executionListeners = new ArrayList<>(1);
 		}
 		executionListeners.add(listener);
 	}

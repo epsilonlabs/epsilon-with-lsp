@@ -16,7 +16,10 @@ jobs:
         os: [ubuntu-22.04, macos-14, windows-2022]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - name: Support longpaths on Windows
+      run: git config --system core.longpaths true
+      if: runner.os == 'Windows'
+    - uses: actions/checkout@v3
     - name: Install Webkit + GTK bindings
       run: sudo apt update -yq && sudo apt-get install -yq libwebkit2gtk-4.0-dev
       if: runner.os == 'Linux'

@@ -360,7 +360,7 @@ public class EpsilonDebugAdapter implements IDebugProtocolServer {
 	 * Latch used for suspending all threads. Should only be used through {@link #suspend()}
 	 * and {@link #resumeAllThreads()}.
 	 */
-	private AtomicBoolean suspendedLatch = new AtomicBoolean(false);
+	private final AtomicBoolean suspendedLatch = new AtomicBoolean(false);
 
 	/**
 	 * Abstraction over the state of the program while stopped. Used to keep track
@@ -910,25 +910,31 @@ public class EpsilonDebugAdapter implements IDebugProtocolServer {
 	}
 
 	protected void suspend(int threadId, ModuleElement ast, SuspendReason reason) throws InterruptedException {
-		switch (reason) {
-		case STEP:
-			sendStopped(threadId, StoppedEventArgumentsReason.STEP);
-			break;
-		case BREAKPOINT:
-			sendStopped(threadId, StoppedEventArgumentsReason.BREAKPOINT);
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown suspend reason");
-		}
-
 		synchronized (suspendedLatch) {
+			/*
+			 * Note: the synchronized region must cover the sending of stopped messages,
+			 * as otherwise there is the risk that someone reacting to the "stopped" message
+			 * may try to release the suspendedLatch before it has actually been set.
+			 */
+			switch (reason) {
+			case STEP:
+				sendStopped(threadId, StoppedEventArgumentsReason.STEP);
+				break;
+			case BREAKPOINT:
+				sendStopped(threadId, StoppedEventArgumentsReason.BREAKPOINT);
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown suspend reason");
+			}
+
 			suspendedLatch.set(true);
 			do {
-				suspendedLatch.wait();
+				final int timeoutMillis = 500;
+				suspendedLatch.wait(timeoutMillis);
 			} while (suspendedLatch.get());
 		}
 	}
-	
+
 	protected void resumeAllThreads() {
 		synchronized (suspendedLatch) {
 			suspendedLatch.set(false);

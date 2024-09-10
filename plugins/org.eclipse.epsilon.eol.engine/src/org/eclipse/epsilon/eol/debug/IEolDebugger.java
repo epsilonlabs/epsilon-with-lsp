@@ -14,6 +14,8 @@ import org.eclipse.epsilon.eol.execute.control.ExecutionController;
 
 public interface IEolDebugger extends ExecutionController {
 
+	BreakpointResult verifyBreakpoint(BreakpointRequest request);
+
 	void setTarget(IEpsilonDebugTarget target);
 
 	IEpsilonDebugTarget getTarget();

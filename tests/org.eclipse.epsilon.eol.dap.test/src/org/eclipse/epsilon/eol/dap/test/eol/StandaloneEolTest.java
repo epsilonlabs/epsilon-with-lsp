@@ -60,11 +60,17 @@ public class StandaloneEolTest extends AbstractEpsilonDebugAdapterTest {
 
 		// Wait for the client to be stopped at the breakpoint
 		assertStoppedBecauseOf(StoppedEventArgumentsReason.BREAKPOINT);
+		assertThreadStarted(EpsilonDebugAdapter.FIRST_THREAD_ID);
+		assertEquals("The debugger should mention the stopped thread",
+			(Integer) EpsilonDebugAdapter.FIRST_THREAD_ID, client.getStoppedArgs().getThreadId());
 
 		// Stack trace
 		final StackTraceResponse stackTrace = getStackTrace();
 		assertEquals("The debugger should only report one frame", 1, (int) stackTrace.getStackFrames().length);
 		assertEquals("The stack frame should be on line 1", 1, stackTrace.getStackFrames()[0].getLine());
+		assertEquals("The stack frame should mention end line as well", (Integer) 1, stackTrace.getStackFrames()[0].getEndLine());
+		assertEquals("The stack frame should mention column as well", 1, stackTrace.getStackFrames()[0].getColumn());
+		assertEquals("The stack frame should mention end column as well", (Integer) 45, stackTrace.getStackFrames()[0].getEndColumn());
 
 		final String stackFramePath = stackTrace.getStackFrames()[0].getSource().getPath();
 		final String modulePath = module.getFile().getCanonicalPath();
@@ -89,10 +95,11 @@ public class StandaloneEolTest extends AbstractEpsilonDebugAdapterTest {
 		assertNotNull("The null variable should have a value", variablesByName.get("null").getValue());
 		
 		// Continue execution
-		adapter.continue_(new ContinueArguments());
+		adapter.continue_(new ContinueArguments()).get();
 
 		// Execution should complete successfully
 		assertProgramCompletedSuccessfully();
+		assertThreadExited(EpsilonDebugAdapter.FIRST_THREAD_ID);
 
 		final String expected = "Hello Bob Someone"
 			+ System.lineSeparator()
@@ -110,7 +117,9 @@ public class StandaloneEolTest extends AbstractEpsilonDebugAdapterTest {
 		assertStoppedBecauseOf(StoppedEventArgumentsReason.BREAKPOINT);
 
 		// Step over should stop the program at line 2
-		adapter.next(new NextArguments());
+		final NextArguments args = new NextArguments();
+		args.setThreadId(adapter.threads().get().getThreads()[0].getId());
+		adapter.next(args);
 		assertStoppedBecauseOf(StoppedEventArgumentsReason.STEP);
 
 		StackTraceResponse stackTrace = getStackTrace();
@@ -129,11 +138,14 @@ public class StandaloneEolTest extends AbstractEpsilonDebugAdapterTest {
 		assertStoppedBecauseOf(StoppedEventArgumentsReason.BREAKPOINT);
 
 		// Step over should stop the program at the first line of the operation
-		adapter.stepIn(new StepInArguments());
+		final StepInArguments args = new StepInArguments();
+		args.setThreadId(adapter.threads().get().getThreads()[0].getId());
+		adapter.stepIn(args);
+
 		assertStoppedBecauseOf(StoppedEventArgumentsReason.STEP);
 		StackTraceResponse stackTrace = getStackTrace();
 		assertEquals("After the next() call, the program should be stopped at the first line of the operation",
-			5, stackTrace.getStackFrames()[0].getLine());
+			6, stackTrace.getStackFrames()[0].getLine());
 
 		adapter.continue_(new ContinueArguments());
 		assertProgramCompletedSuccessfully();
@@ -152,30 +164,37 @@ public class StandaloneEolTest extends AbstractEpsilonDebugAdapterTest {
 	@Test
 	public void breakThenStepOut() throws Exception {
 		// Break at the first line of the operation 
-		adapter.setBreakpoints(createBreakpoints(createBreakpoint(5))).get();
+		adapter.setBreakpoints(createBreakpoints(createBreakpoint(6))).get();
 		attach();
 		assertStoppedBecauseOf(StoppedEventArgumentsReason.BREAKPOINT);
 
 		// First step out should stop the program at the line after the operation
-		adapter.stepOut(new StepOutArguments());
+		final StepOutArguments args = new StepOutArguments();
+		args.setThreadId(adapter.threads().get().getThreads()[0].getId());
+		adapter.stepOut(args).get();
+		
 		assertStoppedBecauseOf(StoppedEventArgumentsReason.STEP);
 		StackTraceResponse stackTrace = getStackTrace();
 		assertEquals("After the stepOut() call, the program should be stopped at the line after the operation call",
 			2, stackTrace.getStackFrames()[0].getLine());
 
 		// If we continue, we'll stop again at the breakpoint
-		adapter.continue_(new ContinueArguments());
+		adapter.continue_(new ContinueArguments()).get();
 		assertStoppedBecauseOf(StoppedEventArgumentsReason.BREAKPOINT);
 
-		// Second step out should just have the problem complete successfully
-		adapter.stepOut(new StepOutArguments());
+		// Second step out should reach the 'return' statement
+		adapter.stepOut(args).get();
+		assertStoppedBecauseOf(StoppedEventArgumentsReason.STEP);
+
+		// Third step out should just have the problem complete successfully
+		adapter.stepOut(args).get();
 		assertProgramCompletedSuccessfully();
 	}
 
 	@Test
 	public void breakAtEmptyLine() throws Exception {
 		// Break at empty line in the middle of the operation should be mapped to its final line 
-		SetBreakpointsResponse breakpoints = adapter.setBreakpoints(createBreakpoints(createBreakpoint(6))).get();
+		SetBreakpointsResponse breakpoints = adapter.setBreakpoints(createBreakpoints(createBreakpoint(7))).get();
 
 		// Let the program finish while we do the assertions
 		adapter.setBreakpoints(createBreakpoints()).get();
@@ -183,6 +202,6 @@ public class StandaloneEolTest extends AbstractEpsilonDebugAdapterTest {
 		assertProgramCompletedSuccessfully();
 
 		assertEquals("The breakpoint on the empty line should have been remapped to the first non-empty line after it",
-			7, (int) breakpoints.getBreakpoints()[0].getLine());
+			8, (int) breakpoints.getBreakpoints()[0].getLine());
 	}
 }

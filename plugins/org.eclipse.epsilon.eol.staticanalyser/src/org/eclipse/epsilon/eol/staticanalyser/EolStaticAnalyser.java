@@ -113,9 +113,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	protected EolModule module;
 	protected BuiltinEolModule builtinModule = new BuiltinEolModule();
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
+	protected List<IStaticOperation> operations = new ArrayList<>();
 	HashMap<Operation, Boolean> returnFlags = new HashMap<>();
 	// For compiling user and builtin operations
-	HashMap<OperationCallExpression, ArrayList<Operation>> operations = new HashMap<>(); // keeping all matched
+//	HashMap<OperationCallExpression, ArrayList<Operation>> operations = new HashMap<>(); // keeping all matched
 																							// operations with same name
 	HashMap<OperationCallExpression, ArrayList<Operation>> matchedOperations = new HashMap<>(); // keeping all matched
 	// parameters
@@ -679,7 +680,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(OperationCallExpression operationCallExpression) {
-		List<Operation> resolvedOperations = ((EolModule) module).getOperations();
+		List<IStaticOperation> resolvedOperations = new ArrayList<>(operations);
 		Expression targetExpression = operationCallExpression.getTargetExpression();
 		List<Expression> parameterExpressions = operationCallExpression.getParameterExpressions();
 		NameExpression nameExpression = operationCallExpression.getNameExpression();
@@ -697,8 +698,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 		//Name check
-		List<Operation> temp = new ArrayList<Operation>();
-		for (Operation op: resolvedOperations) {	
+		List<IStaticOperation> temp = new ArrayList<IStaticOperation>();
+		for (IStaticOperation op: resolvedOperations) {	
 			if(nameExpression.getName().equals(op.getName())) {
 				temp.add(op);
 			}
@@ -710,9 +711,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 		//Context check
-		temp = new ArrayList<Operation>();
-		for (Operation op: resolvedOperations) {	
-			EolType opContextType = (EolType) op.getData().get("contextType");
+		temp = new ArrayList<IStaticOperation>();
+		for (IStaticOperation op: resolvedOperations) {	
+			EolType opContextType = op.getContextType();
 			if(contextType == opContextType ||
 					isCompatible(opContextType, contextType) ||
 					canBeCompatible(opContextType, contextType)) {
@@ -728,9 +729,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 //		Number of parameters check
-		temp = new ArrayList<Operation>();
-		for (Operation op: resolvedOperations) {	
-			List<Parameter> reqParams = op.getFormalParameters();
+		temp = new ArrayList<IStaticOperation>();
+		for (IStaticOperation op: resolvedOperations) {	
+			List<Parameter> reqParams = op.getParameters();
 			if (reqParams.size() == parameterExpressions.size()) {
 				temp.add(op);
 			}
@@ -742,10 +743,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 //		Parameter type checks
-		temp = new ArrayList<Operation>();
-		for (Operation op: resolvedOperations) {	
+		temp = new ArrayList<IStaticOperation>();
+		for (IStaticOperation op: resolvedOperations) {	
 			int index = 0;
-			List<Parameter> reqParams = op.getFormalParameters();
+			List<Parameter> reqParams = op.getParameters();
 			boolean compatible = true;
 			for (Parameter reqParam : reqParams) {
 				EolType reqParameter = getResolvedType(reqParam.getTypeExpression());
@@ -769,13 +770,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		
 		//Process resolved operations		
 		List<EolType> returnTypes = resolvedOperations.stream()
-				.map(op -> (EolType) op.getData().get("returnType")).collect(Collectors.toList());
+				.map(op -> op.getReturnType()).collect(Collectors.toList());
 		setResolvedType(operationCallExpression, new EolUnionType(returnTypes));
 		
 		//Check for warning related to subtypes
 		Set<EolType> resolvedOperationContextTypes = new HashSet<EolType>();
-		for (Operation op : resolvedOperations) {
-			resolvedOperationContextTypes.add((EolType) op.getData().get("contextType"));
+		for (IStaticOperation op : resolvedOperations) {
+			resolvedOperationContextTypes.add(op.getContextType());
 		}
 
 		if (contextType instanceof EolUnionType) {
@@ -1189,6 +1190,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 		module.getDeclaredOperations().forEach(o -> operationPreVisitor(o));
+		module.getDeclaredOperations().forEach(o -> operations.add(new UserDefinedOperation(o)));
 		module.getDeclaredOperations().forEach(o -> o.accept(this));
 	}
 
@@ -1562,13 +1564,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		returnFlags.put(op, returnFlag);
 	}
 
-	public ArrayList<Operation> getOperations(OperationCallExpression operationCallExpression) {
-		return operations.get(operationCallExpression);
-	}
-
-	public void setOperations(OperationCallExpression operationCallExpression, ArrayList<Operation> ops) {
-		operations.put(operationCallExpression, ops);
-	}
+//	public ArrayList<Operation> getOperations(OperationCallExpression operationCallExpression) {
+//		return operations.get(operationCallExpression);
+//	}
+//
+//	public void setOperations(OperationCallExpression operationCallExpression, ArrayList<Operation> ops) {
+//		operations.put(operationCallExpression, ops);
+//	}
 
 	public ArrayList<Operation> getMatchedOperations(OperationCallExpression operationCallExpression) {
 		return matchedOperations.get(operationCallExpression);

@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.eol.staticanalyser;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -85,6 +86,7 @@ import org.eclipse.epsilon.eol.dom.WhileStatement;
 import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
+import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.m3.Metamodel;
@@ -731,7 +733,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 //		Number of parameters check
 		temp = new ArrayList<IStaticOperation>();
 		for (IStaticOperation op: resolvedOperations) {	
-			List<Parameter> reqParams = op.getParameters();
+			List<EolType> reqParams = op.getParameterTypes();
 			if (reqParams.size() == parameterExpressions.size()) {
 				temp.add(op);
 			}
@@ -746,14 +748,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		temp = new ArrayList<IStaticOperation>();
 		for (IStaticOperation op: resolvedOperations) {	
 			int index = 0;
-			List<Parameter> reqParams = op.getParameters();
+			List<EolType> reqParamTypess = op.getParameterTypes();
 			boolean compatible = true;
-			for (Parameter reqParam : reqParams) {
-				EolType reqParameter = getResolvedType(reqParam.getTypeExpression());
-				EolType provParameter = getResolvedType(parameterExpressions.get(index));
+			for (EolType reqParamType : reqParamTypess) {
+				EolType provParamType = getResolvedType(parameterExpressions.get(index));
 				index++;
-				if (!isCompatible(reqParameter, provParameter) 
-						&& !canBeCompatible(reqParameter, provParameter)) {
+				if (!isCompatible(reqParamType, provParamType) 
+						&& !canBeCompatible(reqParamType, provParamType)) {
 					compatible = false;
 					break;
 				}
@@ -1190,8 +1191,40 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 		module.getDeclaredOperations().forEach(o -> operationPreVisitor(o));
-		module.getDeclaredOperations().forEach(o -> operations.add(new UserDefinedOperation(o)));
+		module.getDeclaredOperations().forEach(o -> operations.add(new SimpleOperation(o)));
 		module.getDeclaredOperations().forEach(o -> o.accept(this));
+		
+		//Parse builtin operations
+		List<OperationContributor> operationContributors = context.operationContributorRegistry.stream().collect(Collectors.toList());
+		for(OperationContributor oc: operationContributors) {
+			EolType contextType = toStaticAnalyserType(oc.contributesToType());
+			
+			for(Method m: oc.getClass().getDeclaredMethods()) {
+				List<EolType> operationParameterTypes = new ArrayList<EolType>();
+				Class<?>[] javaParameterTypes =  m.getParameterTypes();
+				for (Class<?> javaParameterType : javaParameterTypes) {
+					operationParameterTypes.add(javaClassToEolType(javaParameterType));
+				}
+				EolType returnType = javaClassToEolType(m.getReturnType());
+				operations.add(new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes));
+			}
+		}
+	}
+	
+	public EolType javaClassToEolType(Class<?> javaClass) {
+
+		if (javaClass == String.class || javaClass == char.class) {
+			return EolPrimitiveType.String;
+		} else if (javaClass == Integer.class || javaClass == int.class) {
+			return EolPrimitiveType.Integer;
+		} else if (javaClass == Double.class || javaClass == double.class || javaClass == Float.class
+				|| javaClass == float.class) {
+			return EolPrimitiveType.Real;
+		} else if (javaClass == boolean.class || javaClass == Boolean.class) {
+			return EolPrimitiveType.Boolean;
+		}
+
+		return EolAnyType.Instance;
 	}
 
 	public void mainValidate(IEolModule module) {

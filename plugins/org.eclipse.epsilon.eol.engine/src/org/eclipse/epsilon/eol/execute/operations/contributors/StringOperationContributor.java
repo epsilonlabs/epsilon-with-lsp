@@ -21,6 +21,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.epsilon.common.util.CollectionUtil;
+import org.eclipse.epsilon.eol.execute.operations.OperationInfo;
+import org.eclipse.epsilon.eol.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.types.EolType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
@@ -29,6 +32,11 @@ public class StringOperationContributor extends OperationContributor {
 	@Override
 	public boolean contributesTo(Object target) {
 		return (target instanceof String || target instanceof Character);
+	}
+	
+	@Override
+	public EolType contributesToType() {
+		return EolPrimitiveType.String;
 	}
 	
 	public Object toEnum() throws Exception {
@@ -57,6 +65,7 @@ public class StringOperationContributor extends OperationContributor {
 		return value.substring(0,1).toUpperCase() + value.substring(1, value.length());
 	}
 	
+	@OperationInfo
 	public String characterAt(int index) {
 		String value = (String) getTarget();
 		return value.charAt(index) + "";

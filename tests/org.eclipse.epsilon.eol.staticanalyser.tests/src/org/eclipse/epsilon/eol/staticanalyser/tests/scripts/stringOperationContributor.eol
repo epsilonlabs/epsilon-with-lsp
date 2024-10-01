@@ -1,0 +1,9 @@
+/*String*/'foo'.escapeXml();
+/*String*/'foo'.firstToUpperCase();
+/*String*/'foo'.characterAt(0);
+/*String*/'foo'.firstToLowerCase();
+/*String*/'foo'.ftuc();
+/*String*/'foo'.ftlc();
+/*Boolean*/'foo'.isSubstringOf('bar');
+/*Sequence<String>*/'foo'.toCharSequence();
+/*String*/'foo'.pad(5,'a',true);

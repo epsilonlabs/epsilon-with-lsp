@@ -27,6 +27,11 @@ public class EolUnionType extends EolType {
 	}
 	
 	@Override
+	public String toString() {
+		return containedTypes.stream().map(t -> t.toString()).collect(Collectors.joining("|"));
+	}
+	
+	@Override
 	public List<EolType> getChildrenTypes(){
 		List<EolType> children = new ArrayList<EolType>();
 		children.addAll(containedTypes);

@@ -1,6 +1,8 @@
 package org.eclipse.epsilon.eol.staticanalyser;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1201,18 +1203,47 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			
 			for(Method m: oc.getClass().getDeclaredMethods()) {
 				List<EolType> operationParameterTypes = new ArrayList<EolType>();
-				Class<?>[] javaParameterTypes =  m.getParameterTypes();
-				for (Class<?> javaParameterType : javaParameterTypes) {
-					operationParameterTypes.add(javaClassToEolType(javaParameterType));
+				Type[] javaParameterTypes =  m.getGenericParameterTypes();
+				for (Type javaParameterType : javaParameterTypes) {
+					operationParameterTypes.add(javaTypeToEolType(javaParameterType));
 				}
-				EolType returnType = javaClassToEolType(m.getReturnType());
+				EolType returnType = javaTypeToEolType(m.getGenericReturnType());
 				operations.add(new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes));
 			}
 		}
 	}
 	
+	public EolType javaTypeToEolType(Type javaType) {
+		
+		if (javaType instanceof ParameterizedType) {
+			Type rawType = ((ParameterizedType)javaType).getRawType();
+			Type[] typeArgs = ((ParameterizedType)javaType).getActualTypeArguments();
+			EolType eolType = javaClassToEolType((Class<?>)rawType);
+			if (eolType instanceof EolCollectionType){
+				EolType contentType = javaTypeToEolType(typeArgs[0]);
+				eolType = new EolCollectionType(eolType.getName(), contentType);
+				return eolType;
+			}
+			else if (eolType instanceof EolMapType) {
+				EolType keyType = javaTypeToEolType(typeArgs[0]);
+				EolType valueType = javaTypeToEolType(typeArgs[1]);
+				eolType = new EolMapType(keyType, valueType);
+				return eolType;
+			}
+			else {
+				return EolAnyType.Instance;
+			}
+		}
+		else if (javaType instanceof Class<?>) {
+			Class<?> javaClass = (Class<?>) javaType;
+			return javaClassToEolType(javaClass);
+		}
+		else {
+			return EolAnyType.Instance;
+		}
+	}
+	
 	public EolType javaClassToEolType(Class<?> javaClass) {
-
 		if (javaClass == String.class || javaClass == char.class) {
 			return EolPrimitiveType.String;
 		} else if (javaClass == Integer.class || javaClass == int.class) {
@@ -1222,9 +1253,17 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return EolPrimitiveType.Real;
 		} else if (javaClass == boolean.class || javaClass == Boolean.class) {
 			return EolPrimitiveType.Boolean;
+		} else if (javaClass == java.util.Collection.class) {
+			return EolCollectionType.Bag;
+		} else if (javaClass == java.util.List.class) {
+			return EolCollectionType.Sequence;
+		} else if (javaClass == java.util.Set.class) {
+			return EolCollectionType.Set;
+		} else if (javaClass == java.util.Map.class) {
+			return EolMapType.Map;
+		} else {
+			return EolAnyType.Instance;
 		}
-
-		return EolAnyType.Instance;
 	}
 
 	public void mainValidate(IEolModule module) {

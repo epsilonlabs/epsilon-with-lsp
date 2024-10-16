@@ -66,7 +66,6 @@ public class StringOperationContributor extends OperationContributor {
 		return value.substring(0,1).toUpperCase() + value.substring(1, value.length());
 	}
 	
-	@OperationInfo
 	public String characterAt(int index) {
 		String value = (String) getTarget();
 		return value.charAt(index) + "";

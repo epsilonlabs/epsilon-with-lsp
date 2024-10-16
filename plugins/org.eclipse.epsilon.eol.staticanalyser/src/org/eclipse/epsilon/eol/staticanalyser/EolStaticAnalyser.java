@@ -1199,7 +1199,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		//Parse builtin operations
 		List<OperationContributor> operationContributors = context.operationContributorRegistry.stream().collect(Collectors.toList());
 		for(OperationContributor oc: operationContributors) {
-			EolType contextType = toStaticAnalyserType(oc.contributesToType());
+			List<EolType> contextTypes = oc.contributesToType().stream().map(t -> toStaticAnalyserType(t)).collect(Collectors.toList());
+			EolType contextType;
+			if (contextTypes.size() == 1) {
+				contextType = contextTypes.get(0);
+			}
+			else {
+				contextType = new EolUnionType(contextTypes);
+			}
 			
 			for(Method m: oc.getClass().getDeclaredMethods()) {
 				List<EolType> operationParameterTypes = new ArrayList<EolType>();
@@ -1251,6 +1258,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else if (javaClass == Double.class || javaClass == double.class || javaClass == Float.class
 				|| javaClass == float.class) {
 			return EolPrimitiveType.Real;
+		} else if (javaClass == Number.class) {
+			return new EolUnionType(EolPrimitiveType.Real, EolPrimitiveType.Integer);
 		} else if (javaClass == boolean.class || javaClass == Boolean.class) {
 			return EolPrimitiveType.Boolean;
 		} else if (javaClass == java.util.Collection.class) {
@@ -1503,6 +1512,15 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					} else {
 						tempType = getParentType(tempType);
 					}
+				}
+			}
+			return false;
+		}
+		
+		if (targetType instanceof EolUnionType) {
+			for (EolType t : ((EolUnionType)targetType).containedTypes) {
+				if (canBeCompatible(t, valueType)) {
+					return true;
 				}
 			}
 			return false;

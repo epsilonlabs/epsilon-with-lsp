@@ -9,7 +9,12 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.contributors;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.LongStream;
+
+import org.eclipse.epsilon.eol.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.types.NumberUtil;
 
 public class NumberOperationContributor extends OperationContributor {
@@ -17,6 +22,11 @@ public class NumberOperationContributor extends OperationContributor {
 	@Override
 	public boolean contributesTo(Object target) {
 		return target instanceof Number;
+	}
+	
+	@Override
+	public List<EolType> contributesToType() {
+		return Arrays.asList(EolPrimitiveType.Real, EolPrimitiveType.Integer);
 	}
 	
 	@Override

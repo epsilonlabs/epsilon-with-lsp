@@ -11,7 +11,6 @@ package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.io.FileOutputStream;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,8 +21,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.epsilon.common.util.CollectionUtil;
-import org.eclipse.epsilon.eol.types.EolPrimitiveType;
-import org.eclipse.epsilon.eol.types.EolType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
 
@@ -35,8 +34,8 @@ public class StringOperationContributor extends OperationContributor {
 	}
 	
 	@Override
-	public List<EolType> contributesToType() {
-		return Arrays.asList(EolPrimitiveType.String);
+	public EolType contributesToType() {
+		return EolPrimitiveType.String;
 	}
 	
 	public Object toEnum() throws Exception {

@@ -11,15 +11,14 @@
 package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.introspection.java.ObjectMethod;
-import org.eclipse.epsilon.eol.types.EolAnyType;
-import org.eclipse.epsilon.eol.types.EolType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.util.ReflectionUtil;
 
 /**
@@ -36,8 +35,8 @@ public abstract class OperationContributor implements AutoCloseable {
 	
 	public abstract boolean contributesTo(Object target);
 	
-	public List<EolType> contributesToType() {
-		return Arrays.asList(EolAnyType.Instance);
+	public EolType contributesToType() {
+		return EolAnyType.Instance;
 	}
 	
 	public ObjectMethod findContributedMethodForUnevaluatedParameters(Object target, String name, List<Expression> parameterExpressions, IEolContext context) {

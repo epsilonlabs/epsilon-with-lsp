@@ -1199,14 +1199,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		//Parse builtin operations
 		List<OperationContributor> operationContributors = context.operationContributorRegistry.stream().collect(Collectors.toList());
 		for(OperationContributor oc: operationContributors) {
-			List<EolType> contextTypes = oc.contributesToType().stream().map(t -> toStaticAnalyserType(t)).collect(Collectors.toList());
-			EolType contextType;
-			if (contextTypes.size() == 1) {
-				contextType = contextTypes.get(0);
-			}
-			else {
-				contextType = new EolUnionType(contextTypes);
-			}
+			EolType contextType = oc.contributesToType();
 			
 			for(Method m: oc.getClass().getDeclaredMethods()) {
 				List<EolType> operationParameterTypes = new ArrayList<EolType>();
@@ -1788,9 +1781,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return null;
 		} else if (type instanceof org.eclipse.epsilon.eol.types.EolModelElementType) {
 			org.eclipse.epsilon.eol.types.EolModelElementType type2 = (org.eclipse.epsilon.eol.types.EolModelElementType) type;
-			String modelAndMetaClass = type2.getModelName().equals("") ? type2.getMetaClass().getName() : 
-				type2.getModelName() + "!" + type2.getMetaClass().getName();
-			EolModelElementType newType =  new EolModelElementType(modelAndMetaClass, this.module);
+			String modelAndMetaClass = type2.getModelName().equals("") ? type2.getMetaClass().getName()
+					: type2.getModelName() + "!" + type2.getMetaClass().getName();
+			EolModelElementType newType = new EolModelElementType(modelAndMetaClass, this.module);
 			newType.setMetaClass(type2.getMetaClass());
 			return newType;
 		} else {

@@ -26,4 +26,9 @@ public class EolNoType extends EolType {
 		return null;
 	}
 	
+	@Override
+	public boolean isAncestorOf(EolType type){
+		return false;
+	}
+	
 }

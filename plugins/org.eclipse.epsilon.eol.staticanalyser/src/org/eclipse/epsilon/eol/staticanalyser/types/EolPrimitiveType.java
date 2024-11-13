@@ -9,6 +9,9 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.staticanalyser.types;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class EolPrimitiveType extends EolType {
 
 	private Class<?> clazz;
@@ -37,5 +40,10 @@ public class EolPrimitiveType extends EolType {
 	@Override
 	public String toString() {
 		return getName();
+	}
+	
+	@Override
+	public List<EolType> getParentTypes() {
+		return Arrays.asList(EolAnyType.Instance, new EolNativeType(this.clazz));
 	}
 }

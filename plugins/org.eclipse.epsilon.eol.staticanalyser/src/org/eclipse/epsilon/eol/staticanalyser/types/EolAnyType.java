@@ -27,4 +27,9 @@ public class EolAnyType extends EolType {
 	protected EolType getParentType() {
 		return null;
 	}
+	
+	@Override
+	public boolean isAncestorOf(EolType type) {
+		return true;
+	}
 }

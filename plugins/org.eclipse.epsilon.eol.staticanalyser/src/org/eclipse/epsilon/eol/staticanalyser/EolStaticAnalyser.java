@@ -106,6 +106,7 @@ import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolCollectionType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolMapType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolModelElementType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolNoType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
@@ -719,7 +720,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (IStaticOperation op: resolvedOperations) {	
 			EolType opContextType = op.getContextType();
 			if(contextType == opContextType ||
-					isCompatible(opContextType, contextType) ||
+					opContextType.isAncestorOf(contextType) ||
 					canBeCompatible(opContextType, contextType)) {
 				temp.add(op);
 			}
@@ -755,7 +756,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			for (EolType reqParamType : reqParamTypess) {
 				EolType provParamType = getResolvedType(parameterExpressions.get(index));
 				index++;
-				if (!isCompatible(reqParamType, provParamType) 
+				if (!reqParamType.isAncestorOf(provParamType) 
 						&& !canBeCompatible(reqParamType, provParamType)) {
 					compatible = false;
 					break;
@@ -1251,8 +1252,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else if (javaClass == Double.class || javaClass == double.class || javaClass == Float.class
 				|| javaClass == float.class) {
 			return EolPrimitiveType.Real;
-		} else if (javaClass == Number.class) {
-			return new EolUnionType(EolPrimitiveType.Real, EolPrimitiveType.Integer);
 		} else if (javaClass == boolean.class || javaClass == Boolean.class) {
 			return EolPrimitiveType.Boolean;
 		} else if (javaClass == java.util.Collection.class) {
@@ -1264,7 +1263,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else if (javaClass == java.util.Map.class) {
 			return EolMapType.Map;
 		} else {
-			return EolAnyType.Instance;
+			return new EolNativeType(javaClass);
 		}
 	}
 

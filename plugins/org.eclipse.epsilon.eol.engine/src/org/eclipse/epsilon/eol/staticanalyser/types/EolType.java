@@ -11,7 +11,7 @@ package org.eclipse.epsilon.eol.staticanalyser.types;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -67,7 +67,7 @@ public abstract class EolType {
 		if (ancestorCache != null) {
 			return ancestorCache;
 		}
-		Set<EolType> ancestors = new HashSet<EolType>();
+		Set<EolType> ancestors = new LinkedHashSet<EolType>();
 		
 		Stack<EolType> stack = new Stack<EolType>();
 		stack.push(this);

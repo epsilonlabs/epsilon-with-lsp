@@ -27,6 +27,7 @@ public class EolNativeType extends EolType {
 		if (javaClass == Object.class) {
 			return Collections.emptyList();
 		}else {
+			//TODO Also support Interfaces
 			return Arrays.asList(new EolNativeType(javaClass.getSuperclass()));
 		}
 	}

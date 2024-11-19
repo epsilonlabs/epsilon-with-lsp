@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.epsilon.common.dt.editor.AbstractModuleEditor;
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.IModuleValidator;
@@ -127,25 +126,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	// parameters
 	HashMap<OperationCallExpression, ArrayList<EolType>> matchedReturnType = new HashMap<>(); // keeping returnTypes of
 																								// matched operations
-	HashMap<OperationCallExpression, Boolean> matched = new HashMap<>(); // finding one perfect match, in doesn't change
-																			// for every missmatch
-
-	public static void main(String[] args) throws Exception {
-
-		EolModule module = new EolModule();
-		module.parse("(1 or true).println();");
-		IModelFactory modelFactory = new StaticModelFactory();
-		EolStaticAnalyser analyser = new EolStaticAnalyser(modelFactory);
-		List<ModuleMarker> markers = analyser.validate(module);
-		for (ModuleMarker marker : markers) {
-			System.out.println(marker.getMessage());
-		}
-	}
+	HashMap<OperationCallExpression, Boolean> matched = new HashMap<>(); // finding one perfect match, in doesn't change																		// for every missmatch
 
 	public EolStaticAnalyser() {
-		this(new StaticModelFactory());
 	}
-
+	
 	public EolStaticAnalyser(IModelFactory modelFactory) {
 		context.modelFactory = modelFactory;
 	}
@@ -1296,7 +1281,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public String getMarkerType() {
-		return AbstractModuleEditor.PROBLEM_MARKER;
+		return ModuleMarker.Severity.Error.name();
 	}
 
 	public void createTypeCompatibilityWarning(Expression requiredExpression, Expression providedExpression) {

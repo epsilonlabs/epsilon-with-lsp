@@ -17,7 +17,6 @@ import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
-import org.eclipse.epsilon.eol.staticanalyser.StaticModelFactory;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

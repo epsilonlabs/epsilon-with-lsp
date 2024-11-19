@@ -4,19 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.epsilon.common.module.IModule;
-import org.eclipse.epsilon.common.module.IModuleValidator;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.StatementBlock;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
-import org.eclipse.epsilon.eol.execute.context.Variable;
+import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
-import org.eclipse.epsilon.eol.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.erl.dom.Post;
 import org.eclipse.epsilon.erl.dom.Pre;
 import org.eclipse.epsilon.etl.EtlModule;
-import org.eclipse.epsilon.etl.IEtlModule;
 import org.eclipse.epsilon.etl.dom.IEtlVisitor;
 import org.eclipse.epsilon.etl.dom.TransformationRule;
 

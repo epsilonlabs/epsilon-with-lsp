@@ -1,7 +1,8 @@
-package org.eclipse.epsilon.eol.staticanalyser;
+package org.eclipse.epsilon.eol.staticanalyser.tests;
 
 import org.eclipse.epsilon.emc.emf.EmfModel;
 import org.eclipse.epsilon.eol.models.IModel;
+import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
 
 public class StaticModelFactory implements IModelFactory {
 

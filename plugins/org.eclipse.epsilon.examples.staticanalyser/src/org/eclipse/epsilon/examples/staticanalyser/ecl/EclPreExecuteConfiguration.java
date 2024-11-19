@@ -3,7 +3,7 @@ package org.eclipse.epsilon.examples.staticanalyser.ecl;
 import org.eclipse.epsilon.ecl.launch.EclRunConfiguration;
 import org.eclipse.epsilon.ecl.staticanalyser.EclStaticAnalyser;
 import org.eclipse.epsilon.eol.IEolModule;
-import org.eclipse.epsilon.eol.staticanalyser.SubEmfModelFactory;
+import org.eclipse.epsilon.examples.staticanalyser.eol.SubEmfModelFactory;
 
 public class EclPreExecuteConfiguration extends EclRunConfiguration {
 	IEolModule module;

@@ -16,7 +16,6 @@ import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
-import org.eclipse.epsilon.eol.staticanalyser.StaticModelFactory;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.junit.BeforeClass;
 import org.junit.Test;

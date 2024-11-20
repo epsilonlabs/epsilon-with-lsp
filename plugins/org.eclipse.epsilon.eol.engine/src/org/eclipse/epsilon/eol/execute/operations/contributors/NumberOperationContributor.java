@@ -11,7 +11,7 @@ package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.util.stream.LongStream;
 
-import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.types.NumberUtil;
 
@@ -22,10 +22,9 @@ public class NumberOperationContributor extends OperationContributor {
 		return target instanceof Number;
 	}
 	
-	//TODO Replace this with EolNativeType<Number>
 	@Override
 	public EolType contributesToType() {
-		return EolPrimitiveType.Integer;
+		return new EolNativeType(Number.class);
 	}
 	
 	@Override

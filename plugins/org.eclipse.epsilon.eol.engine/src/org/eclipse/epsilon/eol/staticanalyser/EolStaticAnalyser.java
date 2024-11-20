@@ -1247,6 +1247,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return EolCollectionType.Set;
 		} else if (javaClass == java.util.Map.class) {
 			return EolMapType.Map;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.EolCollection.class) {
+			return EolCollectionType.Collection;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.EolBag.class) {
+			return EolCollectionType.Bag;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.EolSequence.class) {
+			return EolCollectionType.Sequence;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.EolSet.class) {
+			return EolCollectionType.Set;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.EolOrderedSet.class) {
+			return EolCollectionType.OrderedSet;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.concurrent.EolConcurrentBag.class) {
+			return EolCollectionType.ConcurrentBag;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.concurrent.EolConcurrentSet.class) {
+			return EolCollectionType.ConcurrentSet;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.concurrent.EolConcurrentMap.class) {
+			return EolMapType.ConcurrentMap;
 		} else {
 			return new EolNativeType(javaClass);
 		}

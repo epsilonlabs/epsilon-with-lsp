@@ -76,8 +76,10 @@ public class EolStaticAnalyserTests {
 
 	@Parameters(name = "{0}")
 	public static Collection<String> data() {
-		File folder = new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/scripts");
+		File folder = new File(SOURCE_FOLDER,
+				String.join(File.separator, "org", "eclipse", "epsilon", "eol", "staticanalyser", "tests", "scripts"));
 		List<String> files = new ArrayList<>();
+
 		for (File file : folder.listFiles()) {
 			if (!file.isDirectory()) {
 				files.add(file.getName());

@@ -115,18 +115,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	protected List<ModuleMarker> errors = new ArrayList<>();
 	protected List<ModuleMarker> warnings = new ArrayList<>();
 	protected EolModule module;
-	protected BuiltinEolModule builtinModule = new BuiltinEolModule();
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
 	protected List<IStaticOperation> operations = new ArrayList<>();
-	HashMap<Operation, Boolean> returnFlags = new HashMap<>();
-	// For compiling user and builtin operations
-//	HashMap<OperationCallExpression, ArrayList<Operation>> operations = new HashMap<>(); // keeping all matched
-																							// operations with same name
-	HashMap<OperationCallExpression, ArrayList<Operation>> matchedOperations = new HashMap<>(); // keeping all matched
-	// parameters
-	HashMap<OperationCallExpression, ArrayList<EolType>> matchedReturnType = new HashMap<>(); // keeping returnTypes of
-																								// matched operations
-	HashMap<OperationCallExpression, Boolean> matched = new HashMap<>(); // finding one perfect match, in doesn't change																		// for every missmatch
+	HashMap<Operation, Boolean> returnFlags = new HashMap<>();																		// for every missmatch
 
 	public EolStaticAnalyser() {
 	}
@@ -137,7 +128,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(AbortStatement abortStatement) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -153,7 +143,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(AnnotationBlock annotationBlock) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -190,14 +179,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(BreakStatement breakStatement) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void visit(Case case_) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -212,14 +197,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(ComplexOperationCallExpression complexOperationCallExpression) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void visit(ContinueStatement continueStatement) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -242,8 +223,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(EnumerationLiteralExpression enumerationLiteralExpression) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -473,8 +452,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(Import import_) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -515,8 +492,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(MapLiteralExpression<?, ?> mapLiteralExpression) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -589,8 +564,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(ModelDeclarationParameter modelDeclarationParameter) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -674,7 +647,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Expression targetExpression = operationCallExpression.getTargetExpression();
 		List<Expression> parameterExpressions = operationCallExpression.getParameterExpressions();
 		NameExpression nameExpression = operationCallExpression.getNameExpression();
-		setMatchedReturnType(operationCallExpression, new ArrayList<EolType>()); 
 		EolType contextType = EolNoType.Instance;
 
 		if (targetExpression != null) {
@@ -980,8 +952,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(SimpleAnnotation simpleAnnotation) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -998,8 +968,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(SwitchStatement switchStatement) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -1021,8 +989,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(TransactionStatement transactionStatement) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -1086,7 +1052,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			EolModelElementType modelElementType = getModelElementType(typeExpression.getName(), typeExpression);
 			if (modelElementType != null) {
 				type = modelElementType;
-				// System.out.println("Printing:"+modelElementType.getMetaClass().getSuperTypes().get(0).getName());
 				if (modelElementType.getMetaClass() == null && !context.getModelDeclarations().isEmpty()) {
 					errors.add(new ModuleMarker(typeExpression, "Unknown type " + typeExpression.getName(),
 							Severity.Error));
@@ -1310,112 +1275,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		errors.add(new ModuleMarker(providedExpression,
 				getResolvedType(providedExpression) + " cannot be assigned to " + getResolvedType(requiredExpression),
 				Severity.Error));
-	}
-
-	public Operation getExactMatchedOperation(OperationCallExpression oc) {
-		List<Operation> operations = matchedOperations.get(oc);
-		if (operations == null)
-			return null;
-		if (operations.isEmpty())
-			return null;
-		if (operations.size() > 1) {
-			// Check contextType
-			for (Operation operation : operations) {
-				if (operation.getContextTypeExpression() != null) {
-					EolType operationContextType = getResolvedType(operation.getContextTypeExpression());
-					EolType opCallExpContextType = getResolvedType(oc.getTargetExpression());
-
-					if (isCompatible(operationContextType, opCallExpContextType)) {
-						int loopCounter = 0;
-						if (oc.getParameterExpressions().size() > 1) {
-							for (Expression parameter : oc.getParameterExpressions()) {
-								EolType paramContextType = getResolvedType(
-										operation.getFormalParameters().get(loopCounter).getTypeExpression());
-								EolType paramTargetType = getResolvedType(parameter);
-								if (isCompatible(paramContextType, paramTargetType)) {
-									oc.getData().put("exactMatch", operation);
-									return operation;
-								}
-								loopCounter++;
-							}
-							loopCounter = 0;
-							for (Expression parameter : oc.getParameterExpressions()) {
-								EolType paramContextType = getResolvedType(
-										operation.getFormalParameters().get(loopCounter).getTypeExpression());
-								EolType paramTargetType = getResolvedType(parameter);
-								if (canBeCompatible(paramContextType, paramTargetType)) {
-									oc.getData().put("exactMatch", operation);
-									return operation;
-								}
-								loopCounter++;
-							}
-
-						}
-						return operation;
-
-					} else if (canBeCompatible(operationContextType, opCallExpContextType)) {
-						int loopCounter = 0;
-						if (oc.getParameterExpressions().size() > 1) {
-							for (Expression parameter : oc.getParameterExpressions()) {
-								EolType paramContextType = getResolvedType(
-										operation.getFormalParameters().get(loopCounter).getTypeExpression());
-								EolType paramTargetType = getResolvedType(parameter);
-								if (isCompatible(paramContextType, paramTargetType)) {
-									oc.getData().put("exactMatch", operation);
-									return operation;
-								}
-								loopCounter++;
-							}
-							loopCounter = 0;
-							for (Expression parameter : oc.getParameterExpressions()) {
-								EolType paramContextType = getResolvedType(
-										operation.getFormalParameters().get(loopCounter).getTypeExpression());
-								EolType paramTargetType = getResolvedType(parameter);
-								if (canBeCompatible(paramContextType, paramTargetType)) {
-									oc.getData().put("exactMatch", operation);
-									return operation;
-								}
-								loopCounter++;
-							}
-
-						}
-						oc.getData().put("exactMatch", operation);
-						return operation;
-					}
-				} else {
-					if (oc.getParameterExpressions().size() > 1) {
-						int loopCounter = 0;
-						for (Expression parameter : oc.getParameterExpressions()) {
-							EolType paramContextType = getResolvedType(
-									operation.getFormalParameters().get(loopCounter).getTypeExpression());
-							EolType paramTargetType = getResolvedType(parameter);
-							if (isCompatible(paramContextType, paramTargetType)) {
-								oc.getData().put("exactMatch", operation);
-								return operation;
-							}
-							loopCounter++;
-						}
-						loopCounter = 0;
-						for (Expression parameter : oc.getParameterExpressions()) {
-							EolType paramContextType = getResolvedType(
-									operation.getFormalParameters().get(loopCounter).getTypeExpression());
-							EolType paramTargetType = getResolvedType(parameter);
-							if (canBeCompatible(paramContextType, paramTargetType)) {
-								oc.getData().put("exactMatch", operation);
-								return operation;
-							}
-							loopCounter++;
-						}
-
-					}
-					oc.getData().put("exactMatch", operation);
-					return operation;
-				}
-			}
-
-		}
-		oc.getData().put("exactMatch", operations.get(0));
-		return operations.get(0);
 	}
 
 	public boolean isCompatible(EolType targetType, EolType valueType) {
@@ -1645,38 +1504,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	public void setReturnFlag(Operation op, boolean returnFlag) {
 		returnFlags.put(op, returnFlag);
-	}
-
-//	public ArrayList<Operation> getOperations(OperationCallExpression operationCallExpression) {
-//		return operations.get(operationCallExpression);
-//	}
-//
-//	public void setOperations(OperationCallExpression operationCallExpression, ArrayList<Operation> ops) {
-//		operations.put(operationCallExpression, ops);
-//	}
-
-	public ArrayList<Operation> getMatchedOperations(OperationCallExpression operationCallExpression) {
-		return matchedOperations.get(operationCallExpression);
-	}
-
-	public void setMatchedOperations(OperationCallExpression operationCallExpression, ArrayList<Operation> ops) {
-		matchedOperations.put(operationCallExpression, ops);
-	}
-
-	public ArrayList<EolType> getMatchedReturnType(OperationCallExpression operationCallExpression) {
-		return matchedReturnType.get(operationCallExpression);
-	}
-
-	public void setMatchedReturnType(OperationCallExpression operationCallExpression, ArrayList<EolType> returnTypes) {
-		matchedReturnType.put(operationCallExpression, returnTypes);
-	}
-
-	public Boolean getMatched(OperationCallExpression operationCallExpression) {
-		return matched.get(operationCallExpression);
-	}
-
-	public void setMatched(OperationCallExpression operationCallExpression, boolean match) {
-		matched.put(operationCallExpression, match);
 	}
 
 	public void setResolvedType(Expression expression, EolType type) {

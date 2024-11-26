@@ -11,4 +11,5 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="B" eSuperTypes="#//A"/>
   <eClassifiers xsi:type="ecore:EClass" name="C" eSuperTypes="#//A"/>
+  <eClassifiers xsi:type="ecore:EClass" name="D" eSuperTypes="#//B"/>
 </ecore:EPackage>

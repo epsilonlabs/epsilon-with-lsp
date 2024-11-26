@@ -32,6 +32,11 @@ public class EolUnionType extends EolType {
 	}
 	
 	@Override
+	public List<EolType> getParentTypes(){
+		return new ArrayList<EolType>(containedTypes); 
+	}
+	
+	@Override
 	public List<EolType> getChildrenTypes(){
 		List<EolType> children = new ArrayList<EolType>();
 		children.addAll(containedTypes);

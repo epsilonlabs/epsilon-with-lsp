@@ -162,7 +162,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (valueType instanceof EolModelElementType && ((EolModelElementType) valueType).getMetaClass() != null)
 			valueType = new EolModelElementType(((EolModelElementType) valueType).getMetaClass());
 
-		if (!(isCompatible(targetType, valueType))) {
+		if (!targetType.isAncestorOf(valueType)) {
 			if (canBeCompatible(targetType, valueType)) {
 				createTypeCompatibilityWarning(targetExpression, valueExpression);
 			}
@@ -739,29 +739,31 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (IStaticOperation op : resolvedOperations) {
 			resolvedOperationContextTypes.add(op.getContextType());
 		}
-
+		
+		// If the contextType is a UnionType all containedTypes must be handled
 		if (contextType instanceof EolUnionType) {
-			if (resolvedOperationContextTypes.containsAll(((EolUnionType)contextType).containedTypes)){
-				return;
-			}
-		}
-		else {
-			if (resolvedOperationContextTypes.contains(contextType)) {
-				return;
-			}
-		}
-
-//		TODO: get descendants?
-		for (EolType t : contextType.getChildrenTypes()) {
-			if (!resolvedOperationContextTypes.contains(t)) {
+			outerLoop: for (EolType t : ((EolUnionType) contextType).containedTypes) {
+				for (EolType a : t.getAncestors()) {
+					if (resolvedOperationContextTypes.contains(a)) {
+						continue outerLoop;
+					}
+				}
 				warnings.add(
 						new ModuleMarker(
 								operationCallExpression, "Operation " + nameExpression.getName()
 										+ " is undefined for subtype " + t.getName() + " of " + contextType.getName(),
 								Severity.Warning));
 			}
+		} else {
+			for (EolType a : contextType.getAncestors()) {
+				if (resolvedOperationContextTypes.contains(a)) {
+					return;
+				}
+			}
+			warnings.add(new ModuleMarker(operationCallExpression,
+					"Operation " + nameExpression.getName() + " is undefined for type " + contextType.getName(),
+					Severity.Warning));
 		}
-		
 	}
 
 	@Override
@@ -936,7 +938,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				setReturnFlag(((Operation) parent), true);
 				EolType requiredReturnType = (EolType) parent.getData().get("returnType");
 
-				if (!(isCompatible(requiredReturnType, providedReturnType))) {
+				if (!requiredReturnType.isAncestorOf(providedReturnType)) {
 					if (canBeCompatible(requiredReturnType, providedReturnType))
 						warnings.add(new ModuleMarker(returnedExpression, "Return type might be " + requiredReturnType
 								+ " instead of " + getResolvedType(returnedExpression), Severity.Warning));
@@ -1275,73 +1277,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		errors.add(new ModuleMarker(providedExpression,
 				getResolvedType(providedExpression) + " cannot be assigned to " + getResolvedType(requiredExpression),
 				Severity.Error));
-	}
-
-	public boolean isCompatible(EolType targetType, EolType valueType) {
-
-		if (targetType.equals(EolNoType.Instance) || valueType.equals(EolNoType.Instance)) {
-			return false;
-		}
-
-		if (valueType instanceof EolUnionType) {
-			for (EolType t : ((EolUnionType)valueType).containedTypes) {
-				while(true) {
-					if (t instanceof EolAnyType) {
-						return false;
-					}
-					if (!t.equals(targetType)) {
-						t = getParentType(t);
-					} else {
-						break;
-					}
-				}
-			}
-			return true;
-		}
-		
-		while (true) {
-			if (!(targetType.equals(valueType)) && !(targetType instanceof EolAnyType)) {
-
-				if (valueType instanceof EolAnyType) {
-					return false;
-				}
-
-				valueType = getParentType(valueType);
-
-			} else if (targetType instanceof EolAnyType) {
-				return true;
-			} else if (valueType instanceof EolCollectionType
-					&& !((((EolCollectionType) targetType).getContentType()) instanceof EolAnyType)) {
-
-				EolType valueContentType = ((EolCollectionType) valueType).getContentType();
-				EolType targetContentType = ((EolCollectionType) targetType).getContentType();
-
-				while (targetContentType instanceof EolCollectionType
-						&& valueContentType instanceof EolCollectionType) {
-					if (targetContentType.equals(valueContentType)) {
-						return isCompatible(((EolCollectionType) targetContentType).getContentType(),
-								((EolCollectionType) valueContentType).getContentType());
-					} else {
-						valueContentType = getParentType(valueContentType);
-						return isCompatible(targetContentType, valueContentType);
-
-					}
-				}
-				while (true) {
-					if (valueContentType instanceof EolAnyType) {
-						return false;
-					}
-					if (!valueContentType.equals(targetContentType)) {
-						valueContentType = getParentType(valueContentType);
-					} else {
-						return true;
-					}
-				}
-			}else {
-				return true;
-			}
-
-		}
 	}
 
 	public boolean canBeCompatible(EolType targetType, EolType valueType) {

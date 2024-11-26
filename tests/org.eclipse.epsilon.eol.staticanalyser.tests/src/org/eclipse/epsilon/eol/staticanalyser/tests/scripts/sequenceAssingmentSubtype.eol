@@ -1,0 +1,3 @@
+model M driver EMF {nsuri='sa'};
+
+var v:Sequence<A> = new Sequence<B>;

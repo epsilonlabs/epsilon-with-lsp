@@ -12,6 +12,10 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.staticanalyser.types;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class EolCollectionType extends EolType {
 	
 	protected EolType contentType = EolAnyType.Instance;
@@ -106,5 +110,19 @@ public class EolCollectionType extends EolType {
 			else
 				return EolAnyType.Instance;
 		}
+	}
+	
+	@Override
+	public List<EolType> getParentTypes() {
+		List<EolType> parentTypes = new ArrayList<EolType>();
+		if (this.isBag() || this.isSet() || this.isOrderedSet() || this.isSequence())
+			parentTypes.add(new EolCollectionType("Collection", this.getContentType()));
+		else
+			parentTypes.add(EolAnyType.Instance);
+
+		if (!(this.getContentType() instanceof EolAnyType))
+			parentTypes.addAll(this.getContentType().getParentTypes().stream()
+					.map(e -> new EolCollectionType(this.getName(), e)).collect(Collectors.toList()));
+		return parentTypes;
 	}
 }

@@ -260,6 +260,11 @@ public class EolModelElementType extends EolType {
 		
 		return eq;
 	}
+	
+	@Override
+	public boolean isAbstract() {
+		return metaClass.isAbstract();
+	}
 
 	@Override
 	public List<EolType> getParentTypes() {

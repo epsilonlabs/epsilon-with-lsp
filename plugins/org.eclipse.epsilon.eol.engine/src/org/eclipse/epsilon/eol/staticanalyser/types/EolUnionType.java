@@ -32,6 +32,11 @@ public class EolUnionType extends EolType {
 	}
 	
 	@Override
+	public boolean isAbstract() {
+		return true;
+	}
+	
+	@Override
 	public List<EolType> getParentTypes(){
 		return new ArrayList<EolType>(containedTypes); 
 	}

@@ -25,6 +25,10 @@ public abstract class EolType {
 	public boolean isNot(EolType type) {
 		return this != type && this != EolAnyType.Instance;
 	}
+	
+	public boolean isAbstract() {
+		return false;
+	}
 
 	@Override
 	public String toString() {

@@ -1,4 +1,4 @@
-//?Operation foo is undefined for subtype C of A
+//?Operation foo is undefined for type C
 model M driver EMF {nsuri='sa'};
 
 for (a in A.all) {

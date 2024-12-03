@@ -1,4 +1,4 @@
-//?Operation bar is undefined for subtype C of C|B
+//?Operation bar is undefined for type C
 model M driver EMF {nsuri='sa'};
 
 for (a in A.all) {

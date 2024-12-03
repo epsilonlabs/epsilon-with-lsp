@@ -96,9 +96,9 @@ public class EolCollectionType extends EolType {
 	}
 	
 	/*
-	If A is a sub-type of B, then the parent types of Sequence(A) are:
-		- Collection(A)
-		- Sequence(B) [This is not supported yet by the implementation below]
+	If B is a sub-type of A, then the parent types of Sequence(B) are:
+		- Collection(B)
+		- Sequence(A) [This is not supported yet by the implementation below]
 	 */
 	@Override
 	public EolType getParentType() {

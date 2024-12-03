@@ -37,8 +37,17 @@ public class EolUnionType extends EolType {
 	}
 	
 	@Override
-	public List<EolType> getParentTypes(){
-		return new ArrayList<EolType>(containedTypes); 
+	public List<EolType> getParentTypes() {
+		Set<EolType> parentsOfContained = containedTypes.stream().flatMap(t -> t.getParentTypes().stream())
+				.collect(Collectors.toSet());
+		if (parentsOfContained.size() == 1) {
+			return new ArrayList<EolType>(parentsOfContained);
+		} else {
+			EolUnionType t = new EolUnionType(parentsOfContained);
+			List<EolType> r = new ArrayList<EolType>();
+			r.add(t);
+			return r;
+		}
 	}
 	
 	@Override

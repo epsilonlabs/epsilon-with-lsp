@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
@@ -730,9 +731,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 		//Process resolved operations		
-		List<EolType> returnTypes = resolvedOperations.stream()
-				.map(op -> op.getReturnType()).collect(Collectors.toList());
-		setResolvedType(operationCallExpression, new EolUnionType(returnTypes));
+		Set<EolType> returnTypes = resolvedOperations.stream()
+				.map(op -> op.getReturnType()).collect(Collectors.toSet());
+		if (returnTypes.size() == 1){
+			setResolvedType(operationCallExpression, (EolType)returnTypes.toArray()[0]);
+		}else {
+			setResolvedType(operationCallExpression, new EolUnionType(returnTypes));
+		}
 		
 		//Check for warning related to subtypes
 		Set<EolType> resolvedOperationContextTypes = new HashSet<EolType>();
@@ -740,29 +745,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			resolvedOperationContextTypes.add(op.getContextType());
 		}
 		
-		// If the contextType is a UnionType all containedTypes must be handled
-		if (contextType instanceof EolUnionType) {
-			outerLoop: for (EolType t : ((EolUnionType) contextType).containedTypes) {
-				for (EolType a : t.getAncestors()) {
-					if (resolvedOperationContextTypes.contains(a)) {
-						continue outerLoop;
-					}
-				}
-				warnings.add(
-						new ModuleMarker(
-								operationCallExpression, "Operation " + nameExpression.getName()
-										+ " is undefined for subtype " + t.getName() + " of " + contextType.getName(),
-								Severity.Warning));
-			}
-		} else {
-			for (EolType a : contextType.getAncestors()) {
+		Stack<EolType> stack = new Stack<EolType>();
+		stack.push(contextType);
+		outerLoop: while (!stack.isEmpty()) {
+			EolType currentNode = stack.pop();
+			for (EolType a : currentNode.getAncestors()) {
 				if (resolvedOperationContextTypes.contains(a)) {
-					return;
+					continue outerLoop;
 				}
 			}
-			warnings.add(new ModuleMarker(operationCallExpression,
-					"Operation " + nameExpression.getName() + " is undefined for type " + contextType.getName(),
-					Severity.Warning));
+			if (currentNode.isAbstract()) {
+				stack.addAll(currentNode.getChildrenTypes());
+			} else {
+				warnings.add(new ModuleMarker(operationCallExpression,
+						"Operation " + nameExpression.getName() + " is undefined for type " + currentNode.getName(),
+						Severity.Warning));
+			}
 		}
 	}
 

@@ -52,7 +52,7 @@ public abstract class EolType {
 
 		EolType eolType = (EolType) other;
 
-		return Objects.equals(this.getName(), eolType.getName());
+		return Objects.equals(this.toString(), eolType.toString());
 	}
 
 	public List<EolType> getParentTypes() {

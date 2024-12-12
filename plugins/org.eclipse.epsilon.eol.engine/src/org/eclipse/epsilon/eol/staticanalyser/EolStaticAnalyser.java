@@ -65,7 +65,6 @@ import org.eclipse.epsilon.eol.dom.NotEqualsOperatorExpression;
 import org.eclipse.epsilon.eol.dom.NotOperatorExpression;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.OperationCallExpression;
-import org.eclipse.epsilon.eol.dom.OperationList;
 import org.eclipse.epsilon.eol.dom.OperatorExpression;
 import org.eclipse.epsilon.eol.dom.OrOperatorExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -88,6 +87,8 @@ import org.eclipse.epsilon.eol.dom.WhileStatement;
 import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
+import org.eclipse.epsilon.eol.execute.operations.AbstractOperation;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.m3.MetaClass;
@@ -259,124 +260,50 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		expressionStatement.getExpression().accept(this);
 
 	}
-
+	
 	@Override
 	public void visit(FirstOrderOperationCallExpression firstOrderOperationCallExpression) {
-		OperationList builtinOperations = new OperationList();
+		String name = firstOrderOperationCallExpression.getName();
+		AbstractOperation operation = context.operationFactory.getOperationFor(name);
+		if (operation == null) {
+			errors.add(new ModuleMarker(firstOrderOperationCallExpression.getNameExpression(),
+					"Undefined first order operation " + name, Severity.Error));
+			return;
+		};
+		TypeCalculator tc = operation.getClass().getAnnotation(TypeCalculator.class);
+		if (tc == null) {
+			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);
+			return;
+		}
+		
+
 		Expression targetExpression = firstOrderOperationCallExpression.getTargetExpression();
-		EolType contextType = null;
-		String name = firstOrderOperationCallExpression.getNameExpression().getName();
-
-		for (Operation op : ((EolModule) module).getOperations())
-			if (op.getAnnotation("firstorder") != null)
-				builtinOperations.add(op);
-
 		targetExpression.accept(this);
-
-		if (getResolvedType(targetExpression) instanceof EolCollectionType) {
-			contextType = ((EolCollectionType) getResolvedType(targetExpression)).getContentType();
-		} else if (getResolvedType(targetExpression) == EolAnyType.Instance) {
-			contextType = getResolvedType(targetExpression);
+		EolType contextType = getResolvedType(targetExpression);
+		if (!(contextType instanceof EolCollectionType)) {
+			contextType = new EolCollectionType("Sequence", contextType);
 		}
 
-		if (name.startsWith("sequential"))
-			name = name.substring(10);
-		else if (name.startsWith("parallel"))
-			name = name.substring(8);
+		Parameter parameter = firstOrderOperationCallExpression.getParameters().get(0);
+		parameter.accept(this);
+		EolType parameterType = (EolType) parameter.getData().get("type");
+		if (parameterType.equals(EolAnyType.Instance)) {
+			parameterType = ((EolCollectionType) contextType).getContentType();
+		}
 
-		if (contextType != null) {
-			context.getFrameStack().enterLocal(FrameType.UNPROTECTED, firstOrderOperationCallExpression);
-			Parameter parameter = firstOrderOperationCallExpression.getParameters().get(0);
-
-			visit(parameter, false);
-
-			if (parameter.isExplicitlyTyped()) {
-				// TODO: Check that the type of the parameter is a subtype of the type of the
-				// collection
-				contextType = getType(parameter);
-				EolType target = ((EolCollectionType) getResolvedType(targetExpression)).getContentType();
-				EolType param = contextType;
-				while (!(param.equals(target))) {
-					param = getParentType(param);
-					if (param instanceof EolAnyType) {
-						// context.addErrorMarker(parameter, );
-						errors.add(new ModuleMarker(parameter, "The parameter must be instance of " + target.getName(),
-								Severity.Error));
-
-						break;
-					}
-				}
-			} else {
-				// context.getFrameStack().put(parameter.getName(), contextType);
-				if (getResolvedType(targetExpression) instanceof EolCollectionType) {
-
-					parameter.setTypeExpression(new TypeExpression(
-							((EolCollectionType) getResolvedType(targetExpression)).getContentType().getName()));
-
-					setResolvedType(parameter.getTypeExpression(),
-							((EolCollectionType) getResolvedType(targetExpression)).getContentType());
-				} else {
-					parameter.setTypeExpression(new TypeExpression("Any"));
-					setResolvedType(parameter.getTypeExpression(), EolAnyType.Instance);
-				}
-				setType(parameter, getResolvedType(parameter.getTypeExpression()));
-				parameter.getTypeExpression().setName(getResolvedType(parameter.getTypeExpression()).toString());
-				contextType = getType(parameter);
-			}
-
-			context.getFrameStack().put(new Variable(parameter.getName(), getType(parameter)));
-
-			Expression expression = firstOrderOperationCallExpression.getExpressions().get(0);
-			expression.accept(this);
-
-			context.getFrameStack().leaveLocal(firstOrderOperationCallExpression);
-
-			if (StringUtil.isOneOf(name, "select", "reject", "rejectOne", "closure", "sortBy")) {
-				setResolvedType(firstOrderOperationCallExpression, new EolCollectionType("Collection", contextType));
-			} else if (name.equals("selectOne")) {
-				setResolvedType(firstOrderOperationCallExpression, contextType);
-			} else if (name.equals("collect")) {
-				Operation firstOrder = builtinOperations.getOperation(name);
-				firstOrder.getReturnTypeExpression().accept(this);
-				setResolvedType(firstOrder.getReturnTypeExpression(), getResolvedType(targetExpression));
-
-				if (!(getResolvedType(firstOrder.getReturnTypeExpression()) instanceof EolAnyType))
-					((EolCollectionType) getResolvedType(firstOrder.getReturnTypeExpression()))
-							.setContentType(getResolvedType(firstOrderOperationCallExpression.getExpressions().get(0)));
-
-				setResolvedType(firstOrderOperationCallExpression,
-						new EolCollectionType(getResolvedType(targetExpression).getName(),
-								getResolvedType(firstOrderOperationCallExpression.getExpressions().get(0))));
-
-			} else if (StringUtil.isOneOf(name, "exists", "forAll", "one", "none", "nMatch")) {
-				setResolvedType(firstOrderOperationCallExpression, EolPrimitiveType.Boolean);
-			} else if (name.equals("aggregate")) {
-				if (firstOrderOperationCallExpression.getExpressions().size() == 2) {
-					Expression valueExpression = firstOrderOperationCallExpression.getExpressions().get(1);
-					valueExpression.accept(this);
-
-					setResolvedType(firstOrderOperationCallExpression,
-							new EolMapType(getResolvedType(expression), getResolvedType(valueExpression)));
-				} else {
-					errors.add(new ModuleMarker(firstOrderOperationCallExpression.getNameExpression(),
-							"Aggregate requires a key and a value expression", Severity.Error));
-
-				}
-			} else if (name.equals("mapBy")) {
-				setResolvedType(firstOrderOperationCallExpression,
-						new EolMapType(getResolvedType(expression), new EolCollectionType("Sequence", contextType)));
-			} else if (name.equals("sortBy")) {
-				setResolvedType(firstOrderOperationCallExpression, new EolCollectionType("Sequence", contextType));
-			}
-			if (StringUtil.isOneOf(name, "select", "selectOne", "reject", "rejectOne", "exists", "one", "none",
-					"forAll", "closure") && getResolvedType(expression).isNot(EolPrimitiveType.Boolean)) {
-
-				errors.add(new ModuleMarker(expression, "Expression should return a Boolean but returns a "
-						+ getResolvedType(expression).getName() + " instead", Severity.Error));
-			}
-		} else {
-			errors.add(new ModuleMarker(firstOrderOperationCallExpression.getNameExpression(),
-					"Operation " + name + " only applies to collections", Severity.Error));
+		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, firstOrderOperationCallExpression,
+				new Variable(parameter.getName(), parameterType));
+		Expression expression = firstOrderOperationCallExpression.getExpressions().get(0);
+		expression.accept(this);
+		EolType expressionType = getResolvedType(expression);
+		context.getFrameStack().leaveLocal(firstOrderOperationCallExpression);
+		
+		try {
+			EolType returnType = tc.klass().newInstance().calculateType(contextType, expressionType);
+			setResolvedType(firstOrderOperationCallExpression, returnType);
+		} catch (Exception e) {
+			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);
+			e.printStackTrace();
 		}
 	}
 

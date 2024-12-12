@@ -1,0 +1,2 @@
+var seq : Sequence<Integer> = Sequence{0..9};
+/*Sequence<Integer>*/seq.collect(e:Integer|e+1);

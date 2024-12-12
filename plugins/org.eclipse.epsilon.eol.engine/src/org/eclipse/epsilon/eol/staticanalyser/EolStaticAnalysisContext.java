@@ -11,6 +11,7 @@ import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.dom.ModelDeclaration;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.execute.operations.EolOperationFactory;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributorRegistry;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.models.ModelRepository;
@@ -25,6 +26,7 @@ public class EolStaticAnalysisContext {
 	protected Map<String, ModelDeclaration> modelDeclarations = new HashMap<>();
 	protected ModelRepository repository = new ModelRepository();
 	protected OperationContributorRegistry  operationContributorRegistry = new OperationContributorRegistry();
+	protected EolOperationFactory operationFactory = new EolOperationFactory();
 	
 	
 	public Map<String, ModelDeclaration> getModelDeclarations() {

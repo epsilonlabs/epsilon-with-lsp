@@ -119,11 +119,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	protected EolModule module;
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
 	protected List<IStaticOperation> operations = new ArrayList<>();
-	HashMap<Operation, Boolean> returnFlags = new HashMap<>();																		// for every missmatch
+	HashMap<Operation, Boolean> returnFlags = new HashMap<>(); // for every missmatch
 
 	public EolStaticAnalyser() {
 	}
-	
+
 	public EolStaticAnalyser(IModelFactory modelFactory) {
 		context.modelFactory = modelFactory;
 	}
@@ -167,8 +167,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (!targetType.isAncestorOf(valueType)) {
 			if (canBeCompatible(targetType, valueType)) {
 				createTypeCompatibilityWarning(targetExpression, valueExpression);
-			}
-			else {
+			} else {
 				createTypeCompatibilityError(targetExpression, valueExpression);
 			}
 		}
@@ -260,7 +259,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		expressionStatement.getExpression().accept(this);
 
 	}
-	
+
 	@Override
 	public void visit(FirstOrderOperationCallExpression firstOrderOperationCallExpression) {
 		String name = firstOrderOperationCallExpression.getName();
@@ -269,13 +268,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			errors.add(new ModuleMarker(firstOrderOperationCallExpression.getNameExpression(),
 					"Undefined first order operation " + name, Severity.Error));
 			return;
-		};
+		}
 		TypeCalculator tc = operation.getClass().getAnnotation(TypeCalculator.class);
 		if (tc == null) {
 			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);
 			return;
 		}
-		
 
 		Expression targetExpression = firstOrderOperationCallExpression.getTargetExpression();
 		targetExpression.accept(this);
@@ -297,7 +295,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		expression.accept(this);
 		EolType expressionType = getResolvedType(expression);
 		context.getFrameStack().leaveLocal(firstOrderOperationCallExpression);
-		
+
 		try {
 			EolType returnType = tc.klass().newInstance().calculateType(contextType, expressionType);
 			setResolvedType(firstOrderOperationCallExpression, returnType);
@@ -586,11 +584,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (Expression parameterExpression : parameterExpressions) {
 			parameterExpression.accept(this);
 		}
-		
-		//Name check
+
+		// Name check
 		List<IStaticOperation> temp = new ArrayList<IStaticOperation>();
-		for (IStaticOperation op: resolvedOperations) {	
-			if(nameExpression.getName().equals(op.getName())) {
+		for (IStaticOperation op : resolvedOperations) {
+			if (nameExpression.getName().equals(op.getName())) {
 				temp.add(op);
 			}
 		}
@@ -599,14 +597,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			errors.add(new ModuleMarker(nameExpression, "Undefined operation", Severity.Error));
 			return;
 		}
-		
-		//Context check
+
+		// Context check
 		temp = new ArrayList<IStaticOperation>();
-		for (IStaticOperation op: resolvedOperations) {	
+		for (IStaticOperation op : resolvedOperations) {
 			EolType opContextType = op.getContextType();
-			if(contextType == opContextType ||
-					opContextType.isAncestorOf(contextType) ||
-					canBeCompatible(opContextType, contextType)) {
+			if (contextType == opContextType || opContextType.isAncestorOf(contextType)
+					|| canBeCompatible(opContextType, contextType)) {
 				temp.add(op);
 			}
 		}
@@ -617,10 +614,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					Severity.Error));
 			return;
 		}
-		
+
 //		Number of parameters check
 		temp = new ArrayList<IStaticOperation>();
-		for (IStaticOperation op: resolvedOperations) {	
+		for (IStaticOperation op : resolvedOperations) {
 			List<EolType> reqParams = op.getParameterTypes();
 			if (reqParams.size() == parameterExpressions.size()) {
 				temp.add(op);
@@ -631,18 +628,17 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			errors.add(new ModuleMarker(nameExpression, "Parameter number mismatch", Severity.Error));
 			return;
 		}
-		
+
 //		Parameter type checks
 		temp = new ArrayList<IStaticOperation>();
-		for (IStaticOperation op: resolvedOperations) {	
+		for (IStaticOperation op : resolvedOperations) {
 			int index = 0;
 			List<EolType> reqParamTypess = op.getParameterTypes();
 			boolean compatible = true;
 			for (EolType reqParamType : reqParamTypess) {
 				EolType provParamType = getResolvedType(parameterExpressions.get(index));
 				index++;
-				if (!reqParamType.isAncestorOf(provParamType) 
-						&& !canBeCompatible(reqParamType, provParamType)) {
+				if (!reqParamType.isAncestorOf(provParamType) && !canBeCompatible(reqParamType, provParamType)) {
 					compatible = false;
 					break;
 				}
@@ -656,22 +652,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			errors.add(new ModuleMarker(nameExpression, "Parameters type mismatch", Severity.Error));
 			return;
 		}
-		
-		//Process resolved operations		
-		Set<EolType> returnTypes = resolvedOperations.stream()
-				.map(op -> op.getReturnType()).collect(Collectors.toSet());
-		if (returnTypes.size() == 1){
-			setResolvedType(operationCallExpression, (EolType)returnTypes.toArray()[0]);
-		}else {
+
+		// Process resolved operations
+		Set<EolType> returnTypes = resolvedOperations.stream().map(op -> op.getReturnType())
+				.collect(Collectors.toSet());
+		if (returnTypes.size() == 1) {
+			setResolvedType(operationCallExpression, (EolType) returnTypes.toArray()[0]);
+		} else {
 			setResolvedType(operationCallExpression, new EolUnionType(returnTypes));
 		}
-		
-		//Check for warning related to subtypes
+
+		// Check for warning related to subtypes
 		Set<EolType> resolvedOperationContextTypes = new HashSet<EolType>();
 		for (IStaticOperation op : resolvedOperations) {
 			resolvedOperationContextTypes.add(op.getContextType());
 		}
-		
+
 		Stack<EolType> stack = new Stack<EolType>();
 		stack.push(contextType);
 		outerLoop: while (!stack.isEmpty()) {
@@ -775,7 +771,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 								collectionType.setContentType(toStaticAnalyserType(structuralFeature.getType()));
 								setResolvedType(propertyCallExpression, collectionType);
 							} else {
-								setResolvedType(propertyCallExpression, toStaticAnalyserType(structuralFeature.getType()));
+								setResolvedType(propertyCallExpression,
+										toStaticAnalyserType(structuralFeature.getType()));
 							}
 							if (many) {
 								setResolvedType(propertyCallExpression,
@@ -1046,21 +1043,21 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		EolType contextType = EolNoType.Instance;
 		TypeExpression returnTypeExpression = operation.getReturnTypeExpression();
 		EolType returnType = EolAnyType.Instance;
-		
+
 		if (contextTypeExpression != null) {
 			contextTypeExpression.accept(this);
 			contextType = getResolvedType(contextTypeExpression);
 		}
-		
+
 		if (returnTypeExpression != null) {
 			returnTypeExpression.accept(this);
 			returnType = getResolvedType(returnTypeExpression);
 		}
-		
+
 		operation.getData().put("contextType", contextType);
 		operation.getData().put("returnType", returnType);
 	}
-	
+
 	public void preValidate(IEolModule imodule) {
 
 		EolModule eolModule = (EolModule) imodule;
@@ -1069,19 +1066,20 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (ModelDeclaration modelDeclaration : module.getDeclaredModelDeclarations()) {
 			modelDeclaration.accept(this);
 		}
-		
+
 		module.getDeclaredOperations().forEach(o -> operationPreVisitor(o));
 		module.getDeclaredOperations().forEach(o -> operations.add(new SimpleOperation(o)));
 		module.getDeclaredOperations().forEach(o -> o.accept(this));
-		
-		//Parse builtin operations
-		List<OperationContributor> operationContributors = context.operationContributorRegistry.stream().collect(Collectors.toList());
-		for(OperationContributor oc: operationContributors) {
+
+		// Parse builtin operations
+		List<OperationContributor> operationContributors = context.operationContributorRegistry.stream()
+				.collect(Collectors.toList());
+		for (OperationContributor oc : operationContributors) {
 			EolType contextType = oc.contributesToType();
-			
-			for(Method m: oc.getClass().getDeclaredMethods()) {
+
+			for (Method m : oc.getClass().getDeclaredMethods()) {
 				List<EolType> operationParameterTypes = new ArrayList<EolType>();
-				Type[] javaParameterTypes =  m.getGenericParameterTypes();
+				Type[] javaParameterTypes = m.getGenericParameterTypes();
 				for (Type javaParameterType : javaParameterTypes) {
 					operationParameterTypes.add(javaTypeToEolType(javaParameterType));
 				}
@@ -1090,37 +1088,33 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 	}
-	
+
 	public EolType javaTypeToEolType(Type javaType) {
-		
+
 		if (javaType instanceof ParameterizedType) {
-			Type rawType = ((ParameterizedType)javaType).getRawType();
-			Type[] typeArgs = ((ParameterizedType)javaType).getActualTypeArguments();
-			EolType eolType = javaClassToEolType((Class<?>)rawType);
-			if (eolType instanceof EolCollectionType){
+			Type rawType = ((ParameterizedType) javaType).getRawType();
+			Type[] typeArgs = ((ParameterizedType) javaType).getActualTypeArguments();
+			EolType eolType = javaClassToEolType((Class<?>) rawType);
+			if (eolType instanceof EolCollectionType) {
 				EolType contentType = javaTypeToEolType(typeArgs[0]);
 				eolType = new EolCollectionType(eolType.getName(), contentType);
 				return eolType;
-			}
-			else if (eolType instanceof EolMapType) {
+			} else if (eolType instanceof EolMapType) {
 				EolType keyType = javaTypeToEolType(typeArgs[0]);
 				EolType valueType = javaTypeToEolType(typeArgs[1]);
 				eolType = new EolMapType(keyType, valueType);
 				return eolType;
-			}
-			else {
+			} else {
 				return EolAnyType.Instance;
 			}
-		}
-		else if (javaType instanceof Class<?>) {
+		} else if (javaType instanceof Class<?>) {
 			Class<?> javaClass = (Class<?>) javaType;
 			return javaClassToEolType(javaClass);
-		}
-		else {
+		} else {
 			return EolAnyType.Instance;
 		}
 	}
-	
+
 	public EolType javaClassToEolType(Class<?> javaClass) {
 		if (javaClass == String.class || javaClass == char.class) {
 			return EolPrimitiveType.String;
@@ -1209,18 +1203,18 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (targetType == null || valueType == null) {
 			return false;
 		}
-		
+
 		if (valueType instanceof EolUnionType) {
 			EolType tempType;
-			for (EolType t : ((EolUnionType)valueType).containedTypes) {
+			for (EolType t : ((EolUnionType) valueType).containedTypes) {
 				tempType = targetType;
-				while(true) {
+				while (true) {
 					if (tempType instanceof EolAnyType) {
 						break;
 					}
 					if (t.equals(tempType)) {
 						return true;
-						
+
 					} else {
 						tempType = getParentType(tempType);
 					}
@@ -1228,16 +1222,16 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 			return false;
 		}
-		
+
 		if (targetType instanceof EolUnionType) {
-			for (EolType t : ((EolUnionType)targetType).containedTypes) {
+			for (EolType t : ((EolUnionType) targetType).containedTypes) {
 				if (canBeCompatible(t, valueType)) {
 					return true;
 				}
 			}
 			return false;
 		}
-		
+
 		while (true) {
 
 			if (!(targetType.equals(valueType)) && !(valueType instanceof EolAnyType)) {
@@ -1294,6 +1288,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		firstOperand.accept(this);
 		if (secondOperand != null)
 			secondOperand.accept(this);
+		List<EolType> operandTypes = operands.stream().map(o -> getResolvedType(o)).collect(Collectors.toList());
 
 		if (StringUtil.isOneOf(operator, "and", "or", "xor", "not", "implies")) {
 			for (Expression operand : operatorExpression.getOperands()) {
@@ -1326,21 +1321,19 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		if (StringUtil.isOneOf(operator, "+")) {
-			for (Expression operand : operands) {
-				if (getResolvedType(operand) == EolPrimitiveType.String) {
-					setResolvedType(operatorExpression, EolPrimitiveType.String);
-					break;
-				}
-
-				if (getResolvedType(operand) == EolPrimitiveType.Integer)
-					setResolvedType(operatorExpression, EolPrimitiveType.Integer);
-
-				if (getResolvedType(operand) == EolPrimitiveType.Real)
+			if (operandTypes.stream().allMatch(
+					t -> t.equals(EolNativeType.Number) || t.equals(EolPrimitiveType.Real) || t.equals(EolPrimitiveType.Integer))) {
+				if (operandTypes.contains(EolNativeType.Number))
+					setResolvedType(operatorExpression, EolNativeType.Number);
+				else if (operandTypes.contains(EolPrimitiveType.Real))
 					setResolvedType(operatorExpression, EolPrimitiveType.Real);
-			}
-
+				else
+					setResolvedType(operatorExpression, EolPrimitiveType.Integer);
+			}else if (operandTypes.stream().allMatch(t -> t instanceof EolCollectionType))
+				setResolvedType(operatorExpression, operandTypes.get(0));
+			else 
+				setResolvedType(operatorExpression, EolPrimitiveType.String);
 		}
-
 	}
 
 	public boolean hasReturnStatement(Operation operation) {
@@ -1462,7 +1455,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 	}
-	
+
 	private EolType toStaticAnalyserType(org.eclipse.epsilon.eol.types.EolType type) {
 		if (type == null) {
 			return null;

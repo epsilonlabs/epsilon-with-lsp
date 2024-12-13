@@ -8,6 +8,8 @@ public class EolNativeType extends EolType {
 
 	private Class<?> javaClass;
 	
+	public static final EolNativeType Number = new EolNativeType(java.lang.Number.class);
+	
 	public EolNativeType(Class<?> javaClass) {
 		this.javaClass = javaClass;
 	}

@@ -1,0 +1,4 @@
+var seq : Sequence<Any> = Sequence{0,1,'foo'};
+var os : OrderedSet<Any> = OrderedSet{0,1,'foo'};
+/*Sequence<Integer>*/seq.select(e:Integer|true);
+/*OrderedSet<Integer>*/os.select(e:Integer|true);

@@ -22,9 +22,11 @@ import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
 
+@TypeCalculator(klass = SelectTypeCalculator.class)
 public class SelectOperation extends FirstOrderOperation {
 	
 	/**

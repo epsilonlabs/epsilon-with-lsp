@@ -23,6 +23,11 @@ jobs:
     - name: Support longpaths on Windows
       run: git config --system core.longpaths true
       if: runner.os == 'Windows'
+    - name: Disable newline conversion on Windows
+      run: |
+        git config --system core.autocrlf false
+        git config --system core.eol lf
+      if: runner.os == 'Windows'
     - uses: actions/checkout@v3
     - name: Install Webkit + GTK bindings
       run: sudo apt-get update && sudo apt install -yq libwebkit2gtk-4.1-dev

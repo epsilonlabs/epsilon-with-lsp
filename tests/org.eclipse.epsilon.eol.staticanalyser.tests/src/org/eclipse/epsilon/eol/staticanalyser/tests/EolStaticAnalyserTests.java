@@ -96,7 +96,7 @@ public class EolStaticAnalyserTests {
 
 	private void parseFile(File file) throws Exception {
 		String content = new String(Files.readAllBytes(file.toPath()));
-		String[] lines = content.split("\n");
+		String[] lines = content.split(System.lineSeparator());
 		List<String> errorMessages = new ArrayList<String>();
 		List<String> warningMessages = new ArrayList<String>();
 		for (String line: lines) {

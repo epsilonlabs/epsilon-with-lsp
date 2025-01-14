@@ -8,6 +8,10 @@ model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};
 /*String*/'s'+1.1;
 /*String*/'s'+1.abs();
 /*String*/'s'+Sequence{1,2,3};
+/*String*/1+'s';
+/*String*/1.1+'s';
+/*String*/1.abs()+'s';
+/*String*/Sequence{1,2,3}+'s';
 
 
 /*Native<java.lang.Number>*/1.abs()+1.1;

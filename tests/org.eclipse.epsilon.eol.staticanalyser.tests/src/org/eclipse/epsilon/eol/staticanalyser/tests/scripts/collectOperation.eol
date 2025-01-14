@@ -1,2 +1,4 @@
-var seq : Sequence<Integer> = Sequence{0..9};
-/*Sequence<Integer>*/seq.collect(e:Integer|e+1);
+/*Bag<Integer>*/Bag{0..9}.collect(e:Integer|e+1);
+/*Sequence<Integer>*/Sequence{0..9}.collect(e:Integer|e+1);
+/*Bag<Integer>*/Set{0..9}.collect(e:Integer|e+1);
+/*Sequence<Integer>*/OrderedSet{0..9}.collect(e:Integer|e+1);

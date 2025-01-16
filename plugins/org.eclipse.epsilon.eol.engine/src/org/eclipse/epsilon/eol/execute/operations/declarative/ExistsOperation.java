@@ -16,7 +16,9 @@ import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 
+@TypeCalculator(klass = BooleanTypeCalculator.class)
 public class ExistsOperation extends SelectBasedOperation {
 
 	@Override

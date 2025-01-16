@@ -15,6 +15,7 @@ import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
 
 /**
@@ -23,6 +24,7 @@ import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
  * @author Sina Madani
  * @since 1.6
  */
+@TypeCalculator(klass = IntegerTypeCalculator.class)
 public class CountOperation extends FirstOrderOperation {
 
 	@Override

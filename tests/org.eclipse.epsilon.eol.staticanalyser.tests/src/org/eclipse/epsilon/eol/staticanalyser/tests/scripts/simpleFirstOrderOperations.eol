@@ -1,0 +1,9 @@
+/*Boolean*/Sequence{0..9}.atLeastNMatch(i:Integer | i < 5, 1);
+/*Boolean*/Sequence{0..9}.atMostNMatch(i:Integer | i < 5, 1);
+/*Boolean*/Sequence{0..9}.nMatch(i:Integer | i < 5, 1);
+/*Boolean*/Sequence{0..9}.exists(i:Integer | i < 5);
+/*Boolean*/Sequence{0..9}.forAll(i:Integer | i < 5);
+/*Boolean*/Sequence{0..9}.none(i:Integer | i < 5);
+/*Boolean*/Sequence{0..9}.one(i:Integer | i < 5);
+/*Integer*/Sequence{0..9}.count(i:Integer | i < 5);
+

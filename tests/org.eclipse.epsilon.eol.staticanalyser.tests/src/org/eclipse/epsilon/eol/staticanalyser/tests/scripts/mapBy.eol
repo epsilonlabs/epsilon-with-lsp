@@ -1,0 +1,4 @@
+/*Map<Boolean, Sequence<Integer>>*/Bag{0..9}.mapBy(i:Integer|i<5);
+/*Map<Boolean, Sequence<Integer>>*/Sequence{0..9}.mapBy(i:Integer|i<5);
+/*Map<Boolean, Sequence<Integer>>*/Set{0..9}.mapBy(i:Integer|i<5);
+/*Map<Boolean, Sequence<Integer>>*/OrderedSet{0..9}.mapBy(i:Integer|i<5);

@@ -6,3 +6,6 @@ var os : OrderedSet<Any> = OrderedSet{0,1,'foo'};
 /*OrderedSet<Any>*/os.select(e|true);
 
 /*Integer*/Sequence{0,1,'foo'}.selectOne(e:Integer|e<5);
+
+/*Sequence<Integer>*/Sequence{0..9}.reject(e:Integer|e<5);
+/*Sequence<Integer>*/Sequence{0..9}.rejectOne(e:Integer|e<5);

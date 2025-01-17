@@ -16,6 +16,7 @@ import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 
 /**
  * Returns a new Collection containing one less element for which the predicate is not satisfied.
@@ -23,6 +24,7 @@ import org.eclipse.epsilon.eol.execute.context.IEolContext;
  * @author Sina Madani
  * @since 1.6
  */
+@TypeCalculator(klass = SelectTypeCalculator.class)
 public class RejectOneOperation extends SelectBasedOperation {
 
 	@Override

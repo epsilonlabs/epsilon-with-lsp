@@ -3,14 +3,14 @@ package org.eclipse.epsilon.eol.execute.operations.declarative;
 import java.util.List;
 
 import org.eclipse.epsilon.eol.execute.operations.ITypeCalculator;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolMapType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 
-public class IntegerTypeCalculator implements ITypeCalculator {
+public class AggregateTypeCalculator implements ITypeCalculator {
 
 	@Override
 	public EolType calculateType(EolType contextType, EolType iteratorType, List<EolType> expressionTypes) {
-		return EolPrimitiveType.Integer;
+		return new EolMapType(expressionTypes.get(0), expressionTypes.get(1));
 	}
 
 }

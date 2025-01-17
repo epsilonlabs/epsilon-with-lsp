@@ -291,13 +291,16 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, firstOrderOperationCallExpression,
 				new Variable(iterator.getName(), iteratorType));
-		Expression expression = firstOrderOperationCallExpression.getExpressions().get(0);
-		expression.accept(this);
-		EolType expressionType = getResolvedType(expression);
+		List<Expression> expressions = firstOrderOperationCallExpression.getExpressions();
+		for (Expression expression: expressions) {
+			expression.accept(this);
+		}
+		
+		List<EolType> expressionTypes = expressions.stream().map(e -> getResolvedType(e)).collect(Collectors.toList());
 		context.getFrameStack().leaveLocal(firstOrderOperationCallExpression);
 
 		try {
-			EolType returnType = tc.klass().newInstance().calculateType(contextType, iteratorType, expressionType);
+			EolType returnType = tc.klass().newInstance().calculateType(contextType, iteratorType, expressionTypes);
 			setResolvedType(firstOrderOperationCallExpression, returnType);
 		} catch (Exception e) {
 			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);

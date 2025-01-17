@@ -16,10 +16,12 @@ import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolFunction;
 import org.eclipse.epsilon.eol.types.EolMap;
 import org.eclipse.epsilon.eol.types.EolSequence;
 
+@TypeCalculator(klass = MapByTypeCalculator.class)
 public class MapByOperation extends FirstOrderOperation {
 
 	@Override

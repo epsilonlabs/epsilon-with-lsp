@@ -1,5 +1,7 @@
 package org.eclipse.epsilon.eol.execute.operations.declarative;
 
+import java.util.List;
+
 import org.eclipse.epsilon.eol.execute.operations.ITypeCalculator;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolCollectionType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
@@ -7,7 +9,7 @@ import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 public class CollectTypeCalculator implements ITypeCalculator {
 
 	@Override
-	public EolType calculateType(EolType contextType, EolType iteratorType, EolType expressionType) {
+	public EolType calculateType(EolType contextType, EolType iteratorType, List<EolType> expressionTypes) {
 		String collectionName = ((EolCollectionType)contextType).getName();
 		String newCollectionName = null;
 		if (collectionName.equals("Bag") || collectionName.equals("Set")) {
@@ -19,7 +21,7 @@ public class CollectTypeCalculator implements ITypeCalculator {
 		else {
 			throw new RuntimeException("Unknown collection name");
 		}
-		return new EolCollectionType(newCollectionName, expressionType);
+		return new EolCollectionType(newCollectionName, expressionTypes.get(0));
 	}
 
 }

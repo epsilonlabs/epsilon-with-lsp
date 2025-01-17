@@ -20,8 +20,10 @@ import org.eclipse.epsilon.eol.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.types.EolMap;
 
+@TypeCalculator(klass = AggregateTypeCalculator.class)
 public class AggregateOperation extends FirstOrderOperation {
 	
 	@Override

@@ -15,7 +15,9 @@ import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 
+@TypeCalculator(klass = SelectOneTypeCalculator.class)
 public class SelectOneOperation extends SelectBasedOperation {
 
 	@Override

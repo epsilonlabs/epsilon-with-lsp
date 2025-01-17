@@ -4,3 +4,5 @@ var os : OrderedSet<Any> = OrderedSet{0,1,'foo'};
 /*OrderedSet<Integer>*/os.select(e:Integer|true);
 /*Sequence<Any>*/seq.select(e|true);
 /*OrderedSet<Any>*/os.select(e|true);
+
+/*Integer*/Sequence{0,1,'foo'}.selectOne(e:Integer|e<5);

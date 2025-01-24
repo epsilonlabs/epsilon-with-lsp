@@ -1,11 +1,18 @@
 var seq : Sequence<Any> = Sequence{0,1,'foo'};
 var os : OrderedSet<Any> = OrderedSet{0,1,'foo'};
 /*Sequence<Integer>*/seq.select(e:Integer|true);
+/*Sequence<Integer>*/seq.parallelSelect(e:Integer|true);
 /*OrderedSet<Integer>*/os.select(e:Integer|true);
+/*OrderedSet<Integer>*/os.parallelSelect(e:Integer|true);
 /*Sequence<Any>*/seq.select(e|true);
+/*Sequence<Any>*/seq.parallelSelect(e|true);
 /*OrderedSet<Any>*/os.select(e|true);
+/*OrderedSet<Any>*/os.parallelSelect(e|true);
 
 /*Integer*/Sequence{0,1,'foo'}.selectOne(e:Integer|e<5);
+/*Integer*/Sequence{0,1,'foo'}.parallelSelectOne(e:Integer|e<5);
 
 /*Sequence<Integer>*/Sequence{0..9}.reject(e:Integer|e<5);
+/*Sequence<Integer>*/Sequence{0..9}.parallelReject(e:Integer|e<5);
 /*Sequence<Integer>*/Sequence{0..9}.rejectOne(e:Integer|e<5);
+/*Sequence<Integer>*/Sequence{0..9}.parallelRejectOne(e:Integer|e<5);

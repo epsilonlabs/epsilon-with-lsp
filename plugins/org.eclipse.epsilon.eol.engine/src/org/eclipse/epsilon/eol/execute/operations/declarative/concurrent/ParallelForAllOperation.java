@@ -9,6 +9,8 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.declarative.concurrent;
 
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
+import org.eclipse.epsilon.eol.execute.operations.declarative.BooleanTypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.declarative.ForAllOperation;
 
 /**
@@ -16,6 +18,7 @@ import org.eclipse.epsilon.eol.execute.operations.declarative.ForAllOperation;
  * @author Sina Madani
  * @since 1.6
  */
+@TypeCalculator(klass = BooleanTypeCalculator.class)
 public class ParallelForAllOperation extends ForAllOperation {
 	
 	public ParallelForAllOperation() {

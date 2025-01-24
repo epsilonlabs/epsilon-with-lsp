@@ -1,9 +1,24 @@
 /*Boolean*/Sequence{0..9}.atLeastNMatch(i:Integer | i < 5, 1);
+/*Boolean*/Sequence{0..9}.parallelAtLeastNMatch(i:Integer | i < 5, 1);
+
 /*Boolean*/Sequence{0..9}.atMostNMatch(i:Integer | i < 5, 1);
+/*Boolean*/Sequence{0..9}.parallelAtMostNMatch(i:Integer | i < 5, 1);
+
 /*Boolean*/Sequence{0..9}.nMatch(i:Integer | i < 5, 1);
+/*Boolean*/Sequence{0..9}.parallelNMatch(i:Integer | i < 5, 1);
+
 /*Boolean*/Sequence{0..9}.exists(i:Integer | i < 5);
+/*Boolean*/Sequence{0..9}.parallelExists(i:Integer | i < 5);
+
 /*Boolean*/Sequence{0..9}.forAll(i:Integer | i < 5);
+/*Boolean*/Sequence{0..9}.parallelForAll(i:Integer | i < 5);
+
 /*Boolean*/Sequence{0..9}.none(i:Integer | i < 5);
+/*Boolean*/Sequence{0..9}.parallelNone(i:Integer | i < 5);
+
 /*Boolean*/Sequence{0..9}.one(i:Integer | i < 5);
+/*Boolean*/Sequence{0..9}.parallelOne(i:Integer | i < 5);
+
 /*Integer*/Sequence{0..9}.count(i:Integer | i < 5);
+/*Integer*/Sequence{0..9}.parallelCount(i:Integer | i < 5);
 

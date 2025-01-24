@@ -23,7 +23,9 @@ import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.concurrent.EolContextParallel;
 import org.eclipse.epsilon.eol.execute.context.concurrent.IEolContextParallel;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.declarative.MapByOperation;
+import org.eclipse.epsilon.eol.execute.operations.declarative.MapByTypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolFunction;
 import org.eclipse.epsilon.eol.types.EolMap;
 import org.eclipse.epsilon.eol.types.EolSequence;
@@ -33,6 +35,7 @@ import org.eclipse.epsilon.eol.types.EolSequence;
  * @author Sina Madani
  * @since 1.6
  */
+@TypeCalculator(klass = MapByTypeCalculator.class)
 public class ParallelMapByOperation extends MapByOperation {
 
 	@Override

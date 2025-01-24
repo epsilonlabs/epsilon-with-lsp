@@ -23,7 +23,9 @@ import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.concurrent.EolContextParallel;
 import org.eclipse.epsilon.eol.execute.context.concurrent.IEolContextParallel;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.declarative.SelectOperation;
+import org.eclipse.epsilon.eol.execute.operations.declarative.SelectTypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
 
@@ -32,6 +34,7 @@ import org.eclipse.epsilon.eol.types.EolCollectionType;
  * @author Sina Madani
  * @since 1.6
  */
+@TypeCalculator(klass = SelectTypeCalculator.class)
 public class ParallelSelectOperation extends SelectOperation {
 	
 	@Override

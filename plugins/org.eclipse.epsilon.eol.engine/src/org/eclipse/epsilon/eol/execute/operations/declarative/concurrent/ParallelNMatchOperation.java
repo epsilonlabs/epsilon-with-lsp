@@ -22,6 +22,8 @@ import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.concurrent.EolContextParallel;
 import org.eclipse.epsilon.eol.execute.context.concurrent.IEolContextParallel;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
+import org.eclipse.epsilon.eol.execute.operations.declarative.BooleanTypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.declarative.NMatchOperation;
 import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
 
@@ -30,6 +32,7 @@ import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
  * @author Sina Madani
  * @since 1.6
  */
+@TypeCalculator(klass = BooleanTypeCalculator.class)
 public class ParallelNMatchOperation extends NMatchOperation {
 	
 	public ParallelNMatchOperation(MatchMode behaviour, int n) throws IllegalArgumentException {

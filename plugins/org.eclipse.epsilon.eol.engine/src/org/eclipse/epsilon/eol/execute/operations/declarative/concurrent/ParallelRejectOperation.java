@@ -9,13 +9,16 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.declarative.concurrent;
 
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.declarative.RejectOperation;
+import org.eclipse.epsilon.eol.execute.operations.declarative.SelectTypeCalculator;
 
 /**
  * 
  * @author Sina Madani
  * @since 1.6
  */
+@TypeCalculator(klass = SelectTypeCalculator.class)
 public class ParallelRejectOperation extends RejectOperation {
 
 	public ParallelRejectOperation() {

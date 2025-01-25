@@ -2,3 +2,4 @@
 /*Sequence<Integer>*/Sequence{0..9};
 /*Set<Integer>*/Set{0..9};
 /*OrderedSet<Integer>*/OrderedSet{0..9};
+/*Bag<Integer|Real|String>*/Bag{0,1,2,2.3,'s'};

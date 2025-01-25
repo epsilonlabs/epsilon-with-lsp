@@ -1,0 +1,8 @@
+/*Sequence<Integer>*/Sequence{1,2}.closure(i:Integer|i);
+/*Sequence<Integer>*/1.closure(i:Integer|i);
+
+/*Sequence<Integer>*/Sequence{1,2}.closure(i:Integer|Sequence{i});
+/*Sequence<Integer>*/1.closure(i:Integer|Sequence{i});
+
+/*Sequence<Sequence<Integer>>*/Sequence{1,2}.closure(i:Integer|Sequence{Sequence{i}});
+/*Sequence<Sequence<Integer>>*/1.closure(i:Integer|Sequence{Sequence{i}});

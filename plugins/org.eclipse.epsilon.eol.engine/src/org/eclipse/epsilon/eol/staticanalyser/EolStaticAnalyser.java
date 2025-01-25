@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -189,10 +190,21 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	@Override
 	public void visit(CollectionLiteralExpression<?> collectionLiteralExpression) {
 		if (!collectionLiteralExpression.getParameterExpressions().isEmpty()) {
-			collectionLiteralExpression.getParameterExpressions().get(0).accept(this);
-			setResolvedType(collectionLiteralExpression,
-					new EolCollectionType(collectionLiteralExpression.getCollectionType(),
-							getResolvedType(collectionLiteralExpression.getParameterExpressions().get(0))));
+			Set<EolType> types = new LinkedHashSet<EolType>();
+			for (Expression e : collectionLiteralExpression.getParameterExpressions()) {
+				e.accept(this);
+				types.add(getResolvedType(e));
+			}
+			if (types.size() == 1) {
+				setResolvedType(collectionLiteralExpression, new EolCollectionType(
+						collectionLiteralExpression.getCollectionType(), types.iterator().next()));
+			}
+			else {
+				setResolvedType(collectionLiteralExpression,
+						new EolCollectionType(collectionLiteralExpression.getCollectionType(),
+								new EolUnionType(types)));
+
+			}
 		}
 	}
 

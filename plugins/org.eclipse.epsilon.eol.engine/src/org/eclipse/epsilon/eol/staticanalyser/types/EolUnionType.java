@@ -2,14 +2,14 @@ package org.eclipse.epsilon.eol.staticanalyser.types;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EolUnionType extends EolType {
 	
-	public Set<EolType> containedTypes = new HashSet<EolType>();
+	public Set<EolType> containedTypes = new LinkedHashSet<EolType>();
 	
 	public EolUnionType(EolType... eolTypes) {
 		for (EolType type : eolTypes) {

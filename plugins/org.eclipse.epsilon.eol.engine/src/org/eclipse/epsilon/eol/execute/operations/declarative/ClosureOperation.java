@@ -24,8 +24,10 @@ import org.eclipse.epsilon.eol.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.types.EolOrderedSet;
+import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.types.EolType;
 
+@TypeCalculator(klass = ClosureTypeCalculator.class)
 public class ClosureOperation extends FirstOrderOperation {
 	
 	protected void closure(Collection<Object> closure, Collection<?> source, Parameter parameter, Expression expression, IEolContext context) throws EolRuntimeException {

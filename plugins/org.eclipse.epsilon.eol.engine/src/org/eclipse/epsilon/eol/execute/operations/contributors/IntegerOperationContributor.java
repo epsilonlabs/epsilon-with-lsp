@@ -11,6 +11,8 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.contributors;
 
+import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.types.EolSequence;
 
 public class IntegerOperationContributor extends OperationContributor {
@@ -18,6 +20,11 @@ public class IntegerOperationContributor extends OperationContributor {
 	@Override
 	public boolean contributesTo(Object target) {
 		return target instanceof Integer;
+	}
+	
+	@Override
+	public EolType contributesToType() {
+		return EolPrimitiveType.Integer;
 	}
 
 	@Override

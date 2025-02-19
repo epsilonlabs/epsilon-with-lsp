@@ -14,6 +14,11 @@ public class EolAnyType extends EolType {
 	public static final EolAnyType Instance = new EolAnyType();
 	
 	@Override
+	public boolean isNot(EolType type) {
+		return false;
+	}
+	
+	@Override
 	public String getName() {
 		return "Any";
 	}
@@ -30,6 +35,6 @@ public class EolAnyType extends EolType {
 	
 	@Override
 	public boolean isAncestorOf(EolType type) {
-		return true;
+		return false;
 	}
 }

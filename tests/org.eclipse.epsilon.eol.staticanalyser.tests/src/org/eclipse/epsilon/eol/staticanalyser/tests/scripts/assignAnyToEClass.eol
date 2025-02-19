@@ -1,7 +1,6 @@
-//?Any may not be assigned to EClass
 model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 
 var c : EClass;
 var any : Any;
 
-c = any; // A warning should only be generated in the "strict" mode
+c = any; // This is OK because Any is the dynamic type.

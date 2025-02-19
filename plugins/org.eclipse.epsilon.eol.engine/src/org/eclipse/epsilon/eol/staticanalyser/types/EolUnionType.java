@@ -37,6 +37,16 @@ public class EolUnionType extends EolType {
 	}
 	
 	@Override
+	public boolean isAncestorOf(EolType type){
+		for(EolType containedType : containedTypes) {
+			if (containedType.isAncestorOf(type)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public List<EolType> getParentTypes() {
 		Set<EolType> parentsOfContained = containedTypes.stream().flatMap(t -> t.getParentTypes().stream())
 				.collect(Collectors.toSet());

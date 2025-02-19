@@ -23,7 +23,7 @@ public abstract class EolType {
 	public abstract String getName();
 
 	public boolean isNot(EolType type) {
-		return this != type && this != EolAnyType.Instance;
+		return !this.equals(type);
 	}
 	
 	public boolean isAbstract() {
@@ -64,7 +64,7 @@ public abstract class EolType {
 	}
 
 	protected EolType getParentType() {
-		return EolAnyType.Instance;
+		return null;
 	}
 
 	public Set<EolType> getAncestors() {
@@ -96,5 +96,20 @@ public abstract class EolType {
 			return false;
 		}
 		return type.getAncestors().contains(this);
+	}
+	
+	public boolean isAssignableTo(EolType targetType) {
+		if (targetType.equals(this)) {
+			return true;
+		}
+		if (this instanceof EolAnyType || targetType instanceof EolAnyType) {
+			return true;
+		}
+		if (targetType.isAncestorOf(this)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }

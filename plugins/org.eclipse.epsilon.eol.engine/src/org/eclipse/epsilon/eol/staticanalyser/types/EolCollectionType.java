@@ -14,7 +14,6 @@ package org.eclipse.epsilon.eol.staticanalyser.types;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EolCollectionType extends EolType {
 	
@@ -108,7 +107,7 @@ public class EolCollectionType extends EolType {
 			if (!(this.getContentType() instanceof EolAnyType))
 				return new EolCollectionType("Collection", EolAnyType.Instance);
 			else
-				return EolAnyType.Instance;
+				return null;
 		}
 	}
 	
@@ -116,13 +115,34 @@ public class EolCollectionType extends EolType {
 	public List<EolType> getParentTypes() {
 		List<EolType> parentTypes = new ArrayList<EolType>();
 		if (this.isBag() || this.isSet() || this.isOrderedSet() || this.isSequence())
-			parentTypes.add(new EolCollectionType("Collection", this.getContentType()));
-		else
-			parentTypes.add(EolAnyType.Instance);
-
-		if (!(this.getContentType() instanceof EolAnyType))
-			parentTypes.addAll(this.getContentType().getParentTypes().stream()
-					.map(e -> new EolCollectionType(this.getName(), e)).collect(Collectors.toList()));
+			parentTypes.add(new EolCollectionType("Collection"));
 		return parentTypes;
+	}
+	
+	public boolean isAssignableTo(EolType targetType) {
+		if (targetType.equals(EolAnyType.Instance)){
+			return true;
+		}
+		if (!(targetType instanceof EolCollectionType)) {
+			return false;
+		}
+		EolType targetContentType = ((EolCollectionType) targetType).getContentType();
+		EolType newThis = new EolCollectionType(this.getName());
+		EolCollectionType newTargetType = new EolCollectionType(targetType.getName());
+		
+		
+		if(!newTargetType.isAncestorOf(newThis)) {
+			return false;
+		}
+		else {
+			if(targetContentType instanceof EolAnyType || this.getContentType() instanceof EolAnyType) {
+				return true;
+			}
+			if(targetContentType.equals(this.getContentType())) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

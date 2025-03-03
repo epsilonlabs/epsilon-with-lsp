@@ -111,13 +111,13 @@ public class EolStaticAnalyserTests {
 				warningMessages.add(line.substring(3));
 			}
 		}
-		assertValid(content, errorMessages, warningMessages);
+		assertValid(file, errorMessages, warningMessages);
 	}
 
-	public void assertValid(String eol, List<String> expectedErrorMessages, List<String> expectedWarningMessages)
+	public void assertValid(File file, List<String> expectedErrorMessages, List<String> expectedWarningMessages)
 			throws Exception {
 		EolModule module = new EolModule();
-		module.parse(eol);
+		module.parse(file);
 		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 		List<ModuleMarker> markers = staticAnalyser.validate(module);
 		List<ModuleMarker> errors = markers.stream().filter(m -> m.getSeverity() == Severity.Error)

@@ -53,6 +53,9 @@ public class EolStaticAnalyserTests {
 	public static void registerEcore() {
 		EPackage.Registry.INSTANCE.put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
 		registerPackage(new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/meta1.ecore").getPath());
+		registerPackage(new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/gmfgraph.ecore").getPath());
+		registerPackage(new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/gmfmap.ecore").getPath());
+		registerPackage(new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/tooldef.ecore").getPath());
 	}
 
 	public static void registerPackage(String path) {

@@ -1085,7 +1085,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			returnTypeExpression.accept(this);
 			returnType = getResolvedType(returnTypeExpression);
 		}
-
+		
+		for (Parameter p : operation.getFormalParameters()) {
+			p.accept(this);
+		}
+		
 		operation.getData().put("contextType", contextType);
 		operation.getData().put("returnType", returnType);
 	}

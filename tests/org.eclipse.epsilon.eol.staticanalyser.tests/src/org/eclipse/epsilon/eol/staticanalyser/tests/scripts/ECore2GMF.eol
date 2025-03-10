@@ -1,6 +1,7 @@
-model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 import 'ECoreUtil.eol';
 import 'Formatting.eol';
+
+model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 
 
 // The root EPackage

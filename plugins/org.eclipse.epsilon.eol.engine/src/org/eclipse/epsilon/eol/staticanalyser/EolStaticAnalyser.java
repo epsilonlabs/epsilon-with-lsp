@@ -623,7 +623,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
-			errors.add(new ModuleMarker(nameExpression, "Undefined operation", Severity.Error));
+			errors.add(new ModuleMarker(nameExpression, "Undefined operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
 
@@ -1096,37 +1096,38 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	public void preValidate(EolModule module) {
 
-		for(Import import_ : module.getImports()) {
+		for (Import import_ : module.getImports()) {
 			import_.accept(this);
 		}
-		
+
 		for (ModelDeclaration modelDeclaration : module.getDeclaredModelDeclarations()) {
 			modelDeclaration.accept(this);
+		}
+
+		if (builtinOperations.isEmpty()) {
+			// Parse builtin operations
+			List<OperationContributor> operationContributors = context.operationContributorRegistry.stream()
+					.collect(Collectors.toList());
+			for (OperationContributor oc : operationContributors) {
+				EolType contextType = oc.contributesToType();
+
+				for (Method m : oc.getClass().getDeclaredMethods()) {
+					List<EolType> operationParameterTypes = new ArrayList<EolType>();
+					Type[] javaParameterTypes = m.getGenericParameterTypes();
+					for (Type javaParameterType : javaParameterTypes) {
+						operationParameterTypes.add(javaTypeToEolType(javaParameterType));
+					}
+					EolType returnType = javaTypeToEolType(m.getGenericReturnType());
+					builtinOperations
+							.add(new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes));
+				}
+			}
 		}
 
 		module.getDeclaredOperations().forEach(o -> operationPreVisitor(o));
 		module.getDeclaredOperations().forEach(o -> localOperations.add(new SimpleOperation(o)));
 		module.getDeclaredOperations().forEach(o -> o.accept(this));
-		
-		operationRegistry.put(module.getUri(), localOperations);
-
-		if (!builtinOperations.isEmpty()) return;
-		// Parse builtin operations
-		List<OperationContributor> operationContributors = context.operationContributorRegistry.stream()
-				.collect(Collectors.toList());
-		for (OperationContributor oc : operationContributors) {
-			EolType contextType = oc.contributesToType();
-
-			for (Method m : oc.getClass().getDeclaredMethods()) {
-				List<EolType> operationParameterTypes = new ArrayList<EolType>();
-				Type[] javaParameterTypes = m.getGenericParameterTypes();
-				for (Type javaParameterType : javaParameterTypes) {
-					operationParameterTypes.add(javaTypeToEolType(javaParameterType));
-				}
-				EolType returnType = javaTypeToEolType(m.getGenericReturnType());
-				builtinOperations.add(new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes));
-			}
-		}
+		operationRegistry.put(module.getUri(), localOperations);		
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {

@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
+import org.eclipse.epsilon.eol.dom.TypeExpression;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 
 public class SimpleOperation implements IStaticOperation {
@@ -19,7 +21,12 @@ public class SimpleOperation implements IStaticOperation {
 		returnType = (EolType) op.getData().get("returnType");
 		this.parameterTypes = new ArrayList<EolType>();
 		for (Parameter p: op.getFormalParameters()) {
-			EolType parameterType = (EolType) p.getTypeExpression().getData().get("resolvedType");
+			TypeExpression t = p.getTypeExpression();
+			EolType parameterType = EolAnyType.Instance;
+			if (t != null) {
+				parameterType = (EolType) t.getData().get("resolvedType");
+			}
+			
 			parameterTypes.add(parameterType);
 		}
 	}

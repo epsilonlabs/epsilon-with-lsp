@@ -3,6 +3,7 @@ package org.eclipse.epsilon.eol.staticanalyser;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -118,8 +119,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	protected List<ModuleMarker> warnings = new ArrayList<>();
 	protected EolModule module;
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
-	protected List<IStaticOperation> operations = new ArrayList<>();
+	protected List<IStaticOperation> localOperations = new ArrayList<>();
+	protected List<IStaticOperation> importedOperations = new ArrayList<>();
+	protected List<IStaticOperation> builtinOperations = new ArrayList<>();
 	HashMap<Operation, Boolean> returnFlags = new HashMap<>(); // for every missmatch
+	HashMap<URI, List<IStaticOperation>> operationRegistry = new HashMap<>();
+//	List<EolModule> dependencies = new ArrayList<>();
 
 	public EolStaticAnalyser() {
 	}
@@ -392,6 +397,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(Import import_) {
+		
+//		System.out.println(import_.getImportedModule().getUri().toString());
+		EolModule importedModule = (EolModule) import_.getImportedModule();
+		if(operationRegistry.getOrDefault(importedModule.getUri(), null) == null) {
+			preValidate(importedModule);
+		}
+		importedOperations.addAll(operationRegistry.get(importedModule.getUri()));
 	}
 
 	@Override
@@ -583,7 +595,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(OperationCallExpression operationCallExpression) {
-		List<IStaticOperation> resolvedOperations = new ArrayList<>(operations);
+		List<IStaticOperation> resolvedOperations = new ArrayList<>();
+		resolvedOperations.addAll(localOperations);
+		resolvedOperations.addAll(importedOperations);
+		resolvedOperations.addAll(builtinOperations);
 		Expression targetExpression = operationCallExpression.getTargetExpression();
 		List<Expression> parameterExpressions = operationCallExpression.getParameterExpressions();
 		NameExpression nameExpression = operationCallExpression.getNameExpression();
@@ -1075,16 +1090,23 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		operation.getData().put("returnType", returnType);
 	}
 
-	public void preValidate() {
+	public void preValidate(EolModule module) {
 
+		for(Import import_ : module.getImports()) {
+			import_.accept(this);
+		}
+		
 		for (ModelDeclaration modelDeclaration : module.getDeclaredModelDeclarations()) {
 			modelDeclaration.accept(this);
 		}
 
 		module.getDeclaredOperations().forEach(o -> operationPreVisitor(o));
-		module.getDeclaredOperations().forEach(o -> operations.add(new SimpleOperation(o)));
+		module.getDeclaredOperations().forEach(o -> localOperations.add(new SimpleOperation(o)));
 		module.getDeclaredOperations().forEach(o -> o.accept(this));
+		
+		operationRegistry.put(module.getUri(), localOperations);
 
+		if (!builtinOperations.isEmpty()) return;
 		// Parse builtin operations
 		List<OperationContributor> operationContributors = context.operationContributorRegistry.stream()
 				.collect(Collectors.toList());
@@ -1098,7 +1120,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					operationParameterTypes.add(javaTypeToEolType(javaParameterType));
 				}
 				EolType returnType = javaTypeToEolType(m.getGenericReturnType());
-				operations.add(new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes));
+				builtinOperations.add(new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes));
 			}
 		}
 	}
@@ -1184,10 +1206,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		errors = new ArrayList<ModuleMarker>();
 		warnings = new ArrayList<ModuleMarker>();
 		List<ModuleMarker> markers = new ArrayList<ModuleMarker>();
-		EolModule eolModule = (EolModule) imodule;
-		this.module = eolModule;
+		this.module = (EolModule) imodule;;
 
-		preValidate();
+		preValidate(module);
 		mainValidate();
 		postValidate();
 		markers.addAll(errors);

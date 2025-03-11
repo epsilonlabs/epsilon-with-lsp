@@ -2,7 +2,9 @@ import 'ECoreUtil.eol';
 import 'Formatting.eol';
 
 model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
-
+model GmfGraph driver EMF {nsuri="http://www.eclipse.org/gmf/2006/GraphicalDefinition"};
+model GmfMap driver EMF {nsuri="http://www.eclipse.org/gmf/2008/mappings"};
+model GmfTool driver EMF {nsuri="http://www.eclipse.org/gmf/2005/ToolDefinition"};
 
 // The root EPackage
 var ePackage := ECore!EPackage.all.first();

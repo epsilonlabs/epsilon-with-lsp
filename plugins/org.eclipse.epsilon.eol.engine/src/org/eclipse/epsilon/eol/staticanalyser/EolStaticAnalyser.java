@@ -677,7 +677,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
-			errors.add(new ModuleMarker(nameExpression, "Parameters type mismatch", Severity.Error));
+			errors.add(new ModuleMarker(nameExpression,
+					"Parameters type mismatch for operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
 

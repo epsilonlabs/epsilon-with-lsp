@@ -64,7 +64,7 @@ public abstract class EolType {
 	}
 
 	protected EolType getParentType() {
-		return null;
+		return new EolNativeType(java.lang.Object.class);
 	}
 
 	public Set<EolType> getAncestors() {

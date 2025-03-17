@@ -606,7 +606,7 @@ public class EmfModel extends AbstractReflectiveEmfModel {
 	
 	@Override
 	public Metamodel getMetamodel(StringProperties properties, IRelativePathResolver resolver) {
-		return new EmfModelMetamodel(properties, resolver);
+		return new EmfModelMetamodel(properties, resolver, getName());
 	}
 	
 	@Override

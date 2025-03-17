@@ -29,10 +29,10 @@ import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 
 public class EmfModelMetamodel extends Metamodel {
 	
-	public EmfModelMetamodel(StringProperties properties, IRelativePathResolver resolver) {
+	public EmfModelMetamodel(StringProperties properties, IRelativePathResolver resolver, String modelName) {
 		
 		HashMap<EClass, MetaClass> eClassMetaClassMap = new HashMap<>();
-		String nsuri = properties.getProperty("nsuri");
+		nsuri = properties.getProperty("nsuri");
 		if (nsuri == null) {
 			getErrors().add("Required property nsuri not found");
 		}
@@ -46,6 +46,7 @@ public class EmfModelMetamodel extends Metamodel {
 					if (eClassifier instanceof EClass) {
 						MetaClass metaClass = new MetaClass();
 						metaClass.setName(eClassifier.getName());
+						metaClass.setMetamodel(this);
 						eClassMetaClassMap.put((EClass) eClassifier, metaClass);
 						metaTypes.add(metaClass);
 					}

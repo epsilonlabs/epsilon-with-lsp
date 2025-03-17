@@ -236,29 +236,23 @@ public class EolModelElementType extends EolType {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(
-			super.hashCode(),
-			getName(),
-			metaClass != null ? metaClass.getName() : metaClass
-		);
+		return Objects.hash(typeName, metaClass.getMetamodel().getNsURI());
 	}
 	
 	@Override
 	public boolean equals(Object other) {
-		boolean eq = super.equals(other);
-		if (!eq) return false;
-		
+		if (this == other)
+			return true;
+		if (other == null)
+			return false;
+
+		if (this.getClass() != other.getClass())
+			return false;
+
 		EolModelElementType eme = (EolModelElementType) other;
-		eq = Objects.equals(this.getName(), eme.getName());
-		
-		if (eq && !(this.metaClass == null && eme.metaClass == null)) {
-			if (this.metaClass == null || eme.metaClass == null)
-				return false;
-			
-			eq = Objects.equals(this.metaClass.getName(), eme.metaClass.getName());
-		}
-		
-		return eq;
+
+		return this.typeName.equals(eme.typeName)
+				&& this.getMetaClass().getMetamodel().getNsURI().equals(eme.getMetaClass().getMetamodel().getNsURI());
 	}
 	
 	@Override

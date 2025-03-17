@@ -16,7 +16,16 @@ public class Metamodel extends Package {
 
 	protected List<String> warnings = new ArrayList<>();
 	protected List<String> errors = new ArrayList<>();
+	protected String nsuri;
 	
+	public String getNsURI() {
+		return nsuri;
+	}
+
+	public void setNsURI(String nsURI) {
+		this.nsuri = nsURI;
+	}
+
 	public List<String> getWarnings() {
 		return warnings;
 	}

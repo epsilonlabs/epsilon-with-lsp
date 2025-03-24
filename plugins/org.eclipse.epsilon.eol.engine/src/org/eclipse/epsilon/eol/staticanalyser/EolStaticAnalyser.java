@@ -608,6 +608,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			targetExpression.accept(this);
 			operationCallExpression.setContextless(false);
 			contextType = getResolvedType(targetExpression);
+			if (contextType.getClazz() != null) {
+				for(Method m : contextType.getClazz().getMethods()) {
+					resolvedOperations.add(methodToSimpleOperation(m, contextType));
+				}
+			}
 		} else
 			operationCallExpression.setContextless(true);
 		for (Expression parameterExpression : parameterExpressions) {
@@ -1113,14 +1118,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				EolType contextType = oc.contributesToType();
 
 				for (Method m : oc.getClass().getDeclaredMethods()) {
-					List<EolType> operationParameterTypes = new ArrayList<EolType>();
-					Type[] javaParameterTypes = m.getGenericParameterTypes();
-					for (Type javaParameterType : javaParameterTypes) {
-						operationParameterTypes.add(javaTypeToEolType(javaParameterType));
-					}
-					EolType returnType = javaTypeToEolType(m.getGenericReturnType());
-					builtinOperations
-							.add(new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes));
+					builtinOperations.add(methodToSimpleOperation(m, contextType));
 				}
 			}
 		}
@@ -1129,6 +1127,16 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		module.getDeclaredOperations().forEach(o -> localOperations.add(new SimpleOperation(o)));
 		module.getDeclaredOperations().forEach(o -> o.accept(this));
 		operationRegistry.put(module.getUri(), localOperations);		
+	}
+	
+	public SimpleOperation methodToSimpleOperation(Method m, EolType contextType) {
+		List<EolType> operationParameterTypes = new ArrayList<EolType>();
+		Type[] javaParameterTypes = m.getGenericParameterTypes();
+		for (Type javaParameterType : javaParameterTypes) {
+			operationParameterTypes.add(javaTypeToEolType(javaParameterType));
+		}
+		EolType returnType = javaTypeToEolType(m.getGenericReturnType());
+		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes);
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {

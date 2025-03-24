@@ -15,11 +15,19 @@ package org.eclipse.epsilon.eol.staticanalyser.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.epsilon.eol.types.EolBag;
+import org.eclipse.epsilon.eol.types.EolCollection;
+import org.eclipse.epsilon.eol.types.EolOrderedSet;
+import org.eclipse.epsilon.eol.types.EolSequence;
+import org.eclipse.epsilon.eol.types.EolSet;
+import org.eclipse.epsilon.eol.types.concurrent.EolConcurrentBag;
+import org.eclipse.epsilon.eol.types.concurrent.EolConcurrentSet;
+
 public class EolCollectionType extends EolType {
 	
 	protected EolType contentType = EolAnyType.Instance;
 	private String name;
-	
+
 	public static final EolCollectionType
 		Collection = new EolCollectionType("Collection"),
 		Bag = new EolCollectionType("Bag"),
@@ -31,6 +39,29 @@ public class EolCollectionType extends EolType {
 	
 	public EolCollectionType(String name) {
 		this.name = name;
+		switch(name) {
+		case "Collection":
+			setClazz(EolCollection.class);
+			break;
+		case "Bag":
+			setClazz(EolBag.class);
+			break;
+		case "Sequence":
+			setClazz(EolSequence.class);
+			break;
+		case "Set":
+			setClazz(EolSet.class);
+			break;
+		case "OrderedSet":
+			setClazz(EolOrderedSet.class);
+			break;
+		case "ConcurrentBag":
+			setClazz(EolConcurrentBag.class);
+			break;
+		case "ConcurrentSet":
+			setClazz(EolConcurrentSet.class);
+			break;
+		}
 	}
 	
 	public EolCollectionType(String name, EolType contentType) {

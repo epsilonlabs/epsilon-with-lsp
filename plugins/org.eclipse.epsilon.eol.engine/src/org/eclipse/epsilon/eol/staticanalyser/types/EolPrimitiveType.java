@@ -13,8 +13,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class EolPrimitiveType extends EolType {
-
-	private Class<?> clazz;
 	private String name;
 	
 	public static final EolPrimitiveType
@@ -24,12 +22,8 @@ public class EolPrimitiveType extends EolType {
 		Real = new EolPrimitiveType(Float.class, "Real");
 	
 	private EolPrimitiveType(Class<?> clazz, String name) {
-		this.clazz = clazz;
+		setClazz(clazz);
 		this.name = name;
-	}
-
-	public Class<?> getClazz() {
-		return clazz;
 	}
 
 	@Override
@@ -44,6 +38,6 @@ public class EolPrimitiveType extends EolType {
 	
 	@Override
 	public List<EolType> getParentTypes() {
-		return Arrays.asList(new EolNativeType(this.clazz));
+		return Arrays.asList(new EolNativeType(getClazz()));
 	}
 }

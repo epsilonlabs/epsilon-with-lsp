@@ -19,6 +19,15 @@ import java.util.Stack;
 
 public abstract class EolType {
 	private Set<EolType> ancestorCache = null; 
+	private Class<?> clazz;
+
+	public void setClazz(Class<?> clazz) {
+		this.clazz = clazz;
+	}
+
+	public Class<?> getClazz() {
+		return clazz;
+	}
 
 	public abstract String getName();
 

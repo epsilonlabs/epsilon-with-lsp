@@ -92,8 +92,8 @@ import org.eclipse.epsilon.eol.execute.operations.AbstractOperation;
 import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
-import org.eclipse.epsilon.eol.m3.MetaClass;
-import org.eclipse.epsilon.eol.m3.Metamodel;
+import org.eclipse.epsilon.eol.m3.IMetaClass;
+import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.m3.StructuralFeature;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.ModelGroup;
@@ -786,9 +786,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					EolType type = getResolvedType(targetExpression);
 
 					boolean many = false;
-					MetaClass metaClass = null;
+					IMetaClass metaClass = null;
 					if (type instanceof EolModelElementType && ((EolModelElementType) type).getMetaClass() != null) {
-						metaClass = (MetaClass) ((EolModelElementType) type).getMetaClass();
+						metaClass = (IMetaClass) ((EolModelElementType) type).getMetaClass();
 					} else if (type instanceof EolCollectionType
 							&& ((EolCollectionType) type).getContentType() instanceof EolModelElementType) {
 						metaClass = ((EolModelElementType) ((EolCollectionType) type).getContentType()).getMetaClass();
@@ -835,9 +835,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			EolType type = getResolvedType(targetExpression);
 
 			boolean many = false;
-			MetaClass metaClass = null;
+			IMetaClass metaClass = null;
 			if (type instanceof EolModelElementType && ((EolModelElementType) type).getMetaClass() != null) {
-				metaClass = (MetaClass) ((EolModelElementType) type).getMetaClass();
+				metaClass = (IMetaClass) ((EolModelElementType) type).getMetaClass();
 			} else if (type instanceof EolCollectionType
 					&& ((EolCollectionType) type).getContentType() instanceof EolModelElementType) {
 				metaClass = ((EolModelElementType) ((EolCollectionType) type).getContentType()).getMetaClass();
@@ -1418,7 +1418,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (modelName == "") {
 			modelName = model.getName();
 		}
-		Metamodel metamodel = context.modelDeclarations.get(modelName).getMetamodel();
+		IMetamodel metamodel = context.modelDeclarations.get(modelName).getMetamodel();
 		if (metamodel != null) {
 			EolModelElementType modelElementType = new EolModelElementType(modelAndType, module);
 			modelElementType.setMetaClass(metamodel.getMetaClass(typeName));

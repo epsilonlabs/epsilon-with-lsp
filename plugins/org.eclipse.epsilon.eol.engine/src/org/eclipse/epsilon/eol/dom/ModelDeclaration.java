@@ -17,7 +17,7 @@ import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.util.AstUtil;
-import org.eclipse.epsilon.eol.m3.Metamodel;
+import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.parse.EolParser;
 
@@ -27,7 +27,7 @@ public class ModelDeclaration extends AbstractModuleElement {
 	protected List<NameExpression> aliasNameExpressions = new ArrayList<>();
 	protected NameExpression driverNameExpression;
 	protected List<ModelDeclarationParameter> modelDeclarationParameters = new ArrayList<>();
-	protected Metamodel metamodel = null;
+	protected IMetamodel metamodel = null;
 	protected IModel model;
 	
 	public ModelDeclaration() {}
@@ -86,11 +86,11 @@ public class ModelDeclaration extends AbstractModuleElement {
 		return Collections.emptyList();
 	}
 	
-	public Metamodel getMetamodel() {
+	public IMetamodel getMetamodel() {
 		return metamodel;
 	}
 	
-	public void setMetamodel(Metamodel metamodel) {
+	public void setMetamodel(IMetamodel metamodel) {
 		 this.metamodel = metamodel;
 	}
 	

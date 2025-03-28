@@ -22,7 +22,7 @@ import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.epsilon.eol.exceptions.models.EolNotInstantiableModelElementTypeException;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertySetter;
-import org.eclipse.epsilon.eol.m3.Metamodel;
+import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.models.transactions.IModelTransactionSupport;
 
 public interface IModel extends AutoCloseable {
@@ -172,7 +172,7 @@ public interface IModel extends AutoCloseable {
 	
 	IModelTransactionSupport getTransactionSupport();
 	
-	Metamodel getMetamodel(StringProperties properties, IRelativePathResolver resolver);
+	IMetamodel getMetamodel(StringProperties properties, IRelativePathResolver resolver);
 	
 	/**
 	 * @since 1.6

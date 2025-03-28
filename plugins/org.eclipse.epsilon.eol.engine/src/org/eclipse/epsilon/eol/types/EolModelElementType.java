@@ -24,7 +24,7 @@ import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundExce
 import org.eclipse.epsilon.eol.exceptions.models.EolModelNotFoundException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
-import org.eclipse.epsilon.eol.m3.MetaClass;
+import org.eclipse.epsilon.eol.m3.IMetaClass;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.ModelRepository;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
@@ -35,10 +35,10 @@ public class EolModelElementType extends EolType {
 	protected String typeName = "";
 	protected IEolModule module;
 	protected ModelRepository modelRepo;
-	protected MetaClass metaClass;
+	protected IMetaClass metaClass;
 	protected IModel cachedModelRef;
 	
-	public EolModelElementType(MetaClass metaClass) {
+	public EolModelElementType(IMetaClass metaClass) {
 		this.metaClass = metaClass;
 		this.typeName = metaClass.getName();
 	}
@@ -244,11 +244,11 @@ public class EolModelElementType extends EolType {
 		return cachedModelRef;
 	}
 	
-	public MetaClass getMetaClass() {
+	public IMetaClass getMetaClass() {
 		return metaClass;
 	}
 	
-	public void setMetaClass(MetaClass metaClass) {
+	public void setMetaClass(IMetaClass metaClass) {
 		this.metaClass = metaClass;
 	}
 	

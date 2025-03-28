@@ -12,18 +12,18 @@ package org.eclipse.epsilon.eol.m3;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetaClass extends MetaType {
+public class MetaClass extends MetaType implements IMetaClass{
 	
-	protected List<MetaClass> superTypes = new ArrayList<>();
-	protected List<MetaClass> subTypes = new ArrayList<>();
+	protected List<IMetaClass> superTypes = new ArrayList<>();
+	protected List<IMetaClass> subTypes = new ArrayList<>();
 	protected List<StructuralFeature> structuralFeatures = new ArrayList<>();
 	protected boolean isAbstract;
 	
-	public List<MetaClass> getSuperTypes() {
+	public List<IMetaClass> getSuperTypes() {
 		return superTypes;
 	}
 	
-	public List<MetaClass> getSubTypes() {
+	public List<IMetaClass> getSubTypes() {
 		return subTypes;
 	}
 	
@@ -33,7 +33,7 @@ public class MetaClass extends MetaType {
 	
 	public List<StructuralFeature> getAllStructuralFeatures() {
 		List<StructuralFeature> allStructuralFeatures = new ArrayList<>();
-		for (MetaClass superType : superTypes) {
+		for (IMetaClass superType : superTypes) {
 			allStructuralFeatures.addAll(superType.getAllStructuralFeatures());
 		}
 		allStructuralFeatures.addAll(getStructuralFeatures());

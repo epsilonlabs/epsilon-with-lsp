@@ -36,7 +36,7 @@ import org.eclipse.epsilon.common.util.CollectionUtil;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelElementTypeNotFoundException;
 import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
-import org.eclipse.epsilon.eol.m3.Metamodel;
+import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 
 public class EmfModel extends AbstractReflectiveEmfModel {
@@ -605,7 +605,7 @@ public class EmfModel extends AbstractReflectiveEmfModel {
 	}
 	
 	@Override
-	public Metamodel getMetamodel(StringProperties properties, IRelativePathResolver resolver) {
+	public IMetamodel getMetamodel(StringProperties properties, IRelativePathResolver resolver) {
 		return new EmfModelMetamodel(properties, resolver, getName());
 	}
 	

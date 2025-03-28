@@ -10,13 +10,13 @@
 package org.eclipse.epsilon.eol.m3;
 
 public abstract class MetaType extends NamedElement {
-	protected Metamodel metamodel;
+	protected IMetamodel metamodel;
 
-	public Metamodel getMetamodel() {
+	public IMetamodel getMetamodel() {
 		return metamodel;
 	}
 
-	public void setMetamodel(Metamodel metamodel) {
+	public void setMetamodel(IMetamodel metamodel) {
 		this.metamodel = metamodel;
 	}
 }

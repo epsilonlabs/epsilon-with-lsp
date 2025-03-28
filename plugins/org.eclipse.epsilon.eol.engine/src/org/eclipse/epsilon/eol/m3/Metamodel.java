@@ -12,7 +12,7 @@ package org.eclipse.epsilon.eol.m3;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Metamodel extends Package {
+public class Metamodel extends Package implements IMetamodel{
 
 	protected List<String> warnings = new ArrayList<>();
 	protected List<String> errors = new ArrayList<>();
@@ -34,10 +34,10 @@ public class Metamodel extends Package {
 		return errors;
 	}
 	
-	public MetaClass getMetaClass(String name) {
+	public IMetaClass getMetaClass(String name) {
 		for (MetaType type : metaTypes) {
-			if (type instanceof MetaClass && type.getName().equals(name)) {
-				return (MetaClass) type;
+			if (type instanceof IMetaClass && type.getName().equals(name)) {
+				return (IMetaClass) type;
 			}
 		}
 		return null;

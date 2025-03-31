@@ -12,7 +12,7 @@ package org.eclipse.epsilon.eol.m3;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MetaClass extends MetaType implements IMetaClass{
+public abstract class MetaClass extends MetaType implements IMetaClass{
 	
 	protected List<IMetaClass> superTypes = new ArrayList<>();
 	protected List<IMetaClass> subTypes = new ArrayList<>();
@@ -57,4 +57,7 @@ public class MetaClass extends MetaType implements IMetaClass{
 		return null;
 	}
 	
+	public abstract boolean equals(Object other);
+	
+	public abstract int hashCode();
 }

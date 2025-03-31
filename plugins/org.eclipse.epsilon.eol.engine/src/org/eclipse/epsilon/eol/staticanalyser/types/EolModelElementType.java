@@ -236,7 +236,7 @@ public class EolModelElementType extends EolType {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(typeName, metaClass.getMetamodel().getNsURI());
+		return Objects.hash(typeName, metaClass.hashCode());
 	}
 	
 	@Override
@@ -251,8 +251,7 @@ public class EolModelElementType extends EolType {
 
 		EolModelElementType eme = (EolModelElementType) other;
 
-		return this.typeName.equals(eme.typeName)
-				&& this.getMetaClass().getMetamodel().getNsURI().equals(eme.getMetaClass().getMetamodel().getNsURI());
+		return this.getMetaClass().equals(eme.getMetaClass());
 	}
 	
 	@Override

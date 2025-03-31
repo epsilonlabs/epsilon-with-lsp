@@ -15,8 +15,4 @@ public abstract class MetaType extends NamedElement {
 	public IMetamodel getMetamodel() {
 		return metamodel;
 	}
-
-	public void setMetamodel(IMetamodel metamodel) {
-		this.metamodel = metamodel;
-	}
 }

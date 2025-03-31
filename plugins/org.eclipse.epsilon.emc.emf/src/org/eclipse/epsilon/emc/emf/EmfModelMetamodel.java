@@ -10,6 +10,7 @@
 package org.eclipse.epsilon.emc.emf;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -28,6 +29,11 @@ import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 
 public class EmfModelMetamodel extends Metamodel {
+	protected String nsuri;
+	
+	public String getNsURI() {
+		return nsuri;
+	}
 	
 	public EmfModelMetamodel(StringProperties properties, IRelativePathResolver resolver, String modelName) {
 		
@@ -44,9 +50,7 @@ public class EmfModelMetamodel extends Metamodel {
 			else {
 				for (EClassifier eClassifier : ePackage.getEClassifiers()) {
 					if (eClassifier instanceof EClass) {
-						MetaClass metaClass = new MetaClass();
-						metaClass.setName(eClassifier.getName());
-						metaClass.setMetamodel(this);
+						EmfMetaClass metaClass = new EmfMetaClass(eClassifier.getName(), this);
 						eClassMetaClassMap.put((EClass) eClassifier, metaClass);
 						metaTypes.add(metaClass);
 					}
@@ -111,6 +115,19 @@ public class EmfModelMetamodel extends Metamodel {
 				}
 			}
 		}
+	}
+	
+	public boolean equals(Object other) {
+		if (!(other instanceof EmfModelMetamodel)){
+			return false;
+		}
+		EmfModelMetamodel otherMetamodel = (EmfModelMetamodel) other;
+		return this.getNsURI().equals(otherMetamodel.getNsURI());
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(nsuri, getClass().getName());
 	}
 	
 }

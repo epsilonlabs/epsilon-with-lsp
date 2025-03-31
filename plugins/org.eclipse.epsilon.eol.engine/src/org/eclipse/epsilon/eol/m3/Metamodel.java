@@ -12,19 +12,10 @@ package org.eclipse.epsilon.eol.m3;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Metamodel extends Package implements IMetamodel{
+public abstract class Metamodel extends Package implements IMetamodel{
 
 	protected List<String> warnings = new ArrayList<>();
 	protected List<String> errors = new ArrayList<>();
-	protected String nsuri;
-	
-	public String getNsURI() {
-		return nsuri;
-	}
-
-	public void setNsURI(String nsURI) {
-		this.nsuri = nsURI;
-	}
 
 	public List<String> getWarnings() {
 		return warnings;
@@ -43,4 +34,7 @@ public class Metamodel extends Package implements IMetamodel{
 		return null;
 	}
 	
+	public abstract boolean equals(Object other);
+	
+	public abstract int hashCode();
 }

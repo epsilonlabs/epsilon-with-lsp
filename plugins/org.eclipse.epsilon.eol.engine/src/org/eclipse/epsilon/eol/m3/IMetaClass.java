@@ -19,9 +19,5 @@ public interface IMetaClass {
 	
 	String getName();
 	
-	void setName(String name);
-	
 	IMetamodel getMetamodel();
-
-	void setMetamodel(IMetamodel metamodel);
 }

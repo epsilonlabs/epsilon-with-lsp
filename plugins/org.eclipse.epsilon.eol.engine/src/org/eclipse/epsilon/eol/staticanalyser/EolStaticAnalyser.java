@@ -615,6 +615,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		} else
 			operationCallExpression.setContextless(true);
+		
 		for (Expression parameterExpression : parameterExpressions) {
 			parameterExpression.accept(this);
 		}
@@ -628,6 +629,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
+			if (contextType.equals(EolAnyType.Instance)) {
+				setResolvedType(operationCallExpression, EolAnyType.Instance);
+				return;
+			}
 			errors.add(new ModuleMarker(nameExpression, "Undefined operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}

@@ -12,10 +12,11 @@ package org.eclipse.epsilon.eol.m3;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Package extends NamedElement {
+public class Package{
 	
 	protected List<Package> subPackages = new ArrayList<>();
 	protected List<MetaType> metaTypes = new ArrayList<>();
+	protected String name;
 	
 	public List<Package> getSubPackages() {
 		return subPackages;
@@ -23,6 +24,14 @@ public class Package extends NamedElement {
 	
 	public List<MetaType> getTypes() {
 		return metaTypes;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 }

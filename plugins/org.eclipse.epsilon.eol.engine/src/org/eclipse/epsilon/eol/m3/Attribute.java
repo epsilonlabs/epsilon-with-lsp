@@ -9,6 +9,6 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.m3;
 
-public class Attribute extends StructuralFeature {
+public class Attribute extends Property {
 	
 }

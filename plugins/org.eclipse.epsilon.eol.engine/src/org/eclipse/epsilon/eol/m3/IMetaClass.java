@@ -7,15 +7,15 @@ public interface IMetaClass {
 	
 	List<IMetaClass> getSubTypes();
 	
-	List<StructuralFeature> getStructuralFeatures();
+	List<Property> getProperties();
 	
-	List<StructuralFeature> getAllStructuralFeatures();
+	List<Property> getAllProperties();
 	
 	boolean isAbstract();
 	
 	void setAbstract(boolean isAbstract);
 	
-	StructuralFeature getStructuralFeature(String name);
+	Property getProperty(String name);
 	
 	String getName();
 	

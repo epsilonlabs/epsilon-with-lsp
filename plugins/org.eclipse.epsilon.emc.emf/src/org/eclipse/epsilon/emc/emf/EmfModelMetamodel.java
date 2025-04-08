@@ -92,7 +92,7 @@ public class EmfModelMetamodel extends Metamodel {
 						}
 						else
 							attribute.setType(EolAnyType.Instance);
-						metaClass.getStructuralFeatures().add(attribute);
+						metaClass.getProperties().add(attribute);
 					}
 					
 					for (EReference eReference : eClass.getEReferences()) {
@@ -108,7 +108,7 @@ public class EmfModelMetamodel extends Metamodel {
 						if (referenceMetaClass != null) {
 							reference.setType(new EolModelElementType(referenceMetaClass));
 						}
-						metaClass.getStructuralFeatures().add(reference);
+						metaClass.getProperties().add(reference);
 					}
 					
 					 metaClass.setAbstract(eClass.isAbstract());

@@ -94,7 +94,7 @@ import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContribu
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.m3.IMetaClass;
 import org.eclipse.epsilon.eol.m3.IMetamodel;
-import org.eclipse.epsilon.eol.m3.StructuralFeature;
+import org.eclipse.epsilon.eol.m3.Property;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
@@ -796,26 +796,26 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					}
 
 					if (metaClass != null) {
-						StructuralFeature structuralFeature = metaClass.getStructuralFeature(nameExpression.getName());
-						if (structuralFeature != null) {
-							if (structuralFeature.isMany()) {
+						Property property = metaClass.getProperty(nameExpression.getName());
+						if (property != null) {
+							if (property.isMany()) {
 								EolCollectionType collectionType = null;
-								if (structuralFeature.isOrdered()) {
-									if (structuralFeature.isUnique())
+								if (property.isOrdered()) {
+									if (property.isUnique())
 										collectionType = new EolCollectionType("OrderedSet");
 									else
 										collectionType = new EolCollectionType("Sequence");
 								} else {
-									if (structuralFeature.isUnique())
+									if (property.isUnique())
 										collectionType = new EolCollectionType("Set");
 									else
 										collectionType = new EolCollectionType("Bag");
 								}
-								collectionType.setContentType(toStaticAnalyserType(structuralFeature.getType()));
+								collectionType.setContentType(toStaticAnalyserType(property.getType()));
 								setResolvedType(propertyCallExpression, collectionType);
 							} else {
 								setResolvedType(propertyCallExpression,
-										toStaticAnalyserType(structuralFeature.getType()));
+										toStaticAnalyserType(property.getType()));
 							}
 							if (many) {
 								setResolvedType(propertyCallExpression,
@@ -845,23 +845,23 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 
 			if (metaClass != null) {
-				StructuralFeature structuralFeature = metaClass.getStructuralFeature(nameExpression.getName());
-				if (structuralFeature != null) {
-					if (structuralFeature.isMany()) {
+				Property property = metaClass.getProperty(nameExpression.getName());
+				if (property != null) {
+					if (property.isMany()) {
 						String collectionTypeName;
-						if (structuralFeature.isOrdered()) {
-							collectionTypeName = structuralFeature.isUnique() ? "OrderedSet" : "Sequence";
+						if (property.isOrdered()) {
+							collectionTypeName = property.isUnique() ? "OrderedSet" : "Sequence";
 						} else {
-							collectionTypeName = structuralFeature.isUnique() ? "Set" : "Bag";
-							if (structuralFeature.isConcurrent()) {
+							collectionTypeName = property.isUnique() ? "Set" : "Bag";
+							if (property.isConcurrent()) {
 								collectionTypeName = "Concurrent" + collectionTypeName;
 							}
 						}
 						setResolvedType(propertyCallExpression, new EolCollectionType(collectionTypeName));
 						((EolCollectionType) getResolvedType(propertyCallExpression))
-								.setContentType(toStaticAnalyserType(structuralFeature.getType()));
+								.setContentType(toStaticAnalyserType(property.getType()));
 					} else {
-						setResolvedType(propertyCallExpression, toStaticAnalyserType(structuralFeature.getType()));
+						setResolvedType(propertyCallExpression, toStaticAnalyserType(property.getType()));
 					}
 					if (many) {
 						setResolvedType(propertyCallExpression,

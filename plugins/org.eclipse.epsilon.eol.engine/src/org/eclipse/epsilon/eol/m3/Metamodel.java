@@ -26,9 +26,9 @@ public abstract class Metamodel extends Package implements IMetamodel{
 	}
 	
 	public IMetaClass getMetaClass(String name) {
-		for (MetaClass type : metaClasses) {
-			if (type instanceof IMetaClass && type.getName().equals(name)) {
-				return (IMetaClass) type;
+		for (IMetaClass type : metaClasses) {
+			if (type.getName().equals(name)) {
+				return type;
 			}
 		}
 		return null;

@@ -15,14 +15,14 @@ import java.util.List;
 public class Package{
 	
 	protected List<Package> subPackages = new ArrayList<>();
-	protected List<MetaClass> metaClasses = new ArrayList<>();
+	protected List<IMetaClass> metaClasses = new ArrayList<>();
 	protected String name;
 	
 	public List<Package> getSubPackages() {
 		return subPackages;
 	}
 	
-	public List<MetaClass> getTypes() {
+	public List<IMetaClass> getTypes() {
 		return metaClasses;
 	}
 

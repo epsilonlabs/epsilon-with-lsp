@@ -12,5 +12,5 @@ public interface IMetamodel {
 
 	List<Package> getSubPackages();
 
-	List<MetaClass> getTypes();
+	List<IMetaClass> getTypes();
 }

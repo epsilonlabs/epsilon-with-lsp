@@ -51,7 +51,7 @@ public class EmfModelMetamodel extends Metamodel {
 					if (eClassifier instanceof EClass) {
 						EmfMetaClass metaClass = new EmfMetaClass(eClassifier.getName(), this);
 						eClassMetaClassMap.put((EClass) eClassifier, metaClass);
-						metaTypes.add(metaClass);
+						metaClasses.add(metaClass);
 					}
 				}
 				for (EClass eClass : eClassMetaClassMap.keySet()) {

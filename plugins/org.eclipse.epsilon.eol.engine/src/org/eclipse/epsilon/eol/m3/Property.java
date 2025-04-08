@@ -12,10 +12,11 @@ package org.eclipse.epsilon.eol.m3;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolType;
 
-public class Property extends NamedElement {
+public class Property{
 	
 	protected boolean many, unique, ordered, changeable, concurrent;
 	protected EolType type = EolAnyType.Instance;
+	protected String name;
 	
 	public EolType getType() {
 		return type;
@@ -63,5 +64,13 @@ public class Property extends NamedElement {
 	
 	public void setChangeable(boolean changeable) {
 		this.changeable = changeable;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

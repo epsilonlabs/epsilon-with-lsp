@@ -16,7 +16,7 @@ public abstract class MetaClass extends MetaType implements IMetaClass{
 	
 	protected List<IMetaClass> superTypes = new ArrayList<>();
 	protected List<IMetaClass> subTypes = new ArrayList<>();
-	protected List<StructuralFeature> structuralFeatures = new ArrayList<>();
+	protected List<Property> properties = new ArrayList<>();
 	protected boolean isAbstract;
 	
 	public List<IMetaClass> getSuperTypes() {
@@ -27,17 +27,17 @@ public abstract class MetaClass extends MetaType implements IMetaClass{
 		return subTypes;
 	}
 	
-	public List<StructuralFeature> getStructuralFeatures() {
-		return structuralFeatures;
+	public List<Property> getProperties() {
+		return properties;
 	}
 	
-	public List<StructuralFeature> getAllStructuralFeatures() {
-		List<StructuralFeature> allStructuralFeatures = new ArrayList<>();
+	public List<Property> getAllProperties() {
+		List<Property> allProperties = new ArrayList<>();
 		for (IMetaClass superType : superTypes) {
-			allStructuralFeatures.addAll(superType.getAllStructuralFeatures());
+			allProperties.addAll(superType.getAllProperties());
 		}
-		allStructuralFeatures.addAll(getStructuralFeatures());
-		return allStructuralFeatures;
+		allProperties.addAll(getProperties());
+		return allProperties;
 	}
 	
 	public boolean isAbstract() {
@@ -48,10 +48,10 @@ public abstract class MetaClass extends MetaType implements IMetaClass{
 		this.isAbstract = isAbstract;
 	}
 	
-	public StructuralFeature getStructuralFeature(String name) {
-		for (StructuralFeature structuralFeature : getAllStructuralFeatures()) {
-			if (structuralFeature.getName().equals(name)) {
-				return structuralFeature;
+	public Property getProperty(String name) {
+		for (Property property : getAllProperties()) {
+			if (property.getName().equals(name)) {
+				return property;
 			}
 		}
 		return null;

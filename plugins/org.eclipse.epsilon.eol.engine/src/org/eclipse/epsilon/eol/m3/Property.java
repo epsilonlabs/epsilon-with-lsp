@@ -12,7 +12,7 @@ package org.eclipse.epsilon.eol.m3;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolType;
 
-public abstract class Property extends NamedElement {
+public class Property extends NamedElement {
 	
 	protected boolean many, unique, ordered, changeable, concurrent;
 	protected EolType type = EolAnyType.Instance;

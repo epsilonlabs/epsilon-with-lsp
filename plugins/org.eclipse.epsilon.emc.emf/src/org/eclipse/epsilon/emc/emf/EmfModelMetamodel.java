@@ -19,10 +19,9 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.common.util.StringUtil;
-import org.eclipse.epsilon.eol.m3.Attribute;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.m3.Metamodel;
-import org.eclipse.epsilon.eol.m3.Reference;
+import org.eclipse.epsilon.eol.m3.Property;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
@@ -71,7 +70,7 @@ public class EmfModelMetamodel extends Metamodel {
 					
 					
 					for (EAttribute eAttribute : eClass.getEAttributes()) {
-						Attribute attribute = new Attribute();
+						Property attribute = new Property();
 						attribute.setName(eAttribute.getName());
 						attribute.setOrdered(eAttribute.isOrdered());
 						attribute.setUnique(eAttribute.isUnique());
@@ -96,12 +95,11 @@ public class EmfModelMetamodel extends Metamodel {
 					}
 					
 					for (EReference eReference : eClass.getEReferences()) {
-						Reference reference = new Reference();
+						Property reference = new Property();
 						reference.setName(eReference.getName());
 						reference.setOrdered(eReference.isOrdered());
 						reference.setUnique(eReference.isUnique());
 						reference.setMany(eReference.isMany());
-						reference.setContainment(eReference.isContainment());
 						
 						EClass referenceType = eReference.getEReferenceType();
 						MetaClass referenceMetaClass = eClassMetaClassMap.get(referenceType);

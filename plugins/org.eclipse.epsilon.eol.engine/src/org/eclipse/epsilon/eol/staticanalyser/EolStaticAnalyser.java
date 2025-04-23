@@ -774,60 +774,29 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		// Extended properties
 		if (nameExpression.getName().startsWith("~")) {
 			setResolvedType(propertyCallExpression, EolAnyType.Instance);
+			return;
 		}
-		// e.g. EPackage.all
-		else if (targetExpression instanceof NameExpression && ((NameExpression) targetExpression).isTypeName()) {
-			if (getResolvedType(((NameExpression) targetExpression)) instanceof EolModelElementType) {
-				if (nameExpression.getName().equals("all") || nameExpression.getName().equals("allInstances")) {
-					setResolvedType(propertyCallExpression,
-							new EolCollectionType("Sequence", getResolvedType(targetExpression)));
+		
+		// PropertyCall on TypeName e.g EPackage.all
+		if (targetExpression instanceof NameExpression && ((NameExpression) targetExpression).isTypeName()
+				&& getResolvedType(targetExpression) instanceof EolModelElementType) {
 
-				} else {
-					EolType type = getResolvedType(targetExpression);
-
-					boolean many = false;
-					IMetaClass metaClass = null;
-					if (type instanceof EolModelElementType && ((EolModelElementType) type).getMetaClass() != null) {
-						metaClass = (IMetaClass) ((EolModelElementType) type).getMetaClass();
-					} else if (type instanceof EolCollectionType
-							&& ((EolCollectionType) type).getContentType() instanceof EolModelElementType) {
-						metaClass = ((EolModelElementType) ((EolCollectionType) type).getContentType()).getMetaClass();
-						many = true;
-					}
-
-					if (metaClass != null) {
-						Property property = metaClass.getProperty(nameExpression.getName());
-						if (property != null) {
-							if (property.isMany()) {
-								EolCollectionType collectionType = null;
-								if (property.isOrdered()) {
-									if (property.isUnique())
-										collectionType = new EolCollectionType("OrderedSet");
-									else
-										collectionType = new EolCollectionType("Sequence");
-								} else {
-									if (property.isUnique())
-										collectionType = new EolCollectionType("Set");
-									else
-										collectionType = new EolCollectionType("Bag");
-								}
-								collectionType.setContentType(toStaticAnalyserType(property.getType()));
-								setResolvedType(propertyCallExpression, collectionType);
-							} else {
-								setResolvedType(propertyCallExpression,
-										toStaticAnalyserType(property.getType()));
-							}
-							if (many) {
-								setResolvedType(propertyCallExpression,
-										new EolCollectionType("Sequence", getResolvedType(propertyCallExpression)));
-							}
-						} else {
-							errors.add(new ModuleMarker(nameExpression, "Structural feature " + nameExpression.getName()
-									+ " not found in type " + metaClass.getName(), Severity.Error));
-						}
-					}
-
-				}
+			if (nameExpression.getName().equalsIgnoreCase("all")
+					|| nameExpression.getName().equalsIgnoreCase("allinstances")
+					|| nameExpression.getName().equalsIgnoreCase("getallofkind")
+					|| nameExpression.getName().equalsIgnoreCase("getalloftype")) {
+				setResolvedType(propertyCallExpression,
+						new EolCollectionType("Sequence", getResolvedType(targetExpression)));
+			}
+			else if (nameExpression.getName().equalsIgnoreCase("createInstance")) {
+				setResolvedType(propertyCallExpression, getResolvedType(targetExpression));
+			}
+			else if (nameExpression.getName().equalsIgnoreCase("isInstantiable")) {
+				setResolvedType(propertyCallExpression, EolPrimitiveType.Boolean);
+			}
+			else {
+				errors.add(new ModuleMarker(nameExpression, "Property " + nameExpression.getName()
+				+ " not found for type " + ((NameExpression)targetExpression).getName(), Severity.Error));
 			}
 		}
 		// Regular properties
@@ -837,7 +806,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			boolean many = false;
 			IMetaClass metaClass = null;
 			if (type instanceof EolModelElementType && ((EolModelElementType) type).getMetaClass() != null) {
-				metaClass = (IMetaClass) ((EolModelElementType) type).getMetaClass();
+				metaClass = ((EolModelElementType) type).getMetaClass();
 			} else if (type instanceof EolCollectionType
 					&& ((EolCollectionType) type).getContentType() instanceof EolModelElementType) {
 				metaClass = ((EolModelElementType) ((EolCollectionType) type).getContentType()).getMetaClass();

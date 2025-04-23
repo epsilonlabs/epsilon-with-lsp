@@ -7,4 +7,4 @@ model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 /*Sequence<EClass>*/EClass.gEtAllOfType;
 /*EClass*/EClass.createInstance;
 /*Boolean*/EClass.isInstantiable;
-/*Boolean*/EClass.mistyped;
+EClass.mistyped;

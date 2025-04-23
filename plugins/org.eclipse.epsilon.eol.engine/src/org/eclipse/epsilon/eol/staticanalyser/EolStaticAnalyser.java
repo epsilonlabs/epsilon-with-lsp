@@ -795,6 +795,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				setResolvedType(propertyCallExpression, EolPrimitiveType.Boolean);
 			}
 			else {
+				setResolvedType(propertyCallExpression, EolAnyType.Instance);
 				errors.add(new ModuleMarker(nameExpression, "Property " + nameExpression.getName()
 				+ " not found for type " + ((NameExpression)targetExpression).getName(), Severity.Error));
 			}

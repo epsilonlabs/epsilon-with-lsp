@@ -18,14 +18,10 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.epsilon.common.util.StringProperties;
-import org.eclipse.epsilon.common.util.StringUtil;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.m3.Metamodel;
-import org.eclipse.epsilon.eol.m3.Property;
+import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
-import org.eclipse.epsilon.eol.types.EolAnyType;
-import org.eclipse.epsilon.eol.types.EolModelElementType;
-import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 
 public class EmfModelMetamodel extends Metamodel {
 	protected String nsuri;
@@ -70,42 +66,14 @@ public class EmfModelMetamodel extends Metamodel {
 					
 					
 					for (EAttribute eAttribute : eClass.getEAttributes()) {
-						Property attribute = new Property();
-						attribute.setName(eAttribute.getName());
-						attribute.setOrdered(eAttribute.isOrdered());
-						attribute.setUnique(eAttribute.isUnique());
-						attribute.setMany(eAttribute.isMany());
-						
-						String instanceClassName = eAttribute.getEAttributeType().getInstanceClassName();
-						if (StringUtil.isOneOf(instanceClassName, String.class.getCanonicalName(), "String")) {
-							attribute.setType(EolPrimitiveType.String);
-						}
-						else if (StringUtil.isOneOf(instanceClassName, Integer.class.getCanonicalName(), "int")) {
-							attribute.setType(EolPrimitiveType.Integer);
-						}
-						else if (StringUtil.isOneOf(instanceClassName, Boolean.class.getCanonicalName(), "boolean")) {
-							attribute.setType(EolPrimitiveType.Boolean);
-						}
-						else if ((instanceClassName != null) && (instanceClassName.equals(Float.class.getCanonicalName()) || instanceClassName.equals(Double.class.getCanonicalName()))) {
-							attribute.setType(EolPrimitiveType.Real);
-						}
-						else
-							attribute.setType(EolAnyType.Instance);
+						IProperty attribute = new EmfProperty(eAttribute);
 						metaClass.getProperties().add(attribute);
 					}
 					
 					for (EReference eReference : eClass.getEReferences()) {
-						Property reference = new Property();
-						reference.setName(eReference.getName());
-						reference.setOrdered(eReference.isOrdered());
-						reference.setUnique(eReference.isUnique());
-						reference.setMany(eReference.isMany());
-						
 						EClass referenceType = eReference.getEReferenceType();
 						MetaClass referenceMetaClass = eClassMetaClassMap.get(referenceType);
-						if (referenceMetaClass != null) {
-							reference.setType(new EolModelElementType(referenceMetaClass));
-						}
+						IProperty reference = new EmfProperty(eReference, referenceMetaClass);
 						metaClass.getProperties().add(reference);
 					}
 					

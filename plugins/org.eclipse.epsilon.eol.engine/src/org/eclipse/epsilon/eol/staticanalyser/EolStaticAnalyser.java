@@ -94,7 +94,7 @@ import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContribu
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.m3.IMetaClass;
 import org.eclipse.epsilon.eol.m3.IMetamodel;
-import org.eclipse.epsilon.eol.m3.Property;
+import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
@@ -815,24 +815,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 
 			if (metaClass != null) {
-				Property property = metaClass.getProperty(nameExpression.getName());
+				IProperty property = metaClass.getProperty(nameExpression.getName());
 				if (property != null) {
-					if (property.isMany()) {
-						String collectionTypeName;
-						if (property.isOrdered()) {
-							collectionTypeName = property.isUnique() ? "OrderedSet" : "Sequence";
-						} else {
-							collectionTypeName = property.isUnique() ? "Set" : "Bag";
-							if (property.isConcurrent()) {
-								collectionTypeName = "Concurrent" + collectionTypeName;
-							}
-						}
-						setResolvedType(propertyCallExpression, new EolCollectionType(collectionTypeName));
-						((EolCollectionType) getResolvedType(propertyCallExpression))
-								.setContentType(toStaticAnalyserType(property.getType()));
-					} else {
-						setResolvedType(propertyCallExpression, toStaticAnalyserType(property.getType()));
-					}
+					setResolvedType(propertyCallExpression, toStaticAnalyserType(property.getType()));
 					if (many) {
 						setResolvedType(propertyCallExpression,
 								new EolCollectionType("Sequence", getResolvedType(propertyCallExpression)));

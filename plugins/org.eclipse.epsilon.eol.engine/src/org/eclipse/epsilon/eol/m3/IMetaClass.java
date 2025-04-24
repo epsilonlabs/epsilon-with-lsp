@@ -7,15 +7,15 @@ public interface IMetaClass {
 	
 	List<IMetaClass> getSubTypes();
 	
-	List<Property> getProperties();
+	List<IProperty> getProperties();
 	
-	List<Property> getAllProperties();
+	List<IProperty> getAllProperties();
 	
 	boolean isAbstract();
 	
 	void setAbstract(boolean isAbstract);
 	
-	Property getProperty(String name);
+	IProperty getProperty(String name);
 	
 	String getName();
 	

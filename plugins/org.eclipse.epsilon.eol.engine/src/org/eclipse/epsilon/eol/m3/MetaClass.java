@@ -16,7 +16,7 @@ public abstract class MetaClass implements IMetaClass{
 	
 	protected List<IMetaClass> superTypes = new ArrayList<>();
 	protected List<IMetaClass> subTypes = new ArrayList<>();
-	protected List<Property> properties = new ArrayList<>();
+	protected List<IProperty> properties = new ArrayList<>();
 	protected boolean isAbstract;
 	protected IMetamodel metamodel;
 	protected String name;
@@ -33,12 +33,12 @@ public abstract class MetaClass implements IMetaClass{
 		return subTypes;
 	}
 	
-	public List<Property> getProperties() {
+	public List<IProperty> getProperties() {
 		return properties;
 	}
 	
-	public List<Property> getAllProperties() {
-		List<Property> allProperties = new ArrayList<>();
+	public List<IProperty> getAllProperties() {
+		List<IProperty> allProperties = new ArrayList<>();
 		for (IMetaClass superType : superTypes) {
 			allProperties.addAll(superType.getAllProperties());
 		}
@@ -54,8 +54,8 @@ public abstract class MetaClass implements IMetaClass{
 		this.isAbstract = isAbstract;
 	}
 	
-	public Property getProperty(String name) {
-		for (Property property : getAllProperties()) {
+	public IProperty getProperty(String name) {
+		for (IProperty property : getAllProperties()) {
 			if (property.getName().equals(name)) {
 				return property;
 			}

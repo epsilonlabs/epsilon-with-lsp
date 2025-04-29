@@ -824,7 +824,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					}
 
 				} else {
-					errors.add(new ModuleMarker(nameExpression, "Structural feature " + nameExpression.getName()
+					errors.add(new ModuleMarker(nameExpression, "Property " + nameExpression.getName()
 							+ " not found in type " + metaClass.getName(), Severity.Error));
 				}
 			}

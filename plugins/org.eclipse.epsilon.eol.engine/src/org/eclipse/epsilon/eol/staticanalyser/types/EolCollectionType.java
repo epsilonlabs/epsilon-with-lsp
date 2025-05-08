@@ -27,6 +27,7 @@ public class EolCollectionType extends EolType {
 	
 	protected EolType contentType = EolAnyType.Instance;
 	private String name;
+	private Class<?> clazz;
 
 	public static final EolCollectionType
 		Collection = new EolCollectionType("Collection"),
@@ -41,25 +42,25 @@ public class EolCollectionType extends EolType {
 		this.name = name;
 		switch(name) {
 		case "Collection":
-			setClazz(EolCollection.class);
+			clazz = EolCollection.class;
 			break;
 		case "Bag":
-			setClazz(EolBag.class);
+			clazz = EolBag.class;
 			break;
 		case "Sequence":
-			setClazz(EolSequence.class);
+			clazz = EolSequence.class;
 			break;
 		case "Set":
-			setClazz(EolSet.class);
+			clazz = EolSet.class;
 			break;
 		case "OrderedSet":
-			setClazz(EolOrderedSet.class);
+			clazz = EolOrderedSet.class;
 			break;
 		case "ConcurrentBag":
-			setClazz(EolConcurrentBag.class);
+		 	clazz = EolConcurrentBag.class;
 			break;
 		case "ConcurrentSet":
-			setClazz(EolConcurrentSet.class);
+			clazz = EolConcurrentSet.class;
 			break;
 		}
 	}
@@ -72,6 +73,11 @@ public class EolCollectionType extends EolType {
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public Class<?> getClazz() {
+		return clazz;
 	}
 	
 	public boolean isBag() {

@@ -122,6 +122,11 @@ public class EolModelElementType extends EolType {
 		else
 			return "(" + statement.getFile() + "@" + statement.getRegion().getStart().getLine() + ":" + statement.getRegion().getStart().getColumn() + ")";
 	}
+	
+	@Override
+	public Class<?> getClazz(){
+		return metaClass.getClazz();
+	}
 
 	public String getModelName() {
 		return modelName;

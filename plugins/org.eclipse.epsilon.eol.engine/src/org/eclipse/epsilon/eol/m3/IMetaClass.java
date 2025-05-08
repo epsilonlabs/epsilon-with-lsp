@@ -20,4 +20,6 @@ public interface IMetaClass {
 	String getName();
 	
 	IMetamodel getMetamodel();
+
+	Class<?> getClazz();
 }

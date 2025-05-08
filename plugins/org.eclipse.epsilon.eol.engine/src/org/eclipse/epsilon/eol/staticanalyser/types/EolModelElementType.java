@@ -236,7 +236,7 @@ public class EolModelElementType extends EolType {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(typeName, metaClass.hashCode());
+		return Objects.hash(typeName, metaClass);
 	}
 	
 	@Override

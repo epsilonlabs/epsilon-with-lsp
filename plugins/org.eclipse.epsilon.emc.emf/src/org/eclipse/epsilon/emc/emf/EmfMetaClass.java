@@ -21,6 +21,6 @@ public class EmfMetaClass extends MetaClass {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, metamodel.hashCode());
+		return Objects.hash(name, metamodel);
 	}
 }

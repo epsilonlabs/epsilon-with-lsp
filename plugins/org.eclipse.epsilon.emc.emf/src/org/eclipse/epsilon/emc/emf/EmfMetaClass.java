@@ -30,4 +30,8 @@ public class EmfMetaClass extends MetaClass {
 	public String getName() {
 		return this.eClassifier.getName();
 	}
+	
+	public Class<?> getClazz(){
+		return eClassifier.getClass();
+	}
 }

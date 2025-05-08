@@ -14,6 +14,7 @@ import java.util.List;
 
 public class EolPrimitiveType extends EolType {
 	private String name;
+	private Class<?> clazz;
 	
 	public static final EolPrimitiveType
 		Integer = new EolPrimitiveType(Integer.class, "Integer"),
@@ -22,13 +23,18 @@ public class EolPrimitiveType extends EolType {
 		Real = new EolPrimitiveType(Float.class, "Real");
 	
 	private EolPrimitiveType(Class<?> clazz, String name) {
-		setClazz(clazz);
+		this.clazz = clazz;
 		this.name = name;
 	}
 
 	@Override
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public Class<?> getClazz() {
+		return clazz;
 	}
 	
 	@Override

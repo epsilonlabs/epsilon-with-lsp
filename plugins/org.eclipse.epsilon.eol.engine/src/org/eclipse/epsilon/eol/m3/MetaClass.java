@@ -19,11 +19,6 @@ public abstract class MetaClass implements IMetaClass{
 	protected List<IProperty> properties = new ArrayList<>();
 	protected boolean isAbstract;
 	protected IMetamodel metamodel;
-	protected String name;
-
-	public String getName() {
-		return name;
-	}
 	
 	public List<IMetaClass> getSuperTypes() {
 		return superTypes;

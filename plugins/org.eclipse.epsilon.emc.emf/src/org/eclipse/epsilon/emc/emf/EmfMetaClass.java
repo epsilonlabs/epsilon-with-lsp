@@ -2,12 +2,14 @@ package org.eclipse.epsilon.emc.emf;
 
 import java.util.Objects;
 
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 
 public class EmfMetaClass extends MetaClass {
-
-	public EmfMetaClass(String name, EmfModelMetamodel metamodel) {
-		this.name = name;
+	private EClassifier eClassifier;
+	
+	public EmfMetaClass(EClassifier eClassifier, EmfModelMetamodel metamodel) {
+		this.eClassifier = eClassifier;
 		this.metamodel = metamodel;
 	}
 	
@@ -16,11 +18,16 @@ public class EmfMetaClass extends MetaClass {
 			return false;
 		}
 		EmfMetaClass otherMetaClass = (EmfMetaClass) other;
-		return this.name.equals(otherMetaClass.name) && this.metamodel.equals(otherMetaClass.metamodel);
+		return this.getName().equals(otherMetaClass.getName()) && this.metamodel.equals(otherMetaClass.metamodel);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, metamodel);
+		return Objects.hash(getName(), metamodel);
+	}
+
+	@Override
+	public String getName() {
+		return this.eClassifier.getName();
 	}
 }

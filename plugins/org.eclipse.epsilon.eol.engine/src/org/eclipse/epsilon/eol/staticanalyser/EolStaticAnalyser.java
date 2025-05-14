@@ -1322,16 +1322,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		parameter.getData().put("type", type);
 	}
 
-	/**
-	 * TODO: We should be considering all parent types - not just the first one
-	 */
-	public EolType getParentType(EolType type) {
-		if (type.getParentTypes().isEmpty())
-			return null;
-		else
-			return type.getParentTypes().get(0);
-	}
-
 	public EolStaticAnalysisContext getContext() {
 		return context;
 	}

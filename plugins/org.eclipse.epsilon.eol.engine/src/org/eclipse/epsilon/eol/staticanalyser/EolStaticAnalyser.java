@@ -98,10 +98,6 @@ import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolSelf;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolSelfCollectionType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolSelfContentType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolSelfExpressionType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolUnionType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolTupleType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
@@ -923,28 +919,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		if (type instanceof EolPrimitiveType) {
 			setResolvedType(typeExpression, type);
-		}
-
-		if (type == null) {
-
-			switch (typeExpression.getName()) {
-			case "EolSelf":
-				type = new EolSelf();
-				setResolvedType(typeExpression, type);
-				break;
-			case "EolSelfContentType":
-				type = new EolSelfContentType();
-				setResolvedType(typeExpression, type);
-				break;
-			case "EolSelfExpressionType":
-				type = new EolSelfExpressionType();
-				setResolvedType(typeExpression, type);
-				break;
-			case "EolSelfCollectionType":
-				type = new EolSelfCollectionType();
-				setResolvedType(typeExpression, type);
-				break;
-			}
 		}
 
 		if (type instanceof EolCollectionType) {

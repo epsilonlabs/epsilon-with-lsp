@@ -15,5 +15,10 @@ public class EolTypeType extends EolType {
 	public EolType getWrappedType() {
 		return this.wrappedType;
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		return other instanceof EolTypeType;
+	}
 
 }

@@ -703,6 +703,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (IStaticOperation op : resolvedOperations) {
 			resolvedOperationContextTypes.add(op.getContextType());
 		}
+		
+		if (resolvedOperationContextTypes.contains(EolAnyType.Instance)){
+			return;
+		}
 
 		Stack<EolType> stack = new Stack<EolType>();
 		if(contextType instanceof EolCollectionType) {
@@ -1137,6 +1141,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return EolCollectionType.ConcurrentSet;
 		} else if (javaClass == org.eclipse.epsilon.eol.types.concurrent.EolConcurrentMap.class) {
 			return EolMapType.ConcurrentMap;
+		} else if (javaClass == org.eclipse.epsilon.eol.types.EolType.class) {
+			return new EolTypeType(EolAnyType.Instance);
 		} else {
 			return new EolNativeType(javaClass);
 		}

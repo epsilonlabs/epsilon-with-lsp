@@ -522,6 +522,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Variable variable = context.getFrameStack().get(nameExpression.getName());
 		if (variable != null) {
 			setResolvedType(nameExpression, variable.getType());
+		} else if (TypeExpression.getType(nameExpression.getName()) != null) {
+			setResolvedType(nameExpression,
+					new EolTypeType(toStaticAnalyserType(TypeExpression.getType(nameExpression.getName()))));
 		} else {
 			modelElementType = getModelElementType(nameExpression.getName(), nameExpression);
 			if (modelElementType != null) {

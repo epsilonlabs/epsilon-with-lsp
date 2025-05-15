@@ -108,6 +108,7 @@ import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolNoType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolTypeType;
 
 public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
@@ -524,7 +525,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else {
 			modelElementType = getModelElementType(nameExpression.getName(), nameExpression);
 			if (modelElementType != null) {
-				setResolvedType(nameExpression, modelElementType);
+				setResolvedType(nameExpression, new EolTypeType(modelElementType));
 				nameExpression.setTypeName(true);
 				if (modelElementType.getMetaClass() == null && !context.getModelDeclarations().isEmpty()) {
 
@@ -766,6 +767,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Expression targetExpression = propertyCallExpression.getTargetExpression();
 		NameExpression nameExpression = propertyCallExpression.getNameExpression();
 		targetExpression.accept(this);
+		if (getResolvedType(targetExpression) instanceof EolTypeType){
+			setResolvedType(targetExpression,((EolTypeType)getResolvedType(targetExpression)).getWrappedType());
+		}
 
 		// Extended properties
 		if (nameExpression.getName().startsWith("~")) {

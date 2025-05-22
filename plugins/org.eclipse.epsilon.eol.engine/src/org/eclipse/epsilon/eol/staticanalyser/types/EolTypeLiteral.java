@@ -1,15 +1,15 @@
 package org.eclipse.epsilon.eol.staticanalyser.types;
 
-public class EolTypeType extends EolType {
+public class EolTypeLiteral extends EolType {
 	private EolType wrappedType;
 
-	public EolTypeType(EolType wrappedType){
+	public EolTypeLiteral(EolType wrappedType){
 		this.wrappedType = wrappedType;
 	}
 	
 	@Override
 	public String getName() {
-		return "EolTypeType<" + wrappedType.getName() + ">";
+		return "EolTypeLiteral<" + wrappedType.getName() + ">";
 	}
 	
 	public EolType getWrappedType() {
@@ -18,7 +18,7 @@ public class EolTypeType extends EolType {
 	
 	@Override
 	public boolean equals(Object other) {
-		return other instanceof EolTypeType;
+		return other instanceof EolTypeLiteral;
 	}
 
 }

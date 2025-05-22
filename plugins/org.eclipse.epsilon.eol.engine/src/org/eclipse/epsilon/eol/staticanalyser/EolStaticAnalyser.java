@@ -108,7 +108,7 @@ import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolNoType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolTypeType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolTypeLiteral;
 
 public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
@@ -524,11 +524,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			setResolvedType(nameExpression, variable.getType());
 		} else if (TypeExpression.getType(nameExpression.getName()) != null) {
 			setResolvedType(nameExpression,
-					new EolTypeType(toStaticAnalyserType(TypeExpression.getType(nameExpression.getName()))));
+					new EolTypeLiteral(toStaticAnalyserType(TypeExpression.getType(nameExpression.getName()))));
 		} else {
 			modelElementType = getModelElementType(nameExpression.getName(), nameExpression);
 			if (modelElementType != null) {
-				setResolvedType(nameExpression, new EolTypeType(modelElementType));
+				setResolvedType(nameExpression, new EolTypeLiteral(modelElementType));
 				nameExpression.setTypeName(true);
 				if (modelElementType.getMetaClass() == null && !context.getModelDeclarations().isEmpty()) {
 
@@ -774,8 +774,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Expression targetExpression = propertyCallExpression.getTargetExpression();
 		NameExpression nameExpression = propertyCallExpression.getNameExpression();
 		targetExpression.accept(this);
-		if (getResolvedType(targetExpression) instanceof EolTypeType){
-			setResolvedType(targetExpression,((EolTypeType)getResolvedType(targetExpression)).getWrappedType());
+		if (getResolvedType(targetExpression) instanceof EolTypeLiteral){
+			setResolvedType(targetExpression,((EolTypeLiteral)getResolvedType(targetExpression)).getWrappedType());
 		}
 
 		// Extended properties
@@ -1145,7 +1145,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else if (javaClass == org.eclipse.epsilon.eol.types.concurrent.EolConcurrentMap.class) {
 			return EolMapType.ConcurrentMap;
 		} else if (javaClass == org.eclipse.epsilon.eol.types.EolType.class) {
-			return new EolTypeType(EolAnyType.Instance);
+			return new EolTypeLiteral(EolAnyType.Instance);
 		} else {
 			return new EolNativeType(javaClass);
 		}

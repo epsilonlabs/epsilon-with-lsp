@@ -1,6 +1,6 @@
 //!Property eAllStructuralFeatures not found in type EModelElement
-//!Property eSuperType not found in type EModelElement
-//!Property eSuperType not found in type EModelElement
+//!Property eSuperTypes not found in type EModelElement
+//!Property eSuperTypes not found in type EModelElement
 model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 model GmfGraph driver EMF {nsuri="http://www.eclipse.org/gmf/2006/GraphicalDefinition"};
 

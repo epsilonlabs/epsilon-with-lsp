@@ -1,0 +1,4 @@
+for (x in Sequence{1,2,3}) {
+	/*Boolean*/hasMore;
+	/*Integer*/loopCount;
+}

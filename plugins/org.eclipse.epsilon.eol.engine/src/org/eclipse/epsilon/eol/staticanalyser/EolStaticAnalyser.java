@@ -707,7 +707,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			resolvedOperationContextTypes.add(op.getContextType());
 		}
 		
-		if (resolvedOperationContextTypes.contains(EolAnyType.Instance)){
+		if (resolvedOperationContextTypes.contains(EolAnyType.Instance) || contextType.equals(EolAnyType.Instance)) {
 			return;
 		}
 

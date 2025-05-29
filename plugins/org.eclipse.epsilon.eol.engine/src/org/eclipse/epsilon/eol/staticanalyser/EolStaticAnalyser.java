@@ -1091,7 +1091,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		module.getDeclaredOperations().forEach(o -> operationPreVisitor(o));
 		module.getDeclaredOperations().forEach(o -> localOperations.add(new SimpleOperation(o)));
-		module.getDeclaredOperations().forEach(o -> o.accept(this));
 		operationRegistry.put(module.getUri(), localOperations);		
 	}
 	
@@ -1176,6 +1175,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		if (module.getMain() != null)
 			module.getMain().accept(this);
+		module.getDeclaredOperations().forEach(o -> o.accept(this));
 	}
 
 	public void postValidate() {

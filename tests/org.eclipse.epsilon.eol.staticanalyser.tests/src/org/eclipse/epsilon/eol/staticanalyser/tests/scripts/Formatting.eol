@@ -1,3 +1,11 @@
+//!Property lineWidth not found in type Figure
+//!Property lineKind not found in type Figure
+//!Property lineKind not found in type Figure
+//!Property lineKind not found in type Figure
+//!Undefined variable or type figureGallery
+//!Undefined variable or type figureGallery
+//!Undefined operation getAnnotationValue
+//!Undefined operation getAnnotationValue
 model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 model GmfGraph driver EMF {nsuri="http://www.eclipse.org/gmf/2006/GraphicalDefinition"};
 

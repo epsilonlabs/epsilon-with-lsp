@@ -395,10 +395,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	@Override
 	public void visit(Import import_) {
 		
-//		System.out.println(import_.getImportedModule().getUri().toString());
 		EolModule importedModule = (EolModule) import_.getImportedModule();
 		if(operationRegistry.getOrDefault(importedModule.getUri(), null) == null) {
 			preValidate(importedModule);
+			//We do not care about errors from imported modules
+			errors.clear();
 		}
 		importedOperations.addAll(operationRegistry.get(importedModule.getUri()));
 	}

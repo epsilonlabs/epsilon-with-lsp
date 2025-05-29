@@ -532,7 +532,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				nameExpression.setTypeName(true);
 				if (modelElementType.getMetaClass() == null && !context.getModelDeclarations().isEmpty()) {
 
-					errors.add(new ModuleMarker(nameExpression, "Unknown type " + nameExpression.getName(),
+					errors.add(new ModuleMarker(nameExpression, "Undefined variable or type " + nameExpression.getName(),
 							Severity.Error));
 				}
 
@@ -774,6 +774,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Expression targetExpression = propertyCallExpression.getTargetExpression();
 		NameExpression nameExpression = propertyCallExpression.getNameExpression();
 		targetExpression.accept(this);
+		//Early return if target expression could not be resolved (e.g. out of scope variable)
+		if(getResolvedType(targetExpression)  == EolAnyType.Instance) {
+			setResolvedType(propertyCallExpression, EolAnyType.Instance);
+			return;
+		}
 		if (getResolvedType(targetExpression) instanceof EolTypeLiteral){
 			setResolvedType(targetExpression,((EolTypeLiteral)getResolvedType(targetExpression)).getWrappedType());
 		}
@@ -784,7 +789,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return;
 		}
 		
-		// PropertyCall on TypeName e.g EPackage.all
+		// Property call on TypeName e.g EPackage.all
 		if (targetExpression instanceof NameExpression && ((NameExpression) targetExpression).isTypeName()
 				&& getResolvedType(targetExpression) instanceof EolModelElementType) {
 
@@ -806,6 +811,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				errors.add(new ModuleMarker(nameExpression, "Property " + nameExpression.getName()
 				+ " not found for type " + ((NameExpression)targetExpression).getName(), Severity.Error));
 			}
+		}
+		// Property call on model name
+		else if (targetExpression instanceof NameExpression
+				&& context.repository.getModelByNameSafe(((NameExpression) targetExpression).getName()) != null) {
+			System.out.println("HERE");
 		}
 		// Regular properties
 		else {
@@ -1362,9 +1372,15 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		IMetamodel metamodel = context.modelDeclarations.get(modelName).getMetamodel();
 		if (metamodel != null) {
-			EolModelElementType modelElementType = new EolModelElementType(modelAndType, module);
-			modelElementType.setMetaClass(metamodel.getMetaClass(typeName));
-			return modelElementType;
+			IMetaClass metaclass = metamodel.getMetaClass(typeName);
+			if (metaclass == null) {
+				return null;
+			}
+			else {
+				EolModelElementType modelElementType = new EolModelElementType(modelAndType, module);
+				modelElementType.setMetaClass(metaclass);
+				return modelElementType;
+			}
 		} else {
 			return null;
 		}

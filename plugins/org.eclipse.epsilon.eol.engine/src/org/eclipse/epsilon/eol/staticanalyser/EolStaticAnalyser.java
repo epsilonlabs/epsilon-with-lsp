@@ -526,6 +526,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else if (TypeExpression.getType(nameExpression.getName()) != null) {
 			setResolvedType(nameExpression,
 					new EolTypeLiteral(toStaticAnalyserType(TypeExpression.getType(nameExpression.getName()))));
+		} else if(context.repository.getModelByNameSafe(nameExpression.getName()) != null){
+			IModel m = context.repository.getModelByNameSafe(nameExpression.getName());
+			setResolvedType(nameExpression, new EolNativeType(m.getClass()));
 		} else {
 			modelElementType = getModelElementType(nameExpression.getName(), nameExpression);
 			if (modelElementType != null) {
@@ -813,10 +816,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				+ " not found for type " + ((NameExpression)targetExpression).getName(), Severity.Error));
 			}
 		}
-		// Property call on model name
-		else if (targetExpression instanceof NameExpression
-				&& context.repository.getModelByNameSafe(((NameExpression) targetExpression).getName()) != null) {
-			System.out.println("HERE");
+		// Property call on a Java object
+		else if (getResolvedType(targetExpression) instanceof EolNativeType) {
+//			System.out.println(((NameExpression)targetExpression).getName());
+//			System.out.println(this.module.getFile().getAbsolutePath());
+
 		}
 		// Regular properties
 		else {

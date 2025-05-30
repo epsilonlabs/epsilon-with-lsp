@@ -1,3 +1,6 @@
+//!Property referencedChild not found in type NodeReference
+//!Property referencedChild not found in type NodeReference
+//!Property ownedChild not found in type NodeReference
 import 'ECoreUtil.eol';
 import 'Formatting.eol';
 
@@ -366,7 +369,7 @@ for (class in getLinks()) {
 		diagramLabel.elementIcon := class.labelHasIcon(false);
 		canvas.labels.add(diagramLabel);
 
-		var featureLabelMapping := new GmfMap!FeatureLabelMapping;
+		var featureLabelMapping:GmfMap!FeatureLabelMapping := new GmfMap!FeatureLabelMapping;
 		featureLabelMapping.diagramLabel := diagramLabel;
 		featureLabelMapping.editPattern := class.getLabelEditPattern();
 		featureLabelMapping.editorPattern := class.getLabelEditPattern();

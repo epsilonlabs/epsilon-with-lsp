@@ -20,6 +20,11 @@ public class EolNativeType extends EolType {
 	}
 	
 	@Override
+	public Class<?> getClazz(){
+		return javaClass;
+	}
+	
+	@Override
 	public String toString() {
 		return "Native<" + javaClass.getName() +">";
 	}

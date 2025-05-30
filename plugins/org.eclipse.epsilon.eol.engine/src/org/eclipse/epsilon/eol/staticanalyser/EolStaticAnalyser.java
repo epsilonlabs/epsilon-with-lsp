@@ -341,7 +341,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		context.getFrameStack().leaveLocal(forStatement.getBodyStatementBlock());
 
 		if (hasResolvedType(forStatement.getIteratedExpression())
-				&& !(getResolvedType(forStatement.getIteratedExpression()) instanceof EolCollectionType)) {
+				&& !(getResolvedType(forStatement.getIteratedExpression()).isAssignableTo(EolCollectionType.Collection))) {
 			errors.add(new ModuleMarker(forStatement.getIteratedExpression(),
 					"Collection expected instead of " + getResolvedType(forStatement.getIteratedExpression()),
 					Severity.Error));

@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.eol.staticanalyser;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -818,8 +819,31 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		// Property call on a Java object
 		else if (getResolvedType(targetExpression) instanceof EolNativeType) {
-//			System.out.println(((NameExpression)targetExpression).getName());
-//			System.out.println(this.module.getFile().getAbsolutePath());
+			Class<?> javaClass = getResolvedType(targetExpression).getClazz();
+			//.x
+			try {
+				Field f = javaClass.getDeclaredField(nameExpression.getName());
+				setResolvedType(propertyCallExpression, new EolNativeType(f.getClass()));
+				return;
+			} catch (Exception e) {}
+			
+			String camelCaseName = nameExpression.getName().substring(0, 1).toUpperCase() + nameExpression.getName().substring(1);
+			//.getX()
+			try {
+				Method m = javaClass.getMethod("get" + camelCaseName);
+				setResolvedType(propertyCallExpression, new EolNativeType(m.getReturnType()));
+				return;
+			} catch (Exception e) {}
+			
+			//.isX()
+			try {
+				Method m = javaClass.getMethod("is" + camelCaseName);
+				setResolvedType(propertyCallExpression, new EolNativeType(m.getReturnType()));
+				return;
+			} catch (Exception e) {}
+
+			setResolvedType(propertyCallExpression, EolAnyType.Instance);
+			System.out.println(((NameExpression)targetExpression).getName());
 
 		}
 		// Regular properties

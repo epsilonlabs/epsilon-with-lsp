@@ -1,6 +1,12 @@
 //!Property referencedChild not found in type NodeReference
 //!Property referencedChild not found in type NodeReference
 //!Property ownedChild not found in type NodeReference
+//!Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<Any>
+//!Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<Any>
+//!Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<Any>
+//!Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<Any>
+//?Operation getDomainMetaElement is undefined for type Native
+//?Operation getDomainMetaElement is undefined for type Native
 import 'ECoreUtil.eol';
 import 'Formatting.eol';
 

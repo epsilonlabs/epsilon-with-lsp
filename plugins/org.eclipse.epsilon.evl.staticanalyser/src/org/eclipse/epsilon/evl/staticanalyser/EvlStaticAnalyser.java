@@ -33,7 +33,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		for (Pre pre : evlModule.getPre()) {
 			 pre.accept(this);
 		}
-		super.mainValidate(evlModule);
+		super.mainValidate();
 		
 		for (ConstraintContext cc : evlModule.getConstraintContexts()) {
 			cc.accept(this);
@@ -41,7 +41,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		for (Post post : evlModule.getPost()) {
 			 post.accept(this);
 		}
-		super.postValidate(evlModule);
+		super.postValidate();
 		
 		return errors;
 	}

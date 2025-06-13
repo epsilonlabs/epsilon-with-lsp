@@ -843,8 +843,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			} catch (Exception e) {}
 
 			setResolvedType(propertyCallExpression, EolAnyType.Instance);
-			System.out.println(((NameExpression)targetExpression).getName());
-
 		}
 		// Regular properties
 		else {

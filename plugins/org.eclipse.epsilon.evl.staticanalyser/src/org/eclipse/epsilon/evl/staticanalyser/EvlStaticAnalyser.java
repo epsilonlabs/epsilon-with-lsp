@@ -7,6 +7,7 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
+import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
 import org.eclipse.epsilon.erl.dom.Post;
 import org.eclipse.epsilon.erl.dom.Pre;
 import org.eclipse.epsilon.evl.EvlModule;
@@ -16,9 +17,9 @@ import org.eclipse.epsilon.evl.dom.Fix;
 import org.eclipse.epsilon.evl.dom.IEvlVisitor;
 
 public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor {
-
-	public EvlStaticAnalyser() {
-
+	
+	public EvlStaticAnalyser(IModelFactory modelFactory) {
+		super(modelFactory);
 	}
 
 	@Override

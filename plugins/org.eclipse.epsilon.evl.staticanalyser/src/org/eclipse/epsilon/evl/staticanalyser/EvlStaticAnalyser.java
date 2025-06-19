@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
+import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
 import org.eclipse.epsilon.erl.dom.Post;
@@ -28,6 +29,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		if (!(imodule instanceof EvlModule))
 			return Collections.emptyList();
 
+		this.module = (EolModule) imodule;
 		EvlModule evlModule = (EvlModule) imodule;
 
 		super.preValidate(evlModule);

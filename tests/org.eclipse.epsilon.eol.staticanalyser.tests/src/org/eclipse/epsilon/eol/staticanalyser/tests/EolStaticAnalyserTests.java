@@ -17,6 +17,7 @@ import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -42,6 +43,9 @@ public class EolStaticAnalyserTests {
 	 * regardless of whether this test suite is running directly from this plugin, or from org.eclipse.epsilon.test.
 	 */
 	private static final File SOURCE_FOLDER = new File("../org.eclipse.epsilon.eol.staticanalyser.tests/src");
+	private static final File SCRIPT_FOLDER = new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/scripts/eol");
+	private EolModule module;
+	private EolStaticAnalyser staticAnalyser;
 
 	private String fileName;
 
@@ -56,6 +60,12 @@ public class EolStaticAnalyserTests {
 		registerPackage(new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/gmfgraph.ecore").getPath());
 		registerPackage(new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/gmfmap.ecore").getPath());
 		registerPackage(new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/tooldef.ecore").getPath());
+	}
+	
+	@Before
+	public void setUp() {
+		module = new EolModule();
+		staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 	}
 
 	public static void registerPackage(String path) {
@@ -79,11 +89,9 @@ public class EolStaticAnalyserTests {
 
 	@Parameters(name = "{0}")
 	public static Collection<String> data() {
-		File folder = new File(SOURCE_FOLDER,
-				String.join(File.separator, "org", "eclipse", "epsilon", "eol", "staticanalyser", "tests", "scripts"));
 		List<String> files = new ArrayList<>();
 
-		for (File file : folder.listFiles()) {
+		for (File file : SCRIPT_FOLDER.listFiles()) {
 			if (!file.isDirectory()) {
 				files.add(file.getName());
 			}
@@ -93,7 +101,7 @@ public class EolStaticAnalyserTests {
 
 	@Test
 	public void testFileParsing() throws Exception {
-		File file = new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/scripts/" + fileName);
+		File file = new File(SCRIPT_FOLDER, fileName);
 		parseFile(file);
 	}
 
@@ -119,9 +127,7 @@ public class EolStaticAnalyserTests {
 
 	public void assertValid(File file, List<String> expectedErrorMessages, List<String> expectedWarningMessages)
 			throws Exception {
-		EolModule module = new EolModule();
 		module.parse(file);
-		EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 		List<ModuleMarker> markers = staticAnalyser.validate(module);
 		List<ModuleMarker> errors = markers.stream().filter(m -> m.getSeverity() == Severity.Error)
 				.collect(Collectors.toList());

@@ -1214,7 +1214,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		errors = new ArrayList<ModuleMarker>();
 		warnings = new ArrayList<ModuleMarker>();
 		List<ModuleMarker> markers = new ArrayList<ModuleMarker>();
-		this.module = (EolModule) imodule;;
+		this.module = (EolModule) imodule;
 
 		preValidate(module);
 		mainValidate();

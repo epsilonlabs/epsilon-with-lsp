@@ -42,12 +42,12 @@ public class EolStaticAnalyserTests {
 	 * and not org.eclipse.epsilon.eol.staticanalyser.tests. This approach ensures that the right path will be used
 	 * regardless of whether this test suite is running directly from this plugin, or from org.eclipse.epsilon.test.
 	 */
-	private static final File SOURCE_FOLDER = new File("../org.eclipse.epsilon.eol.staticanalyser.tests/src");
+	protected static final File SOURCE_FOLDER = new File("../org.eclipse.epsilon.eol.staticanalyser.tests/src");
 	private static final File SCRIPT_FOLDER = new File(SOURCE_FOLDER, "org/eclipse/epsilon/eol/staticanalyser/tests/scripts/eol");
-	private EolModule module;
-	private EolStaticAnalyser staticAnalyser;
+	protected EolModule module;
+	protected EolStaticAnalyser staticAnalyser;
 
-	private String fileName;
+	protected String fileName;
 
 	public EolStaticAnalyserTests(String fileName) {
 		this.fileName = fileName;
@@ -105,7 +105,7 @@ public class EolStaticAnalyserTests {
 		parseFile(file);
 	}
 
-	private void parseFile(File file) throws Exception {
+	protected void parseFile(File file) throws Exception {
 		String content = new String(Files.readAllBytes(file.toPath()));
 		String[] lines = content.split(System.lineSeparator());
 		List<String> errorMessages = new ArrayList<String>();

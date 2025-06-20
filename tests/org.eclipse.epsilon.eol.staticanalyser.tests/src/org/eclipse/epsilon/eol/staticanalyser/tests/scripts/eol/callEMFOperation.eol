@@ -1,0 +1,4 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var a:EAnnotation;
+/*Native<org.eclipse.emf.ecore.EModelElement>*/a.getEModelElement();

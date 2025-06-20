@@ -32,6 +32,6 @@ public class EmfMetaClass extends MetaClass {
 	}
 	
 	public Class<?> getClazz(){
-		return eClassifier.getClass();
+		return eClassifier.getInstanceClass();
 	}
 }

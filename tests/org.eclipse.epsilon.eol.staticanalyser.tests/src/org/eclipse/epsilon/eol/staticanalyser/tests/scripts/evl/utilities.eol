@@ -1,0 +1,246 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+operation String isThriftReservedWord() : Boolean {
+	var thriftReservedWords = 
+		Set{"namespace", "cpp_namespace", "cpp_include",  "cpp_type",
+		"java_package", "cocoa_prefix", "php_namespace", "py_module", 
+		"perl_package", "ruby_namespace", "smalltalk_category", 
+		"smalltalk_prefix", "xsd_all", "xsd_optional", "xsd_nillable",
+		"xsd_namespace", "xsd_attrs", "include", "void", "bool", "byte", "i8", "i16",
+		"i32", "i64", "double", "string", "binary", "slist", "senum", "map",
+		"list", "set", "async", "typedef", "struct", "exception", "extends", 
+		"throws", "service", "enum", "const", "required", "optional", "abstract",
+		"and", "args", "as", "assert", "break", "case", "class", "continue",
+		"declare", "def", "default", "del", "delete", "do", "elif", "else", 
+		"elseif", "except", "exec", "false", "final", "finally", "float", "for",
+		"foreach", "function", "global", "goto", "if", "implements", "import",
+		"in", "inline", "instanceof", "interface", "is", "lambda", "native", "new",
+		"not", "or", "pass", "public", "print", "private", "protected", "raise",
+		"return", "sizeof", "static", "switch", "synchronized", "this", "throw",
+		"transient", "true", "try", "unsigned", "var", "virtual", "volatile",
+		"while", "with", "union", "yield"};
+
+	return thriftReservedWords.includes(self);
+}
+
+operation EClassifier getMapKeyField() : EStructuralFeature {
+	var fldName = self.getAnnotationValue("thrift.map", "key");
+	return self.eAllStructuralFeatures.selectOne(f|f.name = fldName);
+}
+
+operation EClassifier getMapValueField() : EStructuralFeature {
+	var fldName = self.getAnnotationValue("thrift.map", "value");
+	return self.eAllStructuralFeatures.selectOne(f|f.name = fldName);
+}
+
+operation EModelElement getAnnotationValue(name : String, detail : String) : Any {
+	var ann := self.eAnnotations.selectOne(a|a.source = name);
+	var det;
+	
+	if (ann.isDefined()) {
+		det := ann.details.selectOne(d|d.key = detail);
+	}
+	
+	if (det.isDefined()) {
+		return det.value;
+	}
+	else {
+		return "";
+	}
+	return det;
+}
+
+operation EClassifier isMap() {
+	return self.getAnnotationValue("thrift.map", "key") <> "";
+}
+
+operation EStructuralFeature isMerged() {
+	return self.hasAnnotation("thrift.merge");
+}
+
+operation ETypedElement getType() : String {
+	if (self.eType.isDefined()) {
+		var eType = self.eType;
+		var type = eType.name;
+		if (eType.isMap()) {
+			return "map<" + eType.getMapKeyField().getType() + "," + eType.getMapValueField().getType() + ">";
+		}
+		switch (type) {
+			case "EByte"            : type = "i8";
+			case "EByteObject"      : type = "i8";
+			case "EByteArray"       : type = "binary";
+			case "EBooleanObject"   : type = "bool";
+			case "EBoolean"         : type = "bool";
+			// Java characters are UTF-16 internally, cannot be represented all the time by a single byte
+			case "EChar"            : type = "string";
+			case "ECharacterObject" : type = "string";
+			// TODO: we should warn users that floats need to be turned into doubles (floats are not supported by Thrift)
+			case "EDouble"          : type = "double";
+			case "EDoubleObject"    : type = "double";
+			case "EFloat"           : type = "double";
+			case "EFloatObject"     : type = "double";
+			case "EInt"             : type = "i32";
+			case "EIntegerObject"   : type = "i32";
+			case "ELong"            : type = "i64";
+			case "ELongObject"      : type = "i64";
+			case "EShort"           : type = "i16";
+			case "EShortObject"     : type = "i16";
+			case "EString"          : type = "string";
+			default :
+				if (type.isKindOf(EDataType)) {
+					 return "unknown";
+					 }
+		}
+		if (self.isMany()) {
+			if (self.hasAnnotation("thrift.set")) {
+				type = "set<" + type + ">";
+			} else {
+				type = "list<" + type + ">";
+			}
+		}
+		return type;
+	}
+	else return "void";
+}
+
+operation EClass hasOperations() : Boolean {
+	return self.EOperation.all.size() <> 0;
+}  
+
+operation EClass hasFields() : Boolean {
+	return self.EAttribute.all.size() <> 0;
+}
+
+operation EModelElement hasAnnotation(name : String): Boolean {
+	return self.eAnnotations.exists(a | a.source = name);
+}
+
+operation EModelElement hasNumberAnnotation() : Boolean {
+	return self.eAnnotations.select(annotation | annotation.source = "thrift").exists(thrift | thrift.details.containsKey("n"));
+}
+
+operation EStructuralFeature isNumberAnnotationValid() : Boolean {
+	var annotation = self.eAnnotations.select(annotation | annotation.source = "thrift" and annotation.details.containsKey("n"));
+	return annotation.size = 1 and annotation.first.details.get("n").isInteger() and annotation.first.details.get("n").asInteger() >= 0;
+}
+
+operation Collection numberAnnotationsUnique() : Boolean {
+	var ns = new Set();
+	for (annotatable in self) {
+		if (annotatable.hasNumberAnnotation()) {
+			var n = annotatable.eAnnotations.selectOne(annotation | annotation.source = "thrift" and annotation.details.containsKey("n")).details.get("n");
+			if (not ns.add(n)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+operation EClass isUsedAsException() : Boolean {
+	return EOperation.all.exists(op | op.eExceptions.includes(self));
+}
+
+operation EClass isUsedAsStruct() : Boolean {
+	return ETypedElement.all.exists(op | op.eType = self);
+}
+
+operation String isJavaPackageName() : Boolean {
+	for (part : String in self.split("\\.")) {
+		var s = new Native("java.lang.String")(part);
+		if (s.length() = 0) {
+			return false;
+		}
+		var i = 0;
+		while (i < s.length()) {
+			var c = new Native("java.lang.Character")(s.charAt(i));
+			if (not (i = 0 implies c.isJavaIdentifierStart(c))) {
+				return false;
+			}
+			else if (not c.isJavaIdentifierPart(c)) {
+				return false;
+			}
+			i = i + 1;
+		}
+	}
+	return true;
+}
+
+operation getMainEPackage() : EPackage {
+  return Model.resource.contents.first;
+}
+
+// Returns all the classes that will provide services.
+operation getAllServiceClasses() : Sequence {
+  return getMainEPackage().eClassifiers.select(c|c.isKindOf(EClass))
+    .select(c|not c.eOperations.isEmpty() and not c.isExcluded())
+    .asSequence;
+}
+
+// Returns all the enums in the main EPackage, plus the ones referenced
+// from our services.
+operation getAllEnums() : Sequence {
+  var enums : Set;
+  enums.addAll(getMainEPackage().eClassifiers.select(e|e.isKindOf(EEnum)));
+
+  for (klass in getAllClasses()) {
+    enums.addAll(klass.eOperations.eParameters
+      .collect(p|p.eType).flatten
+      .select(t|t.isKindOf(EEnum))
+    );
+    enums.addAll(klass.eOperations.eType.select(t|t.isKindOf(EEnum)));
+    enums.addAll(klass.eAttributes.eType.select(t|t.isKindOf(EEnum)));
+  }
+
+  return enums
+    .select(e|not e.isExcluded())
+    .sortBy(c|c.name);
+}
+
+// Returns all the classes that only provide information (no services)
+operation getAllDataClasses() : Sequence {
+  return getAllClasses()
+    .select(c|c.eOperations.isEmpty() and not c.isExcluded() and not c.isMap())
+    .sortBy(c|c.name);
+}
+
+// Returns all the entity classes: some of these may come from imported EPackages.
+// Thrift has an "include" statement, but we want to make the API standalone so we
+// will just duplicate those entities.
+operation getAllEntityClasses() : Sequence {
+  return getAllDataClasses().select(c | not c.isException());
+}
+
+// Returns all the exception classes
+operation getAllExceptions() : Sequence {
+  return getAllDataClasses().select(c | c.isException());
+}
+
+// Returns all classes referred directly or indirectly from the main EPackage's own classes
+operation getAllClasses() : Set {
+  var classes : Set;
+  var queue : Sequence;
+  queue.addAll(getMainEPackage().eClassifiers.select(c|c.isKindOf(EClass)));
+
+  while (not queue.isEmpty) {
+    var klass = queue.removeAt(0);
+    if (classes.add(klass)) {
+      // References through structural features
+      queue.addAll(klass.eAllStructuralFeatures
+        .collect(t|t.eType).flatten
+        .select(t|t.isKindOf(EClass)));
+
+      // Operation arguments
+      queue.addAll(klass.eOperations.eParameters
+        .collect(p|p.eType).flatten
+        .select(t|t.isKindOf(EClass)));
+
+      // Return types
+      queue.addAll(klass.eOperations.eType.select(t|t.isKindOf(EClass)));
+
+      // Exceptions
+      queue.addAll(klass.eOperations.eExceptions.flatten);
+    }
+  }
+
+  return classes;
+}

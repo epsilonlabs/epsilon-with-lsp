@@ -62,16 +62,19 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 	@Override
 	public void visit(ConstraintContext constraintContext) {
 		constraintContext.getTypeExpression().accept(this);
+		context.getFrameStack().put(new Variable("self", getResolvedType(constraintContext.getTypeExpression())));
+		
+		if (constraintContext.getGuardBlock() != null)
+			constraintContext.getGuardBlock().accept(this);
 
 		for (Constraint c : constraintContext.getConstraints())
 			c.accept(this);
+		
+		context.getFrameStack().remove("self");
 	}
 
 	@Override
 	public void visit(Constraint constraint) {
-		ConstraintContext cc = (ConstraintContext) constraint.getParent();
-		context.getFrameStack().put(new Variable("self", getResolvedType(cc.getTypeExpression())));
-
 		if (constraint.getGuardBlock() != null)
 			constraint.getGuardBlock().accept(this);
 

@@ -115,15 +115,6 @@ context EClass {
 		}
 		message : "You must have either no operations or no fields in " + self.name
 	}
-	/*
-	constraint NoReferences {
-		check {
-			// lists are kind of references too
-			return self.eReferences.forAll(ref | ref.isMany());
-		}
-		message : "There must not be any references in " + self.name
-	}
-	*/
 }
 
 context EClass {

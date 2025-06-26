@@ -8,6 +8,7 @@ import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
+import org.eclipse.epsilon.eol.types.EolMapType;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.types.EolType;
@@ -49,6 +50,10 @@ public class EmfProperty implements IProperty {
 	
 	private void calculateType(EStructuralFeature eStructuralFeature, EolType featureType) {
 		if (eStructuralFeature.isMany()) {
+			if (featureType.getName().equals("EStringToStringMapEntry")) {
+				type = new EolMapType();
+				return;
+			}
 			String collectionTypeName;
 			if (eStructuralFeature.isOrdered()) {
 				collectionTypeName = eStructuralFeature.isUnique() ? "OrderedSet" : "Sequence";

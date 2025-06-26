@@ -9,6 +9,8 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.staticanalyser.types;
 
+import org.eclipse.epsilon.eol.types.EolMap;
+
 public class EolMapType extends EolType {
 	
 	public static final EolMapType
@@ -34,6 +36,10 @@ public class EolMapType extends EolType {
 	
 	public EolMapType(EolType keyType, EolType valueType) {
 		this(keyType, valueType, false);
+	}
+	
+	public Class<?> getClazz(){
+		return EolMap.class;
 	}
 	
 	/**

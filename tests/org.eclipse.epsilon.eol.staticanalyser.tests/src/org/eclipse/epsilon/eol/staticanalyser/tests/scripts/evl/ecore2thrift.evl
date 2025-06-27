@@ -13,7 +13,9 @@ context ENamedElement {
 
 context EAnnotation {
 	// Number Annotation
-	guard : self.source = "thrift" and self.details.containsKey("n")
+	guard{
+	return self.source = "thrift" and self.details.containsKey("n");
+	}
 	constraint IsEnumerable {
 		check {
 			return Set{"EAttribute", "EParameter"}.includes(self.getEModelElement().eClass().name);

@@ -24,6 +24,7 @@ import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.common.util.StringUtil;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dom.AbortStatement;
+import org.eclipse.epsilon.eol.dom.AbstractExecutableModuleElement;
 import org.eclipse.epsilon.eol.dom.AndOperatorExpression;
 import org.eclipse.epsilon.eol.dom.AnnotationBlock;
 import org.eclipse.epsilon.eol.dom.AssignmentStatement;
@@ -258,6 +259,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			((StatementBlock) body).accept(this);
 		} else if (body instanceof Expression) {
 			((Expression) body).accept(this);
+			setResolvedType(executableBlock, getResolvedType((Expression)body));
 		}
 		// Should we add add accept method?
 	}
@@ -893,9 +895,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			ModuleElement parent = returnedExpression.getParent();
 
 			while (!(parent instanceof Operation) && parent != null) {
-
+				if (parent instanceof AbstractExecutableModuleElement) {
+					setResolvedType((AbstractExecutableModuleElement)parent, providedReturnType);
+				}
 				parent = parent.getParent();
-
 			}
 
 			if (parent instanceof Operation) {
@@ -1321,15 +1324,15 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		returnFlags.put(op, returnFlag);
 	}
 
-	public void setResolvedType(Expression expression, EolType type) {
-		expression.getData().put("resolvedType", type);
+	public void setResolvedType(AbstractExecutableModuleElement e, EolType type) {
+		e.getData().put("resolvedType", type);
 	}
 
-	public EolType getResolvedType(Expression expression) {
-		EolType resolvedType = (EolType) expression.getData().get("resolvedType");
+	public EolType getResolvedType(AbstractExecutableModuleElement e) {
+		EolType resolvedType = (EolType) e.getData().get("resolvedType");
 		if (resolvedType == null) {
 			resolvedType = EolAnyType.Instance;
-			setResolvedType(expression, resolvedType);
+			setResolvedType(e, resolvedType);
 		}
 		return resolvedType;
 	}

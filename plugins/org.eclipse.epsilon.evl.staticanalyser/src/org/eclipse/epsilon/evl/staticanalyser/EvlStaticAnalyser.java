@@ -67,7 +67,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		constraintContext.getTypeExpression().accept(this);
 		context.getFrameStack().put(new Variable("self", getResolvedType(constraintContext.getTypeExpression())));
 		
-		checkGuard(constraintContext.getGuardBlock());
+		checkType(constraintContext.getGuardBlock());
 
 		for (Constraint c : constraintContext.getConstraints())
 			c.accept(this);
@@ -77,10 +77,9 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 
 	@Override
 	public void visit(Constraint constraint) {
-		checkGuard(constraint.getGuardBlock());
+		checkType(constraint.getGuardBlock());
 
-		if (constraint.getCheckBlock() != null)
-			constraint.getCheckBlock().accept(this);
+		checkType(constraint.getCheckBlock());
 
 		if (constraint.getMessageBlock() != null)
 			constraint.getMessageBlock().accept(this);
@@ -95,12 +94,12 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		}
 	}
 	
-	private void checkGuard(ExecutableBlock<Boolean> guard) {
-		if (guard != null) {
-			guard.accept(this);
-			if (!getResolvedType(guard).equals(EolPrimitiveType.Boolean)) {
-				errors.add(new ModuleMarker(guard,
-						"Constraint guards must return Boolean ", Severity.Error));
+	private void checkType(ExecutableBlock<Boolean> block) {
+		if (block != null) {
+			block.accept(this);
+			if (!getResolvedType(block).equals(EolPrimitiveType.Boolean)) {
+				errors.add(new ModuleMarker(block,
+						"Block must return Boolean ", Severity.Error));
 			}
 		}
 	}

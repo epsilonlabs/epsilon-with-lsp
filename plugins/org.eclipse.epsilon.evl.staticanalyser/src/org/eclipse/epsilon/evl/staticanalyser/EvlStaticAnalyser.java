@@ -5,8 +5,11 @@ import java.util.List;
 
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleMarker;
+import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.EolModule;
+import org.eclipse.epsilon.eol.dom.ExecutableBlock;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
 import org.eclipse.epsilon.erl.dom.Post;
@@ -64,8 +67,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		constraintContext.getTypeExpression().accept(this);
 		context.getFrameStack().put(new Variable("self", getResolvedType(constraintContext.getTypeExpression())));
 		
-		if (constraintContext.getGuardBlock() != null)
-			constraintContext.getGuardBlock().accept(this);
+		checkGuard(constraintContext.getGuardBlock());
 
 		for (Constraint c : constraintContext.getConstraints())
 			c.accept(this);
@@ -75,8 +77,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 
 	@Override
 	public void visit(Constraint constraint) {
-		if (constraint.getGuardBlock() != null)
-			constraint.getGuardBlock().accept(this);
+		checkGuard(constraint.getGuardBlock());
 
 		if (constraint.getCheckBlock() != null)
 			constraint.getCheckBlock().accept(this);
@@ -91,6 +92,16 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 				f.getGuardBlock().accept(this);
 			if (f.getTitleBlock() != null)
 				f.getTitleBlock().accept(this);
+		}
+	}
+	
+	private void checkGuard(ExecutableBlock<Boolean> guard) {
+		if (guard != null) {
+			guard.accept(this);
+			if (!getResolvedType(guard).equals(EolPrimitiveType.Boolean)) {
+				errors.add(new ModuleMarker(guard,
+						"Constraint guards must return Boolean ", Severity.Error));
+			}
 		}
 	}
 

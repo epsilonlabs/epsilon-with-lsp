@@ -8,6 +8,7 @@ import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
@@ -67,7 +68,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		constraintContext.getTypeExpression().accept(this);
 		context.getFrameStack().put(new Variable("self", getResolvedType(constraintContext.getTypeExpression())));
 		
-		checkType(constraintContext.getGuardBlock());
+		checkBoolean(constraintContext.getGuardBlock());
 
 		for (Constraint c : constraintContext.getConstraints())
 			c.accept(this);
@@ -77,24 +78,17 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 
 	@Override
 	public void visit(Constraint constraint) {
-		checkType(constraint.getGuardBlock());
+		checkBoolean(constraint.getGuardBlock());
 
-		checkType(constraint.getCheckBlock());
+		checkBoolean(constraint.getCheckBlock());
 
-		if (constraint.getMessageBlock() != null)
-			constraint.getMessageBlock().accept(this);
+		checkString(constraint.getMessageBlock());
 
-		for (Fix f : constraint.getFixes()) {
-			if (f.getBodyBlock() != null)
-				f.getBodyBlock().accept(this);
-			if (f.getGuardBlock() != null)
-				f.getGuardBlock().accept(this);
-			if (f.getTitleBlock() != null)
-				f.getTitleBlock().accept(this);
-		}
+		for (Fix f : constraint.getFixes())
+			f.accept(this);
 	}
 	
-	private void checkType(ExecutableBlock<Boolean> block) {
+	private void checkBoolean(ExecutableBlock<Boolean> block) {
 		if (block != null) {
 			block.accept(this);
 			if (!getResolvedType(block).equals(EolPrimitiveType.Boolean)) {
@@ -103,9 +97,28 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 			}
 		}
 	}
+	
+	private void checkString(ExecutableBlock<String> block) {
+		if (block != null) {
+			block.accept(this);
+			if (!getResolvedType(block).equals(EolPrimitiveType.String)) {
+				EolType type = getResolvedType(block);
+				try {
+					Class<?> args[] = null;
+					type.getClazz().getMethod("toString", args);
+				} catch (NoSuchMethodException e) {
+					errors.add(new ModuleMarker(block,
+							"Block must return String ", Severity.Error));
+				}
+			}
+		}
+	}
 
 	@Override
 	public void visit(Fix fix) {
-		// TODO Auto-generated method stub
+		if (fix.getBodyBlock() != null)
+			fix.getBodyBlock().accept(this);
+		checkBoolean(fix.getGuardBlock());
+		checkString(fix.getTitleBlock());
 	}
 }

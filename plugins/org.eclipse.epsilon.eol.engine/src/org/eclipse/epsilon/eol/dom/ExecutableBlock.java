@@ -181,7 +181,7 @@ public class ExecutableBlock<T> extends AbstractExecutableModuleElement {
 		return execute(context, inNewFrame, FrameType.UNPROTECTED, variables);
 	}
 	
-	protected Class<? extends T> getExpectedResultClass() {
+	public Class<? extends T> getExpectedResultClass() {
 		return expectedResultClass;
 	}
 	

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.epsilon.common.module.IModule;
+import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
@@ -11,6 +12,7 @@ import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
+import org.eclipse.epsilon.eol.dom.ReturnStatement;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
 import org.eclipse.epsilon.erl.dom.Post;
@@ -91,10 +93,19 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 	private void checkBoolean(ExecutableBlock<Boolean> block) {
 		if (block != null) {
 			block.accept(this);
-			if (!getResolvedType(block).equals(EolPrimitiveType.Boolean)) {
-				errors.add(new ModuleMarker(block,
-						"Block must return Boolean ", Severity.Error));
-			}
+		}
+	}
+	
+	@Override
+	public EolType expectedReturnType(ReturnStatement returnStatement) {
+		ModuleElement parent = returnStatement.getParent();
+		while (!(parent instanceof ExecutableBlock) && parent != null) {
+			parent = parent.getParent();
+		}
+		if (parent instanceof ExecutableBlock) {
+				return javaClassToEolType(((ExecutableBlock<?>)parent).getExpectedResultClass());
+		} else {
+			return super.expectedReturnType(returnStatement);
 		}
 	}
 	

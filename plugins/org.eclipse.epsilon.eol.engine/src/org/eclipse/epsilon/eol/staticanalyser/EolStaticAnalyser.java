@@ -891,32 +891,32 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 			returnedExpression.accept(this);
 			EolType providedReturnType = getResolvedType(returnedExpression);
+			EolType requiredReturnType = expectedReturnType(returnStatement);
 
-			ModuleElement parent = returnedExpression.getParent();
+			if (!providedReturnType.isAssignableTo(requiredReturnType)) {
+				if (requiredReturnType.isAssignableTo(providedReturnType))
+					warnings.add(new ModuleMarker(returnedExpression, "Return type might be " + requiredReturnType
+							+ " instead of " + getResolvedType(returnedExpression), Severity.Warning));
+				else
+					errors.add(new ModuleMarker(returnedExpression, "Return type should be " + requiredReturnType
+							+ " instead of " + getResolvedType(returnedExpression), Severity.Error));
 
-			while (!(parent instanceof Operation) && parent != null) {
-				if (parent instanceof AbstractExecutableModuleElement) {
-					setResolvedType((AbstractExecutableModuleElement)parent, providedReturnType);
-				}
-				parent = parent.getParent();
-			}
-
-			if (parent instanceof Operation) {
-				setReturnFlag(((Operation) parent), true);
-				EolType requiredReturnType = (EolType) parent.getData().get("returnType");
-
-				if (!providedReturnType.isAssignableTo(requiredReturnType)) {
-					if (requiredReturnType.isAssignableTo(providedReturnType))
-						warnings.add(new ModuleMarker(returnedExpression, "Return type might be " + requiredReturnType
-								+ " instead of " + getResolvedType(returnedExpression), Severity.Warning));
-					else
-						errors.add(new ModuleMarker(returnedExpression, "Return type should be " + requiredReturnType
-								+ " instead of " + getResolvedType(returnedExpression), Severity.Error));
-
-				}
 			}
 		}
-
+	}
+	
+	public EolType expectedReturnType(ReturnStatement returnStatement) {
+		ModuleElement parent = returnStatement.getParent();
+		while (!(parent instanceof Operation) && parent != null) {
+			parent = parent.getParent();
+		}
+		if (parent instanceof Operation) {
+			setReturnFlag(((Operation) parent), true);
+			return (EolType) parent.getData().get("returnType");
+		}
+		else {
+			return EolAnyType.Instance;
+		}
 	}
 
 	@Override

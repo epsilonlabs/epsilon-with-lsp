@@ -6,10 +6,13 @@ import java.util.List;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
+import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
+import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.ReturnStatement;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
@@ -89,6 +92,12 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 	private void checkBoolean(ExecutableBlock<Boolean> block) {
 		if (block != null) {
 			block.accept(this);
+			if (block.getBody() instanceof Expression) {
+				if (!getResolvedType((Expression)block.getBody()).equals(EolPrimitiveType.Boolean)) {
+					errors.add(new ModuleMarker(block, "Expression type should be Boolean instead of " 
+							+ getResolvedType((Expression)block.getBody()), Severity.Error));
+				}
+			}
 		}
 	}
 	

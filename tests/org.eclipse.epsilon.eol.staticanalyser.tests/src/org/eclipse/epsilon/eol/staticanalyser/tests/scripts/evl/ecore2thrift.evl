@@ -1,3 +1,4 @@
+//!Expression type should be Boolean instead of Integer
 import 'utilities.eol';
 
 model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
@@ -26,7 +27,8 @@ context EAnnotation {
 
 context EAnnotation {
 	// Java Namespace Annotation
-	guard : self.source = "thrift" and self.details.containsKey("javans")
+//	guard : self.source = "thrift" and self.details.containsKey("javans")
+	guard: 1 + 1
 	constraint IsPackage {
 		check {
 			return self.getEModelElement().eClass().name = "EPackage";

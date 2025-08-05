@@ -165,6 +165,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     	}
     	return diagnostics;
     }
+    
     protected void publishDiagnostics(String code, String uri, String language) {
         IEolModule module = createModule(language);
         List<Diagnostic> diagnostics = Collections.emptyList();
@@ -173,9 +174,11 @@ public class EpsilonTextDocumentService implements TextDocumentService {
             try {
                 module.parse(code, new File(new URI(uri)));
                 diagnostics = getDiagnostics(module);
-                EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
-                List<ModuleMarker> markers = staticAnalyser.validate(module);
-                diagnostics.addAll(markersToDiagnostics(markers));
+                if(diagnostics.size() == 0) {
+                    EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+                    List<ModuleMarker> markers = staticAnalyser.validate(module);
+                    diagnostics.addAll(markersToDiagnostics(markers));
+                }
             }
             catch (Exception ex) {
                 log(ex);

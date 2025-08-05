@@ -73,7 +73,7 @@ public class EpsilonLanguageServer implements LanguageServer {
 
     @Override
     public void exit() {
-    	exitFunction.accept(null);
+    	exitFunction.accept(0);
     }
 
     @Override

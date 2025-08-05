@@ -10,12 +10,15 @@
 package org.eclipse.epsilon.lsp.test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
 public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
 
     private static final String GOOD_SYNTAX_EOL_PATH = "../org.eclipse.epsilon.lsp.test/epsilon/01-good-syntax.eol";
+    private static final String BAD_SYNTAX_EOL_PATH = "../org.eclipse.epsilon.lsp.test/epsilon/02-bad-syntax.eol";
 
 	@Test
 	public void goodEOL() throws Exception {
@@ -23,5 +26,18 @@ public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
 		final String fileURI = didOpen(new File(GOOD_SYNTAX_EOL_PATH), version);
 		assertPublishedEmptyDiagnostics(fileURI);
 	}
+	
+	@Test
+	public void badEOL() throws Exception {
+		final int version = 1;
+		final String fileURI = didOpen(new File(BAD_SYNTAX_EOL_PATH), version);
+		List<String> messages = new ArrayList<String>();
+		messages.add("no viable alternative at input '('");
+		messages.add("no viable alternative at input ')'");
+		messages.add("no viable alternative at input '.'");
+		assertPublishedExprectedDiagnostics(fileURI, messages);
+	}
+	
+	
 
 }

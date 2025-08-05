@@ -12,11 +12,15 @@ package org.eclipse.epsilon.lsp.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -108,6 +112,21 @@ public class AbstractEpsilonLanguageServerTest {
 
 		assertEquals("The diagnostics should be related to the expected file", fileURI, diagnostics.getUri());
 		assertEquals("No specific diagnostics should be listed", 0, diagnostics.getDiagnostics().size());
+	}
+	
+	protected void assertPublishedExprectedDiagnostics(final String fileURI, List<String> expectedMessages) throws Exception {
+		// Get and reset the 'publishedDiagnostics' future
+		PublishDiagnosticsParams diagnostics = testClient.publishedDiagnostics.get(5, TimeUnit.SECONDS);
+		assertNotNull("Diagnostic should have been published within 5s", diagnostics);
+		testClient.publishedDiagnostics = new CompletableFuture<PublishDiagnosticsParams>();
+
+		assertEquals("The diagnostics should be related to the expected file", fileURI, diagnostics.getUri());
+		assertEquals("Unexpected number of diagnostics", expectedMessages.size(), diagnostics.getDiagnostics().size());
+		List<String> actualMessages = diagnostics.getDiagnostics().stream().map(d -> d.getMessage()).toList();
+		Set<String> expectedMessageSet = new HashSet<String>(expectedMessages);
+		for (String m : actualMessages) {
+			assertTrue("A received diagnostic was not found in the list of expected diagnostics: " + m, expectedMessageSet.contains(m));
+		}
 	}
 
 	protected String didOpen(final File eolFile, final int version) throws IOException {

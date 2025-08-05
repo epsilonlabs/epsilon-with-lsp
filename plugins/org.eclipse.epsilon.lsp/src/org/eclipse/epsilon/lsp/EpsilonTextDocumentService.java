@@ -26,6 +26,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.emfatic.core.EmfaticResource;
 import org.eclipse.emf.emfatic.core.EmfaticResourceFactory;
+import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.ecl.EclModule;
 import org.eclipse.epsilon.egl.EglModule;
@@ -33,6 +34,7 @@ import org.eclipse.epsilon.egl.EgxModule;
 import org.eclipse.epsilon.eml.EmlModule;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
+import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.epl.EplModule;
 import org.eclipse.epsilon.etl.EtlModule;
 import org.eclipse.epsilon.evl.EvlModule;
@@ -145,6 +147,24 @@ public class EpsilonTextDocumentService implements TextDocumentService {
             uriLanguageMap.get(params.getTextDocument().getUri()));
     }
 
+    private List<Diagnostic> markersToDiagnostics(List<ModuleMarker> markers){
+    	List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
+    	for(ModuleMarker m : markers) {
+    		Diagnostic d = new Diagnostic();
+    		if(m.getSeverity() == ModuleMarker.Severity.Error) {
+    			d.setSeverity(DiagnosticSeverity.Error);
+    		}
+    		else if(m.getSeverity() == ModuleMarker.Severity.Warning) {
+    			d.setSeverity(DiagnosticSeverity.Warning);
+    		}
+    		else if (m.getSeverity() == ModuleMarker.Severity.Information) {
+    			d.setSeverity(DiagnosticSeverity.Information);
+    		}
+    		d.setMessage(m.getMessage());
+    		diagnostics.add(d);
+    	}
+    	return diagnostics;
+    }
     protected void publishDiagnostics(String code, String uri, String language) {
         IEolModule module = createModule(language);
         List<Diagnostic> diagnostics = Collections.emptyList();
@@ -153,6 +173,9 @@ public class EpsilonTextDocumentService implements TextDocumentService {
             try {
                 module.parse(code, new File(new URI(uri)));
                 diagnostics = getDiagnostics(module);
+                EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+                List<ModuleMarker> markers = staticAnalyser.validate(module);
+                diagnostics.addAll(markersToDiagnostics(markers));
             }
             catch (Exception ex) {
                 log(ex);

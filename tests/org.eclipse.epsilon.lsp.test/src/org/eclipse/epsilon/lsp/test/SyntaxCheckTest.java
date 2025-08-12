@@ -19,6 +19,7 @@ public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
 
     private static final String GOOD_SYNTAX_EOL_PATH = "../org.eclipse.epsilon.lsp.test/epsilon/01-good-syntax.eol";
     private static final String BAD_SYNTAX_EOL_PATH = "../org.eclipse.epsilon.lsp.test/epsilon/02-bad-syntax.eol";
+    private static final String STATIC_ANALYSIS_ERROR_EOL_PATH = "../org.eclipse.epsilon.lsp.test/epsilon/03-static-analysis-error.eol";
 
 	@Test
 	public void goodEOL() throws Exception {
@@ -37,6 +38,17 @@ public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
 		messages.add("no viable alternative at input '.'");
 		assertPublishedExprectedDiagnostics(fileURI, messages);
 	}
+	
+	@Test
+	public void staticAnalysisError() throws Exception {
+		final int version = 1;
+		final String fileURI = didOpen(new File(STATIC_ANALYSIS_ERROR_EOL_PATH), version);
+		List<String> messages = new ArrayList<String>();
+		messages.add("String cannot be assigned to Integer");
+		assertPublishedExprectedDiagnostics(fileURI, messages);
+	}
+	
+	
 	
 	
 

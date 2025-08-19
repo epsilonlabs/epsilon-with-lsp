@@ -144,4 +144,33 @@
             defaultName="module">
       </tool>
    </extension>
+    <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="eol"
+            id="org.eclipse.epsilon.lsp.contentType.eol"
+            name="EOL Content Type"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editorContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.eol"
+            editorId="org.eclipse.ui.genericeditor.GenericEditor">
+      </editorContentTypeBinding>
+   </extension>
+<extension
+      point="org.eclipse.lsp4e.languageServer">
+    <server
+          class="org.eclipse.epsilon.eol.dt.lsp.ConnectionProviderSolution"
+          id="org.eclipse.epsilon.lsp.server"
+          label="Epsilon Language Server">
+    </server>
+    <contentTypeMapping
+          contentType="org.eclipse.epsilon.lsp.contentType.eol"
+          id="org.eclipse.epsilon.lsp.server">
+    </contentTypeMapping>
+</extension>
 </plugin>

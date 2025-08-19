@@ -173,4 +173,15 @@
           id="org.eclipse.epsilon.lsp.server">
     </contentTypeMapping>
 </extension>
+<extension
+         point="org.eclipse.tm4e.registry.grammars">
+      <grammar
+            path="syntaxes/eol.tmlanguage"
+            scopeName="source.epsilon.eol">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.eol"
+            scopeName="source.epsilon.eol">
+      </scopeNameContentTypeBinding>
+   </extension>
 </plugin>

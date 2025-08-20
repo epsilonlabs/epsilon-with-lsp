@@ -162,8 +162,8 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     		}
     		d.setMessage(m.getMessage());
     		m.getRegion().getStart().getLine();
-    		Position start = new Position(m.getRegion().getStart().getLine(), m.getRegion().getStart().getColumn());
-    		Position end = new Position(m.getRegion().getEnd().getLine(), m.getRegion().getEnd().getColumn());
+    		Position start = new Position(m.getRegion().getStart().getLine() - 1, m.getRegion().getStart().getColumn());
+    		Position end = new Position(m.getRegion().getEnd().getLine() - 1, m.getRegion().getEnd().getColumn());
     		d.setRange(new Range(start,end));
     		diagnostics.add(d);
     	}

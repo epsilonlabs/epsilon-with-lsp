@@ -35,7 +35,7 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 
 public class EpsilonLanguageServer implements LanguageServer {
 
-    protected final TextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
+    protected EpsilonTextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
     protected EPackageRegistryManager ePackageRegistryManager = new EPackageRegistryManager();
     protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
 
@@ -95,7 +95,7 @@ public class EpsilonLanguageServer implements LanguageServer {
             try (Stream<Path> stream = Files.walk(p)) {
                 stream.filter(Files::isRegularFile)
                       .filter(f -> f.toString().endsWith(".eol"))
-                      .forEach(f -> System.out.println(f.getFileName()));
+                      .forEach(f -> textDocumentService.publishDiagnostics(f));
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -25,6 +25,8 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 public class EpsilonLanguageServer implements LanguageServer {
 
     protected final TextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
+    protected EPackageRegistryManager ePackageRegistryManager = new EPackageRegistryManager();
+    protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
 
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
     protected Consumer<Integer> exitFunction = System::exit;
@@ -83,7 +85,10 @@ public class EpsilonLanguageServer implements LanguageServer {
 
     @Override
     public WorkspaceService getWorkspaceService() {
-        return new DummyWorkspaceService();
+        return workspaceService;
     }
-
+    
+    public EPackageRegistryManager getEPackageRegistryManager() {
+        return ePackageRegistryManager;
+    }
 }

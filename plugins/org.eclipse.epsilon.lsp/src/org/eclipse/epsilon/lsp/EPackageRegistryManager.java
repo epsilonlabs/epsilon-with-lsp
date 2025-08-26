@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.emfatic.core.EmfaticResourceFactory;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.apache.commons.io.FileUtils;
 
 /**
  This class monitors the workspace through <code>EpsilonWorkspaceService</code> and keeps EPackage.Registry.Instance up to date with all the Emfatic files in the workspace. It auto-registers all EPackages in Emfatic files that parse correctly and removes EPackages from Emfatic files which do not parse correctly or have been removed from the workspace. 
@@ -76,21 +77,7 @@ public class EPackageRegistryManager {
 
 	protected Collection<File> getEmfaticFiles(WorkspaceFolder workspaceFolder) {
 		// Return all files with a .emf extension anywhere under the workspace folder
-		List<File> files = new ArrayList<File>();
-		File folder = new File(URI.create(workspaceFolder.getUri()));
-		for (File f : folder.listFiles()) {
-			String extension;
-			int lastIndex = f.getName().lastIndexOf('.');
-			if (lastIndex > 0 && lastIndex < f.getName().length() - 1) {
-				extension = f.getName().substring(lastIndex + 1);
-			} else {
-				extension = "";
-			}
-			if (extension.equals("emf")) {
-				files.add(f);
-			}
-		}
-		return files;
+		return FileUtils.listFiles(new File(URI.create(workspaceFolder.getUri())), new String[]{"emf"}, true);
 	}
     
 }

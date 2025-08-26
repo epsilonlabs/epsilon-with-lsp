@@ -11,7 +11,10 @@ package org.eclipse.epsilon.lsp;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +61,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.apache.commons.io.FilenameUtils;
 
 public class EpsilonTextDocumentService implements TextDocumentService {
 
@@ -170,6 +174,17 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     	return diagnostics;
     }
     
+    protected void publishDiagnostics(Path path) {
+    	String uri = path.toUri().toString();
+    	String ext = FilenameUtils.getExtension(path.getFileName().toString());
+    	try {
+			String code = Files.readString(path);
+	    	publishDiagnostics(code, uri, ext);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+     
     protected void publishDiagnostics(String code, String uri, String language) {
         IEolModule module = createModule(language);
         List<Diagnostic> diagnostics = Collections.emptyList();

@@ -22,4 +22,4 @@ Require-Bundle: org.eclipse.lsp4j;bundle-version="0.22.0",
  org.apache.commons.io
 Bundle-Vendor: Eclipse.org
 Automatic-Module-Name: org.eclipse.epsilon.lsp
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11

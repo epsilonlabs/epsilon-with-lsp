@@ -23,3 +23,4 @@ Require-Bundle: org.eclipse.lsp4j;bundle-version="0.22.0",
 Bundle-Vendor: Eclipse.org
 Automatic-Module-Name: org.eclipse.epsilon.lsp
 Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: com.google.common.graph;version="[33.3.0,34.0.0)"

@@ -174,17 +174,6 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     	return diagnostics;
     }
     
-    protected void publishDiagnostics(Path path) {
-    	String uri = path.toUri().toString();
-    	String ext = FilenameUtils.getExtension(path.getFileName().toString());
-    	try {
-			String code = Files.readString(path);
-	    	publishDiagnostics(code, uri, ext);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-    }
-     
     protected void publishDiagnostics(String code, String uri, String language) {
         IEolModule module = createModule(language);
         List<Diagnostic> diagnostics = Collections.emptyList();

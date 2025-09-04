@@ -9,19 +9,12 @@
  *******************************************************************************/
 package org.eclipse.epsilon.lsp;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
-
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
@@ -38,12 +31,13 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected EpsilonTextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
     protected EPackageRegistryManager ePackageRegistryManager = new EPackageRegistryManager();
     protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
+    protected Analyser analyser = new Analyser(this);
 
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
     protected Consumer<Integer> exitFunction = System::exit;
     protected LanguageClient client;
     
-    private List<WorkspaceFolder> workspaceFolders;
+    protected List<WorkspaceFolder> workspaceFolders;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     
     public void connect(LanguageClient remoteProxy) {
@@ -84,22 +78,7 @@ public class EpsilonLanguageServer implements LanguageServer {
     @Override
     public void initialized(InitializedParams params) {
         // Schedule background analysis after client is ready
-        executor.submit(this::analyzeWorkspace);
-    }
-	
-    private void analyzeWorkspace() {
-        if (workspaceFolders == null) return;
-
-        for(WorkspaceFolder wf : workspaceFolders) {
-        	Path p  = Paths.get(URI.create(wf.getUri()));
-            try (Stream<Path> stream = Files.walk(p)) {
-                stream.filter(Files::isRegularFile)
-                      .filter(f -> f.toString().endsWith(".eol"))
-                      .forEach(f -> textDocumentService.publishDiagnostics(f));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        executor.submit(analyser::initialize);
     }
 
     @Override

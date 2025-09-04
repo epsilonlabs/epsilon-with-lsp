@@ -1,5 +1,7 @@
 package org.eclipse.epsilon.lsp;
 
+import com.google.common.graph.GraphBuilder;
+import com.google.common.graph.MutableGraph;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -18,6 +20,7 @@ import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
+import org.eclipse.epsilon.eol.dom.Import;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -39,6 +42,7 @@ public class Analyser {
     public static final String LANGUAGE_EOL = "eol";
     private static final Logger LOGGER = Logger.getLogger(Analyser.class.getName());
 	protected final EpsilonLanguageServer languageServer;
+	private MutableGraph<URI> dependencyGraph = GraphBuilder.directed().build();
 	
     public Analyser(EpsilonLanguageServer languageServer) {
         this.languageServer = languageServer;
@@ -68,6 +72,13 @@ public class Analyser {
 			try {
 				String code = Files.readString(eolPath);
 				module.parse(code, eolFile);
+				//build dependency graph
+				dependencyGraph.addNode(module.getUri());
+				for(Import i : module.getImports()) {
+					dependencyGraph.putEdge(module.getUri(), i.getImportedModule().getUri());
+				}
+//				System.out.println("Dependencies of " + module.getUri().toString() + ": " + dependencyGraph.successors(module.getUri()));
+
 				//parser diagnostics
 				diagnostics = getDiagnostics(module);
                 if(diagnostics.size() == 0) {

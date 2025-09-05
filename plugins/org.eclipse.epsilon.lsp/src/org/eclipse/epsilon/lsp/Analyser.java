@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -43,6 +45,7 @@ public class Analyser {
     private static final Logger LOGGER = Logger.getLogger(Analyser.class.getName());
 	protected final EpsilonLanguageServer languageServer;
 	private MutableGraph<URI> dependencyGraph = GraphBuilder.directed().build();
+	private Map<URI, String> documentRegistry = new HashMap<URI, String>();
 	
     public Analyser(EpsilonLanguageServer languageServer) {
         this.languageServer = languageServer;
@@ -55,22 +58,28 @@ public class Analyser {
 		for (WorkspaceFolder wf : languageServer.workspaceFolders) {
 			Path path = Paths.get(URI.create(wf.getUri()));
 			try (Stream<Path> stream = Files.walk(path)) {
-				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol"))
-						.forEach(p -> initializeModule(p));
+				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol")).forEach(p -> {
+					try {
+						proccessDocument(p.toUri(), Files.readString(p));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
     
-	private void initializeModule(Path eolPath){
-		IEolModule module = createModule(FilenameUtils.getExtension(eolPath.getFileName().toString()));
-		File eolFile = eolPath.toFile();
+	public void proccessDocument(URI uri, String code){
+		documentRegistry.put(uri, code);
+		IEolModule module = createModule(FilenameUtils.getExtension(uri.toString()));
+		File eolFile = new File(uri);
 		List<Diagnostic> diagnostics = Collections.emptyList();
 		
 		if(module !=null) {
 			try {
-				String code = Files.readString(eolPath);
 				module.parse(code, eolFile);
 				//build dependency graph
 				dependencyGraph.addNode(module.getUri());
@@ -94,9 +103,8 @@ public class Analyser {
 		
         final List<Diagnostic> theDiagnostics = diagnostics;
         CompletableFuture.runAsync(() -> {
-            languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(eolPath.toUri().toString(), theDiagnostics));
+            languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), theDiagnostics));
         });
-
 	}
 	
     protected List<Diagnostic> getDiagnostics(IEolModule module) {

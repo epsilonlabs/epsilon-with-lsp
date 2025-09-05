@@ -71,6 +71,14 @@ public class Analyser {
 			}
 		}
 	}
+	
+	public void checkChangedDocument(URI uri, String code) {
+		proccessDocument(uri, code);
+		for(URI uriDependent : dependencyGraph.predecessors(uri)) {
+			String codeDependent = documentRegistry.get(uriDependent);
+			proccessDocument(uriDependent, codeDependent);
+		}
+	}
     
 	public void proccessDocument(URI uri, String code){
 		documentRegistry.put(uri, code);

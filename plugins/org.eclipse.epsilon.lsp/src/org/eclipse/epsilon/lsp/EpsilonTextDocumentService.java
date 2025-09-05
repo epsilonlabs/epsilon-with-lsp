@@ -104,7 +104,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
     	try {
-			languageServer.analyser.proccessDocument(new URI(params.getTextDocument().getUri()), params.getContentChanges().get(0).getText());
+			languageServer.analyser.checkChangedDocument(new URI(params.getTextDocument().getUri()), params.getContentChanges().get(0).getText());
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

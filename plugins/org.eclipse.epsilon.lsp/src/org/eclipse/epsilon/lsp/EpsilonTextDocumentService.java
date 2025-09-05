@@ -113,8 +113,11 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     
     protected void publishDiagnostics(String code, String uri, String language) {
         List<Diagnostic> diagnostics = Collections.emptyList();
-
-        if (language.equals("emfatic")) {
+        
+        if (language.equals("eol")) {
+        	return;
+        }
+        else if (language.equals("emfatic")) {
             try {
                 ResourceSet resourceSet = new ResourceSetImpl();
                 resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("emf", new EmfaticResourceFactory());

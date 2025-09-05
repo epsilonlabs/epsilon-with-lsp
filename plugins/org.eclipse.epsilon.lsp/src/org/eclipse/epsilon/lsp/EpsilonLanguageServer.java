@@ -72,13 +72,8 @@ public class EpsilonLanguageServer implements LanguageServer {
 		if (workspaceFolders != null) ePackageRegistryManager.initialize(params.getWorkspaceFolders());
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
+        analyser.initialize();
         return CompletableFuture.completedFuture(res);
-    }
-	
-    @Override
-    public void initialized(InitializedParams params) {
-        // Schedule background analysis after client is ready
-        executor.submit(analyser::initialize);
     }
 
     @Override

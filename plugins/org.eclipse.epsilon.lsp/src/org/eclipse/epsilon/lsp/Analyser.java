@@ -2,6 +2,7 @@ package org.eclipse.epsilon.lsp;
 
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
+import com.google.common.graph.Graphs;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -73,8 +74,8 @@ public class Analyser {
 	}
 	
 	public void checkChangedDocument(URI uri, String code) {
-		proccessDocument(uri, code);
-		for(URI uriDependent : dependencyGraph.predecessors(uri)) {
+		//The transitive closure also includes the node itself
+		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(uri)) {
 			String codeDependent = documentRegistry.get(uriDependent);
 			proccessDocument(uriDependent, codeDependent);
 		}

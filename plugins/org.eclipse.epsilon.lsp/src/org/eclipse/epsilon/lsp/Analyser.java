@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
@@ -47,9 +48,11 @@ public class Analyser {
 	protected final EpsilonLanguageServer languageServer;
 	private MutableGraph<URI> dependencyGraph = GraphBuilder.directed().build();
 	private Map<URI, String> documentRegistry = new HashMap<URI, String>();
+	private InMemoryImportManager importManager;
 	
     public Analyser(EpsilonLanguageServer languageServer) {
         this.languageServer = languageServer;
+        this.importManager = new InMemoryImportManager(documentRegistry);
     }
     
 	public void initialize() {
@@ -59,7 +62,17 @@ public class Analyser {
 		for (WorkspaceFolder wf : languageServer.workspaceFolders) {
 			Path path = Paths.get(URI.create(wf.getUri()));
 			try (Stream<Path> stream = Files.walk(path)) {
-				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol")).forEach(p -> {
+				List<Path> paths = stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol")).collect(Collectors.toList());
+				paths.forEach(p -> {
+					try {
+						documentRegistry.put(p.toUri(), Files.readString(p));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
+				
+				paths.forEach(p -> {
 					try {
 						proccessDocument(p.toUri(), Files.readString(p));
 					} catch (IOException e) {
@@ -67,6 +80,7 @@ public class Analyser {
 						e.printStackTrace();
 					}
 				});
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -74,6 +88,8 @@ public class Analyser {
 	}
 	
 	public void checkChangedDocument(URI uri, String code) {
+		//Update the in-memory contents of the document
+		documentRegistry.put(uri, code);
 		//The transitive closure also includes the node itself
 		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(uri)) {
 			String codeDependent = documentRegistry.get(uriDependent);
@@ -84,6 +100,7 @@ public class Analyser {
 	public void proccessDocument(URI uri, String code){
 		documentRegistry.put(uri, code);
 		IEolModule module = createModule(FilenameUtils.getExtension(uri.toString()));
+		module.setImportManager(importManager);
 		File eolFile = new File(uri);
 		List<Diagnostic> diagnostics = Collections.emptyList();
 		
@@ -95,7 +112,6 @@ public class Analyser {
 				for(Import i : module.getImports()) {
 					dependencyGraph.putEdge(module.getUri(), i.getImportedModule().getUri());
 				}
-//				System.out.println("Dependencies of " + module.getUri().toString() + ": " + dependencyGraph.successors(module.getUri()));
 
 				//parser diagnostics
 				diagnostics = getDiagnostics(module);

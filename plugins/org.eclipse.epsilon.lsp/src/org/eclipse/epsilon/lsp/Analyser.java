@@ -98,7 +98,6 @@ public class Analyser {
 	}
     
 	public void proccessDocument(URI uri, String code){
-		documentRegistry.put(uri, code);
 		IEolModule module = createModule(FilenameUtils.getExtension(uri.toString()));
 		module.setImportManager(importManager);
 		File eolFile = new File(uri);

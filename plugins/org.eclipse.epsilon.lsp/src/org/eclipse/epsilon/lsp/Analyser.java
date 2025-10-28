@@ -103,9 +103,14 @@ public class Analyser {
 			}
 		}
 		
+
         final List<Diagnostic> theDiagnostics = diagnostics;
         CompletableFuture.runAsync(() -> {
-            languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(uri.toString(), theDiagnostics));
+        	String uriString = uri.toString();
+    		if (uri.getScheme().equals("mapentry")) {
+    			uriString = URI.create("file:" + uri.getPath()).toString();
+    		}
+            languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(uriString, theDiagnostics));
         });
 	}
 	

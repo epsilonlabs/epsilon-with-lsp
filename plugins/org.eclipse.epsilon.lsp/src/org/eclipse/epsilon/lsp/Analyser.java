@@ -67,7 +67,7 @@ public class Analyser {
 	
 	public void checkChangedDocument(URI uri, String code) {
 		//Update the in-memory contents of the document
-		SingletonMapStreamHandlerProvider.Registry
+		SingletonMapStreamHandlerService.Registry
 		.getInstance()
 		.putCode(uri.getPath(), code);
 //		//The transitive closure also includes the node itself

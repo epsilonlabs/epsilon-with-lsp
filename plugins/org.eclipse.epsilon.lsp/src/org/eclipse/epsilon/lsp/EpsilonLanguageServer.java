@@ -11,13 +11,10 @@ package org.eclipse.epsilon.lsp;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
-import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WorkspaceFolder;
@@ -31,14 +28,13 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected EpsilonTextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
     protected EPackageRegistryManager ePackageRegistryManager = new EPackageRegistryManager();
     protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
-    protected Analyser analyser = new Analyser(this);
+    public Analyser analyser = new Analyser(this);
 
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
     protected Consumer<Integer> exitFunction = System::exit;
     protected LanguageClient client;
     
     protected List<WorkspaceFolder> workspaceFolders;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     
     public void connect(LanguageClient remoteProxy) {
         this.client = remoteProxy;

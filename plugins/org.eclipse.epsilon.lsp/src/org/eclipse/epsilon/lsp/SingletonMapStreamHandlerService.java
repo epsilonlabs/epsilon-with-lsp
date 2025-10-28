@@ -7,24 +7,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLStreamHandler;
-import java.net.spi.URLStreamHandlerProvider;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ServiceLoader;
+import org.osgi.service.url.AbstractURLStreamHandlerService;
 
 /**
  * <p>
- * Stream handler provider which first resolves URLs in the {@link #PROTOCOL} by
+ * Stream handler service which first resolves URLs in the {@link #PROTOCOL} by
  * looking up the path in an in-memory map, and then falls back to the file with
  * the same path if no entry exists.
- * </p>
- * 
- * <p>
- * This is designed to be used with {@link URL} via the {@link ServiceLoader}
- * mechanism. The <code>resources/META-INF/services</code> folder contains a file
- * that registers this stream handler provider.
  * </p>
  * 
  * <p>
@@ -33,7 +25,7 @@ import java.util.ServiceLoader;
  * {@link Registry#putCode(String, String)} method.
  * </p>
  */
-public class SingletonMapStreamHandlerProvider extends URLStreamHandlerProvider {
+public class SingletonMapStreamHandlerService extends AbstractURLStreamHandlerService {
 
 	public static final String PROTOCOL = "mapentry";
 
@@ -64,6 +56,21 @@ public class SingletonMapStreamHandlerProvider extends URLStreamHandlerProvider 
 
 		public void clear() {
 			PATH_TO_CODE.clear();
+		}
+	}
+	
+	public URLConnection openConnection(URL u) throws IOException {
+		String code = Registry.getInstance().getCode(u.getPath());
+		if (code != null) {
+			return new MapEntryURLConnection(u, code);
+		} else {
+			try {
+				// Fall back to a file URL if we have no entry for this
+				return new URI("file", u.getHost(), u.getPath(), null).toURL().openConnection();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
 
@@ -103,31 +110,4 @@ public class SingletonMapStreamHandlerProvider extends URLStreamHandlerProvider 
 			return StandardCharsets.UTF_8.name();
 		}
 	}
-
-
-	@Override
-	public URLStreamHandler createURLStreamHandler(String protocol) {
-		if (!PROTOCOL.equals(protocol)) {
-			return null;
-		}
-
-		return new URLStreamHandler() {
-			@Override
-			protected URLConnection openConnection(URL u) throws IOException {
-				String code = Registry.getInstance().getCode(u.getPath());
-				if (code != null) {
-					return new MapEntryURLConnection(u, code);
-				} else {
-					try {
-						// Fall back to a file URL if we have no entry for this
-						return new URI("file", u.getHost(), u.getPath(), null).toURL().openConnection();
-					} catch (URISyntaxException e) {
-						e.printStackTrace();
-						return null;
-					}
-				}
-			}
-		};
-	}
-
 }

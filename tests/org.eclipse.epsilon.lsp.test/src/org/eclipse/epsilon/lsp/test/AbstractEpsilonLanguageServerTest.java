@@ -18,13 +18,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.epsilon.lsp.EpsilonLanguageServer;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
@@ -51,7 +55,11 @@ public class AbstractEpsilonLanguageServerTest {
 	protected TestClient testClient;
 
 	protected class TestClient implements LanguageClient {
-		protected CompletableFuture<PublishDiagnosticsParams> publishedDiagnostics = new CompletableFuture<>();
+		protected Map<String, List<Diagnostic>> publishedDiagnostics = new HashMap<>();
+		
+		public void resetPublishedDiagnostics() {
+			this.publishedDiagnostics = new HashMap<>();
+		}
 
 		@Override
 		public void telemetryEvent(Object object) {
@@ -60,7 +68,7 @@ public class AbstractEpsilonLanguageServerTest {
 
 		@Override
 		public void publishDiagnostics(PublishDiagnosticsParams diagnostics) {
-			this.publishedDiagnostics.complete(diagnostics);
+			publishedDiagnostics.put(diagnostics.getUri(), diagnostics.getDiagnostics());
 		}
 
 		@Override
@@ -105,24 +113,15 @@ public class AbstractEpsilonLanguageServerTest {
 	}
 
 	protected void assertPublishedEmptyDiagnostics(final String fileURI) throws Exception {
-		// Get and reset the 'publishedDiagnostics' future
-		PublishDiagnosticsParams diagnostics = testClient.publishedDiagnostics.get(5, TimeUnit.SECONDS);
+		List<Diagnostic> diagnostics = testClient.publishedDiagnostics.get(fileURI);
 		assertNotNull("Diagnostic should have been published within 5s", diagnostics);
-		testClient.publishedDiagnostics = new CompletableFuture<PublishDiagnosticsParams>();
-
-		assertEquals("The diagnostics should be related to the expected file", fileURI, diagnostics.getUri());
-		assertEquals("No specific diagnostics should be listed", 0, diagnostics.getDiagnostics().size());
+		assertEquals("No specific diagnostics should be listed", 0, diagnostics.size());
 	}
 	
 	protected void assertPublishedExprectedDiagnostics(final String fileURI, List<String> expectedMessages) throws Exception {
-		// Get and reset the 'publishedDiagnostics' future
-		PublishDiagnosticsParams diagnostics = testClient.publishedDiagnostics.get(5, TimeUnit.SECONDS);
-		assertNotNull("Diagnostic should have been published within 5s", diagnostics);
-		testClient.publishedDiagnostics = new CompletableFuture<PublishDiagnosticsParams>();
-
-		assertEquals("The diagnostics should be related to the expected file", fileURI, diagnostics.getUri());
-		assertEquals("Unexpected number of diagnostics", expectedMessages.size(), diagnostics.getDiagnostics().size());
-		List<String> actualMessages = diagnostics.getDiagnostics().stream().map(d -> d.getMessage()).toList();
+		List<Diagnostic> diagnostics = testClient.publishedDiagnostics.get(fileURI);
+		assertEquals("Unexpected number of diagnostics", expectedMessages.size(), diagnostics.size());
+		List<String> actualMessages = diagnostics.stream().map(d -> d.getMessage()).toList();
 		Set<String> expectedMessageSet = new HashSet<String>(expectedMessages);
 		for (String m : actualMessages) {
 			assertTrue("A received diagnostic was not found in the list of expected diagnostics: " + m, expectedMessageSet.contains(m));
@@ -135,6 +134,16 @@ public class AbstractEpsilonLanguageServerTest {
 		final String fileContents = new String(Files.readAllBytes(eolFile.toPath()), StandardCharsets.UTF_8);
 		openParameters.setTextDocument(new TextDocumentItem(fileURI, "eol", version, fileContents));
 		docService.didOpen(openParameters);
+	
+		return fileURI;
+	}
+	
+	protected String didChange(final File eolFile, final int version, final String newContents) throws IOException {
+		final DidChangeTextDocumentParams changeParameters = new DidChangeTextDocumentParams();
+		final String fileURI = eolFile.getCanonicalFile().toURI().toString();
+		changeParameters.setTextDocument(new org.eclipse.lsp4j.VersionedTextDocumentIdentifier(fileURI, version));
+		changeParameters.setContentChanges(List.of(new org.eclipse.lsp4j.TextDocumentContentChangeEvent(newContents)));
+		docService.didChange(changeParameters);
 	
 		return fileURI;
 	}

@@ -56,7 +56,7 @@ public class Analyser {
 			Path path = Paths.get(URI.create(wf.getUri()));
 			try (Stream<Path> stream = Files.walk(path)) {
 				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol")).forEach(p -> {
-					proccessDocument(p.toUri());
+					processDocument(p.toUri());
 				});
 				
 			} catch (IOException e) {
@@ -72,11 +72,11 @@ public class Analyser {
 		.putCode(uri.getPath(), code);
 //		//The transitive closure also includes the node itself
 		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(uri)) {
-			proccessDocument(URI.create("mapentry:" + uriDependent.getPath()));
+			processDocument(URI.create("mapentry:" + uriDependent.getPath()));
 		}
 	}
     
-	public void proccessDocument(URI uri){
+	public void processDocument(URI uri){
 		IEolModule module = createModule(FilenameUtils.getExtension(uri.toString()));
 		List<Diagnostic> diagnostics = Collections.emptyList();
 		
@@ -112,6 +112,7 @@ public class Analyser {
     		}
             languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(uriString, theDiagnostics));
         });
+
 	}
 	
     protected List<Diagnostic> getDiagnostics(IEolModule module) {

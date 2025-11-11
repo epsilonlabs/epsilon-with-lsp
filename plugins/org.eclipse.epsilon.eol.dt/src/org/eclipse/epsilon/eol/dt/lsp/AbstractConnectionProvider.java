@@ -1,12 +1,16 @@
 package org.eclipse.epsilon.eol.dt.lsp;
 
-import java.io.FilterInputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.Pipe;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.Future;
+import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 
 import org.eclipse.lsp4e.server.StreamConnectionProvider;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
@@ -16,10 +20,13 @@ import org.eclipse.lsp4j.services.LanguageServer;
 
 public class AbstractConnectionProvider implements StreamConnectionProvider {
 
-    private InputStream inputStream;
-    private OutputStream outputStream;
+	private InputStream clientInputStream  ;
+	private OutputStream clientOutputStream;
     private LanguageServer languageServer;
     protected Launcher<LanguageClient> launcher;
+    private InputStream errorStream;
+	private Future<Void> listener;
+	private Collection<Closeable> streams = new ArrayList<>(4);
 
     public AbstractConnectionProvider(LanguageServer languageServer) {
         this.languageServer = languageServer;
@@ -27,59 +34,51 @@ public class AbstractConnectionProvider implements StreamConnectionProvider {
 
     @Override
     public void start() throws IOException {
-        PipedInputStream in = new PipedInputStream();
-        PipedOutputStream out = new PipedOutputStream();
-        PipedInputStream in2 = new PipedInputStream();
-        PipedOutputStream out2 = new PipedOutputStream();
+		Pipe serverOutputToClientInput = Pipe.open();
+		Pipe clientOutputToServerInput = Pipe.open();
 
-        in.connect(out2);
-        out.connect(in2);
-
-        launcher = LSPLauncher.createServerLauncher(languageServer, in2, out2);
-        inputStream = in;
-        outputStream = out;
-
-        launcher.startListening();
+		errorStream = new ByteArrayInputStream("Error output on console".getBytes(StandardCharsets.UTF_8));
+		InputStream serverInputStream = Channels.newInputStream(clientOutputToServerInput.source());
+		OutputStream serverOutputStream = Channels.newOutputStream(serverOutputToClientInput.sink());
+		launcher = LSPLauncher.createServerLauncher(languageServer, serverInputStream,
+				serverOutputStream);
+		clientInputStream = Channels.newInputStream(serverOutputToClientInput.source());
+		clientOutputStream = Channels.newOutputStream(clientOutputToServerInput.sink());
+		listener = launcher.startListening();
+		streams.add(clientInputStream);
+		streams.add(clientOutputStream);
+		streams.add(serverInputStream);
+		streams.add(serverOutputStream);
+		streams.add(errorStream);
+		
     }
 
     @Override
     public InputStream getInputStream() {
-        return new FilterInputStream(inputStream) {
-            @Override
-            public int read(byte[] b, int off, int len) throws IOException {
-                int bytesRead = super.read(b, off, len);
-                if (bytesRead > 0) {
-                    System.err.print(new String(b, off, bytesRead));
-                }
-                return bytesRead;
-            }
-        };
+    	return clientInputStream;
     }
 
     @Override
     public OutputStream getOutputStream() {
-        return new FilterOutputStream(outputStream) {
-            @Override
-            public void write(byte[] b, int off, int len) throws IOException {
-                System.err.print(new String(b, off, len));
-                super.write(b, off, len);
-            }
-        };
+		return clientOutputStream;
     }
 
     @Override
     public void stop() {
-        // Clean up resources if needed
-        try {
-            inputStream.close();
-            outputStream.close();
-        } catch (IOException e) {
-            System.err.println("Error closing streams: " + e.getMessage());
-        }
+		streams.forEach(t -> {
+			try {
+				t.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		streams.clear();
+		listener.cancel(true);
+		listener = null;
     }
 
     @Override
     public InputStream getErrorStream() {
-        return null;
+        return errorStream;
     }
 }

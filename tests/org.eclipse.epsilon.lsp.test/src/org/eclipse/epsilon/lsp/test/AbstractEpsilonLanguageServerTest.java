@@ -114,7 +114,7 @@ public class AbstractEpsilonLanguageServerTest {
 
 	protected void assertPublishedEmptyDiagnostics(final String fileURI) throws Exception {
 		List<Diagnostic> diagnostics = testClient.publishedDiagnostics.get(fileURI);
-		assertNotNull("Diagnostic should have been published within 5s", diagnostics);
+		assertNotNull("Diagnostic should not be null", diagnostics);
 		assertEquals("No specific diagnostics should be listed", 0, diagnostics.size());
 	}
 	

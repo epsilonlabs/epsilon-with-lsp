@@ -108,7 +108,7 @@ public class Analyser {
         CompletableFuture.runAsync(() -> {
         	String uriString = uri.toString();
     		if (uri.getScheme().equals("mapentry")) {
-    			uriString = URI.create("file:" + uri.getPath()).toString();
+    			uriString = URI.create("file://" + uri.getPath()).toString();
     		}
             languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(uriString, theDiagnostics));
         });

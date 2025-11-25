@@ -400,6 +400,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		
 		EolModule importedModule = (EolModule) import_.getImportedModule();
 		if(operationRegistry.getOrDefault(importedModule.getUri(), null) == null) {
+			//Register an empty list to avoid cyclic imports
+			operationRegistry.put(importedModule.getUri(), new ArrayList<>());
 			preValidate(importedModule);
 			//We do not care about errors from imported modules
 			errors.clear();

@@ -59,5 +59,37 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 		server.analyser.checkChangedDocument(lib.toURI(), newLibContent);
 		assertPublishedExprectedDiagnostics(mainUri, List.of("Undefined operation foo"));
 	}
+	
+	@Test
+	public void cyclicDependencies() throws Exception {
+		// Create a temporary directory for the test files
+		Path tmp = Files.createTempDirectory("eol-cyclic-deps-test");
+		File a = tmp.resolve("a.eol").toFile();
+		String aUri = a.toPath().toAbsolutePath().toUri().toString();
+		File b = tmp.resolve("b.eol").toFile();
+		String bUri = b.toPath().toAbsolutePath().toUri().toString();
+
+		String aContent = "import 'b.eol';";
+		Files.write(a.toPath(), aContent.getBytes(StandardCharsets.UTF_8));
+	
+		String bContent = "import 'a.eol';";
+		Files.write(b.toPath(), bContent.getBytes(StandardCharsets.UTF_8));
+
+		// Put the temporary folder into the language server's workspaceFolders so
+		// Analyser.initialize() will scan it.
+		Field wfField = server.getClass().getDeclaredField("workspaceFolders");
+		wfField.setAccessible(true);
+		List<WorkspaceFolder> wf = new ArrayList<WorkspaceFolder>();
+		wf.add(new WorkspaceFolder(tmp.toUri().toString(), tmp.toString()));
+		wfField.set(server, wf);
+
+		// Initialize the analyser so it processes both files and builds dependency
+		// graph
+		server.analyser.initialize();
+
+		// Expect empty diagnostics for lib and main initially
+		assertPublishedEmptyDiagnostics(aUri);
+		assertPublishedEmptyDiagnostics(bUri);
+	}
 
 }

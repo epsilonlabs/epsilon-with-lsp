@@ -566,7 +566,21 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (Expression parameterExpression : newInstanceExpression.getParameterExpressions()) {
 			parameterExpression.accept(this);
 		}
-		setResolvedType(newInstanceExpression, getResolvedType(newInstanceExpression.getTypeExpression()));
+		EolType type = getResolvedType(newInstanceExpression.getTypeExpression());
+		setResolvedType(newInstanceExpression, type);
+		
+		//Check for abstract type instantiation
+		if(type instanceof EolModelElementType) {
+			EolModelElementType mType = (EolModelElementType) type;
+			IMetaClass metaClass = mType.getMetaClass();
+			if (metaClass != null && metaClass.isAbstract()) {
+				errors.add(new ModuleMarker(
+					newInstanceExpression,
+					"Cannot instantiate an abstract type",
+					Severity.Error
+				));
+			}
+		}
 	}
 
 	@Override

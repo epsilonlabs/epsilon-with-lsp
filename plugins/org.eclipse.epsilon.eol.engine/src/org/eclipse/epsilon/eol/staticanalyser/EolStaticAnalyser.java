@@ -670,7 +670,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
-			errors.add(new ModuleMarker(targetExpression,
+			errors.add(new ModuleMarker(nameExpression,
 					nameExpression.getName() + " can not be invoked on " + getResolvedType(targetExpression),
 					Severity.Error));
 			return;

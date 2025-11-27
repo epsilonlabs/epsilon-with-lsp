@@ -15,6 +15,7 @@ import java.util.Objects;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.epsilon.common.util.StringProperties;
@@ -47,6 +48,10 @@ public class EmfModelMetamodel extends Metamodel {
 					if (eClassifier instanceof EClass) {
 						EmfMetaClass metaClass = new EmfMetaClass(eClassifier, this);
 						eClassMetaClassMap.put((EClass) eClassifier, metaClass);
+						metaClasses.add(metaClass);
+					}
+					else if(eClassifier instanceof EEnum) {
+						EmfMetaClass metaClass = new EmfEnumMetaClass((EEnum)eClassifier, this);
 						metaClasses.add(metaClass);
 					}
 				}

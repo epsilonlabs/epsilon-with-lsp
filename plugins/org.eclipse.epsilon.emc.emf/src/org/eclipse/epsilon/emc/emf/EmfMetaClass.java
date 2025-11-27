@@ -6,7 +6,7 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 
 public class EmfMetaClass extends MetaClass {
-	private EClassifier eClassifier;
+	protected EClassifier eClassifier;
 	
 	public EmfMetaClass(EClassifier eClassifier, EmfModelMetamodel metamodel) {
 		this.eClassifier = eClassifier;

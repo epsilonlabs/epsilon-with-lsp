@@ -12,4 +12,8 @@
   <eClassifiers xsi:type="ecore:EClass" name="B" eSuperTypes="#//A"/>
   <eClassifiers xsi:type="ecore:EClass" name="C" eSuperTypes="#//A"/>
   <eClassifiers xsi:type="ecore:EClass" name="D" eSuperTypes="#//B"/>
+  <eClassifiers xsi:type="ecore:EEnum" name="Colour">
+    <eLiterals name="RED"/>
+    <eLiterals name="BLUE" value="1"/>
+  </eClassifiers>
 </ecore:EPackage>

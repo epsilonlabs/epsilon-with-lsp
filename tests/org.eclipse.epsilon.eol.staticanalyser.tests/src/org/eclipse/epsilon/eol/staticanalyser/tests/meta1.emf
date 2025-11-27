@@ -18,4 +18,9 @@ class C extends A {
 class D extends B{
 }
 
+enum Colour {
+	RED;
+	BLUE;
+}
+
 

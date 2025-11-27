@@ -94,6 +94,7 @@ import org.eclipse.epsilon.eol.execute.operations.AbstractOperation;
 import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
+import org.eclipse.epsilon.eol.m3.IEnum;
 import org.eclipse.epsilon.eol.m3.IMetaClass;
 import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.m3.IProperty;
@@ -239,6 +240,33 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(EnumerationLiteralExpression enumerationLiteralExpression) {
+		String enumeration = enumerationLiteralExpression.getEnumerationLiteral();
+		// split at the # to get the enum name and literal
+		int hashIndex = enumeration.indexOf('#');
+		String enumName = enumeration.substring(0, hashIndex);
+		String literalName = enumeration.substring(hashIndex + 1);
+
+		EolModelElementType enumType = getModelElementType(enumName, enumerationLiteralExpression);
+		if (enumType == null) {
+			errors.add(new ModuleMarker(enumerationLiteralExpression, "Undefined enumeration type " + enumName,
+					Severity.Error));
+			return;
+		} else {
+			IMetaClass metaClass = enumType.getMetaClass();
+			if (!(metaClass instanceof IEnum)) {
+				errors.add(new ModuleMarker(enumerationLiteralExpression, enumName + " is not an enumeration type",
+						Severity.Error));
+				return;
+			} else {
+				IEnum enumerationType = (IEnum) metaClass;
+				if (!enumerationType.isValidEnumLiteral(literalName)) {
+					errors.add(new ModuleMarker(enumerationLiteralExpression,
+							"Undefined enumeration literal " + literalName + " for enumeration " + enumName,
+							Severity.Error));
+					return;
+				}
+			}
+		}
 	}
 
 	@Override

@@ -1,0 +1,9 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var c : EClass;
+
+/*Integer*/c.foo();
+
+operation ENamedElement foo() : String {return 'foo';}
+
+operation EClass foo() : Integer {return 5;}

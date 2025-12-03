@@ -102,6 +102,17 @@ public abstract class EolType {
 		return type.getAncestors().contains(this);
 	}
 	
+	public boolean isSiblingOf(EolType type) {
+		if (type.equals(EolNoType.Instance)) {
+			return false;
+		}
+		if (type.equals(EolAnyType.Instance)) {
+			return false;
+		}
+		
+		return !Collections.disjoint(this.getParentTypes(), type.getParentTypes());
+	}
+	
 	public boolean isAssignableTo(EolType targetType) {
 		if (targetType.equals(this)) {
 			return true;

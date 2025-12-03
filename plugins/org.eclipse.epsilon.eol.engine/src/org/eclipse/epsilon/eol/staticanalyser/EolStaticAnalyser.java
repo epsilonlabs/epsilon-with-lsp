@@ -742,6 +742,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					"Parameters type mismatch for operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
+		
+		//Select the operations with the most specific context type
+		EolType mostSpecificContextType = EolAnyType.Instance;
+		temp = new ArrayList<IStaticOperation>();
+		for(IStaticOperation op : resolvedOperations) {
+			EolType opContextType = op.getContextType();
+			if(mostSpecificContextType.equals(opContextType) || mostSpecificContextType.isSiblingOf(opContextType)) {
+				temp.add(op);
+			}
+			else if(opContextType.isAssignableTo(mostSpecificContextType)) {
+				mostSpecificContextType = opContextType;
+				temp.clear();
+				temp.add(op);
+			}
+		}
+		resolvedOperations = temp;
 
 		// Process resolved operations
 		Set<EolType> returnTypes = resolvedOperations.stream().map(op -> op.getReturnType())

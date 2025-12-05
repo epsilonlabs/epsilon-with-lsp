@@ -1,13 +1,9 @@
 package org.eclipse.epsilon.eol.staticanalyser.proposedTests;
-import org.eclipse.epsilon.eol.staticanalyser.abstractTests.AbstractBaseTest;
 import org.eclipse.epsilon.eol.staticanalyser.abstractTests.AbstractEOLTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.file.Files;
 import java.util.Collection;
-import java.util.List;
-
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

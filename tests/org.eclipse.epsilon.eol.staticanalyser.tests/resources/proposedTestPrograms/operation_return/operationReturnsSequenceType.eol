@@ -1,0 +1,4 @@
+var v : Integer;
+v = op().f();
+operation op():Sequence<Integer>{return Sequence{1,2,3};}
+operation Sequence f():Integer{return 1;}

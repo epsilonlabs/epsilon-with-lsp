@@ -47,7 +47,7 @@ public abstract class AbstractBaseTest {
 				
 		// sub folders files
 		File[] subdirs = baseFolder.listFiles(f -> f.isDirectory());
-		for (File subdir : subdirs) {
+		for (File subdir : subdirs) {			
 			File[] eolTestFiles = subdir.listFiles(fn -> fn.getName().endsWith(fileExtension));
 			Arrays.sort(eolTestFiles, (a, b) -> a.getName().compareTo(b.getName()));
 			for (File file : eolTestFiles) {

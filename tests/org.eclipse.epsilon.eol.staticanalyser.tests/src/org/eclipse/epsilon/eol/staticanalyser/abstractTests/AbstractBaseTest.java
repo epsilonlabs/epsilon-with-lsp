@@ -17,6 +17,7 @@ public abstract class AbstractBaseTest {
 	
 	private final boolean isConsoleOutputActive;
 	
+	protected final String testTag;
 	protected final File eolTestFile;
 	protected final File eolTestFolder;
 	
@@ -25,7 +26,7 @@ public abstract class AbstractBaseTest {
 	}
 	
 	public AbstractBaseTest(String testTag, File eolTestFile, boolean outputToConsole) {
-		System.out.println("AbstractBaseTest(File eolTestFile, boolean outputToConsole)");
+		this.testTag= testTag;
 		this.eolTestFile = eolTestFile;
 		this.eolTestFolder = eolTestFile.getParentFile();
 		this.isConsoleOutputActive = outputToConsole;
@@ -39,19 +40,15 @@ public abstract class AbstractBaseTest {
 		File[] rootEolTestFiles = baseFolder.listFiles(fn -> fn.getName().endsWith(".eol"));
 		Arrays.sort(rootEolTestFiles, (a, b) -> a.getName().compareTo(b.getName()));
 		for (File file : rootEolTestFiles) {
-			System.out.println(" - " + file);
 			fileList.add(file);
 		}
 				
 		// sub folders files
 		File[] subdirs = baseFolder.listFiles(f -> f.isDirectory());
-		System.out.println("baseFolder " + baseFolder);
 		for (File subdir : subdirs) {
 			File[] eolTestFiles = subdir.listFiles(fn -> fn.getName().endsWith(".eol"));
-			System.out.println("eolTestFiles " + eolTestFiles.length);
 			Arrays.sort(eolTestFiles, (a, b) -> a.getName().compareTo(b.getName()));
 			for (File file : eolTestFiles) {
-				System.out.println(" - " + file);
 				fileList.add(file);
 			}
 		}
@@ -92,8 +89,7 @@ public abstract class AbstractBaseTest {
 	
 	@Test
 	public void test () {
-		System.out.println("Test Go");
-		System.out.println("\ntesting EOL: " + eolTestFolder + eolTestFile);
+		System.out.println("\nTesting EOL: " + testTag + "\n - path: "  + eolTestFolder + eolTestFile);
 		assertTrue(true);
 	}
 	

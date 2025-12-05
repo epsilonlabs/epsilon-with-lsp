@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -33,7 +34,7 @@ public abstract class AbstractBaseTest {
 	public static List<File> findEOLScriptsWithin(File baseFolder) {
 		List<File> fileList = new ArrayList<File>();
 		
-		// root folder		
+		// root folder files	
 		File[] rootEolTestFiles = baseFolder.listFiles(fn -> fn.getName().endsWith(".eol"));
 		Arrays.sort(rootEolTestFiles, (a, b) -> a.getName().compareTo(b.getName()));
 		for (File file : rootEolTestFiles) {
@@ -41,7 +42,7 @@ public abstract class AbstractBaseTest {
 			fileList.add(file);
 		}
 				
-		// sub folders
+		// sub folders files
 		File[] subdirs = baseFolder.listFiles(f -> f.isDirectory());
 		System.out.println("baseFolder " + baseFolder);
 		for (File subdir : subdirs) {
@@ -54,6 +55,33 @@ public abstract class AbstractBaseTest {
 			}
 		}
 		return fileList;
+	}
+	
+	/**
+	 * @param resourceFolder name of the resource folder containing set of scripts for tests
+	 * @param scriptSetFolder name of a folder in the resource folder containing test scripts
+	 * @return Collection EOL scripts as parameter Arrays [String testTag, File file]
+	 */
+	protected static Collection<Object[]> getTestCollection(String resourceFolder, String scriptSetFolder) {
+		File testFolder = new File(resourceFolder,scriptSetFolder);
+		List<File> eolFiles = AbstractBaseTest.findEOLScriptsWithin(testFolder);
+		Collection<Object[]> testCollection = new ArrayList<>();
+		for (File file : eolFiles) {	
+			/* I prefer the short tag style, it does not clog the Junit results window
+			String longTestTag = String.format("%s%s/%s", 
+					scriptSetFolder,
+					file.getParent().replace(testFolder.getPath(),""),
+					file.getName());
+			*/
+			String shortTestTag = String.format("%s/%s",
+					file.getParent().replace(testFolder.getPath(),""),
+					file.getName());
+            testCollection.add(new Object[] {
+            	shortTestTag,	   
+                file
+            });
+        }
+		return testCollection;
 	}
 	
 	@Test

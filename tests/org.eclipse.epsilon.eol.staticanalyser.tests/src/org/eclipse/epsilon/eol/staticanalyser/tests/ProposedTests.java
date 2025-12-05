@@ -17,37 +17,17 @@ import static org.junit.Assert.assertTrue;
 public class ProposedTests extends AbstractBaseTest{
 
 	private static final String RESOURCES = "resources";
-	private static final String SCRIPTGROUP = "proposedTestScripts";
+	private static final String SCRIPTSET = "proposedTestScripts";
+	private static final boolean ENABLECONSOLEOUTPUT = true;
 
-	private static final File TEST_FOLDER = new File(RESOURCES, SCRIPTGROUP);
-	
 	@Parameters(name = "{0}")
 	public static Collection data() {
-		List<File> eolFiles = AbstractBaseTest.findEOLScriptsWithin(TEST_FOLDER);
-		Collection<Object[]> testData = new ArrayList<>();
-		for (File file : eolFiles) {	
-			String longTestTag = String.format("%s%s/%s", 
-					SCRIPTGROUP,
-					file.getParent().replace(TEST_FOLDER.getPath(),""),
-					file.getName());
-			String shortTestTag = String.format("%s/%s",
-					file.getParent().replace(TEST_FOLDER.getPath(),""),
-					file.getName());
-            testData.add(new Object[] {
-            	shortTestTag,	   
-                file
-            });
-        }
-		return testData;
+		return getTestCollection(RESOURCES, SCRIPTSET);
 		
 	}
 	
 	public ProposedTests(String testTag, File eolTestFile) {
-		super(testTag, eolTestFile, false);
-		System.out.println("Go ProposedTests");
+		super(testTag, eolTestFile, ENABLECONSOLEOUTPUT);
 	}
-	
-
-
 	
 }

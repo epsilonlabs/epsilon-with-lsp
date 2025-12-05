@@ -15,29 +15,31 @@ import org.junit.Test;
 
 public abstract class AbstractBaseTest {
 	
-	private final boolean isConsoleOutputActive;
 	
+	
+	private final boolean isConsoleOutputActive;	
 	protected final String testTag;
-	protected final File eolTestFile;
-	protected final File eolTestFolder;
+	protected final File epsilonTestFile;
+	protected final File epsilonTestFolder;
 	
-	public AbstractBaseTest(String testTag, File eolTestFile) {
-		this(testTag, eolTestFile,false);
+	
+	public AbstractBaseTest(String testTag, File epsilonTestFile) {
+		this(testTag, epsilonTestFile,false);
 	}
 	
-	public AbstractBaseTest(String testTag, File eolTestFile, boolean outputToConsole) {
+	public AbstractBaseTest(String testTag, File epsilonTestFile, boolean outputToConsole) {
 		this.testTag= testTag;
-		this.eolTestFile = eolTestFile;
-		this.eolTestFolder = eolTestFile.getParentFile();
+		this.epsilonTestFile = epsilonTestFile;
+		this.epsilonTestFolder = epsilonTestFile.getParentFile();
 		this.isConsoleOutputActive = outputToConsole;
 	}
 	
 	
-	public static List<File> findEOLScriptsWithin(File baseFolder) {
+	private static List<File> findEpsilonScriptsWithin(File baseFolder, String fileExtension) {
 		List<File> fileList = new ArrayList<File>();
 		
 		// root folder files	
-		File[] rootEolTestFiles = baseFolder.listFiles(fn -> fn.getName().endsWith(".eol"));
+		File[] rootEolTestFiles = baseFolder.listFiles(fn -> fn.getName().endsWith(fileExtension));
 		Arrays.sort(rootEolTestFiles, (a, b) -> a.getName().compareTo(b.getName()));
 		for (File file : rootEolTestFiles) {
 			fileList.add(file);
@@ -46,7 +48,7 @@ public abstract class AbstractBaseTest {
 		// sub folders files
 		File[] subdirs = baseFolder.listFiles(f -> f.isDirectory());
 		for (File subdir : subdirs) {
-			File[] eolTestFiles = subdir.listFiles(fn -> fn.getName().endsWith(".eol"));
+			File[] eolTestFiles = subdir.listFiles(fn -> fn.getName().endsWith(fileExtension));
 			Arrays.sort(eolTestFiles, (a, b) -> a.getName().compareTo(b.getName()));
 			for (File file : eolTestFiles) {
 				fileList.add(file);
@@ -61,15 +63,15 @@ public abstract class AbstractBaseTest {
 	 * @return Collection EOL scripts as parameter Arrays [String testTag, File file]
 	 * @throws FileNotFoundException 
 	 */
-	protected static Collection<Object[]> getTestCollection(String resourceFolder, String scriptSetFolder) throws FileNotFoundException {
+	protected static Collection<Object[]> getTestCollection(String resourceFolder, String scriptSetFolder, String fileExtension) throws FileNotFoundException {
 		File testFolder = new File(resourceFolder,scriptSetFolder);
 		if (!testFolder.exists()) {
 			throw new FileNotFoundException("Failed to find the test resources folder: " + testFolder);
 		}
 		
-		List<File> eolFiles = AbstractBaseTest.findEOLScriptsWithin(testFolder);
+		List<File> epsilonFiles = AbstractBaseTest.findEpsilonScriptsWithin(testFolder, fileExtension);
 		Collection<Object[]> testCollection = new ArrayList<>();
-		for (File file : eolFiles) {	
+		for (File file : epsilonFiles) {	
 			/* I prefer the short tag style, it does not clog the Junit results window
 			String longTestTag = String.format("%s%s/%s", 
 					scriptSetFolder,
@@ -86,12 +88,5 @@ public abstract class AbstractBaseTest {
         }
 		return testCollection;
 	}
-	
-	@Test
-	public void test () {
-		System.out.println("\nTesting EOL: " + testTag + "\n - path: "  + eolTestFolder + eolTestFile);
-		assertTrue(true);
-	}
-	
-		
+
 }

@@ -1,8 +1,9 @@
-package org.eclipse.epsilon.eol.staticanalyser.tests;
+package org.eclipse.epsilon.eol.staticanalyser.abstractTests;
 
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,9 +62,14 @@ public abstract class AbstractBaseTest {
 	 * @param resourceFolder name of the resource folder containing set of scripts for tests
 	 * @param scriptSetFolder name of a folder in the resource folder containing test scripts
 	 * @return Collection EOL scripts as parameter Arrays [String testTag, File file]
+	 * @throws FileNotFoundException 
 	 */
-	protected static Collection<Object[]> getTestCollection(String resourceFolder, String scriptSetFolder) {
+	protected static Collection<Object[]> getTestCollection(String resourceFolder, String scriptSetFolder) throws FileNotFoundException {
 		File testFolder = new File(resourceFolder,scriptSetFolder);
+		if (!testFolder.exists()) {
+			throw new FileNotFoundException("Failed to find the test resources folder: " + testFolder);
+		}
+		
 		List<File> eolFiles = AbstractBaseTest.findEOLScriptsWithin(testFolder);
 		Collection<Object[]> testCollection = new ArrayList<>();
 		for (File file : eolFiles) {	

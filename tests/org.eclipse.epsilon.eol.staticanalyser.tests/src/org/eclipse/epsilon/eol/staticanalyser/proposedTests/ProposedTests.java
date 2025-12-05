@@ -1,11 +1,13 @@
-package org.eclipse.epsilon.eol.staticanalyser.tests;
-
+package org.eclipse.epsilon.eol.staticanalyser.proposedTests;
+import org.eclipse.epsilon.eol.staticanalyser.abstractTests.AbstractBaseTest;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +23,7 @@ public class ProposedTests extends AbstractBaseTest{
 	private static final boolean ENABLECONSOLEOUTPUT = true;
 
 	@Parameters(name = "{0}")
-	public static Collection data() {
+	public static Collection data() throws FileNotFoundException {
 		return getTestCollection(RESOURCES, SCRIPTSET);
 		
 	}

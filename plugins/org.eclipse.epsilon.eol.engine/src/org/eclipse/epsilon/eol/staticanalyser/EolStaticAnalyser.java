@@ -809,6 +809,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			// Contained types are not taken into account for operation context types.
 			callExpressionType = new EolCollectionType(callExpressionType.getName());
 		}
+		if(callExpressionType instanceof EolTypeLiteral) {
+			callExpressionType = new EolTypeLiteral(EolAnyType.Instance);
+		}
+		
 		stack.push(callExpressionType);
 		outerLoop: while (!stack.isEmpty()) {
 			EolType currentNode = stack.pop();

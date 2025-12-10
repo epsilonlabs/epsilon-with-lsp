@@ -768,7 +768,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			setResolvedType(operationCallExpression, new EolUnionType(returnTypes));
 		}
 
-		// Check for warning related to subtypes
+		// Check for warning related to context subtypes
 		Set<EolType> resolvedOperationContextTypes = new HashSet<EolType>();
 		for (IStaticOperation op : resolvedOperations) {
 			resolvedOperationContextTypes.add(op.getContextType());
@@ -779,6 +779,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			warnings.add(new ModuleMarker(operationCallExpression,
 			"Operation " + nameExpression.getName() + " is undefined for type " + t.getName(),
 			Severity.Warning));
+		}
+		
+		// Check for warning related to parameter subtypes
+		for(int i = 0; i < parameterExpressions.size(); i++) {
+			Expression paramExpr = parameterExpressions.get(i);
+			EolType paramType = getResolvedType(paramExpr);
+			Set<EolType> resolvedOperationParamTypes = new HashSet<EolType>();
+			for(IStaticOperation op : resolvedOperations) {
+				resolvedOperationParamTypes.add(op.getParameterTypes().get(i));
+			}
+			missingTypes = checkMissingTypes(paramType, resolvedOperationParamTypes);
+			for(EolType t : missingTypes) {
+				warnings.add(new ModuleMarker(paramExpr,
+				"Parameter " + (i+1) + " of operation " + nameExpression.getName() + " is undefined for type " + t.getName(),
+				Severity.Warning));
+			}
 		}
 	}
 	

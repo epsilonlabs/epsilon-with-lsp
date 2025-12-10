@@ -774,31 +774,40 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			resolvedOperationContextTypes.add(op.getContextType());
 		}
 		
-		if (resolvedOperationContextTypes.contains(EolAnyType.Instance) || contextType.equals(EolAnyType.Instance)) {
-			return;
+		List<EolType> missingTypes = checkMissingTypes(contextType, resolvedOperationContextTypes);
+		for(EolType t : missingTypes) {
+			warnings.add(new ModuleMarker(operationCallExpression,
+			"Operation " + nameExpression.getName() + " is undefined for type " + t.getName(),
+			Severity.Warning));
+		}
+	}
+	
+	private List<EolType> checkMissingTypes(EolType callExpressionType, Set<EolType> operationTypes){
+		List<EolType> missingTypes = new ArrayList<EolType>();
+		if (operationTypes.contains(EolAnyType.Instance) || callExpressionType.equals(EolAnyType.Instance)) {
+			return missingTypes;
 		}
 
 		Stack<EolType> stack = new Stack<EolType>();
-		if(contextType instanceof EolCollectionType) {
+		if(callExpressionType instanceof EolCollectionType) {
 			// Contained types are not taken into account for operation context types.
-			contextType = new EolCollectionType(contextType.getName());
+			callExpressionType = new EolCollectionType(callExpressionType.getName());
 		}
-		stack.push(contextType);
+		stack.push(callExpressionType);
 		outerLoop: while (!stack.isEmpty()) {
 			EolType currentNode = stack.pop();
 			for (EolType a : currentNode.getAncestors()) {
-				if (resolvedOperationContextTypes.contains(a)) {
+				if (operationTypes.contains(a)) {
 					continue outerLoop;
 				}
 			}
 			if (currentNode.isAbstract()) {
 				stack.addAll(currentNode.getChildrenTypes());
 			} else {
-				warnings.add(new ModuleMarker(operationCallExpression,
-						"Operation " + nameExpression.getName() + " is undefined for type " + currentNode.getName(),
-						Severity.Warning));
+				missingTypes.add(currentNode);
 			}
 		}
+		return missingTypes;
 	}
 
 	@Override

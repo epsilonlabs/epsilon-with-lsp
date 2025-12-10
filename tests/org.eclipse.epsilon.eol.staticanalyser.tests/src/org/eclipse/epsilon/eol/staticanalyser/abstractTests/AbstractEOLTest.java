@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,7 +79,63 @@ public class AbstractEOLTest extends AbstractBaseTest{
 		return testMarker;		
 	}
 
-	protected void parseFile(File file) throws Exception {
+	protected List<ModuleMarker> extractTestMarkers (File testProgram) throws IOException {
+		String content = new String(Files.readAllBytes(testProgram.toPath()));
+		String[] lines = content.split(System.lineSeparator());
+		List <ModuleMarker> testMarkerList= new ArrayList<ModuleMarker>();
+		for (String line: lines) {
+				ModuleMarker testLineMarker = createTestMarker(line);
+				if(null != testLineMarker) {
+					testMarkerList.add(testLineMarker);
+				}
+		}
+		return testMarkerList;
+	}
+	
+	public List<ModuleMarker> runStaticAnalyser(File testProgramFile) throws Exception {
+		module.parse(testProgramFile);		
+		List<ModuleMarker> markers = staticAnalyser.validate(module);
+		return markers;
+	}
+	
+	
+	private List<ModuleMarker> filterMarkerSeverity (List<ModuleMarker> listToFilter, Severity severity){
+		return listToFilter.stream().filter(m -> m.getSeverity() == severity)
+				.collect(Collectors.toList());		
+	}
+	
+	private List<ModuleMarker> filterMarkerMessage (List<ModuleMarker> listToFilter, String message){
+		return listToFilter.stream().filter(m -> m.getMessage().equals(message))
+				.collect(Collectors.toList());
+	}
+	
+	// All the test program comments should appear in the Static Analysis results.
+	protected void matchTestToStaticAnalysis (List<ModuleMarker> testMarkers, List<ModuleMarker> staticAnalysisMarkers, Severity severity) {
+		List<ModuleMarker> warningTestMarkers = filterMarkerSeverity(testMarkers, severity);
+		List<ModuleMarker> warningStaticAnalysisMarkers = filterMarkerSeverity(staticAnalysisMarkers, severity);
+		
+		// Match test Marker messages against staticAnalysis Marker messages
+		for (ModuleMarker testMarker : warningTestMarkers) {
+			List<ModuleMarker> matchedMessageMarker = filterMarkerMessage(warningStaticAnalysisMarkers, testMarker.getMessage());
+			
+			// There should be at least one matchedMessageMarker for the testMarkers in the filtered StaticAnalysisMarkers
+			assertTrue("Failed to match: " + testMarker.toString(), matchedMessageMarker.size() > 1);
+			
+			// Check the range information next
+		}
+
+	}
+	
+	// What is the Static Analysis reporting that we are not testing for?
+	protected void matchStaticAnalysisToTest ( ) {
+		
+	}
+	
+
+	
+	
+	
+ 	protected void parseFile(File file) throws Exception {
 		String content = new String(Files.readAllBytes(file.toPath()));
 		String[] lines = content.split(System.lineSeparator());
 		List<String> errorMessages = new ArrayList<String>();

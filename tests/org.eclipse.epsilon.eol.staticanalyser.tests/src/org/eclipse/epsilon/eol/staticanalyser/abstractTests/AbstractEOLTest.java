@@ -42,15 +42,56 @@ public class AbstractEOLTest extends AbstractBaseTest{
 		System.out.println("\nEOL Testing: " + testTag + "\n - path: "  + programFolder + programFile);
 		parseFile(programFile);
 	}
+	// Format for test files  //!startline:startcolumn-endline:endcolumn message
+	protected ModuleMarker createTestMarker(String testMarkedProgramLine) {
+		// Just in case...
+		if (!testMarkedProgramLine.substring(0,2).equals("//")){
+			return null;
+		}
+		
+		ModuleMarker testMarker = new ModuleMarker();
+			// Extract Severity level 
+			String severityString = testMarkedProgramLine.substring(0,3);	
+			switch (severityString) {
+			case "//!": // ERROR
+				testMarker.setSeverity(Severity.Error);
+				break;
+			case "//?": // WARNING
+				testMarker.setSeverity(Severity.Warning);
+				break;
+			default:
+				// TODO handle unknown severity markup
+				// Something is borked
+				throw new RuntimeException("Unknown severtiy string: " + severityString);
+			}
+		
+			// Column and line information, message
+			if ('[' != testMarkedProgramLine.charAt(0)) {
+				// original markup no column or line checks
+				testMarker.setMessage(testMarkedProgramLine.substring(3));
+				return testMarker;
+			} else {
+				// New markup
+			}
+
+		return testMarker;		
+	}
 
 	protected void parseFile(File file) throws Exception {
 		String content = new String(Files.readAllBytes(file.toPath()));
 		String[] lines = content.split(System.lineSeparator());
 		List<String> errorMessages = new ArrayList<String>();
 		List<String> warningMessages = new ArrayList<String>();
+		
+		List <ModuleMarker> testMarkerList= new ArrayList<ModuleMarker>();
 		for (String line: lines) {
 			if (!line.substring(0,2).equals("//")){
 				break;
+			} else {
+				ModuleMarker testLineMarker = createTestMarker(line);
+				if(null != testLineMarker) {
+					testMarkerList.add(testLineMarker);
+				}
 			}
 		
 			if (line.substring(0,3).equals("//!")) {

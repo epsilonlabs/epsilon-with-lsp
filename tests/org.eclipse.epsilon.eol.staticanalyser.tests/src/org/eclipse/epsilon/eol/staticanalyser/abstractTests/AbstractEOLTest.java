@@ -42,6 +42,7 @@ public class AbstractEOLTest extends AbstractBaseTest{
 		System.out.println("\nEOL Testing: " + testTag + "\n - path: "  + programFolder + programFile);
 		parseFile(programFile);
 	}
+	
 	// Format for test files  //!startline:startcolumn-endline:endcolumn message
 	protected ModuleMarker createTestMarker(String testMarkedProgramLine) {
 		// Just in case...

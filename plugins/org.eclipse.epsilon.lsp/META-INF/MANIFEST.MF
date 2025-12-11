@@ -25,5 +25,6 @@ Bundle-Vendor: Eclipse.org
 Automatic-Module-Name: org.eclipse.epsilon.lsp
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Import-Package: com.google.common.graph;version="[33.3.0,34.0.0)"
+Import-Package: com.google.common.graph;version="[33.3.0,34.0.0)",
+ org.eclipse.epsilon.evl.staticanalyser
 Bundle-Activator: org.eclipse.epsilon.lsp.Activator

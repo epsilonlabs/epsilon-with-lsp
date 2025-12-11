@@ -22,6 +22,8 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.Import;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
+import org.eclipse.epsilon.evl.EvlModule;
+import org.eclipse.epsilon.evl.staticanalyser.EvlStaticAnalyser;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
@@ -30,7 +32,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.WorkspaceFolder;
 
 public class Analyser {
-//    public static final String LANGUAGE_EVL = "evl";
+    public static final String LANGUAGE_EVL = "evl";
 //    public static final String LANGUAGE_ETL = "etl";
 //    public static final String LANGUAGE_EGL = "egl";
 //    public static final String LANGUAGE_EGX = "egx";
@@ -55,7 +57,7 @@ public class Analyser {
 		for (WorkspaceFolder wf : languageServer.workspaceFolders) {
 			Path path = Paths.get(URI.create(wf.getUri()));
 			try (Stream<Path> stream = Files.walk(path)) {
-				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol")).forEach(p -> {
+				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol") || f.toString().endsWith(".evl")).forEach(p -> {
 					processDocument(p.toUri());
 				});
 				
@@ -93,7 +95,13 @@ public class Analyser {
 				//parser diagnostics
 				diagnostics = getDiagnostics(module);
                 if(diagnostics.size() == 0) {
-                    EolStaticAnalyser staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+                    EolStaticAnalyser staticAnalyser;
+                    if(module instanceof EvlModule) {
+						staticAnalyser = new EvlStaticAnalyser(new StaticModelFactory());
+					}
+					else{
+						staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+					}
                     List<ModuleMarker> markers = staticAnalyser.validate(module);
                     diagnostics.addAll(markersToDiagnostics(markers));
                 }
@@ -154,7 +162,7 @@ public class Analyser {
 	
     protected IEolModule createModule(String languageId) {
         switch (languageId) {
-//            case LANGUAGE_EVL: return new EvlModule();
+            case LANGUAGE_EVL: return new EvlModule();
 //            case LANGUAGE_ETL: return new EtlModule();
 //            case LANGUAGE_EGL: return new EglModule();
 //            case LANGUAGE_EGX: return new EgxModule();

@@ -29,6 +29,9 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 	public EvlStaticAnalyser(IModelFactory modelFactory) {
 		super(modelFactory);
 	}
+	
+	public EvlStaticAnalyser() {
+	}
 
 	@Override
 	public List<ModuleMarker> validate(IModule imodule) {

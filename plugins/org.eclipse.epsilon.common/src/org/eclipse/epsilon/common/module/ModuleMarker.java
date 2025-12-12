@@ -71,5 +71,30 @@ public class ModuleMarker {
 		Warning,
 		Error
 	}
+	
+	public String toString() {
+		String moduleMarkerString = "";
 
+		String severityString;
+		switch (this.severity) {
+		case Information:
+			severityString = "Information";
+			break;
+		case Warning:
+			severityString = "Warning";
+			break;
+		case Error:
+			severityString = "Error";
+			break;
+		default:
+			severityString = "Missing severity level?";
+			break;
+		}
+
+		if (null == this.region) {
+			return String.format("%s [region null] %s", severityString, this.message);
+		}
+
+		return String.format("%s [%s] %s", severityString, this.region, this.message);
+	}
 }

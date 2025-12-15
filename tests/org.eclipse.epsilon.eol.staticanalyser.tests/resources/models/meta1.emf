@@ -1,0 +1,26 @@
+@namespace(uri="sa", prefix="")
+package sa;
+
+class container{
+	val A[*] objects;
+}
+
+abstract class A {
+	val A feature1;
+}
+
+class B extends A {
+}
+
+class C extends A {
+}
+
+class D extends B{
+}
+
+enum Colour {
+	RED;
+	BLUE;
+}
+
+

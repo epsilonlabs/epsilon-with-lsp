@@ -1,0 +1,3 @@
+var v:Sequence<Sequence<Integer>>;
+v = op();
+operation op():Sequence<Sequence<Integer>>{return Sequence{Sequence{1,2,3}};}

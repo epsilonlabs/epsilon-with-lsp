@@ -1,0 +1,4 @@
+//!Cannot instantiate an abstract type
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var c = new EClassifier;

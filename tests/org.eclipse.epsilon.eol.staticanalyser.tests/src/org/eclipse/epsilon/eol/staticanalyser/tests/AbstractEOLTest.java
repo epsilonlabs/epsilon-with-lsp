@@ -8,6 +8,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import org.junit.Test;
 
 public class AbstractEOLTest extends AbstractBaseTest {
 
+	private EOLTestMarkerStringParser testMarkerParser= new EOLTestMarkerStringParser();
 	protected EolModule module;
 	protected EolStaticAnalyser staticAnalyser;
 
@@ -39,6 +41,49 @@ public class AbstractEOLTest extends AbstractBaseTest {
 	@Test
 	public void originalTestApproach() throws Exception {
 		parseFile(programFile);
+	}
+	
+	@Test
+	public void markerMatchedTestApproach () throws Exception {
+		if(isConsoleOutputActive) {
+			System.out.println("\n Test program: " + testTag);
+		}
+		List<ModuleMarker> testMarkers = testMarkerParser.extractTestMarkers(programFile);
+		
+		int regionCount = 0;
+		for (ModuleMarker testMarker : testMarkers) {
+			System.out.println("\t- " + testMarker.toString());
+			if(null != testMarker.getRegion()) {
+				regionCount++;
+			}
+		}
+		
+		if (testMarkers.isEmpty()) {
+			System.out.println("  [!] This is a clean program test");
+			module.parse(programFile);
+			List<ModuleMarker> markers = staticAnalyser.validate(module);
+			assertEquals("No test markers set, so static analysis should report nothing", 0, markers.size());
+			return;
+		}
+		
+		
+		if (0 == regionCount) {
+			// Call assert Valid method from the old test to check the messages, these are old tests with no region info
+			System.out.println("  [!] No regions running old test");
+			List<String> errorMessages = testMarkerParser.getErrorMessageStrings(testMarkers, Severity.Error);
+			List<String> warningMessages = testMarkerParser.getErrorMessageStrings(testMarkers, Severity.Warning);
+			assertValid(programFile, errorMessages, warningMessages);
+		}else {
+			// New test must have complete region information, but we may have some missing or errors
+			System.out.println("  [!] Region information complete running new test");			
+		}
+	}
+	
+	public void assertValidLineNumbered(File programFile, List<ModuleMarker> testMarkers) throws Exception {
+		module.parse(programFile);
+		List<ModuleMarker> markers = staticAnalyser.validate(module);
+		
+		
 	}
 	
 	/*

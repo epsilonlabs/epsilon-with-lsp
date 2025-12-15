@@ -1,0 +1,7 @@
+//?Parameter 1 of operation foo is undefined for type C
+model M driver EMF {nsuri='sa'};
+
+var p : A;
+foo(p);
+
+operation foo(c : B) {}

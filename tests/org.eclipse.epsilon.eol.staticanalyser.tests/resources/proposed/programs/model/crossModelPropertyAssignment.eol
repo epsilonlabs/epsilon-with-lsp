@@ -1,0 +1,7 @@
+model M1 driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+model M2 driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var c : M1!EClass;
+var p : M2!EPackage;
+
+c.ePackage = p;

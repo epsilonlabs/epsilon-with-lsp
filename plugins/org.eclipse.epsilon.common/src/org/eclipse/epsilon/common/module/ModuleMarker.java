@@ -87,7 +87,7 @@ public class ModuleMarker {
 			severityString = "Error";
 			break;
 		default:
-			severityString = "Missing severity level?";
+			severityString = "Missing severity level";
 			break;
 		}
 

@@ -82,6 +82,7 @@ public class AbstractEOLTest extends AbstractBaseTest {
 			List<String> errorMessages = testMarkerParser.getErrorMessageStrings(testMarkers, Severity.Error);
 			List<String> warningMessages = testMarkerParser.getErrorMessageStrings(testMarkers, Severity.Warning);
 			assertValid(programFile, errorMessages, warningMessages);
+			System.err.println("Warning passed using old test -- this test needs migrating : " + testTag);
 		}else {
 			// New test must have complete region information, but we may have some missing or errors
 			if(isConsoleOutputActive) {

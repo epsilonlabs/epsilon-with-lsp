@@ -56,23 +56,32 @@ public class AbstractEOLTest extends AbstractBaseTest {
 			}
 		}
 		
+		// No test markers in program, therefore the program should be clean
 		if (testMarkers.isEmpty()) {
-			System.out.println(" [!] Clean program test (no test markers)");
+			if(isConsoleOutputActive) {
+				System.out.println(" [!] Clean program test (no test markers)");
+			}
+			
 			module.parse(programFile);
-			List<ModuleMarker> markers = staticAnalyser.validate(module);
-			assertEquals("No test markers set, so static analysis should report nothing", 0, markers.size());
+			List<ModuleMarker> staticAnalyserMarkers = staticAnalyser.validate(module);
+			assertEquals("No test markers set, so static analysis should report nothing", 0, staticAnalyserMarkers.size());
 			return;
 		}
 
+		
 		if (0 == regionCount) {
 			// Call assert Valid method from the old test to check the messages, these are old tests with no region info
-			System.out.println(" [!] Running old test (no regions in test markers)");
+			if(isConsoleOutputActive) {
+				System.out.println(" [!] Running old test (no regions in test markers)");
+			}
 			List<String> errorMessages = testMarkerParser.getErrorMessageStrings(testMarkers, Severity.Error);
 			List<String> warningMessages = testMarkerParser.getErrorMessageStrings(testMarkers, Severity.Warning);
 			assertValid(programFile, errorMessages, warningMessages);
 		}else {
 			// New test must have complete region information, but we may have some missing or errors
-			System.out.println(" [!] Running new test (region in atleast 1 test marker");	
+			if(isConsoleOutputActive) {
+				System.out.println(" [!] Running new test (region in atleast 1 test marker");
+			}
 			assertValidLineNumbered(programFile, testMarkers);
 		}
 	}
@@ -81,10 +90,14 @@ public class AbstractEOLTest extends AbstractBaseTest {
 		module.parse(programFile);
 		List<ModuleMarker> staticAnalyserMarkers = staticAnalyser.validate(module);
 		
-		System.out.println("  [?] Static Analyser Markers in Test Markers test");
+		if(isConsoleOutputActive) {
+			System.out.println("  [?] Static Analyser Markers in Test Markers test");
+		}
 		compareLeftToRight(staticAnalyserMarkers, testMarkers, false);
 		
-		System.out.println("  [?] Test Markers in Static Analyser Markers test");
+		if(isConsoleOutputActive) {
+			System.out.println("  [?] Test Markers in Static Analyser Markers test");
+		}
 		compareLeftToRight(testMarkers, staticAnalyserMarkers, true);
 		
 	}
@@ -214,13 +227,13 @@ public class AbstractEOLTest extends AbstractBaseTest {
 			assertFalse("A warning message was matched too many times", i < 0);
 		}
 
-		visit(module.getChildren());
+		visit(module.getChildren());  // Abstract syntax tree type test
 	}
 
-	// Original test method
+	// Original test method -- Checks the Abstract syntax tree types against a multiline comment /* */ for each type
 	protected void visit(List<ModuleElement> elements) {
 		for (ModuleElement element : elements) {
-			// Multiline comments are used to capture the expected type of expressions
+			// Multiline comments (/* */") are used to capture the expected type of expressions
 			if (!element.getComments().isEmpty() && element.getComments().get(0).isMultiline()) {
 				assertEquals(element.getComments().get(0).toString(), getResolvedType(element).toString());
 			}

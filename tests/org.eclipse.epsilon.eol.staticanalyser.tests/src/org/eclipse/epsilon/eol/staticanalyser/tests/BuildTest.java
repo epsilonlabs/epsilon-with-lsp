@@ -16,7 +16,7 @@ public class BuildTest extends AbstractEOLTest {
 	private static final String PROGRAMFILEEXTENSION = ".eol";
 	private static final String MODELSET = "models";
 	private static final String MODELFILEEXTENSION = ".ecore";
-	private static final boolean ENABLECONSOLEOUTPUT = true;
+	private static final boolean ENABLECONSOLEOUTPUT = false;
 		
 	@BeforeClass
 	public static void registerModelset() {

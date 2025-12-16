@@ -18,6 +18,7 @@ import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,12 +60,7 @@ public class AbstractEOLTest extends AbstractBaseTest {
 		}
 		List<ModuleMarker> testMarkers = testMarkerParser.extractTestMarkers(programFile);
 		
-		int regionCount = 0;
-		for (ModuleMarker testMarker : testMarkers) {
-			if(null != testMarker.getRegion()) {
-				regionCount++;
-			}
-		}
+		int regionCount = extracted(testMarkers);
 		
 		// No test markers in program, therefore the program should be clean
 		if (testMarkers.isEmpty()) {
@@ -75,7 +71,6 @@ public class AbstractEOLTest extends AbstractBaseTest {
 			return;
 		}
 
-		
 		if (0 == regionCount) {
 			// Call assert Valid method from the old test to check the messages, these are old tests with no region info
 			if(isConsoleOutputActive) {
@@ -93,6 +88,16 @@ public class AbstractEOLTest extends AbstractBaseTest {
 		}
 	}
 	
+	private int extracted(List<ModuleMarker> testMarkers) {
+		int regionCount = 0;
+		for (ModuleMarker testMarker : testMarkers) {
+			if(null != testMarker.getRegion()) {
+				regionCount++;
+			}
+		}
+		return regionCount;
+	}
+
 	public void assertValidLineNumbered(File programFile, List<ModuleMarker> testMarkers) throws Exception {
 		if(isConsoleOutputActive) {
 			System.out.println("  [?] Static Analyser Markers in Test Markers test");

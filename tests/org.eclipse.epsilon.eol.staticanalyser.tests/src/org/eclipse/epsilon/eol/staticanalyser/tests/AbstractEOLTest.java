@@ -71,9 +71,6 @@ public class AbstractEOLTest extends AbstractBaseTest {
 			if(isConsoleOutputActive) {
 				System.out.println(" [!] Clean program test (no test markers)");
 			}
-			
-			module.parse(programFile);
-			List<ModuleMarker> staticAnalyserMarkers = staticAnalyser.validate(module);
 			assertEquals("No test markers set, so static analysis should report nothing", 0, staticAnalyserMarkers.size());
 			return;
 		}

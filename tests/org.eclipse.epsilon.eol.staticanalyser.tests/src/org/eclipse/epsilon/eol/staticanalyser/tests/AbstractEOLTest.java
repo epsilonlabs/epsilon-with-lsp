@@ -50,7 +50,10 @@ public class AbstractEOLTest extends AbstractBaseTest {
 
 	@Test
 	public void originalTestApproach() throws Exception {
-		parseFile(programFile);
+		List<ModuleMarker> testMarkers = testMarkerParser.extractTestMarkers(programFile);		
+		int regionCount = extracted(testMarkers);
+		assertEquals("This test has been migrated, it has region information expected failure ",0 ,regionCount);
+		parseFile(programFile);		
 	}
 	
 	@Test
@@ -86,6 +89,11 @@ public class AbstractEOLTest extends AbstractBaseTest {
 			}
 			assertValidLineNumbered(programFile, testMarkers);
 		}
+	}
+	
+	@Test
+	public void checkAbstractSyntaxTreeType () {
+		visit(module.getChildren());
 	}
 	
 	private int extracted(List<ModuleMarker> testMarkers) {

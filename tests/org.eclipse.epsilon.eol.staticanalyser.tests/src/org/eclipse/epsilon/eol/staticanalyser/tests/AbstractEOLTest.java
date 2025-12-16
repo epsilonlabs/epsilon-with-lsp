@@ -8,7 +8,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,46 +45,93 @@ public class AbstractEOLTest extends AbstractBaseTest {
 	@Test
 	public void markerMatchedTestApproach () throws Exception {
 		if(isConsoleOutputActive) {
-			System.out.println("\n Test program: " + testTag);
+			System.out.println("\nTesting program: " + testTag);
 		}
 		List<ModuleMarker> testMarkers = testMarkerParser.extractTestMarkers(programFile);
 		
 		int regionCount = 0;
 		for (ModuleMarker testMarker : testMarkers) {
-			System.out.println("\t- " + testMarker.toString());
 			if(null != testMarker.getRegion()) {
 				regionCount++;
 			}
 		}
 		
 		if (testMarkers.isEmpty()) {
-			System.out.println("  [!] This is a clean program test");
+			System.out.println(" [!] Clean program test (no test markers)");
 			module.parse(programFile);
 			List<ModuleMarker> markers = staticAnalyser.validate(module);
 			assertEquals("No test markers set, so static analysis should report nothing", 0, markers.size());
 			return;
 		}
-		
-		
+
 		if (0 == regionCount) {
 			// Call assert Valid method from the old test to check the messages, these are old tests with no region info
-			System.out.println("  [!] No regions running old test");
+			System.out.println(" [!] Running old test (no regions in test markers)");
 			List<String> errorMessages = testMarkerParser.getErrorMessageStrings(testMarkers, Severity.Error);
 			List<String> warningMessages = testMarkerParser.getErrorMessageStrings(testMarkers, Severity.Warning);
 			assertValid(programFile, errorMessages, warningMessages);
 		}else {
 			// New test must have complete region information, but we may have some missing or errors
-			System.out.println("  [!] Region information complete running new test");			
+			System.out.println(" [!] Running new test (region in atleast 1 test marker");	
+			assertValidLineNumbered(programFile, testMarkers);
 		}
 	}
 	
 	public void assertValidLineNumbered(File programFile, List<ModuleMarker> testMarkers) throws Exception {
 		module.parse(programFile);
-		List<ModuleMarker> markers = staticAnalyser.validate(module);
+		List<ModuleMarker> staticAnalyserMarkers = staticAnalyser.validate(module);
 		
+		System.out.println("  [?] Static Analyser Markers in Test Markers test");
+		compareLeftToRight(staticAnalyserMarkers, testMarkers, false);
+		
+		System.out.println("  [?] Test Markers in Static Analyser Markers test");
+		compareLeftToRight(testMarkers, staticAnalyserMarkers, true);
 		
 	}
 	
+	private void compareLeftToRight(List<ModuleMarker> leftListMarkers, List<ModuleMarker> rightListMarkers,
+			boolean leftListIsTestMarkers) {
+		boolean result = false;
+		int matchCount = 0;
+		
+		for (ModuleMarker leftMarker : leftListMarkers) {
+			result = false;
+			matchCount = 0;
+			for (ModuleMarker rightMarker : rightListMarkers) {
+				result = compareMarkers(leftMarker, rightMarker);
+				result = leftMarker.toString().equals(rightMarker.toString());
+				if (result) {
+					matchCount++;
+				}
+			}
+			
+			if (leftListIsTestMarkers) {
+				assertEquals("Test Marker did not match 1 Static Analysis Marker: " + leftMarker,1, matchCount );
+			} else {
+				assertEquals("Static Analysis Marker did not match 1 Test Marker: " + leftMarker,1, matchCount );
+			}
+		}
+
+	}
+	
+	private boolean compareMarkers(ModuleMarker first, ModuleMarker second) {
+		// This could be a string compare between first and second ModuleMarker.toString(), 
+		// but if the toString() method on the ModuleMarker excludes something it won't be tested.
+		if (!first.getSeverity().equals(second.getSeverity())) {
+			return false;
+		}
+
+		if (!first.getRegion().equals(second.getRegion())) {
+			return false;
+		}
+
+		if (!first.getMessage().equals(second.getMessage())) {
+			return false;
+		}
+		return true;
+	}
+
+
 	/*
 	 * Methods below are from the original test, they take a program file, parse and test
 	 */

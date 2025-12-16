@@ -26,15 +26,25 @@ public class AbstractEOLTest extends AbstractBaseTest {
 	private EOLTestMarkerStringParser testMarkerParser= new EOLTestMarkerStringParser();
 	protected EolModule module;
 	protected EolStaticAnalyser staticAnalyser;
+	protected List<ModuleMarker> staticAnalyserMarkers = null;	
 
 	public AbstractEOLTest(String testTag, File epsilonTestFile, boolean enableconsoleoutput) {
 		super(testTag, epsilonTestFile, enableconsoleoutput);
 	}
 
 	@Before
-	public void setUp() {
+	public void setUp() throws Exception {
 		module = new EolModule();
 		staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+		module.parse(programFile);
+		staticAnalyserMarkers = staticAnalyser.validate(module);
+	}
+	
+	@After
+	public void cleanUp() {
+		module = null;
+		staticAnalyser = null;
+		staticAnalyserMarkers.clear();
 	}
 
 	@Test
@@ -87,9 +97,6 @@ public class AbstractEOLTest extends AbstractBaseTest {
 	}
 	
 	public void assertValidLineNumbered(File programFile, List<ModuleMarker> testMarkers) throws Exception {
-		module.parse(programFile);
-		List<ModuleMarker> staticAnalyserMarkers = staticAnalyser.validate(module);
-		
 		if(isConsoleOutputActive) {
 			System.out.println("  [?] Static Analyser Markers in Test Markers test");
 		}
@@ -99,7 +106,6 @@ public class AbstractEOLTest extends AbstractBaseTest {
 			System.out.println("  [?] Test Markers in Static Analyser Markers test");
 		}
 		compareLeftToRight(testMarkers, staticAnalyserMarkers, true);
-		
 	}
 	
 	private void compareLeftToRight(List<ModuleMarker> leftListMarkers, List<ModuleMarker> rightListMarkers,
@@ -172,11 +178,9 @@ public class AbstractEOLTest extends AbstractBaseTest {
 	// Original test method
 	public void assertValid(File file, List<String> expectedErrorMessages, List<String> expectedWarningMessages)
 			throws Exception {
-		module.parse(file);
-		List<ModuleMarker> markers = staticAnalyser.validate(module);
-		List<ModuleMarker> errors = markers.stream().filter(m -> m.getSeverity() == Severity.Error)
+		List<ModuleMarker> errors = staticAnalyserMarkers.stream().filter(m -> m.getSeverity() == Severity.Error)
 				.collect(Collectors.toList());
-		List<ModuleMarker> warnings = markers.stream().filter(m -> m.getSeverity() == Severity.Warning)
+		List<ModuleMarker> warnings = staticAnalyserMarkers.stream().filter(m -> m.getSeverity() == Severity.Warning)
 				.collect(Collectors.toList());
 
 		String errorMessages = errors.stream()

@@ -30,7 +30,7 @@ import org.eclipse.epsilon.emc.yaml.test.YamlTestSuite;
 import org.eclipse.epsilon.eml.engine.test.acceptance.EmlAcceptanceTestSuite;
 import org.eclipse.epsilon.eol.dap.test.EpsilonDebugAdapterTestSuite;
 import org.eclipse.epsilon.eol.engine.test.acceptance.EolAcceptanceTestSuite;
-import org.eclipse.epsilon.eol.staticanalyser.tests.EolStaticAnalyserTests;
+import org.eclipse.epsilon.eol.staticanalyser.tests.StaticAnalyserTestSuite;
 import org.eclipse.epsilon.eol.test.unit.EolUnitTestSuite;
 import org.eclipse.epsilon.epl.engine.test.acceptance.EplAcceptanceTestSuite;
 import org.eclipse.epsilon.etl.engine.test.acceptance.EtlAcceptanceTestSuite;
@@ -95,7 +95,7 @@ import junit.framework.Test;
 	EUnitJUnitTestSuite.class,
 	JSONModelTestSuite.class,
 	EpsilonDebugAdapterTestSuite.class,
-	EolStaticAnalyserTests.class
+	StaticAnalyserTestSuite.class
 })
 public class EpsilonJenkinsTestSuite {
 	public static Test suite() {

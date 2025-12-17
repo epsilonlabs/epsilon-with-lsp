@@ -118,8 +118,9 @@ public class EOLTestMarkerStringParser {
 			return null;
 		}
 
-		return new Region(Integer.parseInt(startRegion[0]), Integer.parseInt(startRegion[1]),
-				Integer.parseInt(endRegion[0]), Integer.parseInt(endRegion[1]));
+		// Decrement columns by 1 as the IDE columns report +1 over the internal column range		
+		return new Region(Integer.parseInt(startRegion[0]), Integer.parseInt(startRegion[1])-1,
+				Integer.parseInt(endRegion[0]), Integer.parseInt(endRegion[1])-1);
 	}
 
 	private String regionStringMatcher(String line) {

@@ -11,10 +11,11 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class BuildTest extends AbstractEOLTest {
-	private static final String RESOURCES = "resources";
-	private static final String PROGRAMSET = "programs";
+	
+	private static final String RESOURCES = PROJECT_BASE_FOLDER + "resources";
+	private static final String PROGRAMSET = "programs"; // sub-folder in resources
 	private static final String PROGRAMFILEEXTENSION = ".eol";
-	private static final String MODELSET = "models";
+	private static final String MODELSET = "models"; // sub-folder in resources
 	private static final String MODELFILEEXTENSION = ".ecore";
 	private static final boolean ENABLECONSOLEOUTPUT = true;
 		

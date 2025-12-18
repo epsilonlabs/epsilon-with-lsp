@@ -1,0 +1,10 @@
+//!Property mistyped not found for type EClass
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+/*Sequence<EClass>*/EClass.ALL;
+/*Sequence<EClass>*/EClass.allInstances;
+/*Sequence<EClass>*/EClass.getAllOfKInd;
+/*Sequence<EClass>*/EClass.gEtAllOfType;
+/*EClass*/EClass.createInstance;
+/*Boolean*/EClass.isInstantiable;
+EClass.mistyped;

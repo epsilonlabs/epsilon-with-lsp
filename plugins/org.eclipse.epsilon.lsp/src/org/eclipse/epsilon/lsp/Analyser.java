@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
+import org.eclipse.epsilon.egl.EglModule;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.Import;
@@ -34,7 +35,7 @@ import org.eclipse.lsp4j.WorkspaceFolder;
 public class Analyser {
     public static final String LANGUAGE_EVL = "evl";
 //    public static final String LANGUAGE_ETL = "etl";
-//    public static final String LANGUAGE_EGL = "egl";
+    public static final String LANGUAGE_EGL = "egl";
 //    public static final String LANGUAGE_EGX = "egx";
 //    public static final String LANGUAGE_ECL = "ecl";
 //    public static final String LANGUAGE_EML = "eml";
@@ -50,17 +51,18 @@ public class Analyser {
         this.languageServer = languageServer;
     }
     
-	public void initialize() {	
+	public void initialize() {
 		if (languageServer.workspaceFolders == null)
 			return;
 
 		for (WorkspaceFolder wf : languageServer.workspaceFolders) {
 			Path path = Paths.get(URI.create(wf.getUri()));
 			try (Stream<Path> stream = Files.walk(path)) {
-				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol") || f.toString().endsWith(".evl")).forEach(p -> {
-					processDocument(p.toUri());
-				});
-				
+				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol")
+						|| f.toString().endsWith(".evl") || f.toString().endsWith(".egl")).forEach(p -> {
+							processDocument(p.toUri());
+						});
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -164,7 +166,7 @@ public class Analyser {
         switch (languageId) {
             case LANGUAGE_EVL: return new EvlModule();
 //            case LANGUAGE_ETL: return new EtlModule();
-//            case LANGUAGE_EGL: return new EglModule();
+            case LANGUAGE_EGL: return new EglModule();
 //            case LANGUAGE_EGX: return new EgxModule();
 //            case LANGUAGE_ECL: return new EclModule();
 //            case LANGUAGE_EML: return new EmlModule();

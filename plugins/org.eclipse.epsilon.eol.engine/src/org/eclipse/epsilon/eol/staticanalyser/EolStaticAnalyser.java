@@ -23,6 +23,7 @@ import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.common.util.StringUtil;
 import org.eclipse.epsilon.eol.EolModule;
+import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.AbortStatement;
 import org.eclipse.epsilon.eol.dom.AbstractExecutableModuleElement;
 import org.eclipse.epsilon.eol.dom.AndOperatorExpression;
@@ -117,7 +118,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	protected List<ModuleMarker> errors = new ArrayList<>();
 	protected List<ModuleMarker> warnings = new ArrayList<>();
-	protected EolModule module;
+	protected IEolModule module;
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
 	protected List<IStaticOperation> localOperations = new ArrayList<>();
 	protected List<IStaticOperation> importedOperations = new ArrayList<>();
@@ -1184,7 +1185,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		operation.getData().put("returnType", returnType);
 	}
 
-	public void preValidate(EolModule module) {
+	public void preValidate(IEolModule module) {
 
 		for (Import import_ : module.getImports()) {
 			import_.accept(this);
@@ -1306,7 +1307,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		errors = new ArrayList<ModuleMarker>();
 		warnings = new ArrayList<ModuleMarker>();
 		List<ModuleMarker> markers = new ArrayList<ModuleMarker>();
-		this.module = (EolModule) imodule;
+		this.module = (IEolModule) imodule;
 
 		preValidate(module);
 		mainValidate();

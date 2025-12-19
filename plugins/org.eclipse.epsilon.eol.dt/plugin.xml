@@ -228,4 +228,50 @@
          scopeName="source.epsilon.evl">
    </scopeNameContentTypeBinding>
 </extension>
+
+
+
+<extension
+      point="org.eclipse.core.contenttype.contentTypes">
+   <content-type
+         base-type="org.eclipse.core.runtime.text"
+         file-extensions="egl"
+         id="org.eclipse.epsilon.lsp.contentType.egl"
+         name="EGL Content Type"
+         priority="normal">
+   </content-type>
+</extension>
+
+<extension
+      point="org.eclipse.ui.editors">
+   <editorContentTypeBinding
+         contentTypeId="org.eclipse.epsilon.lsp.contentType.egl"
+         editorId="org.eclipse.ui.genericeditor.GenericEditor">
+   </editorContentTypeBinding>
+</extension>
+
+<extension
+      point="org.eclipse.lsp4e.languageServer">
+    <server
+          class="org.eclipse.epsilon.eol.dt.lsp.ConnectionProviderSolution"
+          id="org.eclipse.epsilon.lsp.server"
+          label="Epsilon Language Server">
+    </server>
+   <contentTypeMapping
+         contentType="org.eclipse.epsilon.lsp.contentType.egl"
+         id="org.eclipse.epsilon.lsp.server">
+   </contentTypeMapping>
+</extension>
+
+<extension
+      point="org.eclipse.tm4e.registry.grammars">
+   <grammar
+         path="syntaxes/egl.tmlanguage"
+         scopeName="source.epsilon.egl">
+   </grammar>
+   <scopeNameContentTypeBinding
+         contentTypeId="org.eclipse.epsilon.lsp.contentType.egl"
+         scopeName="source.epsilon.egl">
+   </scopeNameContentTypeBinding>
+</extension>
 </plugin>

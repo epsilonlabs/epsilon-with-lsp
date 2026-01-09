@@ -11,10 +11,12 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.egl.EglModule;
 import org.eclipse.epsilon.egl.IEglModule;
-import org.eclipse.epsilon.eol.EolModule;
+import org.eclipse.epsilon.egl.output.IOutputBuffer;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
+import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
 
 
 public class EglStaticAnalyser extends EolStaticAnalyser {
@@ -34,6 +36,10 @@ public class EglStaticAnalyser extends EolStaticAnalyser {
 		
 
 		super.preValidate(eglModule);
+		
+		// Register EGL-specific built-in variable 'out'
+		context.getFrameStack().put(new Variable("out", new EolNativeType(IOutputBuffer.class)));
+		
 		super.mainValidate();
 		super.postValidate();
 

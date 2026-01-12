@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.epsilon.eol.engine,
  org.eclipse.epsilon.egl.engine,
  org.eclipse.epsilon.common
+Export-Package: org.eclipse.epsilon.egl.staticanalyser

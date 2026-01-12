@@ -19,6 +19,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.egl.EglModule;
+import org.eclipse.epsilon.egl.staticanalyser.EglStaticAnalyser;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.Import;
@@ -101,6 +102,9 @@ public class Analyser {
                     if(module instanceof EvlModule) {
 						staticAnalyser = new EvlStaticAnalyser(new StaticModelFactory());
 					}
+                    else if(module instanceof EglModule) {
+                    	staticAnalyser = new EglStaticAnalyser(new StaticModelFactory());
+                    }
 					else{
 						staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 					}

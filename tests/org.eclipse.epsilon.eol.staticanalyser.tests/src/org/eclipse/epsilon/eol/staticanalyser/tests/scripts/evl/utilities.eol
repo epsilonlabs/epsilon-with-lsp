@@ -1,4 +1,8 @@
-model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+//!Property eAllStructuralFeatures not found in type EClassifier
+//!Property eAllStructuralFeatures not found in type EClassifier
+//!Property EOperation not found in type EClass
+//!Property EAttribute not found in type EClass
+model Model driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 operation String isThriftReservedWord() : Boolean {
 	var thriftReservedWords = 
 		Set{"namespace", "cpp_namespace", "cpp_include",  "cpp_type",
@@ -22,11 +26,13 @@ operation String isThriftReservedWord() : Boolean {
 	return thriftReservedWords.includes(self);
 }
 
+//The context should have been EClass. EClassifier does not have eAllStructuralFeatures property
 operation EClassifier getMapKeyField() : EStructuralFeature {
 	var fldName = self.getAnnotationValue("thrift.map", "key");
 	return self.eAllStructuralFeatures.selectOne(f|f.name = fldName);
 }
 
+//The context should have been EClass. EClassifier does not have eAllStructuralFeatures property
 operation EClassifier getMapValueField() : EStructuralFeature {
 	var fldName = self.getAnnotationValue("thrift.map", "value");
 	return self.eAllStructuralFeatures.selectOne(f|f.name = fldName);

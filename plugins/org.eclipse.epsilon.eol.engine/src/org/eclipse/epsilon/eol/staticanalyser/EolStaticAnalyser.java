@@ -1290,7 +1290,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else if (javaClass == boolean.class || javaClass == Boolean.class) {
 			return EolPrimitiveType.Boolean;
 		} else if (javaClass == java.util.Collection.class) {
-			return EolCollectionType.Bag;
+			return EolCollectionType.Collection;
 		} else if (javaClass == java.util.List.class) {
 			return EolCollectionType.Sequence;
 		} else if (javaClass == java.util.Set.class) {

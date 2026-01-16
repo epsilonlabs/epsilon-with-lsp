@@ -10,6 +10,7 @@
 package org.eclipse.epsilon.common.module;
 
 import java.io.File;
+import java.util.Objects;
 
 import org.eclipse.epsilon.common.parse.Region;
 
@@ -70,6 +71,26 @@ public class ModuleMarker {
 		Information,
 		Warning,
 		Error
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(file, message, region, severity);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ModuleMarker other = (ModuleMarker) obj;
+		return Objects.equals(file, other.file) 
+				&& Objects.equals(message, other.message)
+				&& Objects.equals(region, other.region) 
+				&& severity == other.severity;
 	}
 	
 	public String toString() {

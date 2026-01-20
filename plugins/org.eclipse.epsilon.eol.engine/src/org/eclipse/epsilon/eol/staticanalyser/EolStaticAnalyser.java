@@ -1233,7 +1233,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				EolType contextType = oc.contributesToType();
 
 				for (Method m : oc.getClass().getDeclaredMethods()) {
-					builtinOperations.add(methodToSimpleOperation(m, contextType));
+					if(!m.isSynthetic()) {
+						builtinOperations.add(methodToSimpleOperation(m, contextType));
+					}
 				}
 			}
 		}

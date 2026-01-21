@@ -1,0 +1,3 @@
+//!Variable foo has already been defined
+var ^foo;
+var foo;

@@ -10,7 +10,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class BuildTest extends AbstractEOLTest {
+public class EolBuildTests extends AbstractEOLTest {
 	
 	private static final String RESOURCES = PROJECT_BASE_FOLDER + "resources";
 	private static final String PROGRAMSET = "programs"; // sub-folder in resources
@@ -29,7 +29,7 @@ public class BuildTest extends AbstractEOLTest {
 		return getEpsilonProgramCollection(RESOURCES, PROGRAMSET, PROGRAMFILEEXTENSION);
 	}
 	
-	public BuildTest(String testTag, File epsilonTestFile) {
+	public EolBuildTests(String testTag, File epsilonTestFile) {
 		super(testTag, epsilonTestFile, ENABLECONSOLEOUTPUT);
 	}
 }

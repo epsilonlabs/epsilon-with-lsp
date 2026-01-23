@@ -87,12 +87,12 @@ public class ModuleMarker {
 		if (getClass() != obj.getClass())
 			return false;
 		ModuleMarker other = (ModuleMarker) obj;
-		return Objects.equals(file, other.file) 
+		return Objects.equals(file, other.file)
 				&& Objects.equals(message, other.message)
-				&& Objects.equals(region, other.region) 
+				&& Objects.equals(region, other.region)
 				&& severity == other.severity;
 	}
-	
+
 	public String toString() {
 		String severityString;
 		switch (this.severity) {

@@ -71,7 +71,7 @@ public abstract class AbstractEOLTest extends AbstractBaseTest {
 			// Rerun the marker parser and fail test on the first region error detected
 			testMarkerParser.extractTestMarkers(programFile, true);
 		}
-		
+
 		// No test markers in program, therefore the program should be clean with no
 		// Static Analyser Markers
 		if (testMarkers.isEmpty()) {
@@ -87,7 +87,7 @@ public abstract class AbstractEOLTest extends AbstractBaseTest {
 
 		checkForExpectedStaticAnalyserMarkers(testMarkers, staticAnalyserMarkers);
 	}
-	
+
 	@Test
 	public void checkResolvedTypes() {
 		visit(module.getChildren());
@@ -130,13 +130,13 @@ public abstract class AbstractEOLTest extends AbstractBaseTest {
 						+ asBulletListString(unmatchedSAM),
 				unmatchedSAM.isEmpty());
 	}
-		
+
 	private ModuleMarker isNotDuplicateTestMarker(ModuleMarker aMarker, List<ModuleMarker> listOfMarkers,
 			int testMarkerIndexPosition) {
 		if (listOfMarkers.isEmpty()) {
 			return aMarker;
 		}
-		
+
 		int listOfMarkersIndex = 0;
 		for (ModuleMarker listMarker : listOfMarkers) {
 			assertFalse("\nTest marker " + testMarkerIndexPosition + " " + "is a duplicate of Test marker "
@@ -148,7 +148,7 @@ public abstract class AbstractEOLTest extends AbstractBaseTest {
 
 	private ModuleMarker matchedTestMarkerToStaticAnalysisMarker(ModuleMarker testMarker,
 			List<ModuleMarker> staticAnalysisMarkers, int testMarkerIndex) {
-		
+
 		List<ModuleMarker> candidatesByMessage = new ArrayList<ModuleMarker>();
 		for (ModuleMarker staticAnalysisMarker : staticAnalysisMarkers) {
 			if (staticAnalysisMarker.getMessage().equals(testMarker.getMessage())) {
@@ -278,7 +278,7 @@ public abstract class AbstractEOLTest extends AbstractBaseTest {
 			assertFalse("A warning message was matched too many times", i < 0);
 		}
 
-		// Abstract syntax tree type test is now a stand alone test 
+		// Abstract syntax tree type test is now a stand alone test
 	}
 
 	// Original test method -- Checks the Abstract syntax tree types against a
@@ -298,6 +298,5 @@ public abstract class AbstractEOLTest extends AbstractBaseTest {
 	protected EolType getResolvedType(ModuleElement element) {
 		return (EolType) element.getData().get("resolvedType");
 	}
-	
+
 }
- 

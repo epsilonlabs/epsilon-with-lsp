@@ -17,7 +17,7 @@ import org.eclipse.epsilon.common.parse.Region;
 public class EOLTestMarkerStringParser {
 
 	private int lineCounter = 0;
-	
+
 	private static final String GRP_SEVERITY = "severity",
 		GRP_START_LINE = "lineStart",
 		GRP_START_COLUMN = "columnStart",
@@ -38,11 +38,11 @@ public class EOLTestMarkerStringParser {
 
 	public List<ModuleMarker> extractTestMarkers(File testProgram, boolean failOnRegionError) throws IOException {
 		lineCounter = 0;
-		
+
 		String content = new String(Files.readAllBytes(testProgram.toPath()));
 		String[] lines = content.split(System.lineSeparator());
 		List<ModuleMarker> testMarkerList = new ArrayList<ModuleMarker>();
-		
+
 		for (String line : lines) {
 			ModuleMarker testLineMarker = createTestMarker(line, failOnRegionError);
 			if (null != testLineMarker) {
@@ -81,13 +81,13 @@ public class EOLTestMarkerStringParser {
 				fail(getTestMarkerParsingError("SEVERITY (unknown)", lineCounter, testMarkedProgramLine));
 			}
 		}
-		
+
 		// Message
-		String message = regexMarker.group(GRP_MESSAGE); 
+		String message = regexMarker.group(GRP_MESSAGE);
 		if(null == message) {
 			fail(getTestMarkerParsingError("MESSAGE", lineCounter, testMarkedProgramLine));
 		} else {
-			testMarker.setMessage(message);				
+			testMarker.setMessage(message);
 		}
 
 		// Region column and line information -- never fail on region here
@@ -100,7 +100,7 @@ public class EOLTestMarkerStringParser {
 
 		return testMarker;
 	}
-	
+
 	private String getTestMarkerParsingError(String part, int linenumber, String testMarkedProgramLine) {
 		return String.format("Check test Marker, problem with %s on line %s > %s", part, linenumber,
 				testMarkedProgramLine);

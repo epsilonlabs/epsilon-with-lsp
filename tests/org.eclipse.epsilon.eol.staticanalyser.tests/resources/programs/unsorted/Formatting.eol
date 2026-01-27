@@ -1,11 +1,3 @@
-//!Property lineWidth not found in type Figure
-//!Property lineKind not found in type Figure
-//!Property lineKind not found in type Figure
-//!Property lineKind not found in type Figure
-//!Undefined variable or type figureGallery
-//!Undefined variable or type figureGallery
-//!Undefined operation getAnnotationValue
-//!Undefined operation getAnnotationValue
 model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 model GmfGraph driver EMF {nsuri="http://www.eclipse.org/gmf/2006/GraphicalDefinition"};
 
@@ -251,3 +243,12 @@ operation ECore!EModelElement getFormatOption(option : String) : String {
 	
 	return value;
 }
+
+//! [72:7-72:16] Property lineWidth not found in type Figure
+//! [77:8-77:16] Property lineKind not found in type Figure
+//! [80:8-80:16] Property lineKind not found in type Figure
+//! [83:8-83:16] Property lineKind not found in type Figure
+//! [147:40-147:53] Undefined variable or type figureGallery
+//! [148:2-148:15] Undefined variable or type figureGallery
+//! [241:19-241:57] Undefined operation getAnnotationValue
+//! [242:40-242:78] Undefined operation getAnnotationValue

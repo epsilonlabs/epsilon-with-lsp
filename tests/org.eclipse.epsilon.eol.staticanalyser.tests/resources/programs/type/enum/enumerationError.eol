@@ -1,7 +1,8 @@
-//!Undefined enumeration literal PINK for enumeration Colour
-//!Undefined enumeration type Colour2
 model M driver EMF { nsuri="sa" };
 
 var x = Colour#PINK;
 
 x = Colour2#BLUE;
+
+//! [3:8-3:19] Undefined enumeration literal PINK for enumeration Colour
+//! [5:4-5:16] Undefined enumeration type Colour2

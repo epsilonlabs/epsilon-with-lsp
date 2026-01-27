@@ -1,5 +1,6 @@
-//!Property names not found in type EClass
 model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};
 
 var i:M!EClass = new M!EClass;
 i.names = 'className';
+
+//! [4:2-4:7] Property names not found in type EClass

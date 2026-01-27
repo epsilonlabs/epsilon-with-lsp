@@ -1,0 +1,2 @@
+/*Native<java.lang.String>*/new Native("java.lang.String");
+/*Native<java.lang.String>*/new Native("java.lang.String")("blah");

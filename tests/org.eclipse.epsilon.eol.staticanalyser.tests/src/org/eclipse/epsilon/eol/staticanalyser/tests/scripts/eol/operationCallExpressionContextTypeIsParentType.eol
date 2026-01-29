@@ -1,6 +1,0 @@
-model M driver EMF {nsuri='sa'};
-
-var v1:B;
-v1.foo();
-
-operation A foo() : A {return self;}

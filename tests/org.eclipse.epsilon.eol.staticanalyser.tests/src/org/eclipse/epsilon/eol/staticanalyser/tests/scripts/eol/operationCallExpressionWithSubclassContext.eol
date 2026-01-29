@@ -1,8 +1,0 @@
-//?Operation foo is undefined for type C
-model M driver EMF {nsuri='sa'};
-
-for (a in A.all) {
-    var v1:A = a.foo();	
-}
-
-operation B foo() : B {return self;}

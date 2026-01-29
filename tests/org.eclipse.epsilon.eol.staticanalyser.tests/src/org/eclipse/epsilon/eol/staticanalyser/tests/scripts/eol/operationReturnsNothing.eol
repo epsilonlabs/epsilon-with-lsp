@@ -1,6 +1,0 @@
-//!This operation should return EClass
-model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
-
-var c : EClass = op1();
-
-operation op1() : EClass {}

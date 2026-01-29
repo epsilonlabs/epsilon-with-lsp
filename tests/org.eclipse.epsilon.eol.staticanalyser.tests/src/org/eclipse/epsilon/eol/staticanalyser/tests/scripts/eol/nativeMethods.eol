@@ -1,2 +1,0 @@
-var s: Sequence = Sequence{0..10};
-s.add(11);

@@ -1,5 +1,0 @@
-var i : Integer = 4;
-var s : String = 'test';
-(/*Integer*/i) = 5;
-var a : Any = true;
-(/*Any*/ a) = (/*String*/s);

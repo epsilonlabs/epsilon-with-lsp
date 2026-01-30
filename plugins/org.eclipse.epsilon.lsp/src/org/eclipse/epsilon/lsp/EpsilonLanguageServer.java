@@ -31,7 +31,7 @@ public class EpsilonLanguageServer implements LanguageServer {
     public Analyser analyser = new Analyser(this);
 
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
-    protected Consumer<Integer> exitFunction = System::exit;
+    protected Consumer<Integer> exitFunction = null;
     protected LanguageClient client;
     
     protected List<WorkspaceFolder> workspaceFolders;
@@ -74,15 +74,15 @@ public class EpsilonLanguageServer implements LanguageServer {
 
     @Override
     public CompletableFuture<Object> shutdown() {
-    	// TODO throw InvalidRequest if already shutdown
-    	// TODO take this into account for exit code
-    	
+    	shutdown.set(true);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public void exit() {
-    	exitFunction.accept(0);
+    	if (exitFunction != null) {
+    		exitFunction.accept(shutdown.get() ? 0 : 1);
+    	}
     }
 
     @Override

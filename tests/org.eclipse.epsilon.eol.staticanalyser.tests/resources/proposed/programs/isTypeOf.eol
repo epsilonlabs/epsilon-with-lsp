@@ -1,8 +1,0 @@
-model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
-
-/*Boolean*/1.isTypeOf(ECore!EClass);
-/*Boolean*/1.isTypeOf(Boolean);
-/*Boolean*/1.isTypeOf(Integer);
-/*Boolean*/1.isTypeOf(Real);
-/*Boolean*/1.isTypeOf(String);
-

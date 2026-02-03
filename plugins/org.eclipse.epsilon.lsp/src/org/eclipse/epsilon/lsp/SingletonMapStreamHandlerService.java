@@ -60,17 +60,19 @@ public class SingletonMapStreamHandlerService extends AbstractURLStreamHandlerSe
 	}
 	
 	public URLConnection openConnection(URL u) throws IOException {
-		String code = Registry.getInstance().getCode(u.getPath());
-		if (code != null) {
-			return new MapEntryURLConnection(u, code);
-		} else {
-			try {
+		String code;
+		try {
+			code = Registry.getInstance().getCode(u.toURI().getPath());
+
+			if (code != null) {
+				return new MapEntryURLConnection(u, code);
+			} else {
 				// Fall back to a file URL if we have no entry for this
 				return new URI("file", u.getHost(), u.getPath(), null).toURL().openConnection();
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-				return null;
 			}
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 

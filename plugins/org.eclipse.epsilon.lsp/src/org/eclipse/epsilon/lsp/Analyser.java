@@ -5,13 +5,13 @@ import com.google.common.graph.MutableGraph;
 import com.google.common.graph.Graphs;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -70,14 +70,14 @@ public class Analyser {
 		}
 	}
 	
-	public void checkChangedDocument(URI uri, String code) {
+	public void checkChangedDocument(URI uri, String code) throws URISyntaxException {
 		//Update the in-memory contents of the document
 		SingletonMapStreamHandlerService.Registry
 		.getInstance()
 		.putCode(uri.getPath(), code);
 //		//The transitive closure also includes the node itself
 		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(uri)) {
-			processDocument(URI.create("mapentry:" + uriDependent.getPath()));
+			processDocument( new URI("mapentry", "", uriDependent.getPath(), null));
 		}
 	}
     
@@ -115,17 +115,18 @@ public class Analyser {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		
+		} 
 
-        final List<Diagnostic> theDiagnostics = diagnostics;
-        CompletableFuture.runAsync(() -> {
-        	String uriString = uri.toString();
-    		if (uri.getScheme().equals("mapentry")) {
-    			uriString = URI.create("file://" + uri.getPath()).toString();
-    		}
-            languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(uriString, theDiagnostics));
-        });
+		String uriString = uri.toString();
+		if (uri.getScheme().equals("mapentry")) {
+			try {
+				uriString = new URI("file","", uri.getPath(),null).toString();
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(uriString, diagnostics));
 
 	}
 	

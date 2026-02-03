@@ -19,6 +19,41 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 	}
 	
 	@Test
+	public void filenameWithSpacesIsHandledCorrectly() throws Exception {
+		// Create a temporary directory for the test files
+		Path tmp = Files.createTempDirectory("eol-import-spaces-test");
+		File lib = tmp.resolve("lib with spaces.eol").toFile();
+		String libUri = lib.toPath().toAbsolutePath().toUri().toString();
+
+
+		String libContent = "var a:Integer = 42;";
+		Files.write(lib.toPath(), libContent.getBytes(StandardCharsets.UTF_8));
+
+		// Put the temporary folder into the language server's workspaceFolders so
+		// Analyser.initialize() will scan it.
+		Field wfField = server.getClass().getDeclaredField("workspaceFolders");
+		wfField.setAccessible(true);
+		List<WorkspaceFolder> wf = new ArrayList<WorkspaceFolder>();
+		wf.add(new WorkspaceFolder(tmp.toUri().toString(), tmp.toString()));
+		wfField.set(server, wf);
+
+		// Initialize the analyser so it processes both files and builds dependency
+		// graph
+		server.analyser.initialize();
+
+		// Expect empty diagnostics for lib and main initially
+		
+//		Thread.sleep(100); // Ensure timestamp difference for change detection
+		assertPublishedEmptyDiagnostics(libUri);
+		
+		String newLibContent = "var a:Integer = 1.5;";
+
+		// Notify the analyser of the changed library content
+		server.analyser.checkChangedDocument(lib.toURI(), newLibContent);
+		assertPublishedExprectedDiagnostics(libUri, List.of("Real cannot be assigned to Integer"));
+	}
+	
+	@Test
 	public void importingFileIsRecheckedWhenLibraryChanges() throws Exception {
 		// Create a temporary directory for the test files
 		Path tmp = Files.createTempDirectory("eol-import-change-test");

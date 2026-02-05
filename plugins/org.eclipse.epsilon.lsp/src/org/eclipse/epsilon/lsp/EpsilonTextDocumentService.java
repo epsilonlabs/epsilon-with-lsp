@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
@@ -46,8 +44,6 @@ import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 public class EpsilonTextDocumentService implements TextDocumentService {
-
-    protected final Map<String, String> uriLanguageMap = new HashMap<>();
     protected final EpsilonLanguageServer languageServer;
     private static final Logger LOGGER = Logger.getLogger(EpsilonTextDocumentService.class.getName());
     
@@ -57,13 +53,14 @@ public class EpsilonTextDocumentService implements TextDocumentService {
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        /*
-         * Remember the ID of the language used to edit this file, as the ID is not
-         * provided again in didChange.
-         */
         final TextDocumentItem doc = params.getTextDocument();
-        uriLanguageMap.put(doc.getUri(), doc.getLanguageId());
-        publishDiagnostics(doc.getText(), doc.getUri(), doc.getLanguageId());
+        
+        if (doc.getUri().endsWith(".eol") || doc.getUri().endsWith(".evl") || doc.getUri().endsWith(".egl")) {
+            languageServer.analyser.processDocument(URI.create(doc.getUri()));
+        }
+        else {
+        	publishDiagnostics(doc.getText(), doc.getUri(), doc.getLanguageId());
+        }
     }
     
     protected List<Diagnostic> getDiagnostics(EmfaticResource resource, String text) {
@@ -114,10 +111,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     protected void publishDiagnostics(String code, String uri, String language) {
         List<Diagnostic> diagnostics = Collections.emptyList();
         
-        if (language.equals("eol") || language.equals("egl") || language.equals("evl")) {
-        	return;
-        }
-        else if (language.equals("emfatic")) {
+        if (language.equals("emfatic")) {
             try {
                 ResourceSet resourceSet = new ResourceSetImpl();
                 resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("emf", new EmfaticResourceFactory());
@@ -177,7 +171,6 @@ public class EpsilonTextDocumentService implements TextDocumentService {
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
-        uriLanguageMap.remove(params.getTextDocument().getUri());
     }
 
     @Override

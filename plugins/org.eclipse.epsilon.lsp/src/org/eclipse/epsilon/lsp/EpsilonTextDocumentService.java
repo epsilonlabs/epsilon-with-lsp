@@ -114,7 +114,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     protected void publishDiagnostics(String code, String uri, String language) {
         List<Diagnostic> diagnostics = Collections.emptyList();
         
-        if (language.equals("eol")) {
+        if (language.equals("eol") || language.equals("egl") || language.equals("evl")) {
         	return;
         }
         else if (language.equals("emfatic")) {

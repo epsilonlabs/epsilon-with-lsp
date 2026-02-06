@@ -1,0 +1,30 @@
+operation Any isAnnotatedAs(name: String) : Boolean {
+	return self.getAnnotation(name).isDefined();
+}
+
+operation Any isNode() {
+	return self.eClass().isAnnotatedAs("picto.node");
+}
+
+operation Any getLabel() {
+	var ann = self.isNode() ? "picto.node" : "picto.link"; // This should be a warning as return is ANY, when a BOOLEAN is expected
+	var attr = self.eClass().getAnnotationValue(ann, "label");
+	return self.eGet(self.eClass().getEStructuralFeature(attr));
+}
+
+operation Any getAnnotation(name : String) : Any {
+	var ann = self.eAnnotations.selectOne(a|a.source = name);
+	
+	if (self.eClass().name = "EClass" and ann.isUndefined()) {
+		for (s in self.eSuperTypes) {
+			var sann = s.getAnnotation(name);
+			if (sann.isDefined()) return sann;
+		}
+	}
+	
+	return ann;
+}
+
+// Static analysis test markers
+//? [10:11-10:54] The first operand of a ternary expression is expected to be a boolean expression not an any
+

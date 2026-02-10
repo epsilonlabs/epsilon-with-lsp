@@ -555,10 +555,10 @@ operation createRefLinkIcon() {
 	return icon;
 }
 
-//! [438:17-438:109] Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<Any>
-//! [440:1-441:71] Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<Any>
-//! [444:25-444:118] Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<Any>
-//! [448:32-448:132] Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<Any>
+//! [438:17-438:109] Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<TopNodeReference>
+//! [440:1-441:71] Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<LinkMapping>
+//! [444:25-444:118] Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<ChildReference>
+//! [448:32-448:132] Sequence<Native<java.lang.Object>> cannot be assigned to OrderedSet<ChildReference>
 //! [484:10-484:25] Property referencedChild not found in type NodeReference
 //! [484:51-484:66] Property referencedChild not found in type NodeReference
 //! [485:18-485:28] Property ownedChild not found in type NodeReference

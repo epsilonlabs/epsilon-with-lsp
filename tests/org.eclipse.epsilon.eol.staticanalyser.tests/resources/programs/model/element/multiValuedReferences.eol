@@ -1,0 +1,11 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var c : EClassifier;
+
+var p : EPackage;
+
+/*OrderedSet<EClassifier>*/p.eClassifiers;
+
+p.eClassifiers.add(p); // Should raise an error as an EPackage cannot be added to eClassifiers
+
+p.eClassifiers.first().ePackage = c; // Should raise an error due to type incompatibility

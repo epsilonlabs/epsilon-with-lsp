@@ -817,15 +817,25 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return missingTypes;
 		}
 
-		Stack<EolType> stack = new Stack<EolType>();
+		// Contained types are not taken into account for operation context types.
 		if(callExpressionType instanceof EolCollectionType) {
-			// Contained types are not taken into account for operation context types.
 			callExpressionType = new EolCollectionType(callExpressionType.getName());
 		}
+		Set<EolType> temp = new HashSet<EolType>();
+		for(EolType opType : operationTypes) {
+			if(opType instanceof EolCollectionType) {
+				temp.add(new EolCollectionType(opType.getName()));
+			}else {
+				temp.add(opType);
+			}
+		}
+		operationTypes = temp;
+		
 		if(callExpressionType instanceof EolTypeLiteral) {
 			callExpressionType = new EolTypeLiteral(EolAnyType.Instance);
 		}
 		
+		Stack<EolType> stack = new Stack<EolType>();
 		stack.push(callExpressionType);
 		outerLoop: while (!stack.isEmpty()) {
 			EolType currentNode = stack.pop();
@@ -1579,7 +1589,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			case "OrderedSet":
 			case "Sequence":
 			case "Set":
-				return new EolCollectionType(name);
+				if ( ((org.eclipse.epsilon.eol.types.EolCollectionType)type).getContentType() != null) {
+					return new EolCollectionType(name, toStaticAnalyserType(((org.eclipse.epsilon.eol.types.EolCollectionType) type).getContentType()));
+				}else {
+					 return new EolCollectionType(name);
+				}
 			case "Nothing":
 			case "None":
 				return EolNoType.Instance;

@@ -1,4 +1,0 @@
-model M driver EMF {nsuri='sa'};
-
-
-/*Integer*/M.resource.contents.size();

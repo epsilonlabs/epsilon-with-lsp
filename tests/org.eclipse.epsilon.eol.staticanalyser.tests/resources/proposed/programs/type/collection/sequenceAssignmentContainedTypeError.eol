@@ -1,4 +1,0 @@
-//!Sequence<Integer> cannot be assigned to Sequence<A>
-model M driver EMF {nsuri='sa'};
-
-var v:Sequence<A> = Sequence{1,2,3};

@@ -1,9 +1,0 @@
-var a:Sequence<Any>;
-var b: Sequence<Integer> = Sequence{0,1,2};
-a = b;//TODO: Add option to make this raise a warning
-
-//The following result in a runtime error
-//a.add('s');
-//a.println();
-//b.println();
-//b.collect(i|i/2);

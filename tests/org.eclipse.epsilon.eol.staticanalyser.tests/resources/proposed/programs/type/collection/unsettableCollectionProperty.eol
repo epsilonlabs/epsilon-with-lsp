@@ -1,8 +1,0 @@
-///!Cannot set an unsettable property
-model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
-
-var c : EClass;
-
-// This should fail as c.ePackage.eClassifiers.name is a shorthand for
-// c.ePackage.eClassifiers.collect(c|c.name) and therefore not settable
-c.ePackage.eClassifiers.name = new Sequence<String>;

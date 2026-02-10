@@ -1,4 +1,5 @@
-//!The first operand of a ternary expression must be a boolean expression
 /*String*/2+2==4 ? "Yes" else "No";
 /*String|Integer*/2+2==4 ? "Yes" else 1;
 2+2 ? "Yes" else 1;
+
+//! [3:0-3:19] The first operand of a ternary expression must be a boolean expression

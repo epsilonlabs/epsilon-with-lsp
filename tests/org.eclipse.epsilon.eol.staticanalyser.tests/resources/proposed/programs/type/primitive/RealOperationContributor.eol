@@ -1,9 +1,0 @@
-/*Native<java.lang.Number>*/1.1.abs();
-/*Integer*/1.1.ceiling();
-/*Integer*/1.1.floor();
-/*Real*/1.1.log();
-/*Real*/1.1.log10();
-/*Native<java.lang.Number>*/1.1.max(2.2);
-/*Native<java.lang.Number>*/1.1.min(2.2);
-/*Native<java.lang.Number>*/1.1.pow(2.2);
-/*Integer*/1.1.round();

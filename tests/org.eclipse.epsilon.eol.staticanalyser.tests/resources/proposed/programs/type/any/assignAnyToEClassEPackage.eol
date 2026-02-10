@@ -1,6 +1,0 @@
-model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
-
-var c : EClass;
-var any : Any;
-
-c.ePackage = any; // This is OK because Any is the dynamic type.

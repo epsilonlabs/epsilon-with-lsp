@@ -1,4 +1,0 @@
-//!String cannot be assigned to Integer
-var i : Integer = 4;
-var s : String = 'test';
-i = s;

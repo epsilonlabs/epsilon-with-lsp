@@ -1,5 +1,6 @@
-//!Sequence<B> cannot be assigned to Sequence<A>
 model M driver EMF {nsuri='sa'};
 
 // The following is technically an error as EolCollections are invariant.
 var v:Sequence<A> = new Sequence<B>;
+
+//! [4:20-4:35] Sequence<B> cannot be assigned to Sequence<A>

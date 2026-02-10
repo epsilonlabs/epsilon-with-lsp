@@ -1,6 +1,3 @@
-//!Property eAllStructuralFeatures not found in type EModelElement
-//!Property eSuperTypes not found in type EModelElement
-//!Property eSuperTypes not found in type EModelElement
 model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 model GmfGraph driver EMF {nsuri="http://www.eclipse.org/gmf/2006/GraphicalDefinition"};
 
@@ -437,3 +434,7 @@ operation ECore!EModelElement isAnnotatedAs(name : String) : Boolean {
 operation ECore!EReference isLabelled() : Boolean {
 	return false;
 }
+
+//! [384:14-384:36] Property eAllStructuralFeatures not found in type EModelElement
+//! [403:17-403:28] Property eSuperTypes not found in type EModelElement
+//! [418:17-418:28] Property eSuperTypes not found in type EModelElement

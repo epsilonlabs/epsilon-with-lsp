@@ -1,4 +1,5 @@
-//!M!EPackage cannot be assigned to M!EClass
 model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};
 
 var i:M!EClass = new M!EPackage;
+
+//! [3:17-3:31] M!EPackage cannot be assigned to M!EClass

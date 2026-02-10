@@ -1,5 +1,0 @@
-model M driver EMF {nsuri='sa'};
-
-for (x in B.all) {
-	var v = (/*B*/x);
-}

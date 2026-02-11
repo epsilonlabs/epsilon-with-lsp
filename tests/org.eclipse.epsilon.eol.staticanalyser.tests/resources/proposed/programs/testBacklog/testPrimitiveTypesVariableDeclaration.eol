@@ -1,0 +1,4 @@
+var i : Integer; (/*Integer*/i).println();
+var b : Boolean; (/*Boolean*/b).println();
+var s : String; (/*String*/s).println();
+var r : Real; (/*Real*/r).println();

@@ -2,6 +2,8 @@
 //!Property eAllStructuralFeatures not found in type EClassifier
 //!Property EOperation not found in type EClass
 //!Property EAttribute not found in type EClass
+//!Property eOperations not found in type EClassifier
+//!Undefined operation isExcluded
 model Model driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 operation String isThriftReservedWord() : Boolean {
 	var thriftReservedWords = 
@@ -179,7 +181,7 @@ operation getMainEPackage() : EPackage {
 operation getAllServiceClasses() : Sequence {
   return getMainEPackage().eClassifiers.select(c|c.isKindOf(EClass))
     .select(c|not c.eOperations.isEmpty() and not c.isExcluded())
-    .asSequence;
+    .asSequence();
 }
 
 // Returns all the enums in the main EPackage, plus the ones referenced

@@ -1171,16 +1171,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			type = EolAnyType.Instance;
 		}
 
-		String varName = variableDeclaration.getName();
-		if (varName.charAt(0) == '^'){
-			varName = varName.substring(1);
-		}
-		
-		if (context.getFrameStack().getTopFrame().contains(varName)) {
+		if (context.getFrameStack().getTopFrame().contains(variableDeclaration.getName())) {
 			errors.add(new ModuleMarker(variableDeclaration,
-					"Variable " + varName + " has already been defined", Severity.Error));
+					"Variable " + variableDeclaration.getName() + " has already been defined", Severity.Error));
 		} else {
-			context.getFrameStack().put(new Variable(varName, type));
+			context.getFrameStack().put(new Variable(variableDeclaration.getName(), type));
 			setResolvedType(variableDeclaration, type);
 		}
 

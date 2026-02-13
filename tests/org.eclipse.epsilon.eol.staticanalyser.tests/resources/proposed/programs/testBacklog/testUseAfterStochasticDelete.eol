@@ -1,0 +1,7 @@
+//testUseAfterStochasticDelete
+model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};
+var i:M!EClass = new M!EClass;
+var b = new Bag();
+var r = new Native('java.util.Random');
+if (r.nextint(99) > 50){delete i;}
+i.name = 'className';

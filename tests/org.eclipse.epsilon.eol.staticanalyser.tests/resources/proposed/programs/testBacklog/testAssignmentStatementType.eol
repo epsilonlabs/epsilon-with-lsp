@@ -1,0 +1,5 @@
+model M driver EMF {nsuri='sa'};
+/*Any*/var v1;
+(/*Any*/v1) = /*B*/ new B;
+/*B*/v1;
+/*B*/v1 = /*C*/ new C;

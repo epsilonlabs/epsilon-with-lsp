@@ -1,4 +1,0 @@
-var ^foo;
-var foo;
-
-//! [2:0-2:8] Variable foo has already been defined

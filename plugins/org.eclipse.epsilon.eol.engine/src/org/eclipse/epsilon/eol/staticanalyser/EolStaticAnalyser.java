@@ -92,6 +92,7 @@ import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.operations.AbstractOperation;
+import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
@@ -732,13 +733,15 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 //		Parameter type checks
+		List<EolType> provParamTypes = parameterExpressions.stream().map(e -> getResolvedType(e))
+				.collect(Collectors.toList());
 		temp = new ArrayList<IStaticOperation>();
 		for (IStaticOperation op : resolvedOperations) {
 			int index = 0;
 			List<EolType> reqParamTypess = op.getParameterTypes();
 			boolean compatible = true;
 			for (EolType reqParamType : reqParamTypess) {
-				EolType provParamType = getResolvedType(parameterExpressions.get(index));
+				EolType provParamType = provParamTypes.get(index);
 				index++;
 				if (!provParamType.isAssignableTo(reqParamType)  && !reqParamType.isAssignableTo(provParamType)) {
 					compatible = false;
@@ -773,8 +776,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		resolvedOperations = temp;
 
 		// Process resolved operations
-		Set<EolType> returnTypes = resolvedOperations.stream().map(op -> op.getReturnType())
-				.collect(Collectors.toSet());
+		Set<EolType> returnTypes = new HashSet<EolType>();
+		for (IStaticOperation op : resolvedOperations) {
+			returnTypes.add(op.getReturnType(contextType, provParamTypes));
+		}
 		if (returnTypes.size() == 1) {
 			setResolvedType(operationCallExpression, (EolType) returnTypes.toArray()[0]);
 		} else {
@@ -1267,7 +1272,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			operationParameterTypes.add(javaTypeToEolType(javaParameterType));
 		}
 		EolType returnType = javaTypeToEolType(m.getGenericReturnType());
-		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes);
+		MethodTypeCalculator mtc = m.getAnnotation(MethodTypeCalculator.class);
+		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, mtc);
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {

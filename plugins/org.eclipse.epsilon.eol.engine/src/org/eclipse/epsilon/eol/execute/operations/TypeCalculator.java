@@ -5,5 +5,5 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TypeCalculator {
-Class<? extends ITypeCalculator> klass();
+	Class<? extends ITypeCalculator> klass();
 }

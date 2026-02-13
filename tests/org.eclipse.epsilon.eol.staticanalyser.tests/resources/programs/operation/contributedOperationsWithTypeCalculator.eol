@@ -1,0 +1,8 @@
+model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};
+
+var i:M!EClass = new M!EClass;
+/*OrderedSet<EOperation>*/i.eOperations.println();
+/*Integer*/1.println();
+/*Real*/1.1.println();
+/*String*/"s".println();
+/*Boolean*/true.println();

@@ -10,8 +10,7 @@ public interface IStaticOperation {
 	
 	public EolType getContextType();
 	
-	//TODO: We might need the parameter types for this
-	public EolType getReturnType();
+	public EolType getReturnType(EolType actualContextType, List<EolType> actualParameterTypes);
 	
 	public List<EolType> getParameterTypes();
 }

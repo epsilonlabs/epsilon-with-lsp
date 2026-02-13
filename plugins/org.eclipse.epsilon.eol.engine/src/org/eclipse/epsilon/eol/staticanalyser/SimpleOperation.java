@@ -2,10 +2,12 @@ package org.eclipse.epsilon.eol.staticanalyser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
+import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 
@@ -14,6 +16,7 @@ public class SimpleOperation implements IStaticOperation {
 	private EolType contextType;
 	private EolType returnType;
 	private List<EolType> parameterTypes;
+	private Optional<MethodTypeCalculator> methodTypeCalculator = Optional.empty();
 	
 	public SimpleOperation(Operation op) {
 		name = op.getName();
@@ -31,11 +34,12 @@ public class SimpleOperation implements IStaticOperation {
 		}
 	}
 	
-	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes) {
+	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes, MethodTypeCalculator methodTypeCalculator) {
 		this.name = name;
 		this.contextType = contextType;
 		this.returnType = returnType;
 		this.parameterTypes = parameterTypes;
+		this.methodTypeCalculator = Optional.ofNullable(methodTypeCalculator);
 	}
 	
 	@Override
@@ -49,8 +53,18 @@ public class SimpleOperation implements IStaticOperation {
 	}
 
 	@Override
-	public EolType getReturnType() {
-		return returnType;
+	public EolType getReturnType(EolType actualContextType, List<EolType> actualParameterTypes) {
+		if (methodTypeCalculator.isPresent()) {
+			try {
+				return methodTypeCalculator.get().klass().newInstance().calculateType(actualContextType,
+						actualParameterTypes);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return returnType;
+			}
+		} else {
+			return returnType;
+		}
 	}
 
 	@Override

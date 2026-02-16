@@ -17,6 +17,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
+import org.eclipse.epsilon.eol.execute.operations.ParameterTypeIsContainedType;
+
 /**
  * Base class for all EOL collections.
  * 
@@ -52,6 +55,7 @@ public abstract class EolCollection<T> implements Collection<T> {
 	}
 	
 	@Override
+	@MethodDiagnosticsCalculator(klass = ParameterTypeIsContainedType.class)
 	public boolean add(T e) {
 		return wrapped.add(e);
 	}

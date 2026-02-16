@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -92,6 +93,7 @@ import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.operations.AbstractOperation;
+import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
 import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
@@ -773,6 +775,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 		resolvedOperations = temp;
+		
+		if (resolvedOperations.size() == 1) {
+			markers.addAll(resolvedOperations.get(0).getExtraDiagnostics(nameExpression, contextType, provParamTypes));
+		}
 
 		// Process resolved operations
 		Set<EolType> returnTypes = new HashSet<EolType>();
@@ -1266,8 +1272,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			operationParameterTypes.add(javaTypeToEolType(javaParameterType));
 		}
 		EolType returnType = javaTypeToEolType(m.getGenericReturnType());
-		MethodTypeCalculator mtc = m.getAnnotation(MethodTypeCalculator.class);
-		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, mtc);
+		Optional<MethodTypeCalculator> mtc = Optional.ofNullable(m.getAnnotation(MethodTypeCalculator.class));
+		Optional<MethodDiagnosticsCalculator> mdc = Optional
+				.ofNullable(m.getAnnotation(MethodDiagnosticsCalculator.class));
+		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, mtc, mdc);
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {

@@ -9,3 +9,5 @@ var p : EPackage;
 p.eClassifiers.add(p); // Should raise an error as an EPackage cannot be added to eClassifiers
 
 p.eClassifiers.first().ePackage = c; // Should raise an error due to type incompatibility
+
+//![9:15-9:21] Parameter Type EPackage cannot be assigned to expected parameter type EClassifier

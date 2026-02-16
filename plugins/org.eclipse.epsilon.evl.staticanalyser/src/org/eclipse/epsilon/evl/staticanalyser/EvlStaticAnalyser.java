@@ -56,7 +56,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		}
 		super.postValidate();
 
-		return errors;
+		return markers;
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 			block.accept(this);
 			if (block.getBody() instanceof Expression) {
 				if (!getResolvedType((Expression)block.getBody()).equals(EolPrimitiveType.Boolean)) {
-					errors.add(new ModuleMarker(block, "Expression type should be Boolean instead of " 
+					markers.add(new ModuleMarker(block, "Expression type should be Boolean instead of " 
 							+ getResolvedType((Expression)block.getBody()), Severity.Error));
 				}
 			}

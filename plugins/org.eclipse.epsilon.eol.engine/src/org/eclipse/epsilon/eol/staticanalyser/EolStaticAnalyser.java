@@ -117,8 +117,7 @@ import org.eclipse.epsilon.eol.staticanalyser.types.EolTypeLiteral;
 
 public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
-	protected List<ModuleMarker> errors = new ArrayList<>();
-	protected List<ModuleMarker> warnings = new ArrayList<>();
+	protected List<ModuleMarker> markers = new ArrayList<>();
 	protected IEolModule module;
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
 	protected List<IStaticOperation> localOperations = new ArrayList<>();
@@ -250,19 +249,19 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		EolModelElementType enumType = getModelElementType(enumName, enumerationLiteralExpression);
 		if (enumType == null) {
-			errors.add(new ModuleMarker(enumerationLiteralExpression, "Undefined enumeration type " + enumName,
+			markers.add(new ModuleMarker(enumerationLiteralExpression, "Undefined enumeration type " + enumName,
 					Severity.Error));
 			return;
 		} else {
 			IMetaClass metaClass = enumType.getMetaClass();
 			if (!(metaClass instanceof IEnum)) {
-				errors.add(new ModuleMarker(enumerationLiteralExpression, enumName + " is not an enumeration type",
+				markers.add(new ModuleMarker(enumerationLiteralExpression, enumName + " is not an enumeration type",
 						Severity.Error));
 				return;
 			} else {
 				IEnum enumerationType = (IEnum) metaClass;
 				if (!enumerationType.isValidEnumLiteral(literalName)) {
-					errors.add(new ModuleMarker(enumerationLiteralExpression,
+					markers.add(new ModuleMarker(enumerationLiteralExpression,
 							"Undefined enumeration literal " + literalName + " for enumeration " + enumName,
 							Severity.Error));
 					return;
@@ -311,7 +310,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		String name = firstOrderOperationCallExpression.getName();
 		AbstractOperation operation = context.operationFactory.getOperationFor(name);
 		if (operation == null) {
-			errors.add(new ModuleMarker(firstOrderOperationCallExpression.getNameExpression(),
+			markers.add(new ModuleMarker(firstOrderOperationCallExpression.getNameExpression(),
 					"Undefined first order operation " + name, Severity.Error));
 			return;
 		}
@@ -386,7 +385,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 
 			if (!isCollection && !isArray && !isIterable) {
-				errors.add(new ModuleMarker(forStatement.getIteratedExpression(),
+				markers.add(new ModuleMarker(forStatement.getIteratedExpression(),
 						"Collection expected instead of " + iteratedType,
 						Severity.Error));
 			}
@@ -426,7 +425,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		if (hasResolvedType(conditionExpression) && getResolvedType(conditionExpression) != EolPrimitiveType.Boolean) {
-			errors.add(new ModuleMarker(conditionExpression, "Condition must be a Boolean", Severity.Error));
+			markers.add(new ModuleMarker(conditionExpression, "Condition must be a Boolean", Severity.Error));
 		}
 
 	}
@@ -446,7 +445,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			operationRegistry.put(importedModule.getUri(), new ArrayList<>());
 			preValidate(importedModule);
 			//We do not care about errors from imported modules
-			errors.clear();
+			markers.clear();
 		}
 		importedOperations.addAll(operationRegistry.get(importedModule.getUri()));
 	}
@@ -468,7 +467,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			if (targetExpressionType instanceof EolCollectionType) {
 				setResolvedType(itemSelectorExpression, ((EolCollectionType) targetExpressionType).getContentType());
 			} else {
-				errors.add(new ModuleMarker(itemSelectorExpression.getIndexExpression(),
+				markers.add(new ModuleMarker(itemSelectorExpression.getIndexExpression(),
 						"[...] only applies to collections", Severity.Error));
 			}
 		}
@@ -549,10 +548,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					modelDeclaration.getModel().getMetamodel(stringProperties, context.getRelativePathResolver()));
 			if (modelDeclaration.getMetamodel() != null) {
 				for (String error : modelDeclaration.getMetamodel().getErrors()) {
-					errors.add(new ModuleMarker(modelDeclaration, error, Severity.Error));
+					markers.add(new ModuleMarker(modelDeclaration, error, Severity.Error));
 				}
 				for (String warning : modelDeclaration.getMetamodel().getWarnings()) {
-					warnings.add(new ModuleMarker(modelDeclaration, warning, Severity.Warning));
+					markers.add(new ModuleMarker(modelDeclaration, warning, Severity.Warning));
 				}
 			}
 		}
@@ -583,13 +582,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				nameExpression.setTypeName(true);
 				if (modelElementType.getMetaClass() == null && !context.getModelDeclarations().isEmpty()) {
 
-					errors.add(new ModuleMarker(nameExpression, "Undefined variable or type " + nameExpression.getName(),
+					markers.add(new ModuleMarker(nameExpression, "Undefined variable or type " + nameExpression.getName(),
 							Severity.Error));
 				}
 
 			} else {
 
-				errors.add(new ModuleMarker(nameExpression, "Undefined variable or type " + nameExpression.getName(),
+				markers.add(new ModuleMarker(nameExpression, "Undefined variable or type " + nameExpression.getName(),
 						Severity.Error));
 			}
 		}
@@ -616,7 +615,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			EolModelElementType mType = (EolModelElementType) type;
 			IMetaClass metaClass = mType.getMetaClass();
 			if (metaClass != null && metaClass.isAbstract()) {
-				errors.add(new ModuleMarker(
+				markers.add(new ModuleMarker(
 					newInstanceExpression,
 					"Cannot instantiate an abstract type",
 					Severity.Error
@@ -652,7 +651,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		operation.getBody().accept(this);
 
 		if (getReturnFlag(operation) == false && returnTypeExpression != null)
-			errors.add(new ModuleMarker(returnTypeExpression,
+			markers.add(new ModuleMarker(returnTypeExpression,
 					"This operation should return " + returnTypeExpression.getName(), Severity.Error));
 		context.getFrameStack().leaveLocal(operation);
 
@@ -698,7 +697,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				setResolvedType(operationCallExpression, EolAnyType.Instance);
 				return;
 			}
-			errors.add(new ModuleMarker(nameExpression, "Undefined operation " + nameExpression.getName(), Severity.Error));
+			markers.add(new ModuleMarker(nameExpression, "Undefined operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
 
@@ -712,7 +711,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
-			errors.add(new ModuleMarker(nameExpression,
+			markers.add(new ModuleMarker(nameExpression,
 					nameExpression.getName() + " can not be invoked on " + getResolvedType(targetExpression),
 					Severity.Error));
 			return;
@@ -728,7 +727,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
-			errors.add(new ModuleMarker(nameExpression, "Parameter number mismatch", Severity.Error));
+			markers.add(new ModuleMarker(nameExpression, "Parameter number mismatch", Severity.Error));
 			return;
 		}
 
@@ -754,7 +753,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
-			errors.add(new ModuleMarker(nameExpression,
+			markers.add(new ModuleMarker(nameExpression,
 					"Parameters type mismatch for operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
@@ -794,7 +793,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		
 		List<EolType> missingTypes = checkMissingTypes(contextType, resolvedOperationContextTypes);
 		for(EolType t : missingTypes) {
-			warnings.add(new ModuleMarker(operationCallExpression,
+			markers.add(new ModuleMarker(operationCallExpression,
 			"Operation " + nameExpression.getName() + " is undefined for type " + t.getName(),
 			Severity.Warning));
 		}
@@ -809,7 +808,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 			missingTypes = checkMissingTypes(paramType, resolvedOperationParamTypes);
 			for(EolType t : missingTypes) {
-				warnings.add(new ModuleMarker(paramExpr,
+				markers.add(new ModuleMarker(paramExpr,
 				"Parameter " + (i+1) + " of operation " + nameExpression.getName() + " is undefined for type " + t.getName(),
 				Severity.Warning));
 			}
@@ -932,7 +931,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 			else {
 				setResolvedType(propertyCallExpression, EolAnyType.Instance);
-				errors.add(new ModuleMarker(nameExpression, "Property " + nameExpression.getName()
+				markers.add(new ModuleMarker(nameExpression, "Property " + nameExpression.getName()
 				+ " not found for type " + ((NameExpression)targetExpression).getName(), Severity.Error));
 			}
 		}
@@ -987,7 +986,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					}
 
 				} else {
-					errors.add(new ModuleMarker(nameExpression, "Property " + nameExpression.getName()
+					markers.add(new ModuleMarker(nameExpression, "Property " + nameExpression.getName()
 							+ " not found in type " + metaClass.getName(), Severity.Error));
 				}
 			}
@@ -1012,10 +1011,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 			if (!providedReturnType.isAssignableTo(requiredReturnType)) {
 				if (requiredReturnType.isAssignableTo(providedReturnType))
-					warnings.add(new ModuleMarker(returnedExpression, "Return type might be " + requiredReturnType
+					markers.add(new ModuleMarker(returnedExpression, "Return type might be " + requiredReturnType
 							+ " instead of " + getResolvedType(returnedExpression), Severity.Warning));
 				else
-					errors.add(new ModuleMarker(returnedExpression, "Return type should be " + requiredReturnType
+					markers.add(new ModuleMarker(returnedExpression, "Return type should be " + requiredReturnType
 							+ " instead of " + getResolvedType(returnedExpression), Severity.Error));
 
 			}
@@ -1061,7 +1060,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Expression condition = ternaryExpression.getFirstOperand();
 		condition.accept(this);
 		if (!getResolvedType(condition).equals(EolPrimitiveType.Boolean)) {
-			errors.add(new ModuleMarker(ternaryExpression, "The first operand of a ternary expression must be a boolean expression",
+			markers.add(new ModuleMarker(ternaryExpression, "The first operand of a ternary expression must be a boolean expression",
 					Severity.Error));
 		}
 		
@@ -1106,7 +1105,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 						.setContentType(getResolvedType(typeExpression.getParameterTypeExpressions().get(0)));
 				setResolvedType(typeExpression, type);
 			} else if (typeExpression.getParameterTypeExpressions().size() > 1) {
-				errors.add(new ModuleMarker(typeExpression, "Collection types can have at most one content type",
+				markers.add(new ModuleMarker(typeExpression, "Collection types can have at most one content type",
 						Severity.Error));
 			}
 		}
@@ -1116,7 +1115,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				((EolMapType) type).setKeyType(getResolvedType(typeExpression.getParameterTypeExpressions().get(0)));
 				((EolMapType) type).setValueType(getResolvedType(typeExpression.getParameterTypeExpressions().get(1)));
 			} else if (typeExpression.getParameterTypeExpressions().size() > 0) {
-				errors.add(new ModuleMarker(typeExpression, "Maps need two types: key-type and value-type",
+				markers.add(new ModuleMarker(typeExpression, "Maps need two types: key-type and value-type",
 						Severity.Error));
 			}
 		}
@@ -1145,11 +1144,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			if (modelElementType != null) {
 				type = modelElementType;
 				if (modelElementType.getMetaClass() == null && !context.getModelDeclarations().isEmpty()) {
-					errors.add(new ModuleMarker(typeExpression, "Unknown type " + typeExpression.getName(),
+					markers.add(new ModuleMarker(typeExpression, "Unknown type " + typeExpression.getName(),
 							Severity.Error));
 				}
 			} else {
-				errors.add(new ModuleMarker(typeExpression, "Undefined variable or type " + typeExpression.getName(),
+				markers.add(new ModuleMarker(typeExpression, "Undefined variable or type " + typeExpression.getName(),
 						Severity.Error));
 			}
 		}
@@ -1172,7 +1171,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		if (context.getFrameStack().getTopFrame().contains(variableDeclaration.getName())) {
-			errors.add(new ModuleMarker(variableDeclaration,
+			markers.add(new ModuleMarker(variableDeclaration,
 					"Variable " + variableDeclaration.getName() + " has already been defined", Severity.Error));
 		} else {
 			context.getFrameStack().put(new Variable(variableDeclaration.getName(), type));
@@ -1196,7 +1195,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		frameStack.leaveLocal(bodyStatementBlock);
 
 		if (hasResolvedType(conditionExpression) && getResolvedType(conditionExpression) != EolPrimitiveType.Boolean) {
-			errors.add(new ModuleMarker(conditionExpression, "Condition must be a Boolean", Severity.Error));
+			markers.add(new ModuleMarker(conditionExpression, "Condition must be a Boolean", Severity.Error));
 		}
 	}
 
@@ -1352,16 +1351,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	@Override
 	public List<ModuleMarker> validate(IModule imodule) {
 	
-		errors = new ArrayList<ModuleMarker>();
-		warnings = new ArrayList<ModuleMarker>();
-		List<ModuleMarker> markers = new ArrayList<ModuleMarker>();
+		markers = new ArrayList<ModuleMarker>();
 		this.module = (IEolModule) imodule;
 
 		preValidate(module);
 		mainValidate();
 		postValidate();
-		markers.addAll(errors);
-		markers.addAll(warnings);
 		return markers;
 	}
 
@@ -1371,13 +1366,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	public void createTypeCompatibilityWarning(Expression requiredExpression, Expression providedExpression) {
-		warnings.add(new ModuleMarker(providedExpression,
+		markers.add(new ModuleMarker(providedExpression,
 				getResolvedType(providedExpression) + " may not be assigned to " + getResolvedType(requiredExpression),
 				Severity.Warning));
 	}
 
 	public void createTypeCompatibilityError(Expression requiredExpression, Expression providedExpression) {
-		errors.add(new ModuleMarker(providedExpression,
+		markers.add(new ModuleMarker(providedExpression,
 				getResolvedType(providedExpression) + " cannot be assigned to " + getResolvedType(requiredExpression),
 				Severity.Error));
 	}
@@ -1396,7 +1391,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (StringUtil.isOneOf(operator, "and", "or", "xor", "not", "implies")) {
 			for (Expression operand : operatorExpression.getOperands()) {
 				if (hasResolvedType(operand) && getResolvedType(operand) != EolPrimitiveType.Boolean) {
-					errors.add(new ModuleMarker(operatorExpression,
+					markers.add(new ModuleMarker(operatorExpression,
 							"Boolean expected instead of " + getResolvedType(operand), Severity.Error));
 				}
 			}
@@ -1408,7 +1403,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				if (hasResolvedType(operand) && getResolvedType(operand) != EolPrimitiveType.Integer
 						&& getResolvedType(operand) != EolPrimitiveType.Real) {
 					setResolvedType(operatorExpression, EolAnyType.Instance);
-					errors.add(new ModuleMarker(operatorExpression,
+					markers.add(new ModuleMarker(operatorExpression,
 							"Number expected instead of " + getResolvedType(operand), Severity.Error));
 				} else if (StringUtil.isOneOf(operator, "*", "/", "-")) {
 					if (getResolvedType(operand) == EolPrimitiveType.Real)
@@ -1530,7 +1525,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 			modelName = result.nameOfSelectedModel;
 			if (result.isAmbiguous) {
-				warnings.add(new ModuleMarker(element,
+				markers.add(new ModuleMarker(element,
 						"Ambiguous type, consider using a concrete model name istead of an alias", Severity.Warning));
 			}
 

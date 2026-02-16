@@ -43,7 +43,7 @@ public class EglStaticAnalyser extends EolStaticAnalyser {
 		super.mainValidate();
 		super.postValidate();
 
-		return errors;
+		return markers;
 	}
 	
 	public static void main(String[] args) throws Exception {

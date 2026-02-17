@@ -3,6 +3,7 @@ package org.eclipse.epsilon.eol.staticanalyser.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
@@ -19,25 +20,49 @@ import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.eclipse.epsilon.evl.EvlModule;
+import org.eclipse.epsilon.evl.staticanalyser.EvlStaticAnalyser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public abstract class AbstractEOLTest extends AbstractBaseTest {
+public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 
 	private EOLTestMarkerStringParser testMarkerParser = new EOLTestMarkerStringParser();
 	protected EolModule module;
 	protected EolStaticAnalyser staticAnalyser;
 	protected List<ModuleMarker> staticAnalyserMarkers = null;
 
-	public AbstractEOLTest(String testTag, File epsilonTestFile, boolean enableconsoleoutput) {
+	public AbstractStaticAnalysisTest(String testTag, File epsilonTestFile, boolean enableconsoleoutput) {
 		super(testTag, epsilonTestFile, enableconsoleoutput);
 	}
 
 	@Before
-	public void setUp() throws Exception {
-		module = new EolModule();
-		staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+	public void setUp() throws Exception {	
+		
+		// Extract the file extension to determine the type of Epsilon program language
+		int dotIndex = programFile.toString().lastIndexOf(".");
+		if (dotIndex < 0) {
+			fail("Bad program file extension: " + programFile.toString());
+		}
+		String fileExt = programFile.toString().substring(dotIndex + 1);
+		
+		// Create module resources for specific Epsilon language being tested
+		switch (fileExt) {
+		case "eol":
+			module = new EolModule();
+			staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+			break;
+		case "evl":
+			module = new EvlModule();
+			staticAnalyser = new EvlStaticAnalyser(new StaticModelFactory());
+			break;
+		default:
+			fail("Unknown file extension, can't find suitable module");
+			break;
+		}
+		
+		// Run the module parser and static analysis validation 
 		module.parse(programFile);
 		staticAnalyserMarkers = staticAnalyser.validate(module);
 	}

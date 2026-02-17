@@ -11,3 +11,4 @@ p.eClassifiers.add(p); // Should raise an error as an EPackage cannot be added t
 p.eClassifiers.first().ePackage = c; // Should raise an error due to type incompatibility
 
 //![9:15-9:21] Parameter Type EPackage cannot be assigned to expected parameter type EClassifier
+//![11:34-11:35] EClassifier cannot be assigned to EPackage

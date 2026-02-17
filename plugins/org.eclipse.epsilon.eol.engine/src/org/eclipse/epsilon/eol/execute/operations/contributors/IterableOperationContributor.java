@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.eclipse.epsilon.common.util.CollectionUtil;
+import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.types.*;
 import org.eclipse.epsilon.eol.types.concurrent.*;
 
@@ -376,6 +377,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return result;
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object first() {
 		return nth(0);
 	}

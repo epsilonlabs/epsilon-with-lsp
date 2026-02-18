@@ -1,11 +1,11 @@
 /*Integer*/1.abs();
 /*Integer*/1.ceiling();
 /*Integer*/1.floor();
-/*Real*/1.log();
-/*Real*/1.log10();
+/*Integer*/1.log();
+/*Integer*/1.log10();
 /*Native<java.lang.Number>*/1.max(2);
 /*Native<java.lang.Number>*/1.min(2);
-/*Native<java.lang.Number>*/1.pow(2);
+/*Integer*/1.pow(2);
 /*Integer*/1.round();
 
 /*Sequence<Integer>*/1.iota(10, 1);

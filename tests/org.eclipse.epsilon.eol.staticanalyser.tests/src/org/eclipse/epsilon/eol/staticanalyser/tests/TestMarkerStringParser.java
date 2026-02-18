@@ -14,7 +14,7 @@ import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.common.parse.Region;
 
-public class EOLTestMarkerStringParser {
+public class TestMarkerStringParser {
 
 	private int lineCounter = 0;
 

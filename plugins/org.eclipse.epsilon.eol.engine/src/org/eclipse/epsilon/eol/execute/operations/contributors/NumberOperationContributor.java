@@ -11,6 +11,7 @@ package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.util.stream.LongStream;
 
+import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.types.NumberUtil;
@@ -87,6 +88,7 @@ public class NumberOperationContributor extends OperationContributor {
 		return Math.log10(asDouble());
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number abs() {
 		Object target = getTarget();
 		if (target instanceof Integer) return Math.abs((Integer) target);

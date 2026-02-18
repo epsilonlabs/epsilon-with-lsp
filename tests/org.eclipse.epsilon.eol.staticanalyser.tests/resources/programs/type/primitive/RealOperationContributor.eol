@@ -1,4 +1,4 @@
-/*Native<java.lang.Number>*/1.1.abs();
+/*Real*/1.1.abs();
 /*Integer*/1.1.ceiling();
 /*Integer*/1.1.floor();
 /*Real*/1.1.log();

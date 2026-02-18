@@ -1,6 +1,6 @@
 model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};
 /*Integer*/1+1;
-/*Native<java.lang.Number>*/1.abs()+1.abs();
+/*Integer*/1.abs()+1.abs();
 /*Real*/1.1+1.1;
 /*String*/'s'+'s';
 
@@ -14,8 +14,8 @@ model M driver EMF {nsuri='http://www.eclipse.org/emf/2002/Ecore'};
 /*String*/Sequence{1,2,3}+'s';
 
 
-/*Native<java.lang.Number>*/1.abs()+1.1;
-/*Native<java.lang.Number>*/1.abs()+1;
+/*Real*/1.abs()+1.1;
+/*Integer*/1.abs()+1;
 
 /*Real*/1.1+1;
 

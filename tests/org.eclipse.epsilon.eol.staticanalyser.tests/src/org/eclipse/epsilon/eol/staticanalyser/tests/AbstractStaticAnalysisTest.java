@@ -28,7 +28,7 @@ import org.junit.Test;
 
 public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 
-	private EOLTestMarkerStringParser testMarkerParser = new EOLTestMarkerStringParser();
+	private TestMarkerStringParser testMarkerParser = new TestMarkerStringParser();
 	protected EolModule module;
 	protected EolStaticAnalyser staticAnalyser;
 	protected List<ModuleMarker> staticAnalyserMarkers = null;

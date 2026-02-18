@@ -19,16 +19,19 @@ import org.eclipse.epsilon.eol.types.NumberUtil;
 public class NumberOperationContributor extends OperationContributor {
 
 	@Override
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public boolean contributesTo(Object target) {
 		return target instanceof Number;
 	}
 	
 	@Override
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public EolType contributesToType() {
 		return new EolNativeType(Number.class);
 	}
 	
 	@Override
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	protected Number getTarget() {
 		return (Number) super.getTarget();
 	}
@@ -38,26 +41,32 @@ public class NumberOperationContributor extends OperationContributor {
 	 * @return Factorial of self.
 	 * @since 1.6
 	 */
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public long factorial() {
 		long n = getTarget().longValue();
         if (n > 20 || n < 0) throw new IllegalArgumentException(n + " is out of range");
         return LongStream.rangeClosed(2, n).reduce(1, (a, b) -> a * b);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number min(Number other) {
 		Number self = getTarget();
 		return NumberUtil.lessThan(self, other) ? self : other;
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number max(Number other) {
 		Number self = getTarget();
 		return NumberUtil.greaterThan(self, other) ? self : other;
 	}
-	
+
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public int floor() {
 		return (int) Math.floor(asDouble());
 	}
 	
+
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number pow(Number n) {
 		Double pow = Math.pow(asDouble(), n.doubleValue());
 		if (getTarget() instanceof Integer && n instanceof Integer && NumberUtil.greaterThan(n, 0)) {
@@ -67,23 +76,28 @@ public class NumberOperationContributor extends OperationContributor {
 			return pow;
 		}
 	}
-	
+
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public int ceiling() {
 		return (int) Math.ceil(asDouble());
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public int round() {
 		return Math.round(asFloat());
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public double ln() {
 		return log();
 	}
-	
+		
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public double log() {
 		return Math.log(asDouble());
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public double log10() {
 		return Math.log10(asDouble());
 	}
@@ -98,22 +112,27 @@ public class NumberOperationContributor extends OperationContributor {
 		return null;
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public double asReal() {
 		return asFloat();
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public double asDouble() {
 		return getTarget().doubleValue();
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public float asFloat() {
 		return getTarget().floatValue();
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public int asInteger() {
 		return getTarget().intValue();
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public long asLong() {
 		return getTarget().longValue();
 	}

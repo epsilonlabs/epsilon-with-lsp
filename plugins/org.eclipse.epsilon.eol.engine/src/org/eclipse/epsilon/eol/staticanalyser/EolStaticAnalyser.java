@@ -1017,11 +1017,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 			if (!providedReturnType.isAssignableTo(requiredReturnType)) {
 				if (requiredReturnType.isAssignableTo(providedReturnType))
-					markers.add(new ModuleMarker(returnedExpression, "Return type might be " + requiredReturnType
-							+ " instead of " + getResolvedType(returnedExpression), Severity.Warning));
+					markers.add(new ModuleMarker(returnedExpression, "Return type might be " + providedReturnType
+							+ " instead of " + requiredReturnType, Severity.Warning));
 				else
 					markers.add(new ModuleMarker(returnedExpression, "Return type should be " + requiredReturnType
-							+ " instead of " + getResolvedType(returnedExpression), Severity.Error));
+							+ " instead of " + providedReturnType, Severity.Error));
 
 			}
 		}

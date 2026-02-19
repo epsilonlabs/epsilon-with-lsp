@@ -33,6 +33,7 @@ public class AnyOperationContributor extends OperationContributor {
 		return !(target instanceof EolNoTypeInstance);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Object type() {
 		Object target = getTarget();
 		

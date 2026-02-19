@@ -313,7 +313,8 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 			// Multiline comments (/* */") are used to capture the expected type of
 			// expressions
 			if (!element.getComments().isEmpty() && element.getComments().get(0).isMultiline()) {
-				assertEquals(element.getComments().get(0).toString(), getResolvedType(element).toString());
+				assertEquals("Starting line " + element.getRegion().getStart().getLine(),
+						element.getComments().get(0).toString(), getResolvedType(element).toString());
 			}
 			visit(element.getChildren());
 		}

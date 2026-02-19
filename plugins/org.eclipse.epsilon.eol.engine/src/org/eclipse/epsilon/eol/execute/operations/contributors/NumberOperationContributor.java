@@ -39,7 +39,7 @@ public class NumberOperationContributor extends OperationContributor {
 	 * @return Factorial of self.
 	 * @since 1.6
 	 */
-	//@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public long factorial() {
 		long n = getTarget().longValue();
         if (n > 20 || n < 0) throw new IllegalArgumentException(n + " is out of range");

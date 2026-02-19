@@ -8,6 +8,7 @@
 /*Integer*/1.pow(2);
 /*Integer*/1.round();
 /*Integer*/1.ln();
+/*Integer*/1.factorial();
 
 /*Sequence<Integer>*/1.iota(10, 1);
 /*Integer*/1.mod(2);

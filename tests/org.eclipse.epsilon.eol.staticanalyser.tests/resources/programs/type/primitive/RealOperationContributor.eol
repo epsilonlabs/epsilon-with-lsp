@@ -8,3 +8,4 @@
 /*Real*/1.1.pow(2.2);
 /*Real*/1.1.round();
 /*Real*/1.1.ln();
+/*Real*/1.1.factorial();

@@ -1,0 +1,5 @@
+/*Boolean*/true.or(true);
+/*Boolean*/true.and(true);
+/*Boolean*/true.not(true);
+/*Boolean*/true.xor(true);
+/*String*/true.asString();

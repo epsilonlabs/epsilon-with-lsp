@@ -174,7 +174,7 @@ operation String isJavaPackageName() : Boolean {
 }
 
 operation getMainEPackage() : EPackage {
-  return Model.resource.contents.first;
+  return Model.resource.contents.first();
 }
 
 // Returns all the classes that will provide services.

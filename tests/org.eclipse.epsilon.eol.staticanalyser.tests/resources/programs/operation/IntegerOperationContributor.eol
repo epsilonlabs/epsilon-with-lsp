@@ -3,8 +3,8 @@
 /*Integer*/1.floor();
 /*Integer*/1.log();
 /*Integer*/1.log10();
-/*Native<java.lang.Number>*/1.max(2);
-/*Native<java.lang.Number>*/1.min(2);
+/*Integer*/1.max(2);
+/*Integer*/1.min(2);
 /*Integer*/1.pow(2);
 /*Integer*/1.round();
 /*Integer*/1.ln();

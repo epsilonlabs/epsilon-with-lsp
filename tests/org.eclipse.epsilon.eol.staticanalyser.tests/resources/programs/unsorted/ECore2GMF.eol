@@ -562,5 +562,5 @@ operation createRefLinkIcon() {
 //! [484:10-484:25] Property referencedChild not found in type NodeReference
 //! [484:51-484:66] Property referencedChild not found in type NodeReference
 //! [485:18-485:28] Property ownedChild not found in type NodeReference
-//? [444:70-444:95] Operation getDomainMetaElement is undefined for type Native
-//? [448:84-448:109] Operation getDomainMetaElement is undefined for type Native
+//? [444:70-444:95] Operation getDomainMetaElement is undefined for type Native<java.lang.Object>
+//? [448:84-448:109] Operation getDomainMetaElement is undefined for type Native<java.lang.Object>

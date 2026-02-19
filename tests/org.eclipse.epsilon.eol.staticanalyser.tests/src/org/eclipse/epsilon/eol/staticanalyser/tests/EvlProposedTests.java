@@ -10,11 +10,11 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class EolProposedTests extends AbstractStaticAnalysisTest {
+public class EvlProposedTests extends AbstractStaticAnalysisTest {
 
 	private static final String RESOURCES = PROJECT_BASE_FOLDER + "resources/proposed";
-	private static final String PROGRAMSET = "programs"; // sub-folder in resources
-	private static final String PROGRAMFILEEXTENSION = ".eol";
+	private static final String PROGRAMSET = "evlPrograms"; // sub-folder in resources
+	private static final String PROGRAMFILEEXTENSION = ".evl";
 	private static final String MODELSET = "models"; // sub-folder in resources
 	private static final String MODELFILEEXTENSION = ".ecore";
 	private static final boolean ENABLECONSOLEOUTPUT = true;
@@ -29,7 +29,7 @@ public class EolProposedTests extends AbstractStaticAnalysisTest {
 		return getEpsilonProgramCollection(RESOURCES, PROGRAMSET, PROGRAMFILEEXTENSION);
 	}
 
-	public EolProposedTests(String testTag, File epsilonTestFile) {
+	public EvlProposedTests(String testTag, File epsilonTestFile) {
 		super(testTag, epsilonTestFile, ENABLECONSOLEOUTPUT);
 	}
 

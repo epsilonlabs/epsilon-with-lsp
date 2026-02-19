@@ -10,7 +10,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class EolBuildTests extends AbstractEOLTest {
+public class EolBuildTests extends AbstractStaticAnalysisTest {
 	
 	private static final String RESOURCES = PROJECT_BASE_FOLDER + "resources";
 	private static final String PROGRAMSET = "programs"; // sub-folder in resources

@@ -682,6 +682,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else
 			operationCallExpression.setContextless(true);
 		
+		// If the context type is Any, we accept all operation call expressions as correct.
+		if (contextType.equals(EolAnyType.Instance)) {
+			setResolvedType(operationCallExpression, EolAnyType.Instance);
+			return;
+		}
+		
 		for (Expression parameterExpression : parameterExpressions) {
 			parameterExpression.accept(this);
 		}
@@ -695,10 +701,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
-			if (contextType.equals(EolAnyType.Instance)) {
-				setResolvedType(operationCallExpression, EolAnyType.Instance);
-				return;
-			}
 			markers.add(new ModuleMarker(nameExpression, "Undefined operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
@@ -765,6 +767,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		temp = new ArrayList<IStaticOperation>();
 		for(IStaticOperation op : resolvedOperations) {
 			EolType opContextType = op.getContextType();
+			
+			if(opContextType.equals(EolAnyType.Instance)) {
+				if(mostSpecificContextType.equals(EolAnyType.Instance)) {
+					temp.add(op);
+				}
+				continue;
+			}
+
 			if(mostSpecificContextType.equals(opContextType) || mostSpecificContextType.isSiblingOf(opContextType)) {
 				temp.add(op);
 			}
@@ -800,7 +810,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		List<EolType> missingTypes = checkMissingTypes(contextType, resolvedOperationContextTypes);
 		for(EolType t : missingTypes) {
 			markers.add(new ModuleMarker(operationCallExpression,
-			"Operation " + nameExpression.getName() + " is undefined for type " + t.getName(),
+			"Operation " + nameExpression.getName() + " is undefined for type " + t,
 			Severity.Warning));
 		}
 		

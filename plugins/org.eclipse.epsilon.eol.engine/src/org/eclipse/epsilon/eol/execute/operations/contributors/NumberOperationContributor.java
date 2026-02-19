@@ -29,6 +29,7 @@ public class NumberOperationContributor extends OperationContributor {
 	}
 	
 	@Override
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	protected Number getTarget() {
 		return (Number) super.getTarget();
 	}
@@ -44,20 +45,24 @@ public class NumberOperationContributor extends OperationContributor {
         return LongStream.rangeClosed(2, n).reduce(1, (a, b) -> a * b);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number min(Number other) {
 		Number self = getTarget();
 		return NumberUtil.lessThan(self, other) ? self : other;
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number max(Number other) {
 		Number self = getTarget();
 		return NumberUtil.greaterThan(self, other) ? self : other;
 	}
-	
+
 	public int floor() {
 		return (int) Math.floor(asDouble());
 	}
 	
+
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number pow(Number n) {
 		Double pow = Math.pow(asDouble(), n.doubleValue());
 		if (getTarget() instanceof Integer && n instanceof Integer && NumberUtil.greaterThan(n, 0)) {
@@ -67,7 +72,7 @@ public class NumberOperationContributor extends OperationContributor {
 			return pow;
 		}
 	}
-	
+
 	public int ceiling() {
 		return (int) Math.ceil(asDouble());
 	}
@@ -79,7 +84,7 @@ public class NumberOperationContributor extends OperationContributor {
 	public double ln() {
 		return log();
 	}
-	
+		
 	public double log() {
 		return Math.log(asDouble());
 	}

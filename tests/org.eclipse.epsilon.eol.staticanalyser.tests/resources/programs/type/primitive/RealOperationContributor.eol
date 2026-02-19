@@ -1,11 +1,13 @@
 /*Real*/1.1.abs();
-/*Real*/11.1.ceiling();
-/*Real*/11.1.floor();
+/*Integer*/11.1.ceiling();
+/*Integer*/11.1.floor();
 /*Real*/1.1.log();
 /*Real*/1.1.log10();
 /*Real*/11.1.max(2.2);
+/*Integer*/11.1.max(22);
 /*Real*/1.1.min(2.2);
+/*Integer*/1.1.min(1);
 /*Real*/1.1.pow(2.2);
-/*Real*/1.1.round();
+/*Integer*/1.1.round();
 /*Real*/1.1.ln();
-/*Real*/1.1.factorial();
+/*Integer*/1.5.factorial();

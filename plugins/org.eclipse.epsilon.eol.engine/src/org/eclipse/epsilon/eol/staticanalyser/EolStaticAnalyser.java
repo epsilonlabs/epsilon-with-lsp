@@ -1317,7 +1317,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	public EolType javaClassToEolType(Class<?> javaClass) {
 		if (javaClass == String.class || javaClass == char.class) {
 			return EolPrimitiveType.String;
-		} else if (javaClass == Integer.class || javaClass == int.class) {
+		} else if (javaClass == Integer.class || javaClass == int.class || javaClass == Long.class
+				|| javaClass == long.class) {
 			return EolPrimitiveType.Integer;
 		} else if (javaClass == Double.class || javaClass == double.class || javaClass == Float.class
 				|| javaClass == float.class) {

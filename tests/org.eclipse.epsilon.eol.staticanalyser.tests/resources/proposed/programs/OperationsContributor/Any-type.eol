@@ -1,0 +1,45 @@
+var aString : String = "letters";
+aString.type().println("String ");
+/*String*/ aString.type();
+
+var aBoolean : Boolean = true;
+aBoolean.type().println("String ");
+/*Boolean*/ aBoolean.type();
+
+var aReal : Real = 1.0;
+aReal.type().println("Real ");
+/*Real*/ aReal.type();
+
+var aInt : Integer = 1;
+aInt.type().println("Int ");
+/*Integer*/ aInt.type();
+
+// TODO Collection type() returns ANY
+
+var aBag = Bag {1,2,3};
+aBag.type().println("Bag ");
+/*Bag<Any>*/ aBag.type();
+
+var aSequence = Sequence {1,2,3};
+aSequence.type().println("Sequence ");
+/*Sequence<Any>*/ aSequence.type();
+
+var aSet = Set {1,2,3};
+aSet.type().println("Set ");
+/*Set<Any>*/ aSet.type();
+
+var aOrderedSet = OrderedSet {1,2,3};
+aOrderedSet.type().println("OrderedSet ");
+/*OrderedSet<Any>*/ aOrderedSet.type();
+
+var aConcurrentBag = ConcurrentBag {1,2,3};
+aConcurrentBag.type().println("ConcurrentBag ");
+/*ConcurrentBag<Any>*/ aConcurrentBag.type();
+
+var aConcurrentSet = ConcurrentSet {1,2,3};
+aConcurrentSet.type().println("ConcurrentSet ");
+/*ConcurrentSet<Any>*/ aConcurrentSet.type();
+
+// TODO Map test is missing
+
+// TODO ConcurrentMap test is missing

@@ -7,6 +7,7 @@
 /*Native<java.lang.Number>*/1.min(2);
 /*Integer*/1.pow(2);
 /*Integer*/1.round();
+/*Integer*/1.ln();
 
 /*Sequence<Integer>*/1.iota(10, 1);
 /*Integer*/1.mod(2);

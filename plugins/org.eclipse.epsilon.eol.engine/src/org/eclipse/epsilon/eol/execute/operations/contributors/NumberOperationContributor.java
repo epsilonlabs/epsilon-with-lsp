@@ -19,13 +19,11 @@ import org.eclipse.epsilon.eol.types.NumberUtil;
 public class NumberOperationContributor extends OperationContributor {
 
 	@Override
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public boolean contributesTo(Object target) {
 		return target instanceof Number;
 	}
 	
 	@Override
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public EolType contributesToType() {
 		return new EolNativeType(Number.class);
 	}
@@ -41,20 +39,20 @@ public class NumberOperationContributor extends OperationContributor {
 	 * @return Factorial of self.
 	 * @since 1.6
 	 */
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
+	//@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public long factorial() {
 		long n = getTarget().longValue();
         if (n > 20 || n < 0) throw new IllegalArgumentException(n + " is out of range");
         return LongStream.rangeClosed(2, n).reduce(1, (a, b) -> a * b);
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
+	//@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number min(Number other) {
 		Number self = getTarget();
 		return NumberUtil.lessThan(self, other) ? self : other;
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
+	//@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Number max(Number other) {
 		Number self = getTarget();
 		return NumberUtil.greaterThan(self, other) ? self : other;
@@ -112,27 +110,22 @@ public class NumberOperationContributor extends OperationContributor {
 		return null;
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public double asReal() {
 		return asFloat();
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public double asDouble() {
 		return getTarget().doubleValue();
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public float asFloat() {
 		return getTarget().floatValue();
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public int asInteger() {
 		return getTarget().intValue();
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public long asLong() {
 		return getTarget().longValue();
 	}

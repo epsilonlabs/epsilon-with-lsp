@@ -58,3 +58,26 @@ aBoolean.asVar("var").type().println("/*","*/ aBoolean.asVar(\"var\");");
 /*Boolean*/ aBoolean.asBoolean();
 /*Boolean*/ aBoolean.asVar("var");
 
+
+// STATIC ANALYSIS REPORTS
+
+// /*Boolean*/ aBoolean.instanceOf(Boolean);
+// /*Boolean*/ aBoolean.isTypeOf(Boolean);
+// /*Boolean*/ aBoolean.isKindOf(Boolean);
+// /*Any*/ aBoolean.getNativeType();
+// /*Any*/ aBoolean.nativeType();
+// /*Native<org.eclipse.epsilon.eol.models.IModel>*/ aBoolean.getOwningModel();
+// /*Native<org.eclipse.epsilon.eol.models.IModel>*/ aBoolean.getOwningModel();
+// /*Boolean*/ aBoolean.hasProperty("toString");
+// /*String*/ aBoolean.asString();
+// /*Boolean*/ aBoolean.isDefined();
+// /*Boolean*/ aBoolean.isUndefined();
+// /*Native<java.lang.Object>*/ aBoolean.err();
+// /*Native<java.lang.Object>*/ aBoolean.err("prefix");
+// /*Native<java.lang.Object>*/ aBoolean.err("prefix", "suffix");
+// /*String*/ aBoolean.format("formatted");
+// /*Boolean*/ aBoolean.isInteger();
+// /*Boolean*/ aBoolean.isReal();
+// /*Boolean*/ aBoolean.asBoolean();
+// /*Native<java.lang.Object>*/ aBoolean.asVar("var");
+

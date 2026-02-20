@@ -60,3 +60,31 @@ aReal.asVar("var").type().println("/*","*/ aReal.asVar(\"var\");");
 /*Integer*/ aReal.asLong();
 /*Boolean*/ aReal.asBoolean();
 /*Real*/ aReal.asVar("var");
+
+
+// STATIC ANALYSIS REPORTS
+
+// /*Boolean*/ aReal.instanceOf(Real);
+// /*Boolean*/ aReal.isTypeOf(Real);
+// /*Boolean*/ aReal.isKindOf(Real);
+// /*Any*/ aReal.getNativeType();
+// /*Any*/ aReal.nativeType();
+// /*Native<org.eclipse.epsilon.eol.models.IModel>*/ aReal.getOwningModel();
+// /*Native<org.eclipse.epsilon.eol.models.IModel>*/ aReal.getOwningModel();
+// /*Boolean*/ aReal.hasProperty("toString");
+// /*String*/ aReal.asString();
+// /*Boolean*/ aReal.isDefined();
+// /*Boolean*/ aReal.isUndefined();
+// /*Native<java.lang.Object>*/ aReal.err();
+// /*Native<java.lang.Object>*/ aReal.err("prefix");
+// /*Native<java.lang.Object>*/ aReal.err("prefix", "suffix");
+// /*String*/ aReal.format("formatted");
+// /*Integer*/ aReal.asInteger();
+// /*Boolean*/ aReal.isInteger();
+// /*Boolean*/ aReal.isReal();
+// /*Real*/ aReal.asReal();
+// /*Real*/ aReal.asDouble();
+// /*Real*/ aReal.asFloat();
+// /*Integer*/ aReal.asLong();
+// /*Boolean*/ aReal.asBoolean();
+// /*Native<java.lang.Object>*/ aReal.asVar("var");

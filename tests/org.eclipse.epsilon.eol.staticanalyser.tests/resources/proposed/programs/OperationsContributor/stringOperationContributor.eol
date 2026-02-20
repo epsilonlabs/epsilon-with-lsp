@@ -1,0 +1,26 @@
+'foo'.escapeXml().type().println("'foo'.escapeXml() ");
+/*String*/'foo'.escapeXml();
+
+'foo'.firstToUpperCase().type().println("'foo'.firstToUpperCase() ");
+/*String*/'foo'.firstToUpperCase();
+
+'foo'.characterAt(0).type().println("'foo'.characterAt(0) ");
+/*String*/'foo'.characterAt(0);
+
+'foo'.firstToLowerCase().type().println("'foo'.firstToLowerCase() ");
+/*String*/'foo'.firstToLowerCase();
+
+'foo'.ftuc().type().println("'foo'.ftuc() ");
+/*String*/'foo'.ftuc();
+
+'foo'.ftlc().type().println("'foo'.ftlc() ");
+/*String*/'foo'.ftlc();
+
+'foo'.isSubstringOf('bar').type().println("'foo'.isSubstringOf('bar') ");
+/*Boolean*/'foo'.isSubstringOf('bar');
+
+'foo'.toCharSequence().type().println("'foo'.toCharSequence() ");
+/*Sequence<String>*/'foo'.toCharSequence();
+
+'foo'.pad(5,'a',true).type().println("'foo'.pad(5,'a',true) ");
+/*String*/'foo'.pad(5,'a',true);

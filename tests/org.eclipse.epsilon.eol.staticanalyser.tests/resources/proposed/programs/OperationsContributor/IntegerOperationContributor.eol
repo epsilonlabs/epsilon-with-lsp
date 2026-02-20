@@ -1,0 +1,55 @@
+1.abs().type().println("1.abs() ");
+/*Integer*/1.abs();
+
+1.ceiling().type().println("1.ceiling() ");
+/*Integer*/1.ceiling();
+
+1.floor().type().println("1.floor() ");
+/*Integer*/1.floor();
+
+2.log().type().println("2.log() ");
+/*Real*/2.log();
+
+2.log10().type().println("2.log10() ");
+/*Real*/2.log10();
+
+1.max(2).type().println("1.max(2) ");
+/*Integer*/1.max(2);
+
+1.max(2.2).type().println("1.max(2.2) ");
+/*Real*/1.max(2.2);
+
+1.min(2).type().println("1.min(2) ");
+/*Integer*/1.min(2);
+
+1.min(0.5).type().println("1.min(0.5) ");
+/*Real*/1.min(0.5);
+
+1.pow(2).type().println("1.pow(2) ");
+/*Integer*/1.pow(2);
+
+1.round().type().println("1.round() ");
+/*Integer*/1.round();
+
+1.ln().type().println("1.ln() ");
+/*Real*/1.ln();
+
+1.factorial().type().println("1.factorial() ");
+/*Integer*/1.factorial();
+
+
+
+1.iota(10, 1).type().println("1.iota(10, 1) ");
+/*Sequence<Integer>*/1.iota(10, 1);
+
+1.mod(2).type().println("1.mod(2) ");
+/*Integer*/1.mod(2);
+
+1.to(10).type().println("1.to(10) ");
+/*Sequence<Integer>*/1.to(10);
+
+1.toBinary().type().println("1.toBinary() ");
+/*String*/1.toBinary();
+
+1.toHex().type().println("1.toHex() ");
+/*String*/1.toHex();

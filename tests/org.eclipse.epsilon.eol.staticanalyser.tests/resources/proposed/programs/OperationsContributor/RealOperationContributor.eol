@@ -1,0 +1,38 @@
+1.1.abs().type().println("1.1.abs() ");
+/*Real*/1.1.abs();
+
+11.1.ceiling().type().println("11.1.ceiling() ");
+/*Integer*/11.1.ceiling();
+
+11.1.floor().type().println("11.1.floor() ");
+/*Integer*/11.1.floor();
+
+1.1.log().type().println("1.1.log() ");
+/*Real*/1.1.log();
+
+1.1.log10().type().println("1.1.log10() ");
+/*Real*/1.1.log10();
+
+11.1.max(2.2).type().println("11.1.max(2.2) ");
+/*Real*/11.1.max(2.2);
+
+11.1.max(22).type().println("11.1.max(22) ");
+/*Integer*/11.1.max(22);
+
+1.1.min(2).type().println("1.1.min(2).type() ");
+/*Real*/1.1.min(2.2);
+
+1.1.min(1).type().println("1.1.min(1) ");
+/*Integer*/1.1.min(1);
+
+1.1.pow(2.2).type().println("1.1.pow(2.2) ");
+/*Real*/1.1.pow(2.2);
+
+1.1.round().type().println("1.1.round() ");
+/*Integer*/1.1.round();
+
+1.1.ln().type().println("1.1.ln() ");
+/*Real*/1.1.ln();
+
+1.5.factorial().type().println("1.5.factorial() ");
+/*Integer*/1.5.factorial();

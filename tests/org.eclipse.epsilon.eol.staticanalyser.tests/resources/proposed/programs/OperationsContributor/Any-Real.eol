@@ -1,0 +1,62 @@
+var aReal : Real = 1.1;
+aReal.instanceOf(Real).type().println("/*","*/ aReal.instanceOf(Real);");
+aReal.isTypeOf(Real).type().println("/*","*/ aReal.isTypeOf(Real);");
+aReal.isKindOf(Real).type().println("/*","*/ aReal.isKindOf(Real);");
+aReal.getNativeType().type().println("/*","*/ aReal.getNativeType();");
+aReal.nativeType().type().println("/*","*/ aReal.nativeType();");
+aReal.getOwningModel().type().println("/*","*/ aReal.getOwningModel();");
+aReal.owningModel().type().println("/*","*/ aReal.getOwningModel();");
+aReal.hasProperty("toString").type().println("/*","*/ aReal.hasProperty(\"toString\");");
+aReal.asString().type().println("/*","*/ aReal.asString();");
+aReal.isDefined().type().println("/*","*/ aReal.isDefined();");
+aReal.isUndefined().type().println("/*","*/ aReal.isUndefined();");
+//aReal.ifUndefined().type().println("/*","*/ aReal.ifUndefined();");
+//aReal.println().type().println("/*","*/ aReal.println();");
+//aReal.println(Object prefix).type().println("/*","*/ aReal.println(Object prefix);");
+//aReal.println(Object prefix, Object suffix).type().println("/*","*/ aReal.println(Object prefix, Object suffix);");
+//aReal.print().type().println("/*","*/ aReal.print();");
+//aReal.print(Object prefix).type().println("/*","*/ aReal.print(Object prefix);");
+//aReal.print(Object prefix, Object suffix).type().println("/*","*/ aReal.print(Object prefix, Object suffix);");
+aReal.err().type().println("/*","*/ aReal.err();");
+aReal.err("prefix").type().println("/*","*/ aReal.err(\"prefix\");");
+aReal.err("prefix", "suffix").type().println("/*","*/ aReal.err(\"prefix\", \"suffix\");");
+aReal.format("formatted").type().println("/*","*/ aReal.format(\"formatted\");");
+aReal.asInteger().type().println("/*","*/ aReal.asInteger();");
+aReal.isInteger().type().println("/*","*/ aReal.isInteger();");
+aReal.isReal().type().println("/*","*/ aReal.isReal();");
+aReal.asReal().type().println("/*","*/ aReal.asReal();");
+aReal.asDouble().type().println("/*","*/ aReal.asDouble();");
+aReal.asFloat().type().println("/*","*/ aReal.asFloat();");
+aReal.asLong().type().println("/*","*/ aReal.asLong();");
+aReal.asBoolean().type().println("/*","*/ aReal.asBoolean();");
+//aReal.asUnicode().type().println("/*","*/ aReal.asUnicode();"); // ERROR: For input string: "1.1" under radix 16
+//aReal.asDate("dd-mm-yy").type().println("/*","*/ aReal.asDate(\"dd-mm-yy\");"); // ERROR: Unparseable date: "1.1"
+aReal.asVar("var").type().println("/*","*/ aReal.asVar(\"var\");");
+
+
+// TEST TYPE RETURNS
+
+/*Boolean*/ aReal.instanceOf(Real);
+/*Boolean*/ aReal.isTypeOf(Real);
+/*Boolean*/ aReal.isKindOf(Real);
+/**/ aReal.getNativeType();
+/**/ aReal.nativeType();
+/**/ aReal.getOwningModel();
+/**/ aReal.getOwningModel();
+/*Boolean*/ aReal.hasProperty("toString");
+/*String*/ aReal.asString();
+/*Boolean*/ aReal.isDefined();
+/*Boolean*/ aReal.isUndefined();
+/*Real*/ aReal.err();
+/*Real*/ aReal.err("prefix");
+/*Real*/ aReal.err("prefix", "suffix");
+/*String*/ aReal.format("formatted");
+/*Integer*/ aReal.asInteger();
+/*Boolean*/ aReal.isInteger();
+/*Boolean*/ aReal.isReal();
+/*Real*/ aReal.asReal();
+/*Real*/ aReal.asDouble();
+/*Real*/ aReal.asFloat();
+/*Integer*/ aReal.asLong();
+/*Boolean*/ aReal.asBoolean();
+/*Real*/ aReal.asVar("var");

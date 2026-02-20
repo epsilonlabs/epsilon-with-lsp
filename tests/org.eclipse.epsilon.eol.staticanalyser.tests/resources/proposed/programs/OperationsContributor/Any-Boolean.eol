@@ -1,0 +1,60 @@
+// GENERATE RUNTIME TYPE RETURNS
+
+var aBoolean : Boolean = true;
+aBoolean.instanceOf(Boolean).type().println("/*","*/ aBoolean.instanceOf(Boolean);");
+aBoolean.isTypeOf(Boolean).type().println("/*","*/ aBoolean.isTypeOf(Boolean);");
+aBoolean.isKindOf(Boolean).type().println("/*","*/ aBoolean.isKindOf(Boolean);");
+aBoolean.getNativeType().type().println("/*","*/ aBoolean.getNativeType();");
+aBoolean.nativeType().type().println("/*","*/ aBoolean.nativeType();");
+aBoolean.getOwningModel().type().println("/*","*/ aBoolean.getOwningModel();");
+aBoolean.owningModel().type().println("/*","*/ aBoolean.getOwningModel();");
+aBoolean.hasProperty("toString").type().println("/*","*/ aBoolean.hasProperty(\"toString\");");
+aBoolean.asString().type().println("/*","*/ aBoolean.asString();");
+aBoolean.isDefined().type().println("/*","*/ aBoolean.isDefined();");
+aBoolean.isUndefined().type().println("/*","*/ aBoolean.isUndefined();");
+//aBoolean.ifUndefined().type().println("/*","*/ aBoolean.ifUndefined();"); // Method not found
+//aBoolean.println().type().println("/*","*/ aBoolean.println();");
+//aBoolean.println(Object prefix).type().println("/*","*/ aBoolean.println(Object prefix);");
+//aBoolean.println(Object prefix, Object suffix).type().println("/*","*/ aBoolean.println(Object prefix, Object suffix);");
+//aBoolean.print().type().println("/*","*/ aBoolean.print();");
+//aBoolean.print(Object prefix).type().println("/*","*/ aBoolean.print(Object prefix);");
+//aBoolean.print(Object prefix, Object suffix).type().println("/*","*/ aBoolean.print(Object prefix, Object suffix);");
+aBoolean.err().type().println("/*","*/ aBoolean.err();");
+aBoolean.err("prefix").type().println("/*","*/ aBoolean.err(\"prefix\");");
+aBoolean.err("prefix", "suffix").type().println("/*","*/ aBoolean.err(\"prefix\", \"suffix\");");
+aBoolean.format("formatted").type().println("/*","*/ aBoolean.format(\"formatted\");");
+//aBoolean.asInteger().type().println("/*","*/ aBoolean.asInteger();"); // ERROR: For input string: "true"
+aBoolean.isInteger().type().println("/*","*/ aBoolean.isInteger();");
+aBoolean.isReal().type().println("/*","*/ aBoolean.isReal();");
+//aBoolean.asReal().type().println("/*","*/ aBoolean.asReal();"); // ERROR: For input string: "true"
+//aBoolean.asDouble().type().println("/*","*/ aBoolean.asDouble();"); // ERROR: For input string: "true"
+//aBoolean.asFloat().type().println("/*","*/ aBoolean.asFloat();"); // ERROR: For input string: "true"
+//aBoolean.asLong().type().println("/*","*/ aBoolean.asLong();"); // ERROR: For input string: "true"
+aBoolean.asBoolean().type().println("/*","*/ aBoolean.asBoolean();");
+//aBoolean.asUnicode().type().println("/*","*/ aBoolean.asUnicode();"); // ERROR: For input string: "true"
+//aBoolean.asDate("dd-mm-yy").type().println("/*","*/ aBoolean.asDate(\"dd-mm-yy\");"); // ERROR : Unparseable date: "true"
+aBoolean.asVar("var").type().println("/*","*/ aBoolean.asVar(\"var\");");
+
+
+// TEST TYPE RETURNS
+
+/*Boolean*/ aBoolean.instanceOf(Boolean);
+/*Boolean*/ aBoolean.isTypeOf(Boolean);
+/*Boolean*/ aBoolean.isKindOf(Boolean);
+/**/ aBoolean.getNativeType();
+/**/ aBoolean.nativeType();
+/**/ aBoolean.getOwningModel();
+/**/ aBoolean.getOwningModel();
+/*Boolean*/ aBoolean.hasProperty("toString");
+/*String*/ aBoolean.asString();
+/*Boolean*/ aBoolean.isDefined();
+/*Boolean*/ aBoolean.isUndefined();
+/*Boolean*/ aBoolean.err();
+/*Boolean*/ aBoolean.err("prefix");
+/*Boolean*/ aBoolean.err("prefix", "suffix");
+/*String*/ aBoolean.format("formatted");
+/*Boolean*/ aBoolean.isInteger();
+/*Boolean*/ aBoolean.isReal();
+/*Boolean*/ aBoolean.asBoolean();
+/*Boolean*/ aBoolean.asVar("var");
+

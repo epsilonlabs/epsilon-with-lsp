@@ -1,0 +1,65 @@
+// GENERATE RUNTIME TYPE RETURNS
+
+var aInt : Integer = 1;
+aInt.instanceOf(Integer).type().println("/*","*/ aInt.instanceOf(Integer);");
+aInt.isTypeOf(Integer).type().println("/*","*/ aInt.isTypeOf(Integer);");
+aInt.isKindOf(Integer).type().println("/*","*/ aInt.isKindOf(Integer);");
+aInt.getNativeType().type().println("/*","*/ aInt.getNativeType();");
+aInt.nativeType().type().println("/*","*/ aInt.nativeType();");
+aInt.getOwningModel().type().println("/*","*/ aInt.getOwningModel();");
+aInt.owningModel().type().println("/*","*/ aInt.getOwningModel();");
+aInt.hasProperty("toString").type().println("/*","*/ aInt.hasProperty(\"toString\");");
+aInt.asString().type().println("/*","*/ aInt.asString();");
+aInt.isDefined().type().println("/*","*/ aInt.isDefined();");
+aInt.isUndefined().type().println("/*","*/ aInt.isUndefined();");
+//aInt.ifUndefined().type().println("/*","*/ aInt.ifUndefined();");
+//aInt.println().type().println("/*","*/ aInt.println();");
+//aInt.println(Object prefix).type().println("/*","*/ aInt.println(Object prefix);");
+//aInt.println(Object prefix, Object suffix).type().println("/*","*/ aInt.println(Object prefix, Object suffix);");
+//aInt.print().type().println("/*","*/ aInt.print();");
+//aInt.print(Object prefix).type().println("/*","*/ aInt.print(Object prefix);");
+//aInt.print(Object prefix, Object suffix).type().println("/*","*/ aInt.print(Object prefix, Object suffix);");
+aInt.err().type().println("/*","*/ aInt.err();");
+aInt.err("prefix").type().println("/*","*/ aInt.err(\"prefix\");");
+aInt.err("prefix", "suffix").type().println("/*","*/ aInt.err(\"prefix\", \"suffix\");");
+aInt.format("formatted").type().println("/*","*/ aInt.format(\"formatted\");");
+aInt.asInteger().type().println("/*","*/ aInt.asInteger();");
+aInt.isInteger().type().println("/*","*/ aInt.isInteger();");
+aInt.isReal().type().println("/*","*/ aInt.isReal();");
+aInt.asReal().type().println("/*","*/ aInt.asReal();");
+aInt.asDouble().type().println("/*","*/ aInt.asDouble();");
+aInt.asFloat().type().println("/*","*/ aInt.asFloat();");
+aInt.asLong().type().println("/*","*/ aInt.asLong();");
+aInt.asBoolean().type().println("/*","*/ aInt.asBoolean();");
+aInt.asUnicode().type().println("/*","*/ aInt.asUnicode();");
+//aInt.asDate("dd-mm-yy").type().println("/*","*/ aInt.asDate(\"dd-mm-yy\");"); // ERROR: Unparseable date: "1"
+aInt.asVar("var").type().println("/*","*/ aInt.asVar(\"var\");");
+
+
+// TEST TYPE RETURNS
+
+/*Boolean*/ aInt.instanceOf(Integer);
+/*Boolean*/ aInt.isTypeOf(Integer);
+/*Boolean*/ aInt.isKindOf(Integer);
+/**/ aInt.getNativeType();
+/**/ aInt.nativeType();
+/**/ aInt.getOwningModel();
+/**/ aInt.getOwningModel();
+/*Boolean*/ aInt.hasProperty("toString");
+/*String*/ aInt.asString();
+/*Boolean*/ aInt.isDefined();
+/*Boolean*/ aInt.isUndefined();
+/*Integer*/ aInt.err();
+/*Integer*/ aInt.err("prefix");
+/*Integer*/ aInt.err("prefix", "suffix");
+/*String*/ aInt.format("formatted");
+/*Integer*/ aInt.asInteger();
+/*Boolean*/ aInt.isInteger();
+/*Boolean*/ aInt.isReal();
+/*Real*/ aInt.asReal();
+/*Real*/ aInt.asDouble();
+/*Real*/ aInt.asFloat();
+/*Integer*/ aInt.asLong();
+/*Boolean*/ aInt.asBoolean();
+/*String*/ aInt.asUnicode();
+/*Integer*/ aInt.asVar("var");

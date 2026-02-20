@@ -1,0 +1,59 @@
+// GENERATE RUNTIME TYPE RETURNS
+
+var aString : String = "letters";
+aString.instanceOf(String).type().println("/*","*/ aString.instanceOf(String);");
+aString.isTypeOf(String).type().println("/*","*/ aString.isTypeOf(String);");
+aString.isKindOf(String).type().println("/*","*/ aString.isKindOf(String);");
+aString.getNativeType().type().println("/*","*/ aString.getNativeType();");
+aString.nativeType().type().println("/*","*/ aString.nativeType();");
+aString.getOwningModel().type().println("/*","*/ aString.getOwningModel();");
+aString.owningModel().type().println("/*","*/ aString.getOwningModel();");
+aString.hasProperty("toString").type().println("/*","*/ aString.hasProperty(\"toString\");");
+aString.asString().type().println("/*","*/ aString.asString();");
+aString.isDefined().type().println("/*","*/ aString.isDefined();");
+aString.isUndefined().type().println("/*","*/ aString.isUndefined();");
+//aString.ifUndefined().type().println("/*","*/ aString.ifUndefined();");
+//aString.println().type().println("/*","*/ aString.println();");
+//aString.println(Object prefix).type().println("/*","*/ aString.println(Object prefix);");
+//aString.println(Object prefix, Object suffix).type().println("/*","*/ aString.println(Object prefix, Object suffix);");
+//aString.print().type().println("/*","*/ aString.print();");
+//aString.print(Object prefix).type().println("/*","*/ aString.print(Object prefix);");
+//aString.print(Object prefix, Object suffix).type().println("/*","*/ aString.print(Object prefix, Object suffix);");
+aString.err().type().println("/*","*/ aString.err();");
+aString.err("prefix").type().println("/*","*/ aString.err(\"prefix\");");
+aString.err("prefix", "suffix").type().println("/*","*/ aString.err(\"prefix\", \"suffix\");");
+aString.format("formatted").type().println("/*","*/ aString.format(\"formatted\");");
+//aString.asInteger().type().println("/*","*/ aString.asInteger();"); // ERROR: For input string: "letters"
+aString.isInteger().type().println("/*","*/ aString.isInteger();");
+aString.isReal().type().println("/*","*/ aString.isReal();");
+//aString.asReal().type().println("/*","*/ aString.asReal();"); // ERROR: For input string: "letters"
+//aString.asDouble().type().println("/*","*/ aString.asDouble();"); // ERROR: For input string: "letters"
+//aString.asFloat().type().println("/*","*/ aString.asFloat();"); // ERROR: For input string: "letters"
+//aString.asLong().type().println("/*","*/ aString.asLong();"); // ERROR: For input string: "letters"
+aString.asBoolean().type().println("/*","*/ aString.asBoolean();");
+//aString.asUnicode().type().println("/*","*/ aString.asUnicode();"); // ERROR: For input string: "1.1" under radix 16
+//aString.asDate("dd-mm-yy").type().println("/*","*/ aString.asDate(\"dd-mm-yy\");"); // ERROR: Unparseable date: "letters"
+aString.asVar("var").type().println("/*","*/ aString.asVar(\"var\");");
+
+
+// TEST TYPE RETURNS
+
+/*Boolean*/ aString.instanceOf(String);
+/*Boolean*/ aString.isTypeOf(String);
+/*Boolean*/ aString.isKindOf(String);
+/**/ aString.getNativeType();
+/**/ aString.nativeType();
+/**/ aString.getOwningModel();
+/**/ aString.getOwningModel();
+/*Boolean*/ aString.hasProperty("toString");
+/*String*/ aString.asString();
+/*Boolean*/ aString.isDefined();
+/*Boolean*/ aString.isUndefined();
+/*String*/ aString.err();
+/*String*/ aString.err("prefix");
+/*String*/ aString.err("prefix", "suffix");
+/*String*/ aString.format("formatted");
+/*Boolean*/ aString.isInteger();
+/*Boolean*/ aString.isReal();
+/*Boolean*/ aString.asBoolean();
+/*String*/ aString.asVar("var");

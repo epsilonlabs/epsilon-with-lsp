@@ -4,9 +4,9 @@
 /*Real*/2.log();
 /*Real*/2.log10();
 /*Integer*/1.max(2);
-/*Real*/1.max(2.2);
+/*Integer|Real*/1.max(2.2);
 /*Integer*/1.min(2);
-/*Real*/1.min(0.5);
+/*Integer|Real*/1.min(0.5);
 /*Integer*/1.pow(2);
 /*Integer*/1.round();
 /*Real*/1.ln();

@@ -45,13 +45,13 @@ public class NumberOperationContributor extends OperationContributor {
         return LongStream.rangeClosed(2, n).reduce(1, (a, b) -> a * b);
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
+	@MethodTypeCalculator(klass = MinMaxReturnType.class)
 	public Number min(Number other) {
 		Number self = getTarget();
 		return NumberUtil.lessThan(self, other) ? self : other;
 	}
 	
-	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
+	@MethodTypeCalculator(klass = MinMaxReturnType.class)
 	public Number max(Number other) {
 		Number self = getTarget();
 		return NumberUtil.greaterThan(self, other) ? self : other;

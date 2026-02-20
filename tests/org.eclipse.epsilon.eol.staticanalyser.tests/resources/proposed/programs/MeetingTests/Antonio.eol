@@ -1,0 +1,20 @@
+var x = Sequence {-1..10};
+
+x.size.println('without (): ');
+
+x.size().println('with (): ');
+
+x.abs.println('prop on collection: '); // calls abs() on each element
+
+//!x.abs().println(); // doesn't work - EolSequence doesn't have abs()
+
+x.collect(e|e.abs).println('prop on element via collect: ');
+
+x.collect(e|e.abs()).println('method call on element plus collect: ');
+
+x.sublist(1, 5).class.println();
+
+
+/* Sequence(Integer) */ var x = Sequence {1..10};
+
+/* Sequence(Integer) */ x.subList(1, 5).println('x.subList(...): ');

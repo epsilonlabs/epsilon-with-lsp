@@ -33,6 +33,11 @@ public class AnyOperationContributor extends OperationContributor {
 		return !(target instanceof EolNoTypeInstance);
 	}
 	
+	@MethodTypeCalculator(klass=AsTypeReturnType.class)
+	public Object asType(Object type) {
+		return getTarget();
+	}
+	
 	public Object type() {
 		Object target = getTarget();
 		

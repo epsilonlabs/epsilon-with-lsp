@@ -1,0 +1,27 @@
+// GENERATE RUNTIME TYPE RETURNS
+
+var today = new Native("java.util.Date");
+var tomorrow = new Native("java.util.Date");
+tomorrow.setTime(today.getTime() + (1000 * 60 * 60 * 24));
+
+//@Override
+//public boolean contributesTo(Object target)
+today.contributesTo(null).println("/*","*/ today.contributesTo(null);");
+
+//@Override
+//protected Date getTarget()
+today.getTarget().type().println("/*","*/ today.getTarget();");
+	
+//public int getDayOfTheWeek()
+today.getDayOfTheWeek().type().println("/*","*/ today.getDayOfTheWeek();");
+
+//public long getDifferenceInDays(Date other)
+today.getDifferenceInDays(tomorrow).type().println("/*","*/ today.getDifferenceInDays(tomorrow);");
+
+
+// TEST TYPE RETURNS
+
+/*false*/ today.contributesTo(null);
+/*Any*/ today.getTarget();  // PRINT RETURNS BLANK (Assuming Any)
+/*Integer*/ today.getDayOfTheWeek();  // Fails (returned any)
+/*Integer*/ today.getDifferenceInDays(tomorrow);  // Fails (returned any)

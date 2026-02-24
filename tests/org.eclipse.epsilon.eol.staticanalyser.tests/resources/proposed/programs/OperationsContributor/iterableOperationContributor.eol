@@ -6,20 +6,27 @@ var itr = seq.getIterable();
 
 //protected Iterable<?> getTarget()
 itr.getTarget().type().println("/*","*/ itr.getTarget();");
+
 //protected Iterable<Object> getIterable()
 itr.getIterable().type().println("/*","*/ itr.getIterable();");
+
 //protected boolean isCollection()
 itr.isCollection().type().println("/*","*/ itr.isCollection();");
+
 //protected Collection<Object> getCollection()
 itr.getCollection().type().println("/*","*/ itr.getCollection();");
+
 //protected boolean isList()
 itr.isList().type().println("/*","*/ itr.isList();");
+
 //protected List<?> getList()
 itr.getList().type().println("/*","*/ itr.getList();");
+
 //protected boolean isSet()
 itr.isSet().type().println("/*","*/ itr.isSet();");
+
 //protected Set<?> getSet()
-// ERR itr.getSet().type().println("/*","*/ itr.getSet();");
+// itr.getSet().type().println("/*","*/ itr.getSet();");  // ERROR
 
 //@Override
 //public boolean contributesTo(Object target)
@@ -27,41 +34,55 @@ itr.contributesTo(null).type().println("/*","*/ itr.contributesTo(null);");
 
 //public Object random()
 itr.random().type().println("/*","*/ itr.random();");
+
 //public int size()
 itr.size().type().println("/*","*/ itr.size();");
+
 //public Object at(int index)
 itr.at(0).type().println("/*","*/ itr.at(0);");
+
 //public Object removeAt(int index)
 itr.removeAt(0).type().println("/*","*/ itr.removeAt(0);");
 
 //public EolConcurrentBag<Object> asConcurrentBag()
 itr.asConcurrentBag().type().println("/*","*/ itr.asConcurrentBag();");
+
 //public EolConcurrentSet<Object> asConcurrentSet()
 itr.asConcurrentSet().type().println("/*","*/ itr.asConcurrentSet();");
+
 //public EolSequence<Object> asSequence()
 itr.asSequence().type().println("/*","*/ itr.asSequence();");
+
 //public EolSet<Object> asSet()
 itr.asSet().type().println("/*","*/ itr.asSet();");
+
 //public EolBag<Object> asBag()
 itr.asBag().type().println("/*","*/ itr.asBag();");
+
 //public EolOrderedSet<Object> asOrderedSet()
 itr.asOrderedSet().type().println("/*","*/ itr.asOrderedSet();");
 
 //public Number sum()
 itr.sum().type().println("/*","*/ itr.sum();");
+
 //public Number product()
 itr.product().type().println("/*","*/ itr.product();");
+
 //public boolean isEmpty()
 itr.isEmpty().type().println("/*","*/ itr.isEmpty();");
+
 //public boolean notEmpty()
 itr.notEmpty().type().println("/*","*/ itr.notEmpty();");
 
 //protected <T> void copy(Iterable<T> source, Collection<T> target)
-// ERR itr.copy(null, null).type().println("/*","*/ itr.copy(null, null);");
+// itr.copy(null, null).type().println("/*","*/ itr.copy(null, null);");    // ERROR
+
 //public Stream<?> stream()
 itr.stream().type().println("/*","*/ itr.stream();");
+
 //public Stream<?> parallelStream()
 itr.parallelStream().type().println("/*","*/ itr.parallelStream();");
+
 //protected Stream<?> stream(boolean parallel)
 itr.stream(false).type().println("/*","*/ itr.stream(false);");
 
@@ -71,70 +92,89 @@ itr.clone().type().println("/*","*/ itr.clone();");
 
 //public boolean includes(Object key)
 itr.includes(null).type().println("/*","*/ itr.includes(null);");
+
 //public boolean excludes(Object o)
 itr.excludes(null).type().println("/*","*/ itr.excludes(null);");
+
 //public boolean includesAll(Collection<?> col)
-// ERR itr.includesAll(null).type().println("/*","*/ itr.includesAll(null);");
+// itr.includesAll(null).type().println("/*","*/ itr.includesAll(null);");  // ERROR
+
 //public boolean excludesAll(Collection<?> col)
-// ERR itr.excludesAll(null).type().println("/*","*/ itr.excludesAll(null);");
+// itr.excludesAll(null).type().println("/*","*/ itr.excludesAll(null);");  // ERROR
+
 //public int count(Object o)
 itr.count(null).type().println("/*","*/ itr.count(null);");
 
 //public Collection<Object> selectByKind(EolType type)
 itr.selectByKind(null).type().println("/*","*/ itr.selectByKind(null);");
+
 //public Collection<Object> selectByType(EolType type)
 itr.selectByType(null).type().println("/*","*/ itr.selectByType(null);");
 
 //public Collection<Object> includingAll(Collection<?> col)
-// ERR itr.includingAll(null).type().println("/*","*/ itr.includingAll(null);");
+// itr.includingAll(null).type().println("/*","*/ itr.includingAll(null);");  // ERROR
+
 //public Collection<Object> including(Object o)
 itr.including(null).type().println("/*","*/ itr.including(null);");
+
 //public Collection<Object> flatten()
 itr.flatten().type().println("/*","*/ itr.flatten();");
+
 //public Collection<Object> excluding(Object o)
 itr.excluding(null).type().println("/*","*/ itr.excluding(null);");
+
 //public Collection<Object> excludingAll(Collection<?> col)
-// ERR itr.excludingAll(null).type().println("/*","*/ itr.excludingAll(null);");
+// itr.excludingAll(null).type().println("/*","*/ itr.excludingAll(null);");  // ERROR
 
 //public Collection<Object> first(int number)
 itr.first(0).type().println("/*","*/ itr.first(0);");
+
 //@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 //public Object first()
-
-// ERR itr.first().type().println("/*","*/ itr.first();")
+// itr.first().type().println("/*","*/ itr.first();")  // ERROR
 
 //public Object second()
 itr.second().type().println("/*","*/ itr.second();");
+
 //public Object third()
 itr.third().type().println("/*","*/ itr.third();");
+
 //public Object fourth()
 itr.fourth().type().println("/*","*/ itr.fourth();");
+
 //public Object last()
 itr.last().type().println("/*","*/ itr.last();");
+
 //public int indexOf(Object o)
 itr.indexOf(null).type().println("/*","*/ itr.indexOf(null);");
+
 //private Object nth(int index)
-
-
+itr.nth(1).type().println("/*","*/ itr.nth(1);");
 
 //public String concat()
 itr.concat("").type().println("/*","*/ itr.concat();");
+
 //public String concat(String delimiter)
 itr.concat("").type().println("/*","*/ itr.concat(\" \");");
 
 //public Number max()
 itr.max().type().println("/*","*/ itr.max();");
+
 //public Number max(Number default_)
 itr.max(0).type().println("/*","*/ itr.max(0);");
+
 //public Number min()
 itr.min().type().println("/*","*/ itr.min();");
+
 //public Number min(Number default_)
 itr.min(0).type().println("/*","*/ itr.min(0);");
 
 //public Collection<Object> invert()
 itr.invert().type().println("/*","*/ itr.invert();");
+
 //public Collection<Object> createCollection()
 itr.createCollection().type().println("/*","*/ itr.createCollection();");
+
 //public Set<Set<Object>> powerset()
 itr.powerset().type().println("/*","*/ itr.powerset();");
 

@@ -1,5 +1,9 @@
-var seq = Sequence {1..10};
-var itr = seq.getIterable();
+// GENERATE RUNTIME TYPE RETURNS
+
+var incSet = Set {1,2,3};
+var set = Set {1..10};
+var seq = Sequence {11..20};
+var itr = set.getIterable();
 
 //public IterableOperationContributor()
 //public IterableOperationContributor(Iterable<?> target)
@@ -20,13 +24,14 @@ itr.getCollection().type().println("/*","*/ itr.getCollection();");
 itr.isList().type().println("/*","*/ itr.isList();");
 
 //protected List<?> getList()
-itr.getList().type().println("/*","*/ itr.getList();");
+//itr.getList().type().println("/*","*/ itr.getList();");  // ERRORs converting Set
+seq.getList().type().println("/*","*/ itr.getList();");
 
 //protected boolean isSet()
 itr.isSet().type().println("/*","*/ itr.isSet();");
 
 //protected Set<?> getSet()
-// itr.getSet().type().println("/*","*/ itr.getSet();");  // ERROR
+itr.getSet().type().println("/*","*/ itr.getSet();");  // ERRORs converting Sequence/Bag to Set
 
 //@Override
 //public boolean contributesTo(Object target)
@@ -75,7 +80,8 @@ itr.isEmpty().type().println("/*","*/ itr.isEmpty();");
 itr.notEmpty().type().println("/*","*/ itr.notEmpty();");
 
 //protected <T> void copy(Iterable<T> source, Collection<T> target)
-// itr.copy(null, null).type().println("/*","*/ itr.copy(null, null);");    // ERROR
+var itr2 : Set;
+itr.copy(itr, itr2).type().println("/*","*/ itr.copy(itr, itr2);");    // ERROR if not a Set
 
 //public Stream<?> stream()
 itr.stream().type().println("/*","*/ itr.stream();");
@@ -97,10 +103,10 @@ itr.includes(null).type().println("/*","*/ itr.includes(null);");
 itr.excludes(null).type().println("/*","*/ itr.excludes(null);");
 
 //public boolean includesAll(Collection<?> col)
-// itr.includesAll(null).type().println("/*","*/ itr.includesAll(null);");  // ERROR
+itr.includesAll(incSet).type().println("/*","*/ itr.includesAll(incSet);");  // ERRORs if no Collection (null)
 
 //public boolean excludesAll(Collection<?> col)
-// itr.excludesAll(null).type().println("/*","*/ itr.excludesAll(null);");  // ERROR
+itr.excludesAll(incSet).type().println("/*","*/ itr.excludesAll(incSet);");  // ERRORs if no Collection (null)
 
 //public int count(Object o)
 itr.count(null).type().println("/*","*/ itr.count(null);");
@@ -112,7 +118,7 @@ itr.selectByKind(null).type().println("/*","*/ itr.selectByKind(null);");
 itr.selectByType(null).type().println("/*","*/ itr.selectByType(null);");
 
 //public Collection<Object> includingAll(Collection<?> col)
-// itr.includingAll(null).type().println("/*","*/ itr.includingAll(null);");  // ERROR
+itr.includingAll(incSet).type().println("/*","*/ itr.includingAll(incSet);");  // ERRORs if no Collection (null)
 
 //public Collection<Object> including(Object o)
 itr.including(null).type().println("/*","*/ itr.including(null);");
@@ -124,14 +130,14 @@ itr.flatten().type().println("/*","*/ itr.flatten();");
 itr.excluding(null).type().println("/*","*/ itr.excluding(null);");
 
 //public Collection<Object> excludingAll(Collection<?> col)
-// itr.excludingAll(null).type().println("/*","*/ itr.excludingAll(null);");  // ERROR
+itr.excludingAll(incSet).type().println("/*","*/ itr.excludingAll(incSet);");  // ERRORs if no Collection (null)
 
 //public Collection<Object> first(int number)
 itr.first(0).type().println("/*","*/ itr.first(0);");
 
 //@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 //public Object first()
-// itr.first().type().println("/*","*/ itr.first();")  // ERROR
+// itr.first().type().println("/*","*/ itr.first();")  // ERROR Reason: no viable alternative at input '.'
 
 //public Object second()
 itr.second().type().println("/*","*/ itr.second();");
@@ -179,7 +185,7 @@ itr.createCollection().type().println("/*","*/ itr.createCollection();");
 itr.powerset().type().println("/*","*/ itr.powerset();");
 
 
-// TESTS
+// TEST TYPE RETURNS
 
 /*Sequence<Any>*/ itr.getTarget();  // Fails
 /*Sequence<Any>*/ itr.getIterable();  // Fails
@@ -203,18 +209,23 @@ itr.powerset().type().println("/*","*/ itr.powerset();");
 /*Integer*/ itr.product();  // Fails
 /*Boolean*/ itr.isEmpty();
 /*Boolean*/ itr.notEmpty();  // Fails
+/**/ itr.copy(itr, itr2);
 /*Any*/ itr.stream();  // PRINTED A BLANK TYPE ASSUMING ANY
 /*Any*/ itr.parallelStream();  // PRINTED A BLANK TYPE ASSUMING ANY
 /*Any*/ itr.stream(false);  // PRINTED A BLANK TYPE ASSUMING ANY
 /*Sequence<Any>*/ itr.clone();  // Fails
 /*Boolean*/ itr.includes(null);
 /*Boolean*/ itr.excludes(null);  // Fails
+/*Boolean*/ itr.includesAll(incSet);
+/*Boolean*/ itr.excludesAll(incSet);
 /*Integer*/ itr.count(null);
 /*Sequence<Any>*/ itr.selectByKind(null);  // Fails
 /*Sequence<Any>*/ itr.selectByType(null);
+/*Set<Any>*/ itr.includingAll(incSet);
 /*Sequence<Any>*/ itr.including(null);  // Fails
 /*Sequence<Any>*/ itr.flatten();
 /*Sequence<Any>*/ itr.excluding(null);  // Fails
+/*Set<Any>*/ itr.excludingAll(incSet);
 /*Sequence<Any>*/ itr.first(0);
 /*Integer*/ itr.second();  // Fails
 /*Integer*/ itr.third();

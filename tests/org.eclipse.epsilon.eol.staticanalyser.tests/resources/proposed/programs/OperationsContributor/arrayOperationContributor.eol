@@ -1,0 +1,11 @@
+// GENERATE RUNTIME TYPE RETURNS
+
+var nativeArray = Native("java.lang.reflect.Array").newInstance(Native("java.lang.String").class, 3);
+nativeArray.set(0,"one");
+nativeArray.set(1,"two");
+nativeArray.set(2,"three");
+
+
+// TEST TYPE RETURNS
+
+nativeArray.asSequence().type().println("/*","*/ nativeArray.asSequence();");

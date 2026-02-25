@@ -5,7 +5,9 @@ nativeArray.set(0,"one");
 nativeArray.set(1,"two");
 nativeArray.set(2,"three");
 
+//public EolSequence<Object> asSequence()
+nativeArray.asSequence().type().println("/*","*/ nativeArray.asSequence();");
+
 
 // TEST TYPE RETURNS
-
-nativeArray.asSequence().type().println("/*","*/ nativeArray.asSequence();");
+/*Sequence<Any>*/ nativeArray.asSequence();

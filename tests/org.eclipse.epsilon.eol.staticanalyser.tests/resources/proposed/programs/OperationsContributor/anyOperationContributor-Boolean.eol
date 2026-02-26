@@ -44,7 +44,7 @@ aBoolean.asVar("var").type().println("/*","*/ aBoolean.asVar(\"var\");");
 /**/ aBoolean.getNativeType();
 /**/ aBoolean.nativeType();
 /**/ aBoolean.getOwningModel();
-/**/ aBoolean.getOwningModel();
+/**/ aBoolean.owningModel();
 /*Boolean*/ aBoolean.hasProperty("toString");
 /*String*/ aBoolean.asString();
 /*Boolean*/ aBoolean.isDefined();

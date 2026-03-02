@@ -22,6 +22,7 @@ import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
 import org.eclipse.epsilon.eol.types.EolMapType;
+import org.eclipse.epsilon.eol.types.EolNativeType;
 import org.eclipse.epsilon.eol.types.EolNoType.EolNoTypeInstance;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.types.EolType;
@@ -78,7 +79,11 @@ public class AnyOperationContributor extends OperationContributor {
 			return model.getTypeOf(target);
 		}
 		
-		return null;
+		if (null == target) {
+			return null;
+		} else {
+			return new EolNativeType(target.getClass(), getContext());  // Try and return something	
+		}
 	}
 	
 	public boolean instanceOf(EolType type) {

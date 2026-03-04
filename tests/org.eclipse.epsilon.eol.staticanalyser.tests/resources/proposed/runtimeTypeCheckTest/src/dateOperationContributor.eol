@@ -1,0 +1,28 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+noTestVar();
+
+var today = new Native("java.util.Date");
+logCode("var today = new Native(\"java.util.Date\");");
+
+var tomorrow = new Native("java.util.Date");
+logCode("var tomorrow = new Native(\"java.util.Date\");");
+
+logCode("tomorrow.setTime(today.getTime() + (1000 * 60 * 60 * 24));");
+
+today.contributesTo(null).logReturnType("today.contributesTo(null)");
+today.getTarget().logReturnType("today.getTarget()");
+today.getDayOfTheWeek().logReturnType("today.getDayOfTheWeek()");
+today.getDifferenceInDays(tomorrow).logReturnType("today.getDifferenceInDays(tomorrow)");
+
+
+closeFile();

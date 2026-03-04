@@ -1,0 +1,51 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+// Create a variable and log it
+var aString : String = "letters";
+aString.logTestVar("aString");
+
+aString.instanceOf(String).logReturnType("aString.instanceOf(String)");
+aString.isTypeOf(String).logReturnType("aString.isTypeOf(String)");
+aString.isKindOf(String).logReturnType("aString.isKindOf(String)");
+aString.getNativeType().logReturnType("aString.getNativeType()");
+aString.nativeType().logReturnType("aString.nativeType()");
+aString.getOwningModel().logReturnType("aString.getOwningModel()");
+aString.owningModel().logReturnType("aString.getOwningModel()");
+aString.hasProperty("toString").logReturnType("aString.hasProperty(\"toString\")");
+aString.asString().logReturnType("aString.asString()");
+aString.isDefined().logReturnType("aString.isDefined()");
+aString.isUndefined().logReturnType("aString.isUndefined()");
+//aString.ifUndefined().logReturnType("aString.ifUndefined()");
+//aString.println().logReturnType("aString.println()");
+//aString.println(Object prefix).logReturnType("aString.println(Object prefix)");
+//aString.println(Object prefix, Object suffix).logReturnType("aString.println(Object prefix, Object suffix)");
+//aString.print().logReturnType("aString.print()");
+//aString.print(Object prefix).logReturnType("aString.print(Object prefix)");
+//aString.print(Object prefix, Object suffix).logReturnType("aString.print(Object prefix, Object suffix)");
+aString.err().logReturnType("aString.err()");
+aString.err("prefix").logReturnType("aString.err(\"prefix\")");
+aString.err("prefix", "suffix").logReturnType("aString.err(\"prefix\", \"suffix\")");
+aString.format("formatted").logReturnType("aString.format(\"formatted\")");
+//aString.asInteger().logReturnType("aString.asInteger()"); // ERROR: For input string: "letters"
+aString.isInteger().logReturnType("aString.isInteger()");
+aString.isReal().logReturnType("aString.isReal()");
+//aString.asReal().logReturnType("aString.asReal()"); // ERROR: For input string: "letters"
+//aString.asDouble().logReturnType("aString.asDouble()"); // ERROR: For input string: "letters"
+//aString.asFloat().logReturnType("aString.asFloat()"); // ERROR: For input string: "letters"
+//aString.asLong().logReturnType("aString.asLong()"); // ERROR: For input string: "letters"
+aString.asBoolean().logReturnType("aString.asBoolean()");
+//aString.asUnicode().logReturnType("aString.asUnicode()"); // ERROR: For input string: "1.1" under radix 16
+//aString.asDate("dd-mm-yy").logReturnType("aString.asDate(\"dd-mm-yy\")"); // ERROR: Unparseable date: "letters"
+aString.asVar("var").logReturnType("aString.asVar(\"var\")");
+
+
+closeFile();

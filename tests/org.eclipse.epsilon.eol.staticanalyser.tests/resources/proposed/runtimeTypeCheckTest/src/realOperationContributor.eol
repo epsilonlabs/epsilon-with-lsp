@@ -1,0 +1,28 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+noTestVar();
+
+1.1.abs().logReturnType("1.1.abs()");
+11.1.ceiling().logReturnType("11.1.ceiling()");
+11.1.floor().logReturnType("11.1.floor()");
+1.1.log().logReturnType("1.1.log()");
+1.1.log10().logReturnType("1.1.log10()");
+11.1.max(2.2).logReturnType("11.1.max(2.2)");
+11.1.max(22).logReturnType("11.1.max(22)");
+1.1.min(2).logReturnType("1.1.min(2).type()");
+1.1.min(1).logReturnType("1.1.min(1)");
+1.1.pow(2.2).logReturnType("1.1.pow(2.2)");
+1.1.round().logReturnType("1.1.round()");
+1.1.ln().logReturnType("1.1.ln()");
+1.5.factorial().logReturnType("1.5.factorial()");
+
+closeFile();

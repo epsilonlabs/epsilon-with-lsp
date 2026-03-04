@@ -1,0 +1,44 @@
+// This test file is an example of the EOL programs in ./src/ that produce programs in ./gen/
+
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+// Create a variable and log it
+var aBoolean : Boolean = true;
+aBoolean.logTestVar("aBoolean");
+
+// Call the variable methods to log the return types
+aBoolean.instanceOf(Boolean).logReturnType("aBoolean.instanceOf(Boolean)");
+aBoolean.isTypeOf(Boolean).logReturnType("aBoolean.isTypeOf(Boolean)");
+aBoolean.isKindOf(Boolean).logReturnType("aBoolean.isKindOf(Boolean)");
+aBoolean.getNativeType().logReturnType("aBoolean.getNativeType()");
+aBoolean.nativeType().logReturnType("aBoolean.nativeType()");
+aBoolean.getOwningModel().logReturnType("aBoolean.getOwningModel()");
+aBoolean.owningModel().logReturnType("aBoolean.owningModel()");
+aBoolean.hasProperty("toString").logReturnType("aBoolean.hasProperty(\"toString\")");
+aBoolean.asString().logReturnType("aBoolean.asString()");
+aBoolean.isDefined().logReturnType("aBoolean.isDefined()");
+aBoolean.isUndefined().logReturnType("aBoolean.isUndefined()");
+
+
+aBoolean.err().logReturnType("aBoolean.err()");
+aBoolean.err("prefix").logReturnType("aBoolean.err(\"prefix\")");
+aBoolean.err("prefix", "suffix").logReturnType("aBoolean.err(\"prefix\", \"suffix\")");
+aBoolean.format("formatted").logReturnType("aBoolean.format(\"formatted\")");
+
+aBoolean.isInteger().logReturnType("aBoolean.isInteger()");
+aBoolean.isReal().logReturnType("aBoolean.isReal()");
+
+aBoolean.asBoolean().logReturnType("aBoolean.asBoolean()");
+
+aBoolean.asVar("var").logReturnType("aBoolean.asVar(\"var\")");
+
+closeFile();

@@ -43,9 +43,18 @@ operation closeFile () {
     ("Generated return type test: " + config["basePath"] + config["filename"]).println();
 }
 
+operation noTestVar () {
+    config["testVarLogged"] = true;
+}
+
 operation Any logTestVar ( testVarName : String ) {   
     if(isFileOpen()) {
-        config["writer"].println(("var " + testVarName + " : " + self.type() + " = " + self + ";\n"));
+        if(self.type() == String) {
+            config["writer"].println(("\nvar " + testVarName + " : " + self.type() + " = \"" + self + "\";\n"));
+        } else {
+            config["writer"].println(("\nvar " + testVarName + " : " + self.type() + " = " + self + ";\n"));
+        }
+        
         config["testVarLogged"] = true;
     } else {
         "Error file not open".println();
@@ -67,4 +76,11 @@ operation Any logReturnType ( method : String ) {
     }
 }
 
+operation logCode ( code : String ) {
+        if(isFileOpen()) {
+        config["writer"].println(code);
+    } else {
+        "Error file not open".println();
+    }
+}
 

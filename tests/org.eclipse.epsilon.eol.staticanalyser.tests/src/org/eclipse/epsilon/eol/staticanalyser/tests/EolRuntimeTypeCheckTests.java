@@ -1,5 +1,7 @@
 package org.eclipse.epsilon.eol.staticanalyser.tests;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.temporal.ValueRange;
@@ -10,9 +12,12 @@ import java.util.Map;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import junit.framework.AssertionFailedError;
 
 @RunWith(Parameterized.class)
 public class EolRuntimeTypeCheckTests extends AbstractStaticAnalysisTest {
@@ -53,8 +58,10 @@ public class EolRuntimeTypeCheckTests extends AbstractStaticAnalysisTest {
 				genModule = null;
 				
 			} catch (Exception e) {
-				// TODO Auto-generated catch block				
+				// TODO Auto-generated catch block
+				System.err.print("FAILED TO EXECUTE EOL: " + object[1]);
 				e.printStackTrace();
+				
 			}
 		}
 		
@@ -65,7 +72,20 @@ public class EolRuntimeTypeCheckTests extends AbstractStaticAnalysisTest {
 	public EolRuntimeTypeCheckTests(String testTag, File epsilonTestFile) {
 		super(testTag, epsilonTestFile, ENABLECONSOLEOUTPUT);
 	}
-
+	
+	@Test
+	public void emptyFileTest() {
+		// Check for empty file
+		File file = programFile;
+		if (file.exists() && file.isFile()) {
+            if (file.length() == 0) {
+            	fail("The file is empty.");
+            }
+        } else {
+        	fail("File does not exist or is a directory.");
+        }
+	}
+	
 }
 
 

@@ -1,0 +1,70 @@
+var config = Map{}; // Uncomment this and the static analysis test passes
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+operation isFileOpen () {
+    if(config["fileOpen"].isDefined) {
+        return config["fileOpen"];
+    }
+    return false;
+}
+
+operation isTestVarLogged () {
+    if (isFileOpen()) {
+        if(config["testVarLogged"].isDefined) {
+            return config["testVarLogged"];
+        } else {
+            return false;
+        }
+    } else {
+        "File is not open".println();
+        return false;
+    }
+}
+
+operation openFile () {
+    // Optional check filename is not null, does not start with / and ends .eol
+    config["file"] = new Native("java.io.File")(config["basePath"] + config["filename"]);    
+    config["writer"] = new Native("java.io.PrintWriter")(config["file"]);
+    config["today"] = new Native("java.util.Date");
+    config["writer"].println("// Generated on " + config["today"] + "\n");
+    
+    config["fileOpen"] = true;
+}
+
+operation closeFile () {
+    config["writer"].flush();
+    config["writer"].close();
+    ("Generated return type test: " + config["basePath"] + config["filename"]).println();
+}
+
+operation Any logTestVar ( testVarName : String ) {   
+    if(isFileOpen()) {
+        config["writer"].println(("var " + testVarName + " : " + self.type() + " = " + self + ";\n"));
+        config["testVarLogged"] = true;
+    } else {
+        "Error file not open".println();
+    }
+}
+
+operation Any logReturnType ( method : String ) {   
+    if (isTestVarLogged()) {
+        if(not method.endsWith(";")) {
+            method=method.concat(";");
+        }
+        if(null == self.type()) {
+            config["writer"].println("/*null*/ " + method);
+        } else {
+            config["writer"].println("/*" + self.type().toString() + "*/ " + method);
+        }
+    } else {
+        "Error file not open or variable not logged".println();
+    }
+}
+
+

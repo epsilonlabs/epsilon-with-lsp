@@ -39,7 +39,7 @@ public class EolRuntimeTypeCheckingTool extends AbstractStaticAnalysisTest {
 	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() throws FileNotFoundException {	
 		// Find and execute all the EOL programs that generate the type test EOL programs
-		Collection<Object[]> generators = AbstractBaseTest.getEpsilonProgramCollection(PROJECT_BASE_FOLDER, "src", ".eol");
+		Collection<Object[]> generators = AbstractBaseTest.getEpsilonProgramCollection(RESOURCES, "/src", ".eol");
 		for (Object[] object : generators) {
 			System.out.println(" - " + object[1]);
 			try {

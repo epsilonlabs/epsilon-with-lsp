@@ -1,0 +1,9 @@
+// Generated on Fri Mar 06 11:21:27 GMT 2026
+
+var today = new Native("java.util.Date");
+var tomorrow = new Native("java.util.Date");
+tomorrow.setTime(today.getTime() + (1000 * 60 * 60 * 24));
+/*Boolean*/ today.contributesTo(null);
+/*Native (java.util.Date)*/ today.getTarget();
+/*Integer*/ today.getDayOfTheWeek();
+/*Integer*/ today.getDifferenceInDays(tomorrow);

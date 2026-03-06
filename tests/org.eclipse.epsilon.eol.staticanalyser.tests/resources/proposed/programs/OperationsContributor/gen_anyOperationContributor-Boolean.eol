@@ -1,0 +1,24 @@
+// Generated on Fri Mar 06 11:21:27 GMT 2026
+
+
+var aBoolean : Boolean = true;
+
+/*Boolean*/ aBoolean.instanceOf(Boolean);
+/*Boolean*/ aBoolean.isTypeOf(Boolean);
+/*Boolean*/ aBoolean.isKindOf(Boolean);
+/*Native (java.lang.Class)*/ aBoolean.getNativeType();
+/*Native (java.lang.Class)*/ aBoolean.nativeType();
+/*null*/ aBoolean.getOwningModel();
+/*null*/ aBoolean.getOwningModel();
+/*Boolean*/ aBoolean.hasProperty("toString");
+/*String*/ aBoolean.asString();
+/*Boolean*/ aBoolean.isDefined();
+/*Boolean*/ aBoolean.isUndefined();
+/*Boolean*/ aBoolean.err();
+/*Boolean*/ aBoolean.err("prefix");
+/*Boolean*/ aBoolean.err("prefix", "suffix");
+/*String*/ aBoolean.format("formatted");
+/*Boolean*/ aBoolean.isInteger();
+/*Boolean*/ aBoolean.isReal();
+/*Boolean*/ aBoolean.asBoolean();
+/*Boolean*/ aBoolean.asVar("var");

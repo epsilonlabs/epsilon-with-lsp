@@ -1,13 +1,7 @@
-// GENERATE RUNTIME TYPE RETURNS
+// Generated on Fri Mar 06 11:21:27 GMT 2026
 
 var nativeArray = Native("java.lang.reflect.Array").newInstance(Native("java.lang.String").class, 3);
 nativeArray.set(0,"one");
 nativeArray.set(1,"two");
 nativeArray.set(2,"three");
-
-//public EolSequence<Object> asSequence()
-nativeArray.asSequence().type().println("/*","*/ nativeArray.asSequence();");
-
-
-// TEST TYPE RETURNS
 /*Sequence<Any>*/ nativeArray.asSequence();

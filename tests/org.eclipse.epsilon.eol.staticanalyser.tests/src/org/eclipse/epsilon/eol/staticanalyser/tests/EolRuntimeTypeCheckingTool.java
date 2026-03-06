@@ -58,7 +58,6 @@ public class EolRuntimeTypeCheckingTool extends AbstractStaticAnalysisTest {
 				genModule = null;
 				
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				System.err.print("FAILED TO EXECUTE EOL: " + object[1]);
 				e.printStackTrace();
 				

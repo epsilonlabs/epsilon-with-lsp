@@ -12,7 +12,7 @@ openFile();
 // Create a variable and log it
 var aString : String = "letters";
 aString.logTestVar("aString");
-aString.logReturnType("String");
+aString.logReturnType("aString");
 
 
 var aBoolean : Boolean = true;

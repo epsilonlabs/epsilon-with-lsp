@@ -1,0 +1,19 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+var aSeq : Sequence<Integer> = Sequence {-1..10};
+aSeq.logTestVar("aSeq");
+
+aSeq.size.print().logReturnType("aSeq.size");
+aSeq.size().logReturnType("aSeq.size()");
+
+
+closeFile();

@@ -20,9 +20,9 @@ import org.junit.runners.Parameterized.Parameters;
 import junit.framework.AssertionFailedError;
 
 @RunWith(Parameterized.class)
-public class EolRuntimeTypeCheckTests extends AbstractStaticAnalysisTest {
+public class EolRuntimeTypeCheckingTool extends AbstractStaticAnalysisTest {
 
-	private static final String RESOURCES = PROJECT_BASE_FOLDER + "resources/proposed/runtimeTypeCheckTest";
+	private static final String RESOURCES = PROJECT_BASE_FOLDER + "resources/runtimeTypeCheckTool";
 	private static final String PROGRAMSET = "gen"; // sub-folder in resources
 	private static final String PROGRAMFILEEXTENSION = ".eol";
 	private static final String MODELSET = "../models"; // sub-folder in resources
@@ -39,7 +39,7 @@ public class EolRuntimeTypeCheckTests extends AbstractStaticAnalysisTest {
 	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() throws FileNotFoundException {	
 		// Find and execute all the EOL programs that generate the type test EOL programs
-		Collection<Object[]> generators = AbstractBaseTest.getEpsilonProgramCollection("resources/proposed/runtimeTypeCheckTest", "src", ".eol");
+		Collection<Object[]> generators = AbstractBaseTest.getEpsilonProgramCollection(PROJECT_BASE_FOLDER, "src", ".eol");
 		for (Object[] object : generators) {
 			System.out.println(" - " + object[1]);
 			try {
@@ -69,7 +69,7 @@ public class EolRuntimeTypeCheckTests extends AbstractStaticAnalysisTest {
 		return getEpsilonProgramCollection(RESOURCES, PROGRAMSET, PROGRAMFILEEXTENSION);
 	}
 
-	public EolRuntimeTypeCheckTests(String testTag, File epsilonTestFile) {
+	public EolRuntimeTypeCheckingTool(String testTag, File epsilonTestFile) {
 		super(testTag, epsilonTestFile, ENABLECONSOLEOUTPUT);
 	}
 	

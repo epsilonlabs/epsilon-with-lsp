@@ -31,7 +31,6 @@ public class EolRuntimeTypeCheckingTool extends AbstractStaticAnalysisTest {
 
 	@BeforeClass
 	public static void registerModelset() {
-		System.out.println("beforeClass");
 		registerModels(RESOURCES, MODELSET, MODELFILEEXTENSION);
 		
 	}
@@ -41,7 +40,6 @@ public class EolRuntimeTypeCheckingTool extends AbstractStaticAnalysisTest {
 		// Find and execute all the EOL programs that generate the type test EOL programs
 		Collection<Object[]> generators = AbstractBaseTest.getEpsilonProgramCollection(RESOURCES, "/src", ".eol");
 		for (Object[] object : generators) {
-			System.out.println(" - " + object[1]);
 			try {
 				EolModule genModule = new EolModule();
 				genModule.parse((File)object[1]);
@@ -53,8 +51,10 @@ public class EolRuntimeTypeCheckingTool extends AbstractStaticAnalysisTest {
 					    Variable.createReadOnlyVariable("config", config) );
 				
 				genModule.execute();
-				System.out.println("config : " + genModule.getContext().getFrameStack().get("config"));
-				
+				if (ENABLECONSOLEOUTPUT) {
+					System.out.println("\nExecuted : " + object[1]);
+					System.out.println("Config state : " + genModule.getContext().getFrameStack().get("config"));
+				}
 				genModule = null;
 				
 			} catch (Exception e) {

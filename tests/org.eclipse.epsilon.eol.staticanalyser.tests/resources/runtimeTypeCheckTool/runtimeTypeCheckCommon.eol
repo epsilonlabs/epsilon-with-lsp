@@ -40,7 +40,6 @@ operation openFile () {
 operation closeFile () {
     config["writer"].flush();
     config["writer"].close();
-    ("Generated return type test: " + config["basePath"] + config["filename"]).println();
 }
 
 operation noTestVar () {
@@ -71,16 +70,6 @@ operation Any logReturnType ( method : String ) {
         } else {
             config["writer"].println("/*" + self.type().toString() + "*/ " + method);
         }
-
-        // Pull class of the return type
-        /*
-        if(self.isDefined()) {
-            config["writer"].println("// [ " + self.class + " ] < " + method);
-        } else {
-            config["writer"].println("// [ self (return value) not defined ] < " + method);
-        }
-        */
-        
     } else {
         "Error file not open or variable not logged".println();
     }

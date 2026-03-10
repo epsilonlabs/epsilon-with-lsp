@@ -1,0 +1,100 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+// Create a variable and log it
+
+var incSet = Set {1,2,3};
+incSet.logTestVar("incSet");
+
+var set = Set {1..10};
+set.logTestVar("Set");
+
+var seq = Sequence {11..20};
+seq.logTestVar("seq");
+
+var itr = set.getIterable();
+itr.logTestVar("itr");
+
+// Call the variable methods to log the return types
+
+//public IterableOperationContributor()
+//public IterableOperationContributor(Iterable<?> target)
+
+itr.getTarget().logReturnType("itr.getTarget()");
+itr.getIterable().logReturnType("itr.getIterable()");
+itr.isCollection().logReturnType("itr.isCollection()");
+itr.getCollection().logReturnType("itr.getCollection()");
+itr.isList().logReturnType("itr.isList()");
+
+//itr.getList().logReturnType("itr.getList()");  // ERRORs converting Set
+
+seq.getList().logReturnType("itr.getList()");
+itr.isSet().logReturnType("itr.isSet()");
+itr.getSet().logReturnType("itr.getSet()");  // ERRORs converting Sequence/Bag to Set
+itr.contributesTo(null).logReturnType("itr.contributesTo(null)");
+itr.random().logReturnType("itr.random()");
+itr.size().logReturnType("itr.size()");
+itr.at(0).logReturnType("itr.at(0)");
+itr.removeAt(0).logReturnType("itr.removeAt(0)");
+itr.asConcurrentBag().logReturnType("itr.asConcurrentBag()");
+itr.asConcurrentSet().logReturnType("itr.asConcurrentSet()");
+itr.asSequence().logReturnType("itr.asSequence()");
+itr.asSet().logReturnType("itr.asSet()");
+itr.asBag().logReturnType("itr.asBag()");
+itr.asOrderedSet().logReturnType("itr.asOrderedSet()");
+itr.sum().logReturnType("itr.sum()");
+itr.product().logReturnType("itr.product()");
+itr.isEmpty().logReturnType("itr.isEmpty()");
+itr.notEmpty().logReturnType("itr.notEmpty()");
+
+var itr2 : Set;
+itr2.logTestVar("itr2");
+
+itr.copy(itr, itr2).logReturnType("itr.copy(itr, itr2)");    // ERROR if not a Set
+itr.stream().logReturnType("itr.stream()");
+itr.parallelStream().logReturnType("itr.parallelStream()");
+itr.stream(false).logReturnType("itr.stream(false)");
+itr.clone().logReturnType("itr.clone()");
+itr.includes(null).logReturnType("itr.includes(null)");
+itr.excludes(null).logReturnType("itr.excludes(null)");
+itr.includesAll(incSet).logReturnType("itr.includesAll(incSet)");  // ERRORs if no Collection (null)
+itr.excludesAll(incSet).logReturnType("itr.excludesAll(incSet)");  // ERRORs if no Collection (null)
+itr.count(null).logReturnType("itr.count(null)");
+itr.selectByKind(null).logReturnType("itr.selectByKind(null)");
+itr.selectByType(null).logReturnType("itr.selectByType(null)");
+itr.includingAll(incSet).logReturnType("itr.includingAll(incSet)");  // ERRORs if no Collection (null)
+itr.including(null).logReturnType("itr.including(null)");
+itr.flatten().logReturnType("itr.flatten()");
+itr.excluding(null).logReturnType("itr.excluding(null)");
+itr.excludingAll(incSet).logReturnType("itr.excludingAll(incSet)");  // ERRORs if no Collection (null)
+itr.first(0).logReturnType("itr.first(0)");
+
+//@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
+//public Object first()
+// itr.first().logReturnType("itr.first();")  // ERROR Reason: no viable alternative at input '.'
+
+itr.second().logReturnType("itr.second()");
+itr.third().logReturnType("itr.third()");
+itr.fourth().logReturnType("itr.fourth()");
+itr.last().logReturnType("itr.last()");
+itr.indexOf(null).logReturnType("itr.indexOf(null)");
+itr.nth(1).logReturnType("itr.nth(1)");
+itr.concat("").logReturnType("itr.concat()");
+itr.concat("").logReturnType("itr.concat(\" \")");
+itr.max().logReturnType("itr.max()");
+itr.max(0).logReturnType("itr.max(0)");
+itr.min().logReturnType("itr.min()");
+itr.min(0).logReturnType("itr.min(0)");
+itr.invert().logReturnType("itr.invert()");
+itr.createCollection().logReturnType("itr.createCollection()");
+itr.powerset().logReturnType("itr.powerset()");
+
+closeFile();

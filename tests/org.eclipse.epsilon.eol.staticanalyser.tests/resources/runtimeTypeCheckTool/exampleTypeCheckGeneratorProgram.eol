@@ -1,0 +1,48 @@
+// This test file is an example of the EOL programs in ./src/ that produce programs in ./gen/
+// To run this EOL program a Junit test should be created that executes the generation of the EOL programs in the perameters block.
+
+// This import bring the methods used to log variables, methods and code to an EOL File (i.e. the generated EOL program).
+import "../runtimeTypeCheckCommon.eol";
+
+// The basePath and file name should be pushed from the Java Junit test program.
+/* 
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+// Creates the gen_ file using the config settings pushed from Java.
+openFile();
+
+// Create a variable and log it, there is a check to ensure a variable has been logged atleast once.
+var aBoolean : Boolean = true;
+aBoolean.logTestVar("aBoolean");
+
+// Call the variable methods to log the return types using logReturnType(), with a string containing the method call return type being logged
+aBoolean.instanceOf(Boolean).logReturnType("aBoolean.instanceOf(Boolean)");
+aBoolean.isTypeOf(Boolean).logReturnType("aBoolean.isTypeOf(Boolean)");
+
+// When you don't have a variable, this method sets the config variable logged check to true.
+noTestVar();
+
+// Methods on values can be called directly without needing a variable.
+1.1.abs().logReturnType("1.1.abs()");
+11.1.ceiling().logReturnType("11.1.ceiling()");
+
+
+// More complex variables can not be passed to the logTestVar() method, use logCode instead after creating the var.
+var today = new Native("java.util.Date");
+logCode("var today = new Native(\"java.util.Date\");");
+
+var tomorrow = new Native("java.util.Date");
+logCode("var tomorrow = new Native(\"java.util.Date\");");
+
+// Lines of code can be logged with logCode(), remember to escape special characters e.g. "\"escape quote marks\"".
+logCode("tomorrow.setTime(today.getTime() + (1000 * 60 * 60 * 24));");
+
+today.getDifferenceInDays(tomorrow).logReturnType("today.getDifferenceInDays(tomorrow)");
+
+
+// At the end of the program call closeFil(), this flushes to disk and closes the file
+closeFile();

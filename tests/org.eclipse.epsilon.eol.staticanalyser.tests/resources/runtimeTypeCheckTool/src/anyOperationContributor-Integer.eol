@@ -1,0 +1,52 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+// Create a variable and log it
+var aInt : Integer = 1;
+aInt.logTestVar("aInt");
+
+// Call the variable methods to log the return types
+aInt.instanceOf(Integer).logReturnType("aInt.instanceOf(Integer)");
+aInt.isTypeOf(Integer).logReturnType("aInt.isTypeOf(Integer)");
+aInt.isKindOf(Integer).logReturnType("aInt.isKindOf(Integer)");
+aInt.getNativeType().logReturnType("aInt.getNativeType()");
+aInt.nativeType().logReturnType("aInt.nativeType()");
+aInt.getOwningModel().logReturnType("aInt.getOwningModel()");
+aInt.owningModel().logReturnType("aInt.owningModel()");
+aInt.hasProperty("toString").logReturnType("aInt.hasProperty(\"toString\")");
+aInt.asString().logReturnType("aInt.asString()");
+aInt.isDefined().logReturnType("aInt.isDefined()");
+aInt.isUndefined().logReturnType("aInt.isUndefined()");
+//aInt.ifUndefined().logReturnType("aInt.ifUndefined()");
+//aInt.println().logReturnType("aInt.println()");
+//aInt.println(Object prefix).logReturnType("aInt.println(Object prefix)");
+//aInt.println(Object prefix, Object suffix).logReturnType("aInt.println(Object prefix, Object suffix)");
+//aInt.print().logReturnType("aInt.print()");
+//aInt.print(Object prefix).logReturnType("aInt.print(Object prefix)");
+//aInt.print(Object prefix, Object suffix).logReturnType("aInt.print(Object prefix, Object suffix)");
+aInt.err().logReturnType("aInt.err()");
+aInt.err("prefix").logReturnType("aInt.err(\"prefix\")");
+aInt.err("prefix", "suffix").logReturnType("aInt.err(\"prefix\", \"suffix\")");
+aInt.format("formatted").logReturnType("aInt.format(\"formatted\")");
+aInt.asInteger().logReturnType("aInt.asInteger()");
+aInt.isInteger().logReturnType("aInt.isInteger()");
+aInt.isReal().logReturnType("aInt.isReal()");
+aInt.asReal().logReturnType("aInt.asReal()");
+aInt.asDouble().logReturnType("aInt.asDouble()");
+aInt.asFloat().logReturnType("aInt.asFloat();");
+aInt.asLong().logReturnType("aInt.asLong();");
+aInt.asBoolean().logReturnType("aInt.asBoolean();");
+aInt.asUnicode().logReturnType("aInt.asUnicode();");
+//aInt.asDate("dd-mm-yy").logReturnType("aInt.asDate(\"dd-mm-yy\");"); // ERROR: Unparseable date: "1"
+aInt.asVar("var").logReturnType("aInt.asVar(\"var\");");
+
+
+closeFile();

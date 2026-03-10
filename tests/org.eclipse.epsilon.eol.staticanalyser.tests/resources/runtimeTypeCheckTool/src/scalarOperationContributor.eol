@@ -1,0 +1,73 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+var aSeq : Sequence = Sequence {1,2.0,"letters",true};
+aSeq.logTestVar("aSeq");
+
+aSeq.logReturnType("aSeq");
+aSeq[0].logReturnType("aSeq[0]");
+aSeq[1].logReturnType("aSeq[1]");
+aSeq[2].logReturnType("aSeq[2]");
+aSeq[3].logReturnType("aSeq[3]");
+
+
+aSeq.asSequence().logReturnType("aSeq.asSequence()");
+aSeq.asSet().logReturnType("aSeq.asSet()");
+aSeq.asBag().logReturnType("aSeq.asBag()");
+aSeq.asOrderedSet().logReturnType("aSeq.asOrderedSet()");
+
+
+var aSet : Set = Set {1,2.0,"letters",true};
+aSet.logTestVar("aSet");
+
+aSet.logReturnType("aSet");
+aSet[0].logReturnType("aSet[0]");
+aSet[1].logReturnType("aSet[1]");
+aSet[2].logReturnType("aSet[2]");
+aSet[3].logReturnType("aSet[3]");
+
+
+aSet.asSequence().logReturnType("aSet.asSequence()");
+aSet.asSet().logReturnType("aSet.asSet()");
+aSet.asBag().logReturnType("aSet.asBag()");
+aSet.asOrderedSet().logReturnType("aSet.asOrderedSet()");
+
+
+var aBag : Bag = Bag {1,2.0,"letters",true};
+aBag.logTestVar("aBag");
+
+aBag.logReturnType("aBag");
+aBag[0].logReturnType("aBag[0]");
+aBag[1].logReturnType("aBag[1]");
+aBag[2].logReturnType("aBag[2]");
+aBag[3].logReturnType("aBag[3]");
+
+aBag.asSequence().logReturnType("aBag.asSequence()");
+aBag.asSet().logReturnType("aBag.asSet()");
+aBag.asBag().logReturnType("aBag.asBag()");
+aBag.asOrderedSet().logReturnType("aBag.asOrderedSet()");
+
+
+var aOrderedSet : OrderedSet = OrderedSet {1,2.0,"letters",true};
+aOrderedSet.logTestVar("aOrderedSet");
+
+aOrderedSet.logReturnType("aOrderedSet");
+aOrderedSet[0].logReturnType("aOrderedSet[0]");
+aOrderedSet[1].logReturnType("aOrderedSet[1]");
+aOrderedSet[2].logReturnType("aOrderedSet[2]");
+aOrderedSet[3].logReturnType("aOrderedSet[3]");
+
+aOrderedSet.asSequence().logReturnType("aOrderedSet.asSequence()");
+aOrderedSet.asSet().logReturnType("aOrderedSet.asSet()");
+aOrderedSet.asBag().logReturnType("aOrderedSet.asBag()");
+aOrderedSet.asOrderedSet().logReturnType("aOrderedSet.asOrderedSet()");
+
+closeFile();

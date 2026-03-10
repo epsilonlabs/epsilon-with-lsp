@@ -1,0 +1,51 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+// Create a variable and log it
+var aBoolean : Boolean = true;
+aBoolean.logTestVar("aBoolean");
+
+// Call the variable methods to log the return types
+aBoolean.instanceOf(Boolean).logReturnType("aBoolean.instanceOf(Boolean)");
+aBoolean.isTypeOf(Boolean).logReturnType("aBoolean.isTypeOf(Boolean)");
+aBoolean.isKindOf(Boolean).logReturnType("aBoolean.isKindOf(Boolean)");
+aBoolean.getNativeType().logReturnType("aBoolean.getNativeType()");
+aBoolean.nativeType().logReturnType("aBoolean.nativeType()");
+aBoolean.getOwningModel().logReturnType("aBoolean.getOwningModel()");
+aBoolean.owningModel().logReturnType("aBoolean.getOwningModel()");
+aBoolean.hasProperty("toString").logReturnType("aBoolean.hasProperty(\"toString\")");
+aBoolean.asString().logReturnType("aBoolean.asString()");
+aBoolean.isDefined().logReturnType("aBoolean.isDefined()");
+aBoolean.isUndefined().logReturnType("aBoolean.isUndefined()");
+//aBoolean.ifUndefined().logReturnType("aBoolean.ifUndefined()"); // Method not found
+//aBoolean.println().logReturnType("aBoolean.println()");
+//aBoolean.println(Object prefix).logReturnType("aBoolean.println(Object prefix)");
+//aBoolean.println(Object prefix, Object suffix).logReturnType("aBoolean.println(Object prefix, Object suffix)");
+//aBoolean.print().logReturnType("aBoolean.print()");
+//aBoolean.print(Object prefix).logReturnType("aBoolean.print(Object prefix)");
+//aBoolean.print(Object prefix, Object suffix).logReturnType("aBoolean.print(Object prefix, Object suffix)");
+aBoolean.err().logReturnType("aBoolean.err()");
+aBoolean.err("prefix").logReturnType("aBoolean.err(\"prefix\")");
+aBoolean.err("prefix", "suffix").logReturnType("aBoolean.err(\"prefix\", \"suffix\")");
+aBoolean.format("formatted").logReturnType("aBoolean.format(\"formatted\")");
+//aBoolean.asInteger().logReturnType("aBoolean.asInteger()"); // ERROR: For input string: "true"
+aBoolean.isInteger().logReturnType("aBoolean.isInteger()");
+aBoolean.isReal().logReturnType("aBoolean.isReal()");
+//aBoolean.asReal().logReturnType("aBoolean.asReal()"); // ERROR: For input string: "true"
+//aBoolean.asDouble().logReturnType("aBoolean.asDouble()"); // ERROR: For input string: "true"
+//aBoolean.asFloat().logReturnType("aBoolean.asFloat()"); // ERROR: For input string: "true"
+//aBoolean.asLong().logReturnType("aBoolean.asLong()"); // ERROR: For input string: "true"
+aBoolean.asBoolean().logReturnType("aBoolean.asBoolean();");
+//aBoolean.asUnicode().logReturnType("aBoolean.asUnicode()"); // ERROR: For input string: "true"
+//aBoolean.asDate("dd-mm-yy").logReturnType("aBoolean.asDate(\"dd-mm-yy\")"); // ERROR : Unparseable date: "true"
+aBoolean.asVar("var").logReturnType("aBoolean.asVar(\"var\")");
+
+closeFile();

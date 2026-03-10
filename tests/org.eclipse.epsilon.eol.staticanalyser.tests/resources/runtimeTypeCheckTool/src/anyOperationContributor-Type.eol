@@ -1,0 +1,65 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+// Create a variable and log it
+var aString : String = "letters";
+aString.logTestVar("aString");
+aString.logReturnType("aString");
+
+
+var aBoolean : Boolean = true;
+aBoolean.logTestVar("aBoolean");
+aBoolean.logReturnType("aBoolean");
+
+
+var aReal : Real = 1.0;
+aReal.logTestVar("aReal");
+aReal.logReturnType("aReal");
+
+
+var aInt : Integer = 1;
+aInt.logTestVar("aInt");
+aInt.logReturnType("aInt");
+
+
+// TODO Collection type() returns ANY
+
+var aBag = Bag {1,2,3};
+aBag.logTestVar("aBag");
+aBag.logReturnType("aBag");
+
+
+var aSequence = Sequence {1,2,3};
+aSequence.logTestVar("aSequence");
+aSequence.logReturnType("aSequence");
+
+
+var aSet = Set {1,2,3};
+aSet.logTestVar("Set");
+aSet.logReturnType("Set");
+
+
+var aOrderedSet = OrderedSet {1,2,3};
+aOrderedSet.logTestVar("OrderedSet");
+aOrderedSet.logReturnType("OrderedSet");
+
+
+var aConcurrentBag = ConcurrentBag {1,2,3};
+aConcurrentBag.logTestVar("ConcurrentBag");
+aConcurrentBag.logReturnType("ConcurrentBag");
+
+
+var aConcurrentSet = ConcurrentSet {1,2,3};
+aConcurrentSet.logTestVar("ConcurrentSet");
+aConcurrentSet.logReturnType("ConcurrentSet");
+
+
+closeFile();

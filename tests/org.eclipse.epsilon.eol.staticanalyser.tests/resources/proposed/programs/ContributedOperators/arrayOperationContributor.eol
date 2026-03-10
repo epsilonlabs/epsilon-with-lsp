@@ -1,0 +1,7 @@
+// Generated on Fri Mar 06 12:19:38 GMT 2026
+
+var nativeArray = Native("java.lang.reflect.Array").newInstance(Native("java.lang.String").class, 3);
+nativeArray.set(0,"one");
+nativeArray.set(1,"two");
+nativeArray.set(2,"three");
+/*Sequence<Any>*/ nativeArray.asSequence();

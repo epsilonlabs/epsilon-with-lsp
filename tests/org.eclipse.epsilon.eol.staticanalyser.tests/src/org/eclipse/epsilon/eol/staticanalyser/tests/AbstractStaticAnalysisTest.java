@@ -224,11 +224,11 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 	}
 	
 	private String formatTypeResults(List<String> results) {
-		String niceResults = "";
-		for (String r : results) {
-			niceResults = niceResults.concat("- " + r + "\n");
-		}
-		return niceResults;
+		StringBuilder sb = new StringBuilder();
+	    for (String r : results) {
+	        sb.append("- ").append(r).append("\n");
+	    }
+	    return sb.toString();
 	}
 	
 	protected List<String> visit(List<ModuleElement> elements) {

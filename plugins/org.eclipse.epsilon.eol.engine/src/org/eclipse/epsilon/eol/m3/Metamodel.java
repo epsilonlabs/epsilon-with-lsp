@@ -26,10 +26,44 @@ public abstract class Metamodel extends Package implements IMetamodel{
 	}
 	
 	public IMetaClass getMetaClass(String name) {
-		for (IMetaClass type : metaClasses) {
+		if (name.contains("::")) {
+			String[] parts = name.split("::");
+			Package current = this;
+			int startIndex = 0;
+			if (current.getName() != null && current.getName().equals(parts[0])) {
+				startIndex = 1;
+			}
+			for (int i = startIndex; i < parts.length - 1; i++) {
+				Package found = null;
+				for (Package sub : current.getSubPackages()) {
+					if (sub.getName().equals(parts[i])) {
+						found = sub;
+						break;
+					}
+				}
+				if (found == null) return null;
+				current = found;
+			}
+			String className = parts[parts.length - 1];
+			for (IMetaClass type : current.getTypes()) {
+				if (type.getName().equals(className)) {
+					return type;
+				}
+			}
+			return null;
+		}
+		return findMetaClass(this, name);
+	}
+	
+	private IMetaClass findMetaClass(Package pkg, String name) {
+		for (IMetaClass type : pkg.getTypes()) {
 			if (type.getName().equals(name)) {
 				return type;
 			}
+		}
+		for (Package sub : pkg.getSubPackages()) {
+			IMetaClass result = findMetaClass(sub, name);
+			if (result != null) return result;
 		}
 		return null;
 	}

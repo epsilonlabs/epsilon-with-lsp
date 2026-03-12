@@ -21,6 +21,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.m3.Metamodel;
+import org.eclipse.epsilon.eol.m3.Package;
 import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 
@@ -44,17 +45,8 @@ public class EmfModelMetamodel extends Metamodel {
 				getErrors().add("EPackage with nsURI " + nsuri + " is not available in EPackage.Registry.INSTANCE");
 			}
 			else {
-				for (EClassifier eClassifier : ePackage.getEClassifiers()) {
-					if (eClassifier instanceof EClass) {
-						EmfMetaClass metaClass = new EmfMetaClass(eClassifier, this);
-						eClassMetaClassMap.put((EClass) eClassifier, metaClass);
-						metaClasses.add(metaClass);
-					}
-					else if(eClassifier instanceof EEnum) {
-						EmfMetaClass metaClass = new EmfEnumMetaClass((EEnum)eClassifier, this);
-						metaClasses.add(metaClass);
-					}
-				}
+				populatePackage(this, ePackage, eClassMetaClassMap);
+				
 				for (EClass eClass : eClassMetaClassMap.keySet()) {
 					MetaClass metaClass = eClassMetaClassMap.get(eClass);
 					for (EClass eSuperType : eClass.getESuperTypes()) {
@@ -85,6 +77,28 @@ public class EmfModelMetamodel extends Metamodel {
 					 metaClass.setAbstract(eClass.isAbstract());
 				}
 			}
+		}
+	}
+	
+	private void populatePackage(Package pkg, EPackage ePackage, HashMap<EClass, MetaClass> eClassMetaClassMap) {
+		pkg.setName(ePackage.getName());
+		
+		for (EClassifier eClassifier : ePackage.getEClassifiers()) {
+			if (eClassifier instanceof EClass) {
+				EmfMetaClass metaClass = new EmfMetaClass(eClassifier, this);
+				eClassMetaClassMap.put((EClass) eClassifier, metaClass);
+				pkg.getTypes().add(metaClass);
+			}
+			else if (eClassifier instanceof EEnum) {
+				EmfMetaClass metaClass = new EmfEnumMetaClass((EEnum) eClassifier, this);
+				pkg.getTypes().add(metaClass);
+			}
+		}
+		
+		for (EPackage eSubPackage : ePackage.getESubpackages()) {
+			Package subPkg = new Package();
+			pkg.getSubPackages().add(subPkg);
+			populatePackage(subPkg, eSubPackage, eClassMetaClassMap);
 		}
 	}
 	

@@ -244,6 +244,16 @@ operation ECore!EModelElement getFormatOption(option : String) : String {
 	return value;
 }
 
+//! [9:17-9:18] Integer cannot be assigned to String
+//! [11:17-11:39] Integer cannot be assigned to String
+//! [27:23-27:29] Undefined operation get
+//! [28:23-28:29] Undefined operation get
+//! [44:16-44:17] Integer cannot be assigned to String
+//! [48:5-48:19] Number expected instead of String
+//! [52:16-52:22] String cannot be assigned to Integer
+//! [53:19-53:25] String cannot be assigned to Integer
+//! [54:17-54:23] String cannot be assigned to Integer
+//! [55:18-55:24] String cannot be assigned to Integer
 //! [72:7-72:16] Property lineWidth not found in type Figure
 //! [77:8-77:16] Property lineKind not found in type Figure
 //! [80:8-80:16] Property lineKind not found in type Figure

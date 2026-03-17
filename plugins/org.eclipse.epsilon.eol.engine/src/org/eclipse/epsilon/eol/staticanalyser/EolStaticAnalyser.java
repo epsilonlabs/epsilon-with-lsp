@@ -167,6 +167,19 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		EolType targetType = getResolvedType(targetExpression);
 		EolType valueType = getResolvedType(valueExpression);
 
+		// If the target is an untyped variable declaration, infer its type from the assigned value
+		if (targetExpression instanceof VariableDeclaration) {
+			VariableDeclaration varDecl = (VariableDeclaration) targetExpression;
+			if (varDecl.getTypeExpression() == null && !(valueType.equals(EolAnyType.Instance))) {
+				Variable variable = context.getFrameStack().get(varDecl.getName());
+				if (variable != null) {
+					variable.setType(valueType);
+				}
+				setResolvedType(targetExpression, valueType);
+				targetType = valueType;
+			}
+		}
+
 		if (targetType instanceof EolModelElementType && ((EolModelElementType) targetType).getMetaClass() != null)
 			targetType = new EolModelElementType(((EolModelElementType) targetType).getMetaClass());
 		if (valueType instanceof EolModelElementType && ((EolModelElementType) valueType).getMetaClass() != null)

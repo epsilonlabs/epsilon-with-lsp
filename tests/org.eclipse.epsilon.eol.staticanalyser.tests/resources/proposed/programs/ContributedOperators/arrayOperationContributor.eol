@@ -1,7 +1,8 @@
 // Generated on Fri Mar 06 12:19:38 GMT 2026
 
+//Don't know how to write contributesToType for arrayOperationContributor. newInstance returns Any here.
 var nativeArray = Native("java.lang.reflect.Array").newInstance(Native("java.lang.String").class, 3);
 nativeArray.set(0,"one");
 nativeArray.set(1,"two");
 nativeArray.set(2,"three");
-/*Sequence<Any>*/ nativeArray.asSequence();
+/*Sequence<Native<java.lang.Object>>*/ nativeArray.asSequence();

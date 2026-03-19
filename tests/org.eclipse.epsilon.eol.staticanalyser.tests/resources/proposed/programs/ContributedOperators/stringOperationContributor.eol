@@ -7,5 +7,5 @@
 /*String*/ 'foo'.ftuc();
 /*String*/ 'foo'.ftlc();
 /*Boolean*/ 'foo'.isSubstringOf('bar');
-/*Sequence<Any>*/ 'foo'.toCharSequence();
+/*Sequence<String>*/ 'foo'.toCharSequence();
 /*String*/ 'foo'.pad(5,'a',true);

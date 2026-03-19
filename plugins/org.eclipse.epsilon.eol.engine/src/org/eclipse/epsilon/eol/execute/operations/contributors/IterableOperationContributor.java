@@ -66,6 +66,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return target instanceof Iterable;
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object random() {
 		if (isEmpty()) return null;
 		final int size = size();
@@ -85,6 +86,7 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object at(int index) {
 		if (isList()) {
 			return getList().get(index);
@@ -100,6 +102,7 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object removeAt(int index) {
 		if (isList()) {
 			return getList().remove(index);
@@ -235,7 +238,9 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 
+	
 	@Override
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<?> clone() {
 		// May require its own contributor
 		if (isCollection()) {
@@ -293,6 +298,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @return
 	 * @since 2.1
 	 */
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<Object> selectByKind(EolType type) {
 		if (type == null) {
 			type = EolNoType.Instance;
@@ -308,6 +314,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @return
 	 * @since 2.1
 	 */
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<Object> selectByType(EolType type) {
 		if (type == null) {
 			type = EolNoType.Instance;
@@ -317,6 +324,7 @@ public class IterableOperationContributor extends OperationContributor {
 			.collect(Collectors.toCollection(this::createCollection));
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<Object> includingAll(Collection<?> col) {
 		Collection<Object> result = createCollection();
 		addAll(getTarget(), result);
@@ -324,6 +332,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return result;
 	}
 
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<Object> including(Object o) {
 		Collection<Object> result = createCollection();
 		addAll(getTarget(), result);
@@ -335,6 +344,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * TODO : See this
 	 * @return
 	 */
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<Object> flatten() {
 		Collection<Object> col;
 		if (isCollection()) {
@@ -347,6 +357,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return CollectionUtil.flatten(col);
 	}
 
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<Object> excluding(Object o) {
 		Collection<Object> excluding = createCollection();
 		addAll(getTarget(), excluding);
@@ -356,6 +367,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return excluding;
 	}
 
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<Object> excludingAll(Collection<?> col) {
 		Collection<Object> difference = createCollection();
 		for (Object next : getTarget()) {
@@ -382,18 +394,22 @@ public class IterableOperationContributor extends OperationContributor {
 		return nth(0);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object second() {
 		return nth(1);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object third() {
 		return nth(2);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object fourth() {
 		return nth(3);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object last() {
 		if (isCollection()) {
 			return nth(getCollection().size() - 1);
@@ -421,6 +437,7 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	private Object nth(int index) {
 		if (isEmpty()) return null;
 		return at(index);
@@ -436,10 +453,12 @@ public class IterableOperationContributor extends OperationContributor {
 		);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Number max() {
 		return max(0);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Number max(Number default_) {
 		Number max = null;
 		for (Object next : getTarget()) {
@@ -456,10 +475,12 @@ public class IterableOperationContributor extends OperationContributor {
 		return max;
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Number min() {
 		return min(0);
 	}
 	
+	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Number min(Number default_) {
 		Number min = null;
 		for (Object next : getTarget()) {
@@ -484,6 +505,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return sequence;
 	}
 
+	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
 	public Collection<Object> createCollection() {
 		if (isCollection()) {
 			return EolCollectionType.createSameType(getCollection());

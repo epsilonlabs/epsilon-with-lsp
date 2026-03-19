@@ -1,61 +1,40 @@
 // Generated on Fri Mar 06 12:19:38 GMT 2026
+var itr : Set<Integer> = Set {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+var incSet : Set<Integer> = Set{1,2,3};
 
-
-var incSet : Set<Any> = Set {1, 2, 3};
-
-
-var Set : Set<Any> = Set {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-
-
-var seq : Sequence<Any> = Sequence {11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-
-
-var itr : Set<Any> = Set {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-
-/*Set<Any>*/ itr.getTarget();
-/*Set<Any>*/ itr.getIterable();
-/*Boolean*/ itr.isCollection();
-/*Set<Any>*/ itr.getCollection();
-/*Boolean*/ itr.isList();
-/*Sequence<Any>*/ itr.getList();
-/*Boolean*/ itr.isSet();
-/*Set<Any>*/ itr.getSet();
 /*Boolean*/ itr.contributesTo(null);
 /*Integer*/ itr.random();
 /*Integer*/ itr.size();
 /*Integer*/ itr.at(0);
 /*Integer*/ itr.removeAt(0);
-/*ConcurrentBag<Any>*/ itr.asConcurrentBag();
-/*ConcurrentSet<Any>*/ itr.asConcurrentSet();
-/*Sequence<Any>*/ itr.asSequence();
-/*Set<Any>*/ itr.asSet();
-/*Bag<Any>*/ itr.asBag();
-/*OrderedSet<Any>*/ itr.asOrderedSet();
-/*Integer*/ itr.sum();
-/*Integer*/ itr.product();
+/*ConcurrentBag<Native<java.lang.Object>>*/ itr.asConcurrentBag();
+/*ConcurrentSet<Native<java.lang.Object>>*/ itr.asConcurrentSet();
+/*Sequence<Native<java.lang.Object>>*/ itr.asSequence();
+/*Set<Native<java.lang.Object>>*/ itr.asSet();
+/*Bag<Native<java.lang.Object>>*/ itr.asBag();
+/*OrderedSet<Native<java.lang.Object>>*/ itr.asOrderedSet();
+/*Native<java.lang.Number>*/ itr.sum();
+/*Native<java.lang.Number>*/ itr.product();
 /*Boolean*/ itr.isEmpty();
 /*Boolean*/ itr.notEmpty();
 
-var itr2 : Set<Any> = Set {};
-
-/*null*/ itr.copy(itr, itr2);
-/*Native (java.util.stream.ReferencePipeline.Head)*/ itr.stream();
-/*Native (java.util.stream.ReferencePipeline.Head)*/ itr.parallelStream();
-/*Native (java.util.stream.ReferencePipeline.Head)*/ itr.stream(false);
-/*Set<Any>*/ itr.clone();
+/*Native<java.util.stream.Stream>*/ itr.stream();
+/*Native<java.util.stream.Stream>*/ itr.parallelStream();
+/*Native<java.util.stream.Stream>*/ itr.stream(false);
+/*Set<Integer>*/ itr.clone();
 /*Boolean*/ itr.includes(null);
 /*Boolean*/ itr.excludes(null);
 /*Boolean*/ itr.includesAll(incSet);
 /*Boolean*/ itr.excludesAll(incSet);
 /*Integer*/ itr.count(null);
-/*Set<Any>*/ itr.selectByKind(null);
-/*Set<Any>*/ itr.selectByType(null);
-/*Set<Any>*/ itr.includingAll(incSet);
-/*Set<Any>*/ itr.including(null);
-/*Set<Any>*/ itr.flatten();
-/*Set<Any>*/ itr.excluding(null);
-/*Set<Any>*/ itr.excludingAll(incSet);
-/*Sequence<Any>*/ itr.first(0);
+/*Set<Integer>*/ itr.selectByKind(null);
+/*Set<Integer>*/ itr.selectByType(null);
+/*Set<Integer>*/ itr.includingAll(incSet);
+/*Set<Integer>*/ itr.including(11);
+/*Set<Integer>*/ itr.flatten();
+/*Set<Integer>*/ itr.excluding(null);
+/*Set<Integer>*/ itr.excludingAll(incSet);
+/*Collection<Native<java.lang.Object>>*/ itr.first(0);
 /*Integer*/ itr.second();
 /*Integer*/ itr.third();
 /*Integer*/ itr.fourth();
@@ -68,6 +47,6 @@ var itr2 : Set<Any> = Set {};
 /*Integer*/ itr.max(0);
 /*Integer*/ itr.min();
 /*Integer*/ itr.min(0);
-/*Sequence<Any>*/ itr.invert();
-/*Set<Any>*/ itr.createCollection();
-/*Set<Any>*/ itr.powerset();
+/*Collection<Native<java.lang.Object>>*/ itr.invert();
+/*Set<Integer>*/ itr.createCollection();
+/*Set<Set<Native<java.lang.Object>>>*/ itr.powerset();

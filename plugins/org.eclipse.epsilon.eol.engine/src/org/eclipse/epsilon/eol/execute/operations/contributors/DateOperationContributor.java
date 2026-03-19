@@ -13,11 +13,19 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+
 public class DateOperationContributor extends OperationContributor {
 
 	@Override
 	public boolean contributesTo(Object target) {
 		return target instanceof Date;
+	}
+	
+	@Override
+	public EolType contributesToType() {
+		return new EolNativeType(java.util.Date.class);
 	}
 	
 	@Override

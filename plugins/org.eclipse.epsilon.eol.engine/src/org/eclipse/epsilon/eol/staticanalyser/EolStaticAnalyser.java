@@ -1304,7 +1304,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				eolType = new EolMapType(keyType, valueType);
 				return eolType;
 			} else {
-				return EolAnyType.Instance;
+				return javaClassToEolType((Class<?>) rawType);
 			}
 		} else if (javaType instanceof Class<?>) {
 			Class<?> javaClass = (Class<?>) javaType;

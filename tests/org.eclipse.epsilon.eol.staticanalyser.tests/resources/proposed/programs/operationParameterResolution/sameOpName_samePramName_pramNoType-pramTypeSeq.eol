@@ -1,0 +1,9 @@
+operation Sequence example(item) : String {
+	var test : String = item;
+	return test;
+}
+
+operation Sequence example(item : Sequence) : Sequence {
+	var test : Sequence = item;
+	return test;
+}

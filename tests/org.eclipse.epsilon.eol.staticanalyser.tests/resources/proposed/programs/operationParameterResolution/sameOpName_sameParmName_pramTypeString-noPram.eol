@@ -1,0 +1,13 @@
+operation Sequence example(item : String) : String {
+	var test : String = item;
+	return test;
+}
+
+operation Sequence example() : Sequence {
+	var test : Sequence = item;
+	return item;
+}
+
+// Expected errors
+//! [7:23-7:27] Undefined variable or type item
+//! [8:8-8:12] Undefined variable or type item

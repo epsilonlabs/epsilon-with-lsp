@@ -2,10 +2,12 @@ package org.eclipse.epsilon.eol.staticanalyser.tests;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -15,6 +17,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.epsilon.common.parse.Region;
 
 public abstract class AbstractBaseTest {
 	
@@ -111,5 +114,24 @@ public abstract class AbstractBaseTest {
 		}
 
 	}
+	
+	protected String getLineFromProgramFile(int lineNumber) {
+		try (Stream<String> lines = Files.lines(programFile.toPath())) {
+			// skip is 0-indexed, so (lineNumber - 1) gets the correct line
+			return lines.skip(lineNumber - 1).findFirst().orElse("[Line " + lineNumber + " not found]");
+		} catch (Exception e) {
+			return "[Error reading file: " + e.getMessage() + "]";
+		}
+	}
+	
+	protected List<String> getRegionLinesFromFile(Region region) {
+		List<String> listFileLines = new ArrayList<String>();
+		for(int line = region.getStart().getLine(); line <= region.getEnd().getLine(); line++) {
+			listFileLines.add(getLineFromProgramFile(line));
+		}		
+		return listFileLines;
+		
+	}
+	
 
 }

@@ -1,0 +1,4 @@
+var a : Map<Any,Any> = Map{"foo" = "bar"};
+
+/*Map<String, String>*/Map{"foo" = "bar"};
+/*Map<String|Integer, String|Integer>*/Map{"foo" = "bar", 1 = 2};

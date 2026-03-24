@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -503,6 +504,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(MapLiteralExpression<?, ?> mapLiteralExpression) {
+		if (!mapLiteralExpression.getKeyValueExpressionPairs().isEmpty()) {
+			Set<EolType> keyTypes = new LinkedHashSet<EolType>();
+			Set<EolType> valueTypes = new LinkedHashSet<EolType>();
+			for (Map.Entry<Expression, Expression> pair : mapLiteralExpression.getKeyValueExpressionPairs()) {
+				pair.getKey().accept(this);
+				pair.getValue().accept(this);
+				keyTypes.add(getResolvedType(pair.getKey()));
+				valueTypes.add(getResolvedType(pair.getValue()));
+			}
+			EolType keyType = keyTypes.size() == 1 ? keyTypes.iterator().next() : new EolUnionType(keyTypes);
+			EolType valueType = valueTypes.size() == 1 ? valueTypes.iterator().next() : new EolUnionType(valueTypes);
+			setResolvedType(mapLiteralExpression, new EolMapType(keyType, valueType));
+		}
+		else {
+			setResolvedType(mapLiteralExpression, new EolMapType());
+		}
 	}
 
 	@Override
@@ -1130,6 +1147,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		if (type instanceof EolMapType) {
+			setResolvedType(typeExpression, type);
 			if (typeExpression.getParameterTypeExpressions().size() == 2) {
 				((EolMapType) type).setKeyType(getResolvedType(typeExpression.getParameterTypeExpressions().get(0)));
 				((EolMapType) type).setValueType(getResolvedType(typeExpression.getParameterTypeExpressions().get(1)));

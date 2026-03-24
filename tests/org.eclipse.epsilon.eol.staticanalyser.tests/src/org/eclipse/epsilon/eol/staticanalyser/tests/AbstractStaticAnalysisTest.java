@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
+import org.eclipse.epsilon.common.parse.Region;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
@@ -182,7 +183,7 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 			}
 		}
 		assertTrue("\nStatic Analysis Marker with MESSAGE not found for Test Marker " + testMarkerIndex + " :\n"
-				+ testMarker.toString(), candidatesByMessage.size() > 0);
+				+ testMarker.toString() + getFormattedProgramString(testMarker.getRegion()), candidatesByMessage.size() > 0);
 
 		List<ModuleMarker> candidatesByRegion = new ArrayList<ModuleMarker>();
 		for (ModuleMarker staticAnalysisMarker : candidatesByMessage) {
@@ -216,11 +217,12 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 	}
 	
 	public String asBulletListString (List<ModuleMarker> listOfModuleMarkers) {
-		String staticAnalyserMarkersString = "";
+		StringBuilder staticAnalyserMarkersString = new StringBuilder();
 		for (ModuleMarker staticAnalyserMarker : listOfModuleMarkers) {
-			staticAnalyserMarkersString = staticAnalyserMarkersString.concat(" - " + staticAnalyserMarker.toString() + "\n");
+			staticAnalyserMarkersString.append(" - " + staticAnalyserMarker.toString());
+			staticAnalyserMarkersString.append(getFormattedProgramString(staticAnalyserMarker.getRegion()) + "\n");
 		}
-		return staticAnalyserMarkersString;
+		return staticAnalyserMarkersString.toString();
 	}
 	
 	private String formatTypeResults(List<String> results) {
@@ -247,18 +249,32 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 				}
 
 				if (!commentTypeString.equals(elementTypeString)) {
+					String programString = getFormattedProgramString(element.getRegion());
 					results.add(String.format("Line: %s, element '%s' column %s to %s"
-							+ "\n \t  Expected: /*%s*/ \tWas: /*%s*/",
+							+ "\n \t  Expected: /*%s*/ \tWas: /*%s*/" 
+							+ "%s",
 							element.getRegion().getStart().getLine(),
 							element.getClass().getSimpleName(),
 							element.getRegion().getStart().getColumn(),
 							element.getRegion().getEnd().getColumn(),							
-							commentTypeString, elementTypeString));
+							commentTypeString, elementTypeString,
+							programString));
 				}
 			}
 			results.addAll(visit(element.getChildren()));
 		}
 		return results;
+	}
+
+	private String getFormattedProgramString(Region region) {
+		List<String> programLines = getRegionLinesFromFile(region);
+		StringBuilder programString = new StringBuilder();
+		int line = region.getStart().getLine();
+		for (String pLine : programLines) {
+			programString.append("\n \t \t line " + line + " -> " + pLine);
+			line++;
+		}
+		return programString.toString();
 	}
 
 	protected EolType getResolvedType(ModuleElement element) {

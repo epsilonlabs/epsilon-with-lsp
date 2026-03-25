@@ -16,9 +16,16 @@ alice.occupation;
 
 var bob = new Tuple(name = "Bob", age = 28);
 /*Tuple*/bob;
-bob.name;
-bob.age;
+/*String*/bob.name;
+/*Integer*/bob.age;
 bob.occupation;
+
+var charlie = Tuple{"name" = "Charlie", "age" = 36};
+/*Tuple*/charlie;
+/*String*/charlie.name;
+/*Integer*/charlie.age;
+charlie.occupation;
 
 //! [14:6-14:16] Property 'occupation' not found
 //! [21:4-21:14] Property 'occupation' not found
+//! [27:8-27:18] Property 'occupation' not found

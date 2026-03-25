@@ -518,7 +518,30 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(MapLiteralExpression<?, ?> mapLiteralExpression) {
-		if (!mapLiteralExpression.getKeyValueExpressionPairs().isEmpty()) {
+		if (mapLiteralExpression.isTuple()) {
+			EolTupleType tupleType = new EolTupleType();
+			for (Map.Entry<Expression, Expression> pair : mapLiteralExpression.getKeyValueExpressionPairs()) {
+				pair.getValue().accept(this);
+				EolType valueType = getResolvedType(pair.getValue());
+				// Mirroring runtime: NameExpression keys are treated as string property names
+				String propertyName = null;
+				if (pair.getKey() instanceof NameExpression) {
+					propertyName = ((NameExpression) pair.getKey()).getName();
+					setResolvedType(pair.getKey(), EolPrimitiveType.String);
+				} else {
+					pair.getKey().accept(this);
+					EolType keyType = getResolvedType(pair.getKey());
+					if (keyType.equals(EolPrimitiveType.String) && pair.getKey() instanceof StringLiteral) {
+						propertyName = ((StringLiteral) pair.getKey()).getValue();
+					}
+				}
+				if (propertyName != null && !(valueType.equals(EolAnyType.Instance))) {
+					tupleType.setPropertyType(propertyName, valueType);
+				}
+			}
+			setResolvedType(mapLiteralExpression, tupleType);
+		}
+		else if (!mapLiteralExpression.getKeyValueExpressionPairs().isEmpty()) {
 			Set<EolType> keyTypes = new LinkedHashSet<EolType>();
 			Set<EolType> valueTypes = new LinkedHashSet<EolType>();
 			for (Map.Entry<Expression, Expression> pair : mapLiteralExpression.getKeyValueExpressionPairs()) {

@@ -650,10 +650,35 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	public void visit(NewInstanceExpression newInstanceExpression) {
 
 		newInstanceExpression.getTypeExpression().accept(this);
-		for (Expression parameterExpression : newInstanceExpression.getParameterExpressions()) {
-			parameterExpression.accept(this);
-		}
 		EolType type = getResolvedType(newInstanceExpression.getTypeExpression());
+
+		// For Tuples, handle EqualsOperatorExpression parameters as named property
+		// initialisers (e.g. new Tuple(name = "Bob")).
+		if (type instanceof EolTupleType) {
+			EolTupleType tupleType = (EolTupleType) type;
+			for (Expression parameterExpression : newInstanceExpression.getParameterExpressions()) {
+				if (parameterExpression instanceof EqualsOperatorExpression) {
+					EqualsOperatorExpression eoe = (EqualsOperatorExpression) parameterExpression;
+					eoe.getSecondOperand().accept(this);
+					if (eoe.getFirstOperand() instanceof NameExpression) {
+						String propertyName = ((NameExpression) eoe.getFirstOperand()).getName();
+						EolType valueType = getResolvedType(eoe.getSecondOperand());
+						if (!(valueType.equals(EolAnyType.Instance))) {
+							tupleType.setPropertyType(propertyName, valueType);
+						}
+						setResolvedType(eoe.getFirstOperand(), valueType);
+					}
+					setResolvedType(parameterExpression, EolPrimitiveType.Boolean);
+				} else {
+					parameterExpression.accept(this);
+				}
+			}
+		} else {
+			for (Expression parameterExpression : newInstanceExpression.getParameterExpressions()) {
+				parameterExpression.accept(this);
+			}
+		}
+
 		setResolvedType(newInstanceExpression, type);
 		
 		//Check for abstract type instantiation

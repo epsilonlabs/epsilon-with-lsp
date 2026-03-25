@@ -14,4 +14,11 @@ alice.age = 32;
 alice.occupation;
 /*Boolean*/alice.occupation.isDefined();
 
+var bob = new Tuple(name = "Bob", age = 28);
+/*Tuple*/bob;
+bob.name;
+bob.age;
+bob.occupation;
+
 //! [14:6-14:16] Property 'occupation' not found
+//! [21:4-21:14] Property 'occupation' not found

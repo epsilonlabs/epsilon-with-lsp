@@ -2,3 +2,16 @@ var a : Map<Any,Any> = Map{"foo" = "bar"};
 
 /*Map<String, String>*/Map{"foo" = "bar"};
 /*Map<String|Integer, String|Integer>*/Map{"foo" = "bar", 1 = 2};
+
+/*Map<String, String>*/ConcurrentMap{"foo" = "bar"};
+
+var alice = new Tuple;
+/*Tuple*/alice;
+alice.name = "Alice";
+alice.age = 32;
+/*String*/alice.name;
+/*Integer*/alice.age;
+alice.occupation;
+/*Boolean*/alice.occupation.isDefined();
+
+//! [14:6-14:16] Property 'occupation' not found

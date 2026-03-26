@@ -1,2 +1,7 @@
 /*Native<java.lang.String>*/new Native("java.lang.String");
 /*Native<java.lang.String>*/new Native("java.lang.String")("blah");
+
+var a = new Native("org.eclipse.epsilon.emc.uml.dt.UMLTool");
+/*Native<org.eclipse.epsilon.emc.uml.dt.UMLTool>*/a;
+
+//? [4:19-4:59] Class org.eclipse.epsilon.emc.uml.dt.UMLTool is not on the classpath

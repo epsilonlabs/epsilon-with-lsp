@@ -791,6 +791,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				setResolvedType(operationCallExpression, EolAnyType.Instance);
 				return;
 			}
+			// Unresolved native type — can't verify operations via reflection
+			if (contextType instanceof EolNativeType && contextType.getClazz() == null) {
+				setResolvedType(operationCallExpression, EolAnyType.Instance);
+				return;
+			}
 			markers.add(new ModuleMarker(nameExpression, "Undefined operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
@@ -1036,6 +1041,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		// Property call on a Java object
 		else if (getResolvedType(targetExpression) instanceof EolNativeType) {
 			Class<?> javaClass = getResolvedType(targetExpression).getClazz();
+			// Unresolved native type — can't verify properties via reflection
+			if (javaClass == null) {
+				setResolvedType(propertyCallExpression, EolAnyType.Instance);
+				return;
+			}
 			//.x
 			try {
 				Field f = javaClass.getDeclaredField(nameExpression.getName());

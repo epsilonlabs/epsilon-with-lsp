@@ -1,0 +1,42 @@
+// Generated on Tue Mar 10 16:03:27 GMT 2026
+
+
+var aString : String = "letters";
+
+/*String*/ aString;
+
+var aBoolean : Boolean = true;
+
+/*Boolean*/ aBoolean;
+
+var aReal : Real = 1.0;
+
+/*Real*/ aReal;
+
+var aInt : Integer = 1;
+
+/*Integer*/ aInt;
+
+var aBag : Bag<Any> = Bag {1, 2, 3};
+
+/*Bag<Any>*/ aBag;
+
+var aSequence : Sequence<Any> = Sequence {1, 2, 3};
+
+/*Sequence<Any>*/ aSequence;
+
+var Set : Set<Any> = Set {1, 2, 3};
+
+/*Set<Any>*/ Set;
+
+var OrderedSet : OrderedSet<Any> = OrderedSet {1, 2, 3};
+
+/*OrderedSet<Any>*/ OrderedSet;
+
+var ConcurrentBag : ConcurrentBag<Any> = ConcurrentBag {1, 2, 3};
+
+/*ConcurrentBag<Any>*/ ConcurrentBag;
+
+var ConcurrentSet : ConcurrentSet<Any> = ConcurrentSet {1, 2, 3};
+
+/*ConcurrentSet<Any>*/ ConcurrentSet;

@@ -1,0 +1,20 @@
+// Generated on Fri Mar 06 12:19:38 GMT 2026
+
+/*Integer*/ 1.abs();
+/*Integer*/ 1.ceiling();
+/*Integer*/ 1.floor();
+/*Real*/ 2.log();
+/*Real*/ 2.log10();
+/*Integer*/ 1.max(2);
+/*Integer|Real*/ 1.max(2.2);
+/*Integer*/ 1.min(2);
+/*Integer|Real*/ 1.min(0.5);
+/*Integer*/ 1.pow(2);
+/*Integer*/ 1.round();
+/*Real*/ 1.ln();
+/*Integer*/ 1.factorial();
+/*Sequence<Integer>*/ 1.iota(10, 1);
+/*Integer*/ 1.mod(2);
+/*Sequence<Integer>*/ 1.to(10);
+/*String*/ 1.toBinary();
+/*String*/ 1.toHex();

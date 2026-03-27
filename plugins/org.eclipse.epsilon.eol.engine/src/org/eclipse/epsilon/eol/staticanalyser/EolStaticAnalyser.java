@@ -862,6 +862,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		temp = new ArrayList<IStaticOperation>();
 		for(IStaticOperation op : resolvedOperations) {
 			EolType opContextType = op.getContextType();
+			
+			if(opContextType.equals(EolAnyType.Instance)) {
+				if(mostSpecificContextType.equals(EolAnyType.Instance)) {
+					temp.add(op);
+				}
+				continue;
+			}
+
 			if(mostSpecificContextType.equals(opContextType) || mostSpecificContextType.isSiblingOf(opContextType)) {
 				temp.add(op);
 			}
@@ -897,7 +905,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		List<EolType> missingTypes = checkMissingTypes(contextType, resolvedOperationContextTypes);
 		for(EolType t : missingTypes) {
 			markers.add(new ModuleMarker(operationCallExpression,
-			"Operation " + nameExpression.getName() + " is undefined for type " + t.getName(),
+			"Operation " + nameExpression.getName() + " is undefined for type " + t,
 			Severity.Warning));
 		}
 		
@@ -1432,7 +1440,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				eolType = new EolMapType(keyType, valueType);
 				return eolType;
 			} else {
-				return EolAnyType.Instance;
+				return javaClassToEolType((Class<?>) rawType);
 			}
 		} else if (javaType instanceof Class<?>) {
 			Class<?> javaClass = (Class<?>) javaType;
@@ -1445,7 +1453,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	public EolType javaClassToEolType(Class<?> javaClass) {
 		if (javaClass == String.class || javaClass == char.class) {
 			return EolPrimitiveType.String;
-		} else if (javaClass == Integer.class || javaClass == int.class) {
+		} else if (javaClass == Integer.class || javaClass == int.class || javaClass == Long.class
+				|| javaClass == long.class) {
 			return EolPrimitiveType.Integer;
 		} else if (javaClass == Double.class || javaClass == double.class || javaClass == Float.class
 				|| javaClass == float.class) {

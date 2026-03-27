@@ -1,0 +1,38 @@
+// Generated on Fri Mar 06 12:19:38 GMT 2026
+
+
+var aSeq : Sequence<Any> = Sequence {1, 2.0, "letters", true};
+
+/*Sequence<Any>*/ aSeq;
+/*Any*/ aSeq[0];
+/*Sequence<Native<java.lang.Object>>*/ aSeq.asSequence();
+/*Set<Native<java.lang.Object>>*/ aSeq.asSet();
+/*Bag<Native<java.lang.Object>>*/ aSeq.asBag();
+/*OrderedSet<Native<java.lang.Object>>*/ aSeq.asOrderedSet();
+
+var aSet : Set<Any> = Set {1, 2.0, "letters", true};
+
+/*Set<Any>*/ aSet;
+/*Any*/ aSet[0];
+/*Sequence<Native<java.lang.Object>>*/ aSet.asSequence();
+/*Set<Native<java.lang.Object>>*/ aSet.asSet();
+/*Bag<Native<java.lang.Object>>*/ aSet.asBag();
+/*OrderedSet<Native<java.lang.Object>>*/ aSet.asOrderedSet();
+
+var aBag : Bag<Any> = Bag {1, 2.0, "letters", true};
+
+/*Bag<Any>*/ aBag;
+/*Any*/ aBag[0];
+/*Sequence<Native<java.lang.Object>>*/ aBag.asSequence();
+/*Set<Native<java.lang.Object>>*/ aBag.asSet();
+/*Bag<Native<java.lang.Object>>*/ aBag.asBag();
+/*OrderedSet<Native<java.lang.Object>>*/ aBag.asOrderedSet();
+
+var aOrderedSet : OrderedSet<Any> = OrderedSet {1, 2.0, "letters", true};
+
+/*OrderedSet<Any>*/ aOrderedSet;
+/*Any*/ aOrderedSet[0];
+/*Sequence<Native<java.lang.Object>>*/ aOrderedSet.asSequence();
+/*Set<Native<java.lang.Object>>*/ aOrderedSet.asSet();
+/*Bag<Native<java.lang.Object>>*/ aOrderedSet.asBag();
+/*OrderedSet<Native<java.lang.Object>>*/ aOrderedSet.asOrderedSet();

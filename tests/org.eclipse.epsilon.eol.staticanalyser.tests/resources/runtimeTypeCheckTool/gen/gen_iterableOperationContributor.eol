@@ -1,0 +1,73 @@
+// Generated on Tue Mar 10 16:03:28 GMT 2026
+
+
+var incSet : Set<Any> = Set {1, 2, 3};
+
+
+var Set : Set<Any> = Set {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+
+var seq : Sequence<Any> = Sequence {11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+
+
+var itr : Set<Any> = Set {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+/*Set<Any>*/ itr.getTarget();
+/*Set<Any>*/ itr.getIterable();
+/*Boolean*/ itr.isCollection();
+/*Set<Any>*/ itr.getCollection();
+/*Boolean*/ itr.isList();
+/*Sequence<Any>*/ itr.getList();
+/*Boolean*/ itr.isSet();
+/*Set<Any>*/ itr.getSet();
+/*Boolean*/ itr.contributesTo(null);
+/*Integer*/ itr.random();
+/*Integer*/ itr.size();
+/*Integer*/ itr.at(0);
+/*Integer*/ itr.removeAt(0);
+/*ConcurrentBag<Any>*/ itr.asConcurrentBag();
+/*ConcurrentSet<Any>*/ itr.asConcurrentSet();
+/*Sequence<Any>*/ itr.asSequence();
+/*Set<Any>*/ itr.asSet();
+/*Bag<Any>*/ itr.asBag();
+/*OrderedSet<Any>*/ itr.asOrderedSet();
+/*Integer*/ itr.sum();
+/*Integer*/ itr.product();
+/*Boolean*/ itr.isEmpty();
+/*Boolean*/ itr.notEmpty();
+
+var itr2 : Set<Any> = Set {};
+
+/*null*/ itr.copy(itr, itr2);
+/*null*/ itr.stream();
+/*null*/ itr.parallelStream();
+/*null*/ itr.stream(false);
+/*Set<Any>*/ itr.clone();
+/*Boolean*/ itr.includes(null);
+/*Boolean*/ itr.excludes(null);
+/*Boolean*/ itr.includesAll(incSet);
+/*Boolean*/ itr.excludesAll(incSet);
+/*Integer*/ itr.count(null);
+/*Set<Any>*/ itr.selectByKind(null);
+/*Set<Any>*/ itr.selectByType(null);
+/*Set<Any>*/ itr.includingAll(incSet);
+/*Set<Any>*/ itr.including(null);
+/*Set<Any>*/ itr.flatten();
+/*Set<Any>*/ itr.excluding(null);
+/*Set<Any>*/ itr.excludingAll(incSet);
+/*Sequence<Any>*/ itr.first(0);
+/*Integer*/ itr.second();
+/*Integer*/ itr.third();
+/*Integer*/ itr.fourth();
+/*Integer*/ itr.last();
+/*Integer*/ itr.indexOf(null);
+/*Integer*/ itr.nth(1);
+/*String*/ itr.concat();
+/*String*/ itr.concat(" ");
+/*Integer*/ itr.max();
+/*Integer*/ itr.max(0);
+/*Integer*/ itr.min();
+/*Integer*/ itr.min(0);
+/*Sequence<Any>*/ itr.invert();
+/*Set<Any>*/ itr.createCollection();
+/*Set<Any>*/ itr.powerset();

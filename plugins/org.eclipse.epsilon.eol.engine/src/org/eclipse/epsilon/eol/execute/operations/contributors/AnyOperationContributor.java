@@ -170,14 +170,17 @@ public class AnyOperationContributor extends OperationContributor {
 		return getTarget();
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object err() {
 		return err("", "");
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object err(Object prefix) {
 		return err(prefix, "");
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object err(Object prefix, Object suffix) {
 		getContext().getErrorStream().
 			print(prefix + getContext().getPrettyPrinterManager().print(getTarget()) + suffix);
@@ -271,6 +274,7 @@ public class AnyOperationContributor extends OperationContributor {
 		return new SimpleDateFormat(format).parse(getTarget().toString());
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object asVar(String name) {
 		Object target = getTarget();
 		getContext().getFrameStack().put(new Variable(name, getTarget(), EolAnyType.Instance));

@@ -1,0 +1,29 @@
+// Generated on Fri Mar 06 12:19:38 GMT 2026
+
+
+var aReal : Real = 1.1;
+
+/*Boolean*/ aReal.instanceOf(Real);
+/*Boolean*/ aReal.isTypeOf(Real);
+/*Boolean*/ aReal.isKindOf(Real);
+/*Native<java.lang.Class>*/ aReal.getNativeType();
+/*Native<java.lang.Class>*/ aReal.nativeType();
+/*Native<org.eclipse.epsilon.eol.models.IModel>*/ aReal.getOwningModel();
+/*Native<org.eclipse.epsilon.eol.models.IModel>*/ aReal.getOwningModel();
+/*Boolean*/ aReal.hasProperty("toString");
+/*String*/ aReal.asString();
+/*Boolean*/ aReal.isDefined();
+/*Boolean*/ aReal.isUndefined();
+/*Real*/ aReal.err();
+/*Real*/ aReal.err("prefix");
+/*Real*/ aReal.err("prefix", "suffix");
+/*String*/ aReal.format("formatted");
+/*Integer*/ aReal.asInteger();
+/*Boolean*/ aReal.isInteger();
+/*Boolean*/ aReal.isReal();
+/*Real*/ aReal.asReal();
+/*Real*/ aReal.asDouble();
+/*Real*/ aReal.asFloat();
+/*Integer*/ aReal.asLong();
+/*Boolean*/ aReal.asBoolean();
+/*Real*/ aReal.asVar("var");

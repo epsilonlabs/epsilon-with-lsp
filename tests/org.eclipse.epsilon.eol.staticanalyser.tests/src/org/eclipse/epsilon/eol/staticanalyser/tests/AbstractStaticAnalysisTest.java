@@ -115,7 +115,8 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 
 	@Test
 	public void checkResolvedTypes() {
-		visit(module.getChildren());
+		List<String> results = visit(module.getChildren());
+		assertTrue("Resolved type check failed\n" + formatTypeResults(results),results.isEmpty());
 	}
 
 	private int countMarkersWithRegions(List<ModuleMarker> testMarkers) {
@@ -221,6 +222,48 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 		}
 		return staticAnalyserMarkersString;
 	}
+	
+	private String formatTypeResults(List<String> results) {
+		StringBuilder sb = new StringBuilder();
+	    for (String r : results) {
+	        sb.append("- ").append(r).append("\n");
+	    }
+	    return sb.toString();
+	}
+	
+	protected List<String> visit(List<ModuleElement> elements) {
+		List<String> results = new ArrayList<String>();
+
+		for (ModuleElement element : elements) {
+			// Multiline comments (/* */) are used to capture the 
+			// expected type of expressions
+			if (!element.getComments().isEmpty() && element.getComments().get(0).isMultiline()) {
+				
+				String commentTypeString = element.getComments().get(0).toString();
+				
+				String elementTypeString = "";
+				if (null != getResolvedType(element)) {
+					elementTypeString = getResolvedType(element).toString();
+				}
+
+				if (!commentTypeString.equals(elementTypeString)) {
+					results.add(String.format("Line: %s, element '%s' column %s to %s"
+							+ "\n \t  Expected: /*%s*/ \tWas: /*%s*/",
+							element.getRegion().getStart().getLine(),
+							element.getClass().getSimpleName(),
+							element.getRegion().getStart().getColumn(),
+							element.getRegion().getEnd().getColumn(),							
+							commentTypeString, elementTypeString));
+				}
+			}
+			results.addAll(visit(element.getChildren()));
+		}
+		return results;
+	}
+
+	protected EolType getResolvedType(ModuleElement element) {
+		return (EolType) element.getData().get("resolvedType");
+	}
 
 	/*
 	 * Methods below are from the original test, they take a program file, parse and
@@ -304,25 +347,6 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 		}
 
 		// Abstract syntax tree type test is now a stand alone test
-	}
-
-	// Original test method -- Checks the Abstract syntax tree types against a
-	// multiline comment /* */ for each type
-	protected void visit(List<ModuleElement> elements) {
-		for (ModuleElement element : elements) {
-			// Multiline comments (/* */") are used to capture the expected type of
-			// expressions
-			if (!element.getComments().isEmpty() && element.getComments().get(0).isMultiline()) {
-				assertEquals("Starting line " + element.getRegion().getStart().getLine(),
-						element.getComments().get(0).toString(), getResolvedType(element).toString());
-			}
-			visit(element.getChildren());
-		}
-	}
-
-	// Original test method
-	protected EolType getResolvedType(ModuleElement element) {
-		return (EolType) element.getData().get("resolvedType");
 	}
 
 }

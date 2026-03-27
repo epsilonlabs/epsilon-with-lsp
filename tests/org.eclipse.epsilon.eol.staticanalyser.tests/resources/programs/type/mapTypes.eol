@@ -1,0 +1,31 @@
+var a : Map<Any,Any> = Map{"foo" = "bar"};
+
+/*Map<String, String>*/Map{"foo" = "bar"};
+/*Map<String|Integer, String|Integer>*/Map{"foo" = "bar", 1 = 2};
+
+/*Map<String, String>*/ConcurrentMap{"foo" = "bar"};
+
+var alice = new Tuple;
+/*Tuple*/alice;
+alice.name = "Alice";
+alice.age = 32;
+/*String*/alice.name;
+/*Integer*/alice.age;
+alice.occupation;
+/*Boolean*/alice.occupation.isDefined();
+
+var bob = new Tuple(name = "Bob", age = 28);
+/*Tuple*/bob;
+/*String*/bob.name;
+/*Integer*/bob.age;
+bob.occupation;
+
+var charlie = Tuple{"name" = "Charlie", "age" = 36};
+/*Tuple*/charlie;
+/*String*/charlie.name;
+/*Integer*/charlie.age;
+charlie.occupation;
+
+//! [14:6-14:16] Property 'occupation' not found
+//! [21:4-21:14] Property 'occupation' not found
+//! [27:8-27:18] Property 'occupation' not found

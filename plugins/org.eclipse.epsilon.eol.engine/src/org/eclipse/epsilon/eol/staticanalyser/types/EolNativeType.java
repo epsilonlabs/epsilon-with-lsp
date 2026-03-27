@@ -7,11 +7,18 @@ import java.util.List;
 public class EolNativeType extends EolType {
 
 	private Class<?> javaClass;
+	private String className;
 	
 	public static final EolNativeType Number = new EolNativeType(java.lang.Number.class);
 	
 	public EolNativeType(Class<?> javaClass) {
 		this.javaClass = javaClass;
+		this.className = javaClass.getName();
+	}
+	
+	public EolNativeType(String className) {
+		this.javaClass = null;
+		this.className = className;
 	}
 	
 	@Override
@@ -26,12 +33,12 @@ public class EolNativeType extends EolType {
 	
 	@Override
 	public String toString() {
-		return "Native<" + javaClass.getName() +">";
+		return "Native<" + className +">";
 	}
 	
 	@Override
 	public List<EolType> getParentTypes() {
-		if (javaClass == Object.class) {
+		if (javaClass == null || javaClass == Object.class) {
 			return Collections.emptyList();
 		}else {
 			//TODO Also support Interfaces

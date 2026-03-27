@@ -1,0 +1,21 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+noTestVar();
+
+true.`or`(true).logReturnType("true.`or`(true)");
+true.`and`(true).logReturnType("true.`and`(true)");
+true.`not`().logReturnType("true.`not`()");
+true.`xor`(true).logReturnType("true.`xor`(true)");
+true.asString().logReturnType("true.asString()");
+
+
+closeFile();

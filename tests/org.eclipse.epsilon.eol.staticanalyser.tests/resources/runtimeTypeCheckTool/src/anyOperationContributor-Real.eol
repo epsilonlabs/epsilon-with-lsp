@@ -1,0 +1,51 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+// Create a variable and log it
+var aReal : Real = 1.1;
+aReal.logTestVar("aReal");
+
+aReal.instanceOf(Real).logReturnType("aReal.instanceOf(Real)");
+aReal.isTypeOf(Real).logReturnType("aReal.isTypeOf(Real)");
+aReal.isKindOf(Real).logReturnType("aReal.isKindOf(Real)");
+aReal.getNativeType().logReturnType("aReal.getNativeType()");
+aReal.nativeType().logReturnType("aReal.nativeType()");
+aReal.getOwningModel().logReturnType("aReal.getOwningModel()");
+aReal.owningModel().logReturnType("aReal.getOwningModel()");
+aReal.hasProperty("toString").logReturnType("aReal.hasProperty(\"toString\")");
+aReal.asString().logReturnType("aReal.asString()");
+aReal.isDefined().logReturnType("aReal.isDefined()");
+aReal.isUndefined().logReturnType("aReal.isUndefined()");
+//aReal.ifUndefined().logReturnType("aReal.ifUndefined()");
+//aReal.println().logReturnType("aReal.println()");
+//aReal.println(Object prefix).logReturnType("aReal.println(Object prefix)");
+//aReal.println(Object prefix, Object suffix).logReturnType("aReal.println(Object prefix, Object suffix)");
+//aReal.print().logReturnType("aReal.print()");
+//aReal.print(Object prefix).logReturnType("aReal.print(Object prefix)");
+//aReal.print(Object prefix, Object suffix).logReturnType("aReal.print(Object prefix, Object suffix)");
+aReal.err().logReturnType("aReal.err()");
+aReal.err("prefix").logReturnType("aReal.err(\"prefix\")");
+aReal.err("prefix", "suffix").logReturnType("aReal.err(\"prefix\", \"suffix\")");
+aReal.format("formatted").logReturnType("aReal.format(\"formatted\")");
+aReal.asInteger().logReturnType("aReal.asInteger()");
+aReal.isInteger().logReturnType("aReal.isInteger()");
+aReal.isReal().logReturnType("aReal.isReal()");
+aReal.asReal().logReturnType("aReal.asReal()");
+aReal.asDouble().logReturnType("aReal.asDouble()");
+aReal.asFloat().logReturnType("aReal.asFloat()");
+aReal.asLong().logReturnType("aReal.asLong()");
+aReal.asBoolean().logReturnType("aReal.asBoolean()");
+//aReal.asUnicode().logReturnType("aReal.asUnicode()"); // ERROR: For input string: "1.1" under radix 16
+//aReal.asDate("dd-mm-yy").logReturnType("aReal.asDate(\"dd-mm-yy\")"); // ERROR: Unparseable date: "1.1"
+aReal.asVar("var").logReturnType("aReal.asVar(\"var\")");
+
+
+closeFile();

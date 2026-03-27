@@ -1,0 +1,24 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+noTestVar();
+
+'foo'.escapeXml().logReturnType("'foo'.escapeXml()");
+'foo'.firstToUpperCase().logReturnType("'foo'.firstToUpperCase()");
+'foo'.characterAt(0).logReturnType("'foo'.characterAt(0)");
+'foo'.firstToLowerCase().logReturnType("'foo'.firstToLowerCase()");
+'foo'.ftuc().logReturnType("'foo'.ftuc()");
+'foo'.ftlc().logReturnType("'foo'.ftlc()");
+'foo'.isSubstringOf('bar').logReturnType("'foo'.isSubstringOf('bar')");
+'foo'.toCharSequence().logReturnType("'foo'.toCharSequence()");
+'foo'.pad(5,'a',true).logReturnType("'foo'.pad(5,'a',true)");
+
+closeFile();

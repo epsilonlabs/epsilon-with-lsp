@@ -1,0 +1,5 @@
+model M driver EMF {nsuri="packages"};
+
+var a : new package1::package2::C1;
+
+var b : new package1::package2::package3::C1;

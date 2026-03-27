@@ -89,4 +89,24 @@ public class EolMapType extends EolType {
 	public String toString() {
 		return getName()+"<" + keyType + ", " + valueType + ">";
 	}
+
+	@Override
+	public boolean isAssignableTo(EolType targetType) {
+		if (targetType.equals(EolAnyType.Instance)) {
+			return true;
+		}
+		if (!(targetType instanceof EolMapType)) {
+			return false;
+		}
+		EolMapType targetMapType = (EolMapType) targetType;
+		if (targetMapType.getKeyType() instanceof EolAnyType || this.keyType instanceof EolAnyType) {
+			if (targetMapType.getValueType() instanceof EolAnyType || this.valueType instanceof EolAnyType) {
+				return true;
+			}
+		}
+		if (targetMapType.getKeyType().equals(this.keyType) && targetMapType.getValueType().equals(this.valueType)) {
+			return true;
+		}
+		return false;
+	}
 }

@@ -1,0 +1,11 @@
+@namespace(uri="packages", prefix="")
+package package1;
+
+package package2 {
+	
+	class C1 {}
+
+	package	package3 {
+		class C1 {}
+	}	
+}

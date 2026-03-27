@@ -1,0 +1,25 @@
+import "../runtimeTypeCheckCommon.eol";
+
+/* Pushed from Java
+var config = Map {
+    "basePath",
+    "filename"
+};
+*/
+
+openFile();
+
+noTestVar();
+// Create a variable and log it
+
+var nativeArray = Native("java.lang.reflect.Array").newInstance(Native("java.lang.String").class, 3);
+logCode("var nativeArray = Native(\"java.lang.reflect.Array\").newInstance(Native(\"java.lang.String\").class, 3);");
+
+logCode("nativeArray.set(0,\"one\");");
+logCode("nativeArray.set(1,\"two\");");
+logCode("nativeArray.set(2,\"three\");");
+
+nativeArray.asSequence().logReturnType("nativeArray.asSequence()");
+
+
+closeFile();

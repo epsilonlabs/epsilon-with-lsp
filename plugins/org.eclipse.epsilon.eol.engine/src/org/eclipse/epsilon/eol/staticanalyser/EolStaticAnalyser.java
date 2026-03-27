@@ -774,12 +774,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else
 			operationCallExpression.setContextless(true);
 		
-		// If the context type is Any, we accept all operation call expressions as correct.
-		if (contextType.equals(EolAnyType.Instance)) {
-			setResolvedType(operationCallExpression, EolAnyType.Instance);
-			return;
-		}
-		
 		for (Expression parameterExpression : parameterExpressions) {
 			parameterExpression.accept(this);
 		}

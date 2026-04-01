@@ -115,9 +115,11 @@ public abstract class AbstractModule extends AbstractModuleElement implements IM
 		
 		parseProblems.addAll(parser.getParseProblems());
 		
-		assignAnnotations(cst);
-		assignComments(cst, comments);
-		createAst(cst, null);
+		if (cst != null) {
+			assignAnnotations(cst);
+			assignComments(cst, comments);
+			createAst(cst, null);
+		}
 		
 		return getParseProblems().isEmpty();
 	}

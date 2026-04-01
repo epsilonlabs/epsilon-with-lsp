@@ -22,7 +22,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ReflectionUtilTests.class, FrameStackUnitTestSuite.class})
+@SuiteClasses({ReflectionUtilTests.class, FrameStackUnitTestSuite.class, ParseRecoveryTests.class})
 public class EolModuleUnitTestSuite {
 
 	public static Test suite() {

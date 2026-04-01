@@ -14,6 +14,9 @@ import org.eclipse.epsilon.common.module.ModuleElement;
 public abstract class Statement extends AbstractExecutableModuleElement {
 	
 	protected StatementBlock toStatementBlock(ModuleElement element) {
+		
+		if (element == null) return null;
+		
 		if (element instanceof StatementBlock) {
 			return (StatementBlock) element;
 		}

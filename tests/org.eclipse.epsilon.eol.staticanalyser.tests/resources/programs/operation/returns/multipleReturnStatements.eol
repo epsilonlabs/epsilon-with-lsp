@@ -1,0 +1,7 @@
+operation switchIntString(key : Integer) : String {
+	switch (key){
+		case 1 	: return "one";
+		case 2 	: return "two";
+		default : return "zero";
+	}
+}

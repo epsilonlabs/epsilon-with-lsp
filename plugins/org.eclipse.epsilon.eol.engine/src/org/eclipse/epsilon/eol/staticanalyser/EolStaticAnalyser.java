@@ -220,6 +220,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(Case case_) {
+		Expression condition = case_.getCondition();
+		if (condition != null) {
+			condition.accept(this);
+		}
+		StatementBlock body = case_.getBody();
+		if (body != null) {
+			body.accept(this);
+		}
 	}
 
 	@Override
@@ -1197,6 +1205,25 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(SwitchStatement switchStatement) {
+		FrameStack frameStack = context.getFrameStack();
+
+		Expression conditionExpression = switchStatement.getConditionExpression();
+		if (conditionExpression != null) {
+			conditionExpression.accept(this);
+		}
+
+		for (Case c : switchStatement.getCases()) {
+			frameStack.enterLocal(FrameType.UNPROTECTED, c);
+			c.accept(this);
+			frameStack.leaveLocal(c);
+		}
+
+		Case defaultCase = switchStatement.getDefault();
+		if (defaultCase != null) {
+			frameStack.enterLocal(FrameType.UNPROTECTED, defaultCase);
+			defaultCase.accept(this);
+			frameStack.leaveLocal(defaultCase);
+		}
 	}
 
 	@Override

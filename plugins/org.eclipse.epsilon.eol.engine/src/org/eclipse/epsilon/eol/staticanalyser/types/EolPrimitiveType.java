@@ -44,6 +44,9 @@ public class EolPrimitiveType extends EolType {
 	
 	@Override
 	public List<EolType> getParentTypes() {
+		if (this == Integer) {
+			return Arrays.asList(Real, new EolNativeType(getClazz()));
+		}
 		return Arrays.asList(new EolNativeType(getClazz()));
 	}
 }

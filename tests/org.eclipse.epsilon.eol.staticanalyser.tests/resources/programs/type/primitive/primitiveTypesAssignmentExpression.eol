@@ -1,5 +1,7 @@
 var i : Integer = 4;
 var s : String = 'test';
-(/*Integer*/i) = 5;
+i = 5;
 var a : Any = true;
-(/*Any*/ a) = (/*String*/s);
+a = s;
+var b : Real = 1;
+b = i;

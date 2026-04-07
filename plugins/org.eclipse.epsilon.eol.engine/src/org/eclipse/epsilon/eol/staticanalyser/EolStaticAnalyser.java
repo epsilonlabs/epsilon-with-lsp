@@ -1265,6 +1265,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			typeExp.accept(this);
 		}
 
+		if (type instanceof EolAnyType) {
+			setResolvedType(typeExpression, type);
+		}
+
 		if (type instanceof EolPrimitiveType) {
 			setResolvedType(typeExpression, type);
 		}
@@ -1401,7 +1405,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 		for (Parameter p : operation.getFormalParameters()) {
-			p.accept(this);
+			visit(p, false);
 		}
 		
 		operation.getData().put("contextType", contextType);

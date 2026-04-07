@@ -1,0 +1,25 @@
+operation Sequence example1(item : String) : String {
+	//*String*//item;
+	var test : String = item;
+	return test;
+}
+
+operation Sequence example2(item : Sequence) : Sequence {
+	//*Sequence*//item;
+	var test : Sequence = item;
+	return test;
+}
+
+operation Sequence example() : String {
+	var test : String = item;
+	return item;
+}
+
+operation Sequence example(item : Real) : Real {
+	/*Real*/item;
+	var test : Real = item;
+	return test;
+}
+
+//![14:21-14:25] Undefined variable or type item
+//![15:8-15:12] Undefined variable or type item

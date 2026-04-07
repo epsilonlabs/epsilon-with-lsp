@@ -1,9 +1,0 @@
-operation Sequence example1(item : String) : String {
-	var test : String = item;
-	return test;
-}
-
-operation Sequence example2(item : Sequence) : Sequence {
-	var test : Sequence = item;
-	return test;
-}

@@ -19,6 +19,7 @@ public class SimpleOperation implements IStaticOperation {
 	private EolType contextType;
 	private EolType returnType;
 	private List<EolType> parameterTypes;
+	private boolean varArgs;
 	private Optional<MethodTypeCalculator> methodTypeCalculator = Optional.empty();
 	private Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator = Optional.empty();
 
@@ -27,6 +28,7 @@ public class SimpleOperation implements IStaticOperation {
 		contextType = (EolType) op.getData().get("contextType");
 		returnType = (EolType) op.getData().get("returnType");
 		this.parameterTypes = new ArrayList<EolType>();
+		this.varArgs = false;
 		for (Parameter p : op.getFormalParameters()) {
 			TypeExpression t = p.getTypeExpression();
 			EolType parameterType = EolAnyType.Instance;
@@ -41,10 +43,17 @@ public class SimpleOperation implements IStaticOperation {
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
 			Optional<MethodTypeCalculator> methodTypeCalculator,
 			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator) {
+		this(name, contextType, returnType, parameterTypes, false, methodTypeCalculator, methodDiagnosticsCalculator);
+	}
+
+	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
+			boolean varArgs, Optional<MethodTypeCalculator> methodTypeCalculator,
+			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator) {
 		this.name = name;
 		this.contextType = contextType;
 		this.returnType = returnType;
 		this.parameterTypes = parameterTypes;
+		this.varArgs = varArgs;
 		this.methodTypeCalculator = methodTypeCalculator;
 		this.methodDiagnosticsCalculator = methodDiagnosticsCalculator;
 	}
@@ -77,6 +86,11 @@ public class SimpleOperation implements IStaticOperation {
 	@Override
 	public List<EolType> getParameterTypes() {
 		return parameterTypes;
+	}
+
+	@Override
+	public boolean isVarArgs() {
+		return varArgs;
 	}
 
 	@Override

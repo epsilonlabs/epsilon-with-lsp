@@ -1,0 +1,41 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+context EClass {
+	constraint WellNamedFeatures {
+		guard : self.eStructuralFeatures.size() > 0
+		check : self.eStructuralFeatures.forAll(f |
+			f.satisfies("HasValidName")
+		)
+		message : "Class '" + self.name + "' has features with invalid names"
+	}
+
+	constraint FullyDefinedFeatures {
+		guard : self.eStructuralFeatures.size() > 0
+		check : self.eStructuralFeatures.forAll(f |
+			f.satisfiesAll("HasValidName", "HasType")
+		)
+		message : "Not all features are fully defined"
+	}
+
+	constraint MinimallyDefinedFeatures {
+		guard : self.eStructuralFeatures.size() > 0
+		check : self.eStructuralFeatures.forAll(f |
+			f.satisfiesOne("HasValidName", "HasType")
+		)
+		message : "Some features have neither a name nor a type"
+	}
+}
+
+context EStructuralFeature {
+	@lazy
+	constraint HasValidName {
+		check : self.name.isDefined()
+		message : "Feature name is undefined"
+	}
+
+	@lazy
+	constraint HasType {
+		check : self.eType.isDefined()
+		message : "Feature has no type"
+	}
+}

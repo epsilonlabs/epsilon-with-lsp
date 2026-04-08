@@ -16,6 +16,8 @@ public interface IStaticOperation {
 
 	public List<EolType> getParameterTypes();
 
+	public boolean isVarArgs();
+
 	public List<ModuleMarker> getExtraDiagnostics(AbstractModuleElement element, EolType actualContextType,
 			List<EolType> actualParameterTypes);
 }

@@ -828,7 +828,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		temp = new ArrayList<IStaticOperation>();
 		for (IStaticOperation op : resolvedOperations) {
 			List<EolType> reqParams = op.getParameterTypes();
-			if (reqParams.size() == parameterExpressions.size()) {
+			if (op.isVarArgs()) {
+				// For varargs, actual args must be >= fixed params (all declared params minus the varargs one)
+				if (parameterExpressions.size() >= reqParams.size() - 1) {
+					temp.add(op);
+				}
+			} else if (reqParams.size() == parameterExpressions.size()) {
 				temp.add(op);
 			}
 		}
@@ -843,15 +848,39 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				.collect(Collectors.toList());
 		temp = new ArrayList<IStaticOperation>();
 		for (IStaticOperation op : resolvedOperations) {
-			int index = 0;
-			List<EolType> reqParamTypess = op.getParameterTypes();
+			List<EolType> reqParamTypes = op.getParameterTypes();
 			boolean compatible = true;
-			for (EolType reqParamType : reqParamTypess) {
-				EolType provParamType = provParamTypes.get(index);
-				index++;
-				if (!provParamType.isAssignableTo(reqParamType)  && !reqParamType.isAssignableTo(provParamType)) {
-					compatible = false;
-					break;
+			if (op.isVarArgs() && !reqParamTypes.isEmpty()) {
+				int fixedCount = reqParamTypes.size() - 1;
+				EolType varArgType = reqParamTypes.get(fixedCount);
+				// Check fixed parameters
+				for (int i = 0; i < fixedCount && i < provParamTypes.size(); i++) {
+					EolType provParamType = provParamTypes.get(i);
+					EolType reqParamType = reqParamTypes.get(i);
+					if (!provParamType.isAssignableTo(reqParamType) && !reqParamType.isAssignableTo(provParamType)) {
+						compatible = false;
+						break;
+					}
+				}
+				// Check varargs parameters against the component type
+				if (compatible) {
+					for (int i = fixedCount; i < provParamTypes.size(); i++) {
+						EolType provParamType = provParamTypes.get(i);
+						if (!provParamType.isAssignableTo(varArgType) && !varArgType.isAssignableTo(provParamType)) {
+							compatible = false;
+							break;
+						}
+					}
+				}
+			} else {
+				int index = 0;
+				for (EolType reqParamType : reqParamTypes) {
+					EolType provParamType = provParamTypes.get(index);
+					index++;
+					if (!provParamType.isAssignableTo(reqParamType) && !reqParamType.isAssignableTo(provParamType)) {
+						compatible = false;
+						break;
+					}
 				}
 			}
 			if (compatible) {
@@ -923,7 +952,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			EolType paramType = getResolvedType(paramExpr);
 			Set<EolType> resolvedOperationParamTypes = new HashSet<EolType>();
 			for(IStaticOperation op : resolvedOperations) {
-				resolvedOperationParamTypes.add(op.getParameterTypes().get(i));
+				List<EolType> opParamTypes = op.getParameterTypes();
+				// For varargs operations, clamp index to the last declared parameter (the varargs component type)
+				int paramIndex = (op.isVarArgs() && i >= opParamTypes.size()) ? opParamTypes.size() - 1 : i;
+				resolvedOperationParamTypes.add(opParamTypes.get(paramIndex));
 			}
 			missingTypes = checkMissingTypes(paramType, resolvedOperationParamTypes);
 			for(EolType t : missingTypes) {
@@ -1445,14 +1477,25 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	public SimpleOperation methodToSimpleOperation(Method m, EolType contextType) {
 		List<EolType> operationParameterTypes = new ArrayList<EolType>();
 		Type[] javaParameterTypes = m.getGenericParameterTypes();
-		for (Type javaParameterType : javaParameterTypes) {
-			operationParameterTypes.add(javaTypeToEolType(javaParameterType));
+		boolean isVarArgs = m.isVarArgs();
+		for (int i = 0; i < javaParameterTypes.length; i++) {
+			Type javaParameterType = javaParameterTypes[i];
+			if (isVarArgs && i == javaParameterTypes.length - 1) {
+				// For varargs, store the component type of the array parameter
+				if (javaParameterType instanceof Class<?> && ((Class<?>) javaParameterType).isArray()) {
+					operationParameterTypes.add(javaClassToEolType(((Class<?>) javaParameterType).getComponentType()));
+				} else {
+					operationParameterTypes.add(javaTypeToEolType(javaParameterType));
+				}
+			} else {
+				operationParameterTypes.add(javaTypeToEolType(javaParameterType));
+			}
 		}
 		EolType returnType = javaTypeToEolType(m.getGenericReturnType());
 		Optional<MethodTypeCalculator> mtc = Optional.ofNullable(m.getAnnotation(MethodTypeCalculator.class));
 		Optional<MethodDiagnosticsCalculator> mdc = Optional
 				.ofNullable(m.getAnnotation(MethodDiagnosticsCalculator.class));
-		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, mtc, mdc);
+		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, isVarArgs, mtc, mdc);
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {

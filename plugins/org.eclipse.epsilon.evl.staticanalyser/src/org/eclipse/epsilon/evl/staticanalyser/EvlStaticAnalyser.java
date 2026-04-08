@@ -1,13 +1,17 @@
 package org.eclipse.epsilon.evl.staticanalyser;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
+import org.eclipse.epsilon.eol.staticanalyser.SimpleOperation;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.EolModule;
@@ -43,6 +47,25 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		EvlModule evlModule = (EvlModule) imodule;
 
 		super.preValidate(evlModule);
+
+		// Register EVL built-in operations (satisfies, satisfiesAll, satisfiesOne)
+		// These are runtime operations from EvlOperationFactory that the static analyser
+		// needs to know about. They can be called on any object with one or more String
+		// arguments (constraint names) and return Boolean.
+		// Must be added after preValidate() which populates builtinOperations from
+		// OperationContributors (it skips population if the list is non-empty).
+		for (String opName : Arrays.asList("satisfies", "satisfiesAll", "satisfiesOne")) {
+			builtinOperations.add(new SimpleOperation(
+				opName,
+				EolAnyType.Instance,
+				EolPrimitiveType.Boolean,
+				Arrays.asList(EolPrimitiveType.String),
+				true,
+				Optional.empty(),
+				Optional.empty()
+			));
+		}
+
 		for (Pre pre : evlModule.getPre()) {
 			pre.accept(this);
 		}

@@ -281,6 +281,7 @@ public class EolModelElementType extends EolType {
 			if (module.getDeclaredModelDeclarations() == null) return null;
 			Set<EolType> children = new HashSet<EolType>();
 			for(ModelDeclaration md:module.getDeclaredModelDeclarations()) {
+				if (md.getMetamodel() == null) continue;
 				children.addAll(
 						md.getMetamodel().getTypes().stream()
 						.filter(t -> t instanceof IMetaClass)

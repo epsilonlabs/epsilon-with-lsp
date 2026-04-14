@@ -287,8 +287,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		EolModelElementType enumType = getModelElementType(enumName, enumerationLiteralExpression);
 		if (enumType == null) {
-			markers.add(new ModuleMarker(enumerationLiteralExpression, "Undefined enumeration type " + enumName,
-					Severity.Error));
+			if (modelHasNoMetamodel(enumName)) {
+				setResolvedType(enumerationLiteralExpression, EolAnyType.Instance);
+			} else {
+				markers.add(new ModuleMarker(enumerationLiteralExpression, "Undefined enumeration type " + enumName,
+						Severity.Error));
+			}
 			return;
 		} else {
 			IMetaClass metaClass = enumType.getMetaClass();
@@ -630,6 +634,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				for (String warning : modelDeclaration.getMetamodel().getWarnings()) {
 					markers.add(new ModuleMarker(modelDeclaration, warning, Severity.Warning));
 				}
+			} else {
+				markers.add(new ModuleMarker(modelDeclaration,
+						"Model driver '" + modelDeclaration.getDriverNameExpression().getName()
+								+ "' does not provide a metamodel; type checking is unavailable for model '"
+								+ modelName + "'",
+						Severity.Warning));
 			}
 		}
 
@@ -663,6 +673,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 							Severity.Error));
 				}
 
+			} else if (modelHasNoMetamodel(nameExpression.getName())) {
+				setResolvedType(nameExpression, EolAnyType.Instance);
 			} else {
 
 				markers.add(new ModuleMarker(nameExpression, "Undefined variable or type " + nameExpression.getName(),
@@ -1362,6 +1374,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					markers.add(new ModuleMarker(typeExpression, "Unknown type " + typeExpression.getName(),
 							Severity.Error));
 				}
+			} else if (modelHasNoMetamodel(typeExpression.getName())) {
+				type = EolAnyType.Instance;
 			} else {
 				markers.add(new ModuleMarker(typeExpression, "Undefined variable or type " + typeExpression.getName(),
 						Severity.Error));
@@ -1727,6 +1741,29 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	public void setContext(EolStaticAnalysisContext context) {
 		this.context = context;
+	}
+
+	/**
+	 * Returns true if the given modelAndType string refers to a model whose
+	 * driver does not expose a metamodel. This is used to suppress type errors
+	 * for models where no static type information is available.
+	 */
+	private boolean modelHasNoMetamodel(String modelAndType) {
+		String modelName;
+		if (modelAndType.contains("!")) {
+			modelName = modelAndType.split("!")[0];
+		} else {
+			modelName = "";
+		}
+		IModel model = context.repository.getModelByNameSafe(modelName);
+		if (model == null) {
+			return false;
+		}
+		if (modelName.isEmpty()) {
+			modelName = model.getName();
+		}
+		ModelDeclaration md = context.modelDeclarations.get(modelName);
+		return md != null && md.getMetamodel() == null;
 	}
 
 	public EolModelElementType getModelElementType(String modelAndType, AbstractModuleElement element) {

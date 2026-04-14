@@ -18,7 +18,7 @@ TYCHO_CACHE="$HOME/.m2/repository/.cache/tycho"
 # --- Step 1: Rebuild eol.engine (and its deps) + test module ---
 
 echo "=== Rebuilding ==="
-mvn package -pl plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.evl.staticanalyser,tests/org.eclipse.epsilon.eol.staticanalyser.tests -am -DskipTests -q
+mvn package -pl plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.staticanalyser,tests/org.eclipse.epsilon.eol.staticanalyser.tests -am -DskipTests -q
 echo "=== Build done ==="
 
 # --- Step 2: Resolve external dependency JARs from Tycho cache ---
@@ -53,6 +53,7 @@ CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.emf/target/org.eclipse.epsilon.emc.emf-
 CP="$CP:$PLUGINS/org.eclipse.epsilon.evl.engine/target/org.eclipse.epsilon.evl.engine-2.9.0-SNAPSHOT.jar"
 CP="$CP:$PLUGINS/org.eclipse.epsilon.evl.staticanalyser/target/org.eclipse.epsilon.evl.staticanalyser-2.9.0-SNAPSHOT.jar"
 CP="$CP:$PLUGINS/org.eclipse.epsilon.erl.engine/target/org.eclipse.epsilon.erl.engine-2.9.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.bibtex/target/org.eclipse.epsilon.emc.bibtex-2.9.0-SNAPSHOT.jar"
 CP="$CP:$EXT_CP"
 
 # --- Step 4: Parse arguments ---

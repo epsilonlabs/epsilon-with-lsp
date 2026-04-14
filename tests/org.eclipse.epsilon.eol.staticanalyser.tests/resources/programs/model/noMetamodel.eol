@@ -1,0 +1,4 @@
+model Model driver bibtex;
+
+var a:Integer = Article.all.size();
+//?[1:0-1:26] Model driver 'bibtex' does not provide a metamodel; type checking is unavailable for model 'Model'

@@ -6,3 +6,7 @@ var e : ENamedElement = new EClass;
 if (e.isTypeOf(EClass)){
   c = e.asType(EClass);
 }
+
+1.asType(1.0);
+
+//![10:2-10:13] Expected type literal instead of Real

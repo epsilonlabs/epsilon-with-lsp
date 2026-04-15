@@ -17,6 +17,7 @@ import java.util.Date;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IUndefined;
+import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
 import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.types.EolAnyType;
@@ -34,6 +35,7 @@ public class AnyOperationContributor extends OperationContributor {
 	}
 	
 	@MethodTypeCalculator(klass=AsTypeReturnType.class)
+	@MethodDiagnosticsCalculator(klass=AsTypeDiagnostics.class)
 	public Object asType(Object type) {
 		return getTarget();
 	}

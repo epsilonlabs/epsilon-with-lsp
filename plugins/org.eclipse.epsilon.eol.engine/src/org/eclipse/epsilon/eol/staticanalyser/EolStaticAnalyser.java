@@ -1799,6 +1799,30 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (modelName == "") {
 			modelName = model.getName();
 		}
+
+		// When the type is unqualified (no model prefix), iterate through all
+		// model declarations and prefer types from non-Unknown metamodels so
+		// that the Unknown driver does not shadow legitimate types.
+		if (!modelAndType.contains("!")) {
+			EolModelElementType unknownFallback = null;
+			for (Map.Entry<String, ModelDeclaration> entry : context.modelDeclarations.entrySet()) {
+				IMetamodel mm = entry.getValue().getMetamodel();
+				if (mm == null) continue;
+				IMetaClass mc = mm.getMetaClass(typeName);
+				if (mc == null) continue;
+				EolModelElementType met = new EolModelElementType(modelAndType, module);
+				met.setMetaClass(mc);
+				if (mm instanceof org.eclipse.epsilon.eol.m3.UnknownMetamodel) {
+					if (unknownFallback == null) {
+						unknownFallback = met;
+					}
+				} else {
+					return met;
+				}
+			}
+			return unknownFallback;
+		}
+
 		IMetamodel metamodel = context.modelDeclarations.get(modelName).getMetamodel();
 		if (metamodel != null) {
 			IMetaClass metaclass = metamodel.getMetaClass(typeName);

@@ -1,0 +1,10 @@
+model X driver Unknown;
+model Y driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+/*Task*/Task.all.first();
+/*Sequence<Task>*/Task.all;
+task.all;
+Task.all.first().prop;
+
+/*OrderedSet<EOperation>*/EClass.all.first().eOperations;
+//![6:0-6:4]Undefined variable or type task

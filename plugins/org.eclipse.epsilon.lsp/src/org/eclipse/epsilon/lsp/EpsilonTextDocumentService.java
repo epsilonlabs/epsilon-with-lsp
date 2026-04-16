@@ -55,7 +55,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     public void didOpen(DidOpenTextDocumentParams params) {
         final TextDocumentItem doc = params.getTextDocument();
         
-        if (doc.getUri().endsWith(".eol") || doc.getUri().endsWith(".evl") || doc.getUri().endsWith(".egl")) {
+        if (doc.getUri().endsWith(".eol") || doc.getUri().endsWith(".evl") || doc.getUri().endsWith(".egl") || doc.getUri().endsWith(".egx")) {
             languageServer.analyser.processDocument(URI.create(doc.getUri()));
         }
         else {

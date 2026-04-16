@@ -274,4 +274,50 @@
          scopeName="source.epsilon.egl">
    </scopeNameContentTypeBinding>
 </extension>
+
+
+
+<extension
+      point="org.eclipse.core.contenttype.contentTypes">
+   <content-type
+         base-type="org.eclipse.core.runtime.text"
+         file-extensions="egx"
+         id="org.eclipse.epsilon.lsp.contentType.egx"
+         name="EGX Content Type"
+         priority="normal">
+   </content-type>
+</extension>
+
+<extension
+      point="org.eclipse.ui.editors">
+   <editorContentTypeBinding
+         contentTypeId="org.eclipse.epsilon.lsp.contentType.egx"
+         editorId="org.eclipse.ui.genericeditor.GenericEditor">
+   </editorContentTypeBinding>
+</extension>
+
+<extension
+      point="org.eclipse.lsp4e.languageServer">
+    <server
+          class="org.eclipse.epsilon.eol.dt.lsp.ConnectionProviderSolution"
+          id="org.eclipse.epsilon.lsp.server"
+          label="Epsilon Language Server">
+    </server>
+   <contentTypeMapping
+         contentType="org.eclipse.epsilon.lsp.contentType.egx"
+         id="org.eclipse.epsilon.lsp.server">
+   </contentTypeMapping>
+</extension>
+
+<extension
+      point="org.eclipse.tm4e.registry.grammars">
+   <grammar
+         path="syntaxes/egx.tmlanguage"
+         scopeName="source.epsilon.egx">
+   </grammar>
+   <scopeNameContentTypeBinding
+         contentTypeId="org.eclipse.epsilon.lsp.contentType.egx"
+         scopeName="source.epsilon.egx">
+   </scopeNameContentTypeBinding>
+</extension>
 </plugin>

@@ -19,7 +19,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.egl.EglModule;
+import org.eclipse.epsilon.egl.EgxModule;
 import org.eclipse.epsilon.egl.staticanalyser.EglStaticAnalyser;
+import org.eclipse.epsilon.egx.staticanalyser.EgxStaticAnalyser;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.Import;
@@ -37,7 +39,7 @@ public class Analyser {
     public static final String LANGUAGE_EVL = "evl";
 //    public static final String LANGUAGE_ETL = "etl";
     public static final String LANGUAGE_EGL = "egl";
-//    public static final String LANGUAGE_EGX = "egx";
+    public static final String LANGUAGE_EGX = "egx";
 //    public static final String LANGUAGE_ECL = "ecl";
 //    public static final String LANGUAGE_EML = "eml";
 //    public static final String LANGUAGE_FLOCK = "mig";
@@ -60,7 +62,7 @@ public class Analyser {
 			Path path = Paths.get(URI.create(wf.getUri()));
 			try (Stream<Path> stream = Files.walk(path)) {
 				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol")
-						|| f.toString().endsWith(".evl") || f.toString().endsWith(".egl")).forEach(p -> {
+						|| f.toString().endsWith(".evl") || f.toString().endsWith(".egl") || f.toString().endsWith(".egx")).forEach(p -> {
 							processDocument(p.toUri());
 						});
 
@@ -104,6 +106,9 @@ public class Analyser {
 					}
                     else if(module instanceof EglModule) {
                     	staticAnalyser = new EglStaticAnalyser(new StaticModelFactory());
+                    }
+                    else if(module instanceof EgxModule) {
+                    	staticAnalyser = new EgxStaticAnalyser(new StaticModelFactory());
                     }
 					else{
 						staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
@@ -172,7 +177,7 @@ public class Analyser {
             case LANGUAGE_EVL: return new EvlModule();
 //            case LANGUAGE_ETL: return new EtlModule();
             case LANGUAGE_EGL: return new EglModule();
-//            case LANGUAGE_EGX: return new EgxModule();
+            case LANGUAGE_EGX: return new EgxModule();
 //            case LANGUAGE_ECL: return new EclModule();
 //            case LANGUAGE_EML: return new EmlModule();
 //            case LANGUAGE_FLOCK:  return new FlockModule();

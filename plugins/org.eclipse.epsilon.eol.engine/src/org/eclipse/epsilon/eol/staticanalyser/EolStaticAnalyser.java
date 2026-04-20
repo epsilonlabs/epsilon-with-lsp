@@ -1351,7 +1351,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				if (nativeTypeLiteral != null) {
 					String className = nativeTypeLiteral.getValue();
 					try {
-						Class<?> javaClass = Class.forName(className);
+						Class<?> javaClass = Class.forName(className, true, getClass().getClassLoader());
 						type = new EolNativeType(javaClass);
 					} catch (ClassNotFoundException e) {
 						type = new EolNativeType(className);

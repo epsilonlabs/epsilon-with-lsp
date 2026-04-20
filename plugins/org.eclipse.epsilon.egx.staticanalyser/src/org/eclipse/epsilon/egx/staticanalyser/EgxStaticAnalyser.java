@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.egx.staticanalyser;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import org.eclipse.epsilon.eol.dom.ReturnStatement;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
+import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.erl.dom.Post;
@@ -111,9 +114,16 @@ public class EgxStaticAnalyser extends EolStaticAnalyser implements IEgxVisitor 
 		checkBoolean(rule.getOverwriteBlock());
 		checkBoolean(rule.getMergeBlock());
 
-		// Visit post block
+		// Visit post block with 'generated' variable (mirrors GenerationRule.java runtime behaviour)
+		// Type is File when a target is specified, String otherwise
 		if (rule.getPostBlock() != null) {
+			EolType generatedType = rule.getTargetBlock() != null
+				? new EolNativeType(File.class)
+				: EolPrimitiveType.String;
+			context.getFrameStack().enterLocal(FrameType.UNPROTECTED, rule.getPostBlock(),
+				new Variable("generated", generatedType));
 			rule.getPostBlock().accept(this);
+			context.getFrameStack().leaveLocal(rule.getPostBlock());
 		}
 
 		// Visit formatter block

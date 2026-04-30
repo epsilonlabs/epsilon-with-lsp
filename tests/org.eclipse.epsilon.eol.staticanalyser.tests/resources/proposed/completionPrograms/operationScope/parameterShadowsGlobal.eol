@@ -1,0 +1,6 @@
+var shared = "global";
+
+operation String use(shared : String) : String {
+	shared.println(); //@ self, shared
+	return shared;
+}

@@ -26,7 +26,23 @@ public abstract class AbstractBaseTest {
 	 * and not org.eclipse.epsilon.eol.staticanalyser.tests. This approach ensures that the right path will be used
 	 * regardless of whether this test suite is running directly from this plugin, or from org.eclipse.epsilon.test.
 	 */
-	protected static final String PROJECT_BASE_FOLDER = "../org.eclipse.epsilon.eol.staticanalyser.tests/";
+	protected static final String PROJECT_BASE_FOLDER = resolveProjectBaseFolder();
+
+	private static String resolveProjectBaseFolder() {
+		String[] candidates = new String[] {
+			"./",
+			"tests/org.eclipse.epsilon.eol.staticanalyser.tests/",
+			"../org.eclipse.epsilon.eol.staticanalyser.tests/"
+		};
+
+		for (String candidate : candidates) {
+			if (new File(candidate, "resources").isDirectory()) {
+				return candidate;
+			}
+		}
+
+		return "../org.eclipse.epsilon.eol.staticanalyser.tests/";
+	}
 
 	protected static boolean isConsoleOutputActive = false;
 	protected final String testTag;
@@ -64,7 +80,7 @@ public abstract class AbstractBaseTest {
 
 	protected static Collection<Object[]> getEpsilonProgramCollection(String resourceFolder, String epsilonProgramFolder,
 			String fileExtension) throws FileNotFoundException {
-		File testFolder = new File(resourceFolder, epsilonProgramFolder);
+		File testFolder = new File(resolveResourceFolder(resourceFolder), epsilonProgramFolder);
 		if (!testFolder.exists()) {
 			throw new FileNotFoundException("Failed to find the test resources folder: " + testFolder);
 		}
@@ -77,6 +93,23 @@ public abstract class AbstractBaseTest {
 			testCollection.add(new Object[] { shortTestTag, file });
 		}
 		return testCollection;
+	}
+
+	private static File resolveResourceFolder(String resourceFolder) {
+		File folder = new File(resourceFolder);
+		if (folder.exists()) {
+			return folder;
+		}
+
+		int resourcesIndex = resourceFolder.indexOf("resources");
+		if (resourcesIndex >= 0) {
+			File resolvedFolder = new File(resolveProjectBaseFolder(), resourceFolder.substring(resourcesIndex));
+			if (resolvedFolder.exists()) {
+				return resolvedFolder;
+			}
+		}
+
+		return folder;
 	}
 
 	private static void registerPackage(String path) {
@@ -102,7 +135,7 @@ public abstract class AbstractBaseTest {
 		if (isConsoleOutputActive) {
 			System.out.println("Registered Ecore models:");
 		}
-		File modelSetFolder = new File(resource, modelSet);
+		File modelSetFolder = new File(resolveResourceFolder(resource), modelSet);
 		List<File> modelFileList = findFilesWithin(modelSetFolder, modelFileExtension);
 
 		EPackage.Registry.INSTANCE.put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);

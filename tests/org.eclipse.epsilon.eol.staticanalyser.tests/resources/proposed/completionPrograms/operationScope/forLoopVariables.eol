@@ -1,0 +1,7 @@
+operation Sequence<Integer> identity(items : Sequence<Integer>) : Sequence<Integer> {
+	for (item in items) {
+	  //@ hasMore, item, items, loopCount, self
+	}
+	//@ items, self
+	return items;
+}

@@ -1,0 +1,6 @@
+operation Integer compute(input : Integer) : Integer {
+	input.println(); //@ input, self
+	var temp = input;
+	temp.println(); //@ input, self, temp
+	return temp;
+}

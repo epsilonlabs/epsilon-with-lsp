@@ -25,9 +25,13 @@ import org.eclipse.epsilon.egx.staticanalyser.EgxStaticAnalyser;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.Import;
+import org.eclipse.epsilon.eol.staticanalyser.EolCompletion;
+import org.eclipse.epsilon.eol.staticanalyser.EolCompletionKind;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.evl.EvlModule;
 import org.eclipse.epsilon.evl.staticanalyser.EvlStaticAnalyser;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
@@ -172,6 +176,89 @@ public class Analyser {
     	return diagnostics;
     }
 	
+    public List<CompletionItem> getCompletions(URI fileUri, Position lspPosition) {
+        final IEolModule module = createModule(FilenameUtils.getExtension(fileUri.toString()));
+        if (module == null) {
+            return Collections.emptyList();
+        }
+
+        // Always parse through the mapentry scheme so that unsaved buffers
+        // are picked up; SingletonMapStreamHandlerService falls back to the
+        // file on disk when the registry does not contain the path.
+        final URI moduleUri;
+        try {
+            moduleUri = new URI(SingletonMapStreamHandlerService.PROTOCOL, "", fileUri.getPath(), null);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+
+        try {
+            module.parse(moduleUri);
+        } catch (Exception e) {
+            // Parsing can fail while the user is typing; fall through and
+            // still try to return completions if a partial AST is available.
+            e.printStackTrace();
+        }
+
+        final EolStaticAnalyser staticAnalyser;
+        if (module instanceof EvlModule) {
+            staticAnalyser = new EvlStaticAnalyser(new StaticModelFactory());
+        } else if (module instanceof EglModule) {
+            staticAnalyser = new EglStaticAnalyser(new StaticModelFactory());
+        } else {
+            staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+        }
+
+        // Best-effort validation: it populates "resolvedType" data on the
+        // AST, which getVisibleVariables uses to populate the `detail`
+        // field. Validation can throw on partially-typed code, in which
+        // case we still return the (untyped) completions.
+        if (module.getParseProblems().isEmpty()) {
+            try {
+                staticAnalyser.validate(module);
+            } catch (Exception e) {
+                LOGGER.warning("Static analysis failed while computing completions: " + e.getMessage());
+            }
+        }
+
+        // LSP positions are 0-based for both line and character. Epsilon's
+        // Position uses 1-based lines and 0-based columns (consistent with
+        // how markersToDiagnostics converts the other way around).
+        final org.eclipse.epsilon.common.parse.Position epsilonPosition =
+            new org.eclipse.epsilon.common.parse.Position(
+                lspPosition.getLine() + 1, lspPosition.getCharacter());
+
+        final List<EolCompletion> completions = staticAnalyser.getCompletions(module, epsilonPosition);
+        final List<CompletionItem> items = new ArrayList<>(completions.size());
+        for (EolCompletion c : completions) {
+            final CompletionItem item = new CompletionItem(c.getName());
+            item.setKind(toCompletionItemKind(c.getKind()));
+            item.setDetail(c.getDetail());
+            items.add(item);
+        }
+        return items;
+    }
+
+    private static CompletionItemKind toCompletionItemKind(EolCompletionKind kind) {
+        if (kind == null) {
+            return CompletionItemKind.Variable;
+        }
+        switch (kind) {
+            // LSP4J does not have a dedicated `Parameter` kind; `Variable`
+            // is the conventional fallback used by most language servers.
+            case PARAMETER:
+            case VARIABLE:
+                return CompletionItemKind.Variable;
+            case SPECIAL_VARIABLE:
+                // self, loopCount, hasMore are language-level contextual
+                // identifiers, so we surface them as keywords for clarity.
+                return CompletionItemKind.Keyword;
+            default:
+                return CompletionItemKind.Variable;
+        }
+    }
+
     protected IEolModule createModule(String languageId) {
         switch (languageId) {
             case LANGUAGE_EVL: return new EvlModule();

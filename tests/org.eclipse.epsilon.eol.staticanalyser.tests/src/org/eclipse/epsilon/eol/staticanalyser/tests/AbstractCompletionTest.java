@@ -47,7 +47,7 @@ public abstract class AbstractCompletionTest extends AbstractBaseTest {
 		assertFalse("No completion expectations found in " + testTag, completionExpectations.isEmpty());
 
 		for (CompletionExpectation expectation : completionExpectations) {
-			List<EolCompletion> completions = staticAnalyser.getVisibleVariables(module, expectation.getPosition());
+			List<EolCompletion> completions = staticAnalyser.getCompletions(module, expectation.getPosition());
 			Set<String> actualNames = new HashSet<String>();
 			for (EolCompletion completion : completions) {
 				actualNames.add(completion.getName());

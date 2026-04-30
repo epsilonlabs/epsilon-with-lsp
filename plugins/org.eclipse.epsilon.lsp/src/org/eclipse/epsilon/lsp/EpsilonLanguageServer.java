@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
@@ -68,6 +69,15 @@ public class EpsilonLanguageServer implements LanguageServer {
 		if (workspaceFolders != null) ePackageRegistryManager.initialize(params.getWorkspaceFolders());
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
+
+        // Advertise completion support. The Epsilon static analyser produces
+        // completions purely from AST context, so we do not declare any
+        // trigger characters (completion is requested explicitly by the
+        // client, e.g. via Ctrl+Space) and we do not need a resolve step.
+        final CompletionOptions completionOptions = new CompletionOptions();
+        completionOptions.setResolveProvider(false);
+        res.getCapabilities().setCompletionProvider(completionOptions);
+
         analyser.initialize();
         return CompletableFuture.completedFuture(res);
     }

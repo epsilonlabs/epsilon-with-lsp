@@ -6,8 +6,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,8 @@ import org.eclipse.epsilon.common.module.IModuleValidator;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
+import org.eclipse.epsilon.common.parse.Position;
+import org.eclipse.epsilon.common.parse.Region;
 import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.common.util.StringUtil;
 import org.eclipse.epsilon.eol.EolModule;
@@ -80,6 +85,7 @@ import org.eclipse.epsilon.eol.dom.PropertyCallExpression;
 import org.eclipse.epsilon.eol.dom.RealLiteral;
 import org.eclipse.epsilon.eol.dom.ReturnStatement;
 import org.eclipse.epsilon.eol.dom.SimpleAnnotation;
+import org.eclipse.epsilon.eol.dom.Statement;
 import org.eclipse.epsilon.eol.dom.StatementBlock;
 import org.eclipse.epsilon.eol.dom.StringLiteral;
 import org.eclipse.epsilon.eol.dom.SwitchStatement;
@@ -92,6 +98,7 @@ import org.eclipse.epsilon.eol.dom.VariableDeclaration;
 import org.eclipse.epsilon.eol.dom.WhileStatement;
 import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.FrameStack;
+import org.eclipse.epsilon.eol.staticanalyser.execute.context.SingleFrame;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.operations.AbstractOperation;
 import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
@@ -129,6 +136,28 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	HashMap<Operation, Boolean> returnFlags = new HashMap<>(); // for every missmatch
 	HashMap<URI, List<IStaticOperation>> operationRegistry = new HashMap<>();
 //	List<EolModule> dependencies = new ArrayList<>();
+
+	/**
+	 * Registry of visible variable snapshots captured during validation. Each
+	 * entry maps an AST element's source {@link Region} to the variables that
+	 * are in scope at that region. Used by {@link #getCompletions} to serve
+	 * autocomplete lookups without re-walking the AST.
+	 */
+	protected List<VisibleVariablesSnapshot> visibleVariablesRegistry = new ArrayList<>();
+
+	/**
+	 * A snapshot of the variables visible at the source region of a given AST
+	 * element, taken while the static analyser is visiting that element.
+	 */
+	public static class VisibleVariablesSnapshot {
+		public final Region region;
+		public final Map<String, Variable> variables;
+
+		public VisibleVariablesSnapshot(Region region, Map<String, Variable> variables) {
+			this.region = region;
+			this.variables = variables;
+		}
+	}
 
 	public EolStaticAnalyser() {
 	}
@@ -380,6 +409,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				new Variable(iterator.getName(), iteratorType));
 		List<Expression> expressions = firstOrderOperationCallExpression.getExpressions();
 		for (Expression expression: expressions) {
+			recordVisibleVariables(expression);
 			expression.accept(this);
 		}
 		
@@ -1238,7 +1268,32 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	@Override
 	public void visit(StatementBlock statementBlock) {
 
-		statementBlock.getStatements().forEach(s -> s.accept(this));
+		// Block-wide snapshot: captures the scope as seen on entry (e.g. for
+		// cursor positions that are inside the block but before the first
+		// statement, or between statements).
+		recordVisibleVariables(statementBlock);
+
+		Region blockRegion = statementBlock.getRegion();
+		Position blockEnd = blockRegion != null ? blockRegion.getEnd() : null;
+
+		for (Statement statement : statementBlock.getStatements()) {
+			// Snapshot for positions INSIDE this statement's own source
+			// region: captured BEFORE the statement is visited, so any
+			// variable it introduces is not yet visible.
+			recordVisibleVariables(statement);
+
+			statement.accept(this);
+
+			// "Tail" snapshot covering positions strictly AFTER this
+			// statement (up to the end of the enclosing block). By the time
+			// this runs the statement has been visited, so any variables it
+			// declared are now in scope. A later tail snapshot for the next
+			// statement will shadow this one via the smallest-region rule.
+			if (blockEnd != null && statement.getRegion() != null
+					&& statement.getRegion().getEnd() != null) {
+				recordVisibleVariables(new Region(statement.getRegion().getEnd(), blockEnd));
+			}
+		}
 
 	}
 
@@ -1591,10 +1646,108 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		context.getFrameStack().dispose();
 	}
 
+	/**
+	 * Records the variables currently visible at the given AST element. The
+	 * snapshot is keyed by the element's source region and can later be queried
+	 * via {@link #getCompletions(IEolModule, Position)}.
+	 *
+	 * <p>"Visible" here matches EOL's scoping rules: we walk the frame stack
+	 * top-to-bottom, collecting each frame's variables (with higher frames
+	 * shadowing lower ones), and stop after the first PROTECTED frame (i.e.
+	 * the enclosing operation), which hides outer locals but still lets the
+	 * global frame contribute via the frame stack's own traversal order.</p>
+	 */
+	protected void recordVisibleVariables(ModuleElement element) {
+		if (element != null) {
+			recordVisibleVariables(element.getRegion());
+		}
+	}
+
+	protected void recordVisibleVariables(Region region) {
+		if (region == null || region.getStart() == null || region.getEnd() == null) {
+			return;
+		}
+		visibleVariablesRegistry.add(new VisibleVariablesSnapshot(region, captureVisibleVariables()));
+	}
+
+	protected Map<String, Variable> captureVisibleVariables() {
+		Map<String, Variable> visible = new LinkedHashMap<String, Variable>();
+		for (SingleFrame frame : context.getFrameStack().getFrames()) {
+			for (Map.Entry<String, Variable> entry : frame.getAll().entrySet()) {
+				visible.putIfAbsent(entry.getKey(), entry.getValue());
+			}
+			if (frame.isProtected()) {
+				break;
+			}
+		}
+		return visible;
+	}
+
+	private static boolean regionContains(Region region, Position position) {
+		Position start = region.getStart();
+		Position end = region.getEnd();
+		if (start == null || end == null) {
+			return false;
+		}
+		// start <= position <= end (inclusive on both ends)
+		return !position.isBefore(start) && !end.isBefore(position);
+	}
+
+	private static boolean regionIsStrictlyInside(Region inner, Region outer) {
+		Position iStart = inner.getStart();
+		Position iEnd = inner.getEnd();
+		Position oStart = outer.getStart();
+		Position oEnd = outer.getEnd();
+		if (iStart == null || iEnd == null || oStart == null || oEnd == null) {
+			return false;
+		}
+		boolean startsInside = !iStart.isBefore(oStart);
+		boolean endsInside = !oEnd.isBefore(iEnd);
+		boolean strictlySmaller = iStart.isAfter(oStart) || oEnd.isAfter(iEnd);
+		return startsInside && endsInside && strictlySmaller;
+	}
+
+	public List<EolCompletion> getCompletions(IEolModule module, Position position) {
+		if (module == null || position == null) {
+			return Collections.emptyList();
+		}
+
+		VisibleVariablesSnapshot best = null;
+		for (VisibleVariablesSnapshot snapshot : visibleVariablesRegistry) {
+			if (!regionContains(snapshot.region, position)) {
+				continue;
+			}
+			if (best == null || regionIsStrictlyInside(snapshot.region, best.region)) {
+				best = snapshot;
+			}
+		}
+
+		if (best == null) {
+			return Collections.emptyList();
+		}
+
+		List<EolCompletion> completions = new ArrayList<EolCompletion>();
+		for (Map.Entry<String, Variable> entry : best.variables.entrySet()) {
+			String name = entry.getKey();
+			Variable variable = entry.getValue();
+			EolCompletionKind kind = isSpecialVariableName(name)
+					? EolCompletionKind.SPECIAL_VARIABLE
+					: EolCompletionKind.VARIABLE;
+			completions.add(new EolCompletion(name, kind, variable.getType()));
+		}
+		Collections.sort(completions, Comparator.comparing(EolCompletion::getName));
+		return completions;
+	}
+
+	private static boolean isSpecialVariableName(String name) {
+		return "self".equals(name) || "loopCount".equals(name) || "hasMore".equals(name);
+	}
+
 	@Override
 	public List<ModuleMarker> validate(IModule imodule) {
 	
 		markers = new ArrayList<ModuleMarker>();
+		visibleVariablesRegistry = new ArrayList<VisibleVariablesSnapshot>();
 		this.module = (IEolModule) imodule;
 
 		preValidate(module);

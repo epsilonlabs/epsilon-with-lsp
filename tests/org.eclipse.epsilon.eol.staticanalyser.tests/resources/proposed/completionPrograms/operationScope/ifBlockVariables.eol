@@ -1,9 +1,0 @@
-operation Integer choose(base : Integer) : Integer {
-	base.println(); //@ base, self
-	if (true) {
-		var branch = base;
-		branch.println(); //@ base, branch, self
-	}
-	base.println(); //@ base, self
-	return base;
-}

@@ -1,0 +1,9 @@
+operation Integer choose(base : Integer) : Integer {
+	//@ base, self
+	if (true) {
+		var branch = base;
+		//@ base, branch, self
+	}
+	//@ base, self
+	return base;
+}

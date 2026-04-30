@@ -1,6 +1,6 @@
 operation String join(prefix : String, suffix : String) : String {
-	prefix.println(); //@ prefix, self, suffix
+	//@ prefix, self, suffix
 	var combined = prefix + suffix;
-	combined.println(); //@ combined, prefix, self, suffix
+	//@ combined, prefix, self, suffix
 	return combined;
 }

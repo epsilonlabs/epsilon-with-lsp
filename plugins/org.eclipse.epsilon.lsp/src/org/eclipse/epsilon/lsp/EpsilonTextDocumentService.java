@@ -29,6 +29,9 @@ import org.eclipse.epsilon.flexmi.FlexmiResource;
 import org.eclipse.epsilon.flexmi.FlexmiResourceFactory;
 import org.eclipse.gymnast.runtime.core.parser.ParseError;
 import org.eclipse.gymnast.runtime.core.parser.ParseMessage;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionList;
+import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -41,6 +44,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 public class EpsilonTextDocumentService implements TextDocumentService {
@@ -167,6 +171,29 @@ public class EpsilonTextDocumentService implements TextDocumentService {
             }
         }
         return new Position(line, column);
+    }
+
+    @Override
+    public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
+        final String uriString = params.getTextDocument().getUri();
+
+        // Only the Epsilon languages are handled by the static analyser;
+        // for anything else we return an empty completion list so that the
+        // client does not keep waiting.
+        if (!(uriString.endsWith(".eol") || uriString.endsWith(".evl") || uriString.endsWith(".egl"))) {
+            return CompletableFuture.completedFuture(Either.forLeft(Collections.<CompletionItem>emptyList()));
+        }
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                final List<CompletionItem> items = languageServer.analyser
+                    .getCompletions(URI.create(uriString), params.getPosition());
+                return Either.<List<CompletionItem>, CompletionList>forLeft(items);
+            } catch (Exception ex) {
+                log(ex);
+                return Either.<List<CompletionItem>, CompletionList>forLeft(Collections.<CompletionItem>emptyList());
+            }
+        });
     }
 
     @Override

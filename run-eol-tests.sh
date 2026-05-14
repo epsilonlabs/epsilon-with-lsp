@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
-# Fast test runner for EolBuildTests and EvlBuildTests.
+# Fast test runner for EolBuildTests, EolCompletionTests and EvlBuildTests.
 #
 # Rebuilds eol.engine + test module via Maven, then runs tests directly with java.
 #
 # Usage:
-#   ./run-eol-tests.sh                          # run all EolBuildTests + EvlBuildTests
+#   ./run-eol-tests.sh                          # run all EOL static analyser tests
 #   ./run-eol-tests.sh -f multiPackage.eol       # filter output to a specific test file
 #
 set -euo pipefail
@@ -71,7 +71,7 @@ done
 cd "$TESTS"
 
 echo "=== Running tests ==="
-TEST_CLASSES="org.eclipse.epsilon.eol.staticanalyser.tests.EolBuildTests org.eclipse.epsilon.eol.staticanalyser.tests.EvlBuildTests"
+TEST_CLASSES="org.eclipse.epsilon.eol.staticanalyser.tests.EolBuildTests org.eclipse.epsilon.eol.staticanalyser.tests.EolCompletionTests org.eclipse.epsilon.eol.staticanalyser.tests.EvlBuildTests"
 if [ -n "$FILTER_FILE" ]; then
   java -cp "$CP" org.junit.runner.JUnitCore $TEST_CLASSES 2>&1 | \
     awk -v pat="$FILTER_FILE" '

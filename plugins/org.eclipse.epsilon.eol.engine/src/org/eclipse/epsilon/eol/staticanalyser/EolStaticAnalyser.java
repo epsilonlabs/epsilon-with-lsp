@@ -407,6 +407,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, firstOrderOperationCallExpression,
 				new Variable(iterator.getName(), iteratorType));
+		if (iterator.getRegion() != null && iterator.getRegion().getEnd() != null
+				&& firstOrderOperationCallExpression.getRegion() != null
+				&& firstOrderOperationCallExpression.getRegion().getEnd() != null) {
+			recordVisibleVariables(new Region(iterator.getRegion().getEnd(),
+					firstOrderOperationCallExpression.getRegion().getEnd()));
+		}
 		List<Expression> expressions = firstOrderOperationCallExpression.getExpressions();
 		for (Expression expression: expressions) {
 			recordVisibleVariables(expression);
@@ -790,7 +796,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		context.getFrameStack().enterLocal(FrameType.PROTECTED, operation, new Variable("self", contextType));
 
 		for (Parameter parameter : operation.getFormalParameters()) {
-			parameter.accept(this);
+			visit(parameter, true);
 		}
 		operation.getBody().accept(this);
 

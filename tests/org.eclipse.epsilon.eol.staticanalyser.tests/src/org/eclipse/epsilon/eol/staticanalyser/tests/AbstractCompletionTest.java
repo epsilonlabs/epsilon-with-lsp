@@ -32,6 +32,7 @@ public abstract class AbstractCompletionTest extends AbstractBaseTest {
 		module = new EolModule();
 		staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 		module.parse(programFile);
+		staticAnalyser.validate(module);
 		completionExpectations = completionExpectationParser.extractCompletionExpectations(programFile);
 	}
 

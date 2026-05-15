@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
 
 public class PlainXmlModelMetamodel extends Metamodel {
 	
-	private boolean CONSOLE = false;
+	private boolean CONSOLE = true;
 	
 	// Element Tag -- possible EClass/EFeature
 	// Element Attributes -- possible EAttribute (Using XML attributes as references)
@@ -128,9 +128,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 				
 				if(null == elementMetaClass) {
 					elementMetaClass = createPlainXmlMetaClass(element);
-					
 					addMetaClass(elementMetaClass);
-					addMetaClass(createSubClass(elementMetaClass));
 				}
 				//elementMetaClass.addNode(element);
 				
@@ -151,7 +149,6 @@ public class PlainXmlModelMetamodel extends Metamodel {
 			}
 		}
 	}
-
 	
 	private void addCollectionPropertyToParent (Node parent, Node child) {
 		//String elementPropertyName = "e_" + child.getNodeName();
@@ -186,15 +183,8 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		return true;
 	}
 	
-	
-	
 	@Override
 	public IMetaClass getMetaClass(String name) {
-
-		name = name.toLowerCase();
-		if (name.startsWith("t_")) {
-			name = name.substring(2);
-		}
 
 		IMetaClass iMetaClass = super.getMetaClass(name);
 		PlainXmlMetaClass xmlMetaClass = getPlainXmlMetaClass(name);
@@ -207,13 +197,12 @@ public class PlainXmlModelMetamodel extends Metamodel {
 					+ xmlMetaClass.getName());
 		}
 		*/
-		
+				
 		if (null != iMetaClass) {
 			System.out.println("\ngetMetaClass(String " + name + ") " + iMetaClass.toString());
 		}
 		return iMetaClass;
 	}
-	
 	
 	public PlainXmlMetaClass getPlainXmlMetaClass(String metaClassName) {
 		for (IMetaClass iMetaClass : metaClasses) {
@@ -244,7 +233,6 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		return list;
 	}
 	
-
 	@Override
 	public boolean equals(Object other) {
 		if(other == this) {
@@ -252,7 +240,6 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		}
 		return false;
 	}
-	
 
 	@Override
 	public int hashCode() {
@@ -264,24 +251,14 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	
 	private PlainXmlMetaClass createElementClass() {
 		PlainXmlMetaClass element = new PlainXmlMetaClass("element", this);
-		if (CONSOLE) {
-			element.addProperty("text", EolPrimitiveType.String);
-			element.addProperty("parentNode", EolAnyType.Instance);
-			element.addProperty("children", EolAnyType.Instance);
-		}
+		element.addProperty("text", EolPrimitiveType.String);
+		element.addProperty("parentNode", EolAnyType.Instance);
+		element.addProperty("children", EolAnyType.Instance);
 		return element;
 	}
 	
-	private String formatClassName (String className) {
-		return className.substring(0, 1).toUpperCase() + className.substring(1);
-	}
-	
 	private PlainXmlMetaClass createPlainXmlMetaClass (Node node) {
-		String nodeName = node.getNodeName();
-		//String metaClassName = formatClassName(nodeName);
-
-		String metaClassName = node.getNodeName();
-		
+		String metaClassName = "t_" + node.getNodeName();
 		PlainXmlMetaClass metaClass =  new PlainXmlMetaClass(metaClassName, this);
 		
 		// link to the element class
@@ -289,18 +266,6 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		elementClass.addSubType(metaClass);
 
 		return metaClass;		
-	}
-	
-	private PlainXmlMetaClass createSubClass(PlainXmlMetaClass metaClass) {
-		// Create subTypes t_ Class and link element and metaClass
-		
-		PlainXmlMetaClass subMetaClass = new PlainXmlMetaClass("t_" + metaClass.getName(), this);
-		subMetaClass.addSuperType(elementClass);
-		subMetaClass.addSuperType(metaClass);
-		
-		elementClass.addSubType(subMetaClass);
-		metaClass.addSubType(subMetaClass);
-		return subMetaClass;
 	}
 	
 	private IProperty createAnyProperty (Node node) {

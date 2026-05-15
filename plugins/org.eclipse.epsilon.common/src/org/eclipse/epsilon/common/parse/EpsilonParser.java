@@ -257,7 +257,11 @@ public abstract class EpsilonParser extends Parser {
 		String currentText = current != null && current.getText() != null ? current.getText() : tokenName(current != null ? current.getType() : Token.EOF);
 		int line = current != null ? current.getLine() : 0;
 		int column = current != null ? current.getCharPositionInLine() : 0;
-		reportException(line, column, "missing " + missingText + " before '" + currentText + "'");
+		String reason = "missing " + missingText + " before '" + currentText + "'";
+		reportException(line, column, reason);
+		if (printErrors) {
+			emitErrorMessage("line " + line + ":" + column + " " + reason);
+		}
 	}
 
 	Token consumeErrorNodeReplacement(RecognitionException re) {

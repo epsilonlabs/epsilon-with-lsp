@@ -1713,6 +1713,27 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		return startsInside && endsInside && strictlySmaller;
 	}
 
+	private static boolean regionEndsBeforeOrAtOnSameLine(Region region, Position position) {
+		Position end = region.getEnd();
+		if (end == null || position == null || end.getLine() != position.getLine()) {
+			return false;
+		}
+		return !position.isBefore(end);
+	}
+
+	private static boolean isBetterPrecedingSnapshot(VisibleVariablesSnapshot candidate,
+			VisibleVariablesSnapshot best) {
+		if (best == null) {
+			return true;
+		}
+		Position candidateEnd = candidate.region.getEnd();
+		Position bestEnd = best.region.getEnd();
+		if (candidateEnd.isAfter(bestEnd) && !candidateEnd.equals(bestEnd)) {
+			return true;
+		}
+		return candidateEnd.equals(bestEnd) && regionIsStrictlyInside(candidate.region, best.region);
+	}
+
 	public List<EolCompletion> getCompletions(IEolModule module, Position position) {
 		if (module == null || position == null) {
 			return Collections.emptyList();
@@ -1725,6 +1746,17 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 			if (best == null || regionIsStrictlyInside(snapshot.region, best.region)) {
 				best = snapshot;
+			}
+		}
+
+		if (best == null) {
+			for (VisibleVariablesSnapshot snapshot : visibleVariablesRegistry) {
+				if (!regionEndsBeforeOrAtOnSameLine(snapshot.region, position)) {
+					continue;
+				}
+				if (isBetterPrecedingSnapshot(snapshot, best)) {
+					best = snapshot;
+				}
 			}
 		}
 

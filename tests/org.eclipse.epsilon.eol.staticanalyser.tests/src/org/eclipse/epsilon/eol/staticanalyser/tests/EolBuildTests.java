@@ -26,7 +26,9 @@ public class EolBuildTests extends AbstractStaticAnalysisTest {
 	
 	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() throws FileNotFoundException {			
-		return getEpsilonProgramCollection(RESOURCES, PROGRAMSET, PROGRAMFILEEXTENSION);
+		Collection<Object[]> programs = getEpsilonProgramCollection(RESOURCES, PROGRAMSET, PROGRAMFILEEXTENSION);
+		programs.removeIf(program -> ((File) program[1]).getPath().contains(File.separator + "completionPrograms" + File.separator));
+		return programs;
 	}
 	
 	public EolBuildTests(String testTag, File epsilonTestFile) {

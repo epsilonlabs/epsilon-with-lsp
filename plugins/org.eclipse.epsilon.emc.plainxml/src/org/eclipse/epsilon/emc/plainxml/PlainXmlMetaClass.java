@@ -8,7 +8,7 @@ import org.eclipse.epsilon.eol.m3.IMetaClass;
 import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.types.EolType;
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 public class PlainXmlMetaClass extends MetaClass {
 	
@@ -107,10 +107,12 @@ public class PlainXmlMetaClass extends MetaClass {
 	@Override
 	public Class<?> getClazz() {
 		//t_library cannot be assigned to Native<org.w3c.dom.Node>
-		Class<Node> c = Node.class;		
-		System.out.println(" [!] getClazz() " + this.getName() + " : " + c + " : " + this.getClass());
+		
+		
+		Class<Element> c = Element.class;		
+		System.out.println(" [!] getClazz() " + this.getName() + " : " + c);
 		return c;
-		//return null;
+		//return Element.class;
 	}
 	
 	@Override

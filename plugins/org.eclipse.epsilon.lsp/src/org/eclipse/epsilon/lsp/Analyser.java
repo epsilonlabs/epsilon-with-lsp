@@ -3,9 +3,11 @@ package org.eclipse.epsilon.lsp;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.MutableGraph;
 import com.google.common.graph.Graphs;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +29,7 @@ import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.Import;
 import org.eclipse.epsilon.eol.staticanalyser.EolCompletion;
 import org.eclipse.epsilon.eol.staticanalyser.EolCompletionKind;
+import org.eclipse.epsilon.eol.staticanalyser.EolCompletionParseRepairer;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.epsilon.evl.EvlModule;
 import org.eclipse.epsilon.evl.staticanalyser.EvlStaticAnalyser;
@@ -176,15 +179,22 @@ public class Analyser {
     	return diagnostics;
     }
 	
-    public List<CompletionItem> getCompletions(URI fileUri, Position lspPosition) {
-        final IEolModule module = createModule(FilenameUtils.getExtension(fileUri.toString()));
-        if (module == null) {
-            return Collections.emptyList();
-        }
+	public List<CompletionItem> getCompletions(URI fileUri, Position lspPosition) {
+		IEolModule module = createModule(FilenameUtils.getExtension(fileUri.toString()));
+		if (module == null) {
+			return Collections.emptyList();
+		}
 
-        // Always parse through the mapentry scheme so that unsaved buffers
-        // are picked up; SingletonMapStreamHandlerService falls back to the
-        // file on disk when the registry does not contain the path.
+		// LSP positions are 0-based for both line and character. Epsilon's
+		// Position uses 1-based lines and 0-based columns (consistent with
+		// how markersToDiagnostics converts the other way around).
+		final org.eclipse.epsilon.common.parse.Position epsilonPosition =
+			new org.eclipse.epsilon.common.parse.Position(
+				lspPosition.getLine() + 1, lspPosition.getCharacter());
+
+		// Always parse through the mapentry scheme so that unsaved buffers
+		// are picked up; SingletonMapStreamHandlerService falls back to the
+		// file on disk when the registry does not contain the path.
         final URI moduleUri;
         try {
             moduleUri = new URI(SingletonMapStreamHandlerService.PROTOCOL, "", fileUri.getPath(), null);
@@ -193,13 +203,22 @@ public class Analyser {
             return Collections.emptyList();
         }
 
-        try {
-            module.parse(moduleUri);
-        } catch (Exception e) {
-            // Parsing can fail while the user is typing; fall through and
-            // still try to return completions if a partial AST is available.
-            e.printStackTrace();
-        }
+		boolean parseFailed = false;
+		try {
+			module.parse(moduleUri);
+		} catch (Exception e) {
+			// Parsing can fail while the user is typing; fall through and
+			// still try to return completions if a partial AST is available.
+			parseFailed = true;
+			e.printStackTrace();
+		}
+
+		if (parseFailed || !module.getParseProblems().isEmpty()) {
+			IEolModule repairedModule = parseRepairedCompletionModule(fileUri, epsilonPosition);
+			if (repairedModule != null) {
+				module = repairedModule;
+			}
+		}
 
         final EolStaticAnalyser staticAnalyser;
         if (module instanceof EvlModule) {
@@ -210,26 +229,16 @@ public class Analyser {
             staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
         }
 
-        // Best-effort validation: it populates "resolvedType" data on the
-        // AST, which getVisibleVariables uses to populate the `detail`
-        // field. Validation can throw on partially-typed code, in which
-        // case we still return the (untyped) completions.
-        if (module.getParseProblems().isEmpty()) {
-            try {
-                staticAnalyser.validate(module);
-            } catch (Exception e) {
-                LOGGER.warning("Static analysis failed while computing completions: " + e.getMessage());
-            }
-        }
+		// Best-effort validation: parser recovery can produce a partial AST even
+		// when there are parse problems, and autocomplete should still use any
+		// visible-variable snapshots that can be collected from that AST.
+		try {
+			staticAnalyser.validate(module);
+		} catch (Exception e) {
+			LOGGER.warning("Static analysis failed while computing completions: " + e.getMessage());
+		}
 
-        // LSP positions are 0-based for both line and character. Epsilon's
-        // Position uses 1-based lines and 0-based columns (consistent with
-        // how markersToDiagnostics converts the other way around).
-        final org.eclipse.epsilon.common.parse.Position epsilonPosition =
-            new org.eclipse.epsilon.common.parse.Position(
-                lspPosition.getLine() + 1, lspPosition.getCharacter());
-
-        final List<EolCompletion> completions = staticAnalyser.getCompletions(module, epsilonPosition);
+		final List<EolCompletion> completions = staticAnalyser.getCompletions(module, epsilonPosition);
         final List<CompletionItem> items = new ArrayList<>(completions.size());
         for (EolCompletion c : completions) {
             final CompletionItem item = new CompletionItem(c.getName());
@@ -237,10 +246,57 @@ public class Analyser {
             item.setDetail(c.getDetail());
             items.add(item);
         }
-        return items;
-    }
+		return items;
+	}
 
-    private static CompletionItemKind toCompletionItemKind(EolCompletionKind kind) {
+	protected IEolModule parseRepairedCompletionModule(URI fileUri,
+			org.eclipse.epsilon.common.parse.Position epsilonPosition) {
+		String code = readDocumentCode(fileUri);
+		if (code == null) {
+			return null;
+		}
+
+		String repairedCode = new EolCompletionParseRepairer().repair(code, epsilonPosition);
+		if (repairedCode == null || repairedCode.equals(code)) {
+			return null;
+		}
+
+		IEolModule repairedModule = createModule(FilenameUtils.getExtension(fileUri.toString()));
+		if (repairedModule == null) {
+			return null;
+		}
+
+		try {
+			repairedModule.parse(repairedCode, sourceFileFor(fileUri));
+			return repairedModule;
+		} catch (Exception e) {
+			LOGGER.warning("Failed to parse repaired completion source: " + e.getMessage());
+			return null;
+		}
+	}
+
+	protected String readDocumentCode(URI fileUri) {
+		String code = SingletonMapStreamHandlerService.Registry.getInstance().getCode(fileUri.getPath());
+		if (code != null) {
+			return code;
+		}
+		try {
+			return new String(Files.readAllBytes(Paths.get(fileUri)), StandardCharsets.UTF_8);
+		} catch (Exception e) {
+			LOGGER.warning("Failed to read completion source: " + e.getMessage());
+			return null;
+		}
+	}
+
+	protected File sourceFileFor(URI fileUri) {
+		try {
+			return "file".equals(fileUri.getScheme()) ? new File(fileUri) : null;
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
+	private static CompletionItemKind toCompletionItemKind(EolCompletionKind kind) {
         if (kind == null) {
             return CompletionItemKind.Variable;
         }

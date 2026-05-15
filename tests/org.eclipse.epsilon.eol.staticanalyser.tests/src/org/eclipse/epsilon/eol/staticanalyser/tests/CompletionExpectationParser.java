@@ -12,7 +12,9 @@ import java.util.Set;
 
 public class CompletionExpectationParser {
 
-	private static final String MARKER = "//@";
+	private static final String LINE_MARKER = "//@";
+	private static final String BLOCK_MARKER_START = "/*@";
+	private static final String BLOCK_MARKER_END = "*/";
 
 	public List<CompletionExpectation> extractCompletionExpectations(File testProgram) throws IOException {
 		List<CompletionExpectation> expectations = new ArrayList<CompletionExpectation>();
@@ -20,12 +22,27 @@ public class CompletionExpectationParser {
 
 		for (int i = 0; i < lines.size(); i++) {
 			String line = lines.get(i);
-			int markerStart = line.indexOf(MARKER);
-			if (markerStart < 0) {
+			int lineMarkerStart = line.indexOf(LINE_MARKER);
+			int blockMarkerStart = line.indexOf(BLOCK_MARKER_START);
+			if (lineMarkerStart < 0 && blockMarkerStart < 0) {
 				continue;
 			}
 
-			String expectedNamesText = line.substring(markerStart + MARKER.length()).trim();
+			int markerStart;
+			String expectedNamesText;
+			if (lineMarkerStart >= 0 && (blockMarkerStart < 0 || lineMarkerStart < blockMarkerStart)) {
+				markerStart = lineMarkerStart;
+				expectedNamesText = line.substring(markerStart + LINE_MARKER.length()).trim();
+			}
+			else {
+				markerStart = blockMarkerStart;
+				int markerEnd = line.indexOf(BLOCK_MARKER_END, markerStart + BLOCK_MARKER_START.length());
+				if (markerEnd < 0) {
+					fail("Malformed completion expectation on line " + (i + 1) + ": " + line);
+				}
+				expectedNamesText = line.substring(markerStart + BLOCK_MARKER_START.length(), markerEnd).trim();
+			}
+
 			Set<String> expectedNames = parseExpectedNames(expectedNamesText, i + 1, line);
 			expectations.add(new CompletionExpectation(i + 1, markerStart, expectedNames, line));
 		}

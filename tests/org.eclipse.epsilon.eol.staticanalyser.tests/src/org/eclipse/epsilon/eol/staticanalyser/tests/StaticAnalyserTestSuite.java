@@ -7,6 +7,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	EolBuildTests.class,
+	EolCompletionTests.class,
 	EvlBuildTests.class,
 })
 public class StaticAnalyserTestSuite {

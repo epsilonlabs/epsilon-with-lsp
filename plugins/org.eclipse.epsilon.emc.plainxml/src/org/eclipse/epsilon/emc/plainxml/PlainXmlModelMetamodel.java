@@ -155,7 +155,8 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		IProperty collectionProperty = createCollectionProperty(child);
 		PlainXmlMetaClass parentMetaClass = getPlainXMLMetaClass(parent);
 		if(null != parentMetaClass) {
-			parentMetaClass.addProperty(collectionProperty);
+			//parentMetaClass.addProperty(collectionProperty);
+			addMetaClassProperty(parentMetaClass, collectionProperty);
 		}
 	}
 	
@@ -166,8 +167,13 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		
 	private void addNodeAttributes (List<Node> nodeAttributes, PlainXmlMetaClass metaClass) {
 		for (Node attribute : nodeAttributes) {	
-			metaClass.addProperty(createAnyProperty(attribute));
-			metaClass.addProperty(createIntegerProperty(attribute));
+			
+			
+			//metaClass.addProperty(createAnyProperty(attribute));
+			//metaClass.addProperty(createIntegerProperty(attribute));
+			
+			addMetaClassProperty(metaClass, createAnyProperty(attribute));
+			addMetaClassProperty(metaClass, createIntegerProperty(attribute));
 		}
 	}
 	
@@ -250,10 +256,10 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	// Needs a MetaClass instance called "Element" which is the parent of all the XML elements
 	
 	private PlainXmlMetaClass createElementClass() {
-		PlainXmlMetaClass element = new PlainXmlMetaClass("element", this);
-		element.addProperty("text", EolPrimitiveType.String);
-		element.addProperty("parentNode", EolAnyType.Instance);
-		element.addProperty("children", EolAnyType.Instance);
+		PlainXmlMetaClass element = new PlainXmlMetaClass("Element", this);
+		addMetaClassProperty(element, "text", EolPrimitiveType.String);
+		addMetaClassProperty(element, "parentNode", EolAnyType.Instance);
+		addMetaClassProperty(element, "children", EolAnyType.Instance);
 		return element;
 	}
 	
@@ -262,10 +268,24 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		PlainXmlMetaClass metaClass =  new PlainXmlMetaClass(metaClassName, this);
 		
 		// link to the element class
-		metaClass.addSuperType(elementClass);
-		elementClass.addSubType(metaClass);
-
+		addMetaClassSuperType(metaClass, elementClass);
+		addMetaClassSubType(elementClass, metaClass);
 		return metaClass;		
+	}
+		
+	private IProperty createProperty (String name, EolType type) {
+		return new IProperty() {
+			
+			@Override
+			public EolType getType() {
+				return type;
+			}
+			
+			@Override
+			public String getName() {
+				return name;
+			}
+		};
 	}
 	
 	private IProperty createAnyProperty (Node node) {
@@ -314,5 +334,49 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		};
 	}
 	
+	private boolean addMetaClassProperty(PlainXmlMetaClass metaClass, IProperty property) {
+		IProperty p = metaClass.getProperty(property.getName());
+		if (null == p) {
+			metaClass.getProperties().add(property);
+			return true;
+		}
+		return false;
+	}
 
+	private boolean addMetaClassProperty(PlainXmlMetaClass metaClass, String propertyName, EolType type) {
+		IProperty property = metaClass.getProperty(propertyName);
+		if (null == property) {
+			property = createProperty(propertyName, type);
+			metaClass.getProperties().add(property);
+			System.out.println("Added property: " + property.getName() + " on " + metaClass.getName());
+			return true;
+		} 
+		System.out.println("Dupe property: " + propertyName);
+		return false;
+	}
+	
+	
+	private boolean addMetaClassSubType(PlainXmlMetaClass metaClass, IMetaClass subMetaClass) {
+		for (IMetaClass type : metaClass.getSubTypes()) {
+			if(type.getName().equals(subMetaClass.getName())) {
+				return false;
+			}
+		}
+		metaClass.getSubTypes().add(subMetaClass);
+		return true;
+	}
+
+	private boolean addMetaClassSuperType(PlainXmlMetaClass metaClass, IMetaClass superMetaClass) {
+		for(IMetaClass type : metaClass.getSuperTypes()) {
+			if(type.getName().equals(superMetaClass.getName())) {
+				return false;
+			}
+		}
+		
+		metaClass.getSuperTypes().add(superMetaClass);
+		return true;
+	}
+	
+	
+	
 }

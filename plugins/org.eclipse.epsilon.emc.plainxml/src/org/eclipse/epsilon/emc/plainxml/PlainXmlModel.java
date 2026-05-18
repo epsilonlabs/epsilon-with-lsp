@@ -37,6 +37,7 @@ import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.epsilon.eol.exceptions.models.EolNotInstantiableModelElementTypeException;
 import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContributorProvider;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
+import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.models.CachedModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.w3c.dom.Document;
@@ -468,5 +469,43 @@ public class PlainXmlModel extends CachedModel<Element> implements IOperationCon
 	@Override
 	public OperationContributor getOperationContributor() {
 		return operationContributor;
+	}
+	
+	private PlainXmlModelMetamodel metaModel = null;
+	
+	@Override
+	public IMetamodel getMetamodel(StringProperties properties, IRelativePathResolver pathResolver) {
+		boolean CONSOLE = true;
+		if (CONSOLE) {
+			System.out.println("\ngetMetaModel()");
+		}
+		if(this.isLoaded() == false) {
+			try {
+				this.load(properties,pathResolver);
+				if (CONSOLE) {
+					System.out.println("\n [ ! MODEL LOAD ! ] to create meta model \n   properties : " + properties);
+					//System.out.println("  THIS root : " + this.getRoot());
+					//System.out.println("  THIS xmldoc : " + this.getXml());
+				}
+				metaModel = new PlainXmlModelMetamodel(this, properties, pathResolver, getName());
+				this.dispose();
+				return metaModel;
+				
+			} catch (EolModelLoadingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
+		// May want to remove this check and just create new meta model on each call
+		if (null == metaModel) {
+			if (CONSOLE) {
+				System.out.println("Create MetaModel");
+			}	
+			metaModel = new PlainXmlModelMetamodel(this, properties, pathResolver, getName());
+		}
+		
+		return metaModel;
 	}
 }

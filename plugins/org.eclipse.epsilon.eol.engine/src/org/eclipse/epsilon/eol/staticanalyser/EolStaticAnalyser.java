@@ -2,6 +2,7 @@ package org.eclipse.epsilon.eol.staticanalyser;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -156,6 +157,25 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		public VisibleVariablesSnapshot(Region region, Map<String, Variable> variables) {
 			this.region = region;
 			this.variables = variables;
+		}
+	}
+
+	protected static class MemberCompletionContext {
+		public final NameExpression nameExpression;
+		public final EolType targetType;
+		public final boolean operationCall;
+		public final boolean typeLiteralTarget;
+
+		public MemberCompletionContext(NameExpression nameExpression, EolType targetType, boolean operationCall,
+				boolean typeLiteralTarget) {
+			this.nameExpression = nameExpression;
+			this.targetType = targetType;
+			this.operationCall = operationCall;
+			this.typeLiteralTarget = typeLiteralTarget;
+		}
+
+		public Region getNameRegion() {
+			return nameExpression != null ? nameExpression.getRegion() : null;
 		}
 	}
 
@@ -1096,13 +1116,16 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Expression targetExpression = propertyCallExpression.getTargetExpression();
 		NameExpression nameExpression = propertyCallExpression.getNameExpression();
 		targetExpression.accept(this);
+		EolType targetType = getResolvedType(targetExpression);
+		boolean typeLiteralTarget = targetType instanceof EolTypeLiteral;
+		if (typeLiteralTarget) {
+			targetType = ((EolTypeLiteral) targetType).getWrappedType();
+			setResolvedType(targetExpression, targetType);
+		}
 		//Early return if target expression could not be resolved (e.g. out of scope variable)
-		if(getResolvedType(targetExpression)  == EolAnyType.Instance) {
+		if(targetType  == EolAnyType.Instance) {
 			setResolvedType(propertyCallExpression, EolAnyType.Instance);
 			return;
-		}
-		if (getResolvedType(targetExpression) instanceof EolTypeLiteral){
-			setResolvedType(targetExpression,((EolTypeLiteral)getResolvedType(targetExpression)).getWrappedType());
 		}
 
 		// Extended properties
@@ -1570,7 +1593,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Optional<MethodTypeCalculator> mtc = Optional.ofNullable(m.getAnnotation(MethodTypeCalculator.class));
 		Optional<MethodDiagnosticsCalculator> mdc = Optional
 				.ofNullable(m.getAnnotation(MethodDiagnosticsCalculator.class));
-		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, isVarArgs, mtc, mdc);
+		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, isVarArgs, mtc, mdc, m);
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {
@@ -1739,6 +1762,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return Collections.emptyList();
 		}
 
+		MemberCompletionContext memberCompletion = findMemberCompletion(module, position);
+		if (memberCompletion != null) {
+			return getMemberCompletions(memberCompletion, position);
+		}
+
 		VisibleVariablesSnapshot best = null;
 		for (VisibleVariablesSnapshot snapshot : visibleVariablesRegistry) {
 			if (!regionContains(snapshot.region, position)) {
@@ -1775,6 +1803,306 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		Collections.sort(completions, Comparator.comparing(EolCompletion::getName));
 		return completions;
+	}
+
+	private MemberCompletionContext findMemberCompletion(ModuleElement element, Position position) {
+		return findMemberCompletion(element, position, null);
+	}
+
+	private MemberCompletionContext findMemberCompletion(ModuleElement element, Position position,
+			MemberCompletionContext best) {
+		if (element == null) {
+			return best;
+		}
+
+		MemberCompletionContext candidate = toMemberCompletionContext(element, position);
+		if (candidate != null && isBetterMemberCompletion(candidate, best)) {
+			best = candidate;
+		}
+
+		for (ModuleElement child : element.getChildren()) {
+			best = findMemberCompletion(child, position, best);
+		}
+		return best;
+	}
+
+	private MemberCompletionContext toMemberCompletionContext(ModuleElement element, Position position) {
+		if (element instanceof OperationCallExpression) {
+			OperationCallExpression operationCallExpression = (OperationCallExpression) element;
+			Expression targetExpression = operationCallExpression.getTargetExpression();
+			NameExpression nameExpression = operationCallExpression.getNameExpression();
+			if (targetExpression == null || !positionMatchesNameRegion(nameExpression, position)) {
+				return null;
+			}
+			return new MemberCompletionContext(nameExpression, getResolvedType(targetExpression), true, false);
+		}
+
+		if (element instanceof PropertyCallExpression) {
+			PropertyCallExpression propertyCallExpression = (PropertyCallExpression) element;
+			Expression targetExpression = propertyCallExpression.getTargetExpression();
+			NameExpression nameExpression = propertyCallExpression.getNameExpression();
+			if (targetExpression == null || !positionMatchesNameRegion(nameExpression, position)) {
+				return null;
+			}
+
+			EolType targetType = getResolvedType(targetExpression);
+			boolean typeLiteralTarget = targetType instanceof EolTypeLiteral
+					|| targetExpression instanceof NameExpression && ((NameExpression) targetExpression).isTypeName();
+			if (targetType instanceof EolTypeLiteral) {
+				targetType = ((EolTypeLiteral) targetType).getWrappedType();
+			}
+			return new MemberCompletionContext(nameExpression, targetType, false, typeLiteralTarget);
+		}
+
+		return null;
+	}
+
+	private boolean isBetterMemberCompletion(MemberCompletionContext candidate, MemberCompletionContext best) {
+		return best == null || regionIsStrictlyInside(candidate.getNameRegion(), best.getNameRegion());
+	}
+
+	private static boolean positionMatchesNameRegion(NameExpression nameExpression, Position position) {
+		return nameExpression != null && positionMatchesNameRegion(nameExpression.getRegion(), position);
+	}
+
+	private static boolean positionMatchesNameRegion(Region region, Position position) {
+		if (region == null || position == null || region.getStart() == null || region.getEnd() == null) {
+			return false;
+		}
+		Position start = region.getStart();
+		Position end = region.getEnd();
+		if (start.getLine() != position.getLine() || end.getLine() != position.getLine()) {
+			return false;
+		}
+		return position.getColumn() >= start.getColumn() && position.getColumn() <= end.getColumn() + 1;
+	}
+
+	private List<EolCompletion> getMemberCompletions(MemberCompletionContext context, Position position) {
+		String prefix = getCompletionPrefix(context, position);
+		Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
+		if (!context.operationCall) {
+			addPropertyCompletions(completions, context.targetType, context.typeLiteralTarget, prefix);
+		}
+		addOperationCompletions(completions, context.targetType, prefix);
+		List<EolCompletion> result = new ArrayList<EolCompletion>(completions.values());
+		Collections.sort(result, Comparator.comparing(EolCompletion::getName));
+		return result;
+	}
+
+	private String getCompletionPrefix(MemberCompletionContext context, Position position) {
+		String typedName = context.nameExpression != null ? context.nameExpression.getName() : null;
+		if (typedName == null || EolCompletionParseRepairer.PLACEHOLDER.equals(typedName)) {
+			return "";
+		}
+		Position start = context.getNameRegion().getStart();
+		if (start == null || start.getLine() != position.getLine()) {
+			return typedName;
+		}
+		int length = Math.min(typedName.length(), Math.max(0, position.getColumn() - start.getColumn()));
+		return typedName.substring(0, length);
+	}
+
+	private void addOperationCompletions(Map<String, EolCompletion> completions, EolType contextType, String prefix) {
+		if (contextType == null) {
+			return;
+		}
+
+		List<IStaticOperation> operations = new ArrayList<IStaticOperation>();
+		operations.addAll(localOperations);
+		operations.addAll(importedOperations);
+		operations.addAll(builtinOperations);
+		if (contextType.getClazz() != null) {
+			for (Method method : contextType.getClazz().getMethods()) {
+				operations.add(methodToSimpleOperation(method, contextType));
+			}
+		}
+
+		for (IStaticOperation operation : operations) {
+			if (!operation.getName().startsWith(prefix) || !operationShouldBeSuggested(operation, contextType)) {
+				continue;
+			}
+			completions.putIfAbsent(operation.getName(),
+					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, null, "operation"));
+		}
+	}
+
+	private boolean operationShouldBeSuggested(IStaticOperation operation, EolType contextType) {
+		if (!operationAppliesToCompletionContext(operation, contextType)) {
+			return false;
+		}
+
+		if (!(operation instanceof SimpleOperation)) {
+			return true;
+		}
+
+		Method method = ((SimpleOperation) operation).getMethod();
+		if (method == null) {
+			return true;
+		}
+
+		if (!Modifier.isPublic(method.getModifiers())) {
+			return false;
+		}
+
+		Class<?> declaringClass = method.getDeclaringClass();
+		if (!OperationContributor.class.isAssignableFrom(declaringClass)) {
+			return true;
+		}
+
+		if (StringUtil.isOneOf(method.getName(), "contributesTo", "contributesToType")) {
+			return false;
+		}
+
+		return contributorMethodAppliesToContext(declaringClass, contextType);
+	}
+
+	private boolean contributorMethodAppliesToContext(Class<?> contributorClass, EolType contextType) {
+		if (contextType == null || contextType == EolAnyType.Instance) {
+			return true;
+		}
+		if (contributorClass == org.eclipse.epsilon.eol.execute.operations.contributors.IterableOperationContributor.class) {
+			return isIterableCompletionContext(contextType);
+		}
+		if (contributorClass == org.eclipse.epsilon.eol.execute.operations.contributors.BooleanOperationContributor.class) {
+			return typeMatches(contextType, EolPrimitiveType.Boolean);
+		}
+		if (contributorClass == org.eclipse.epsilon.eol.execute.operations.contributors.compatibility.StringCompatibilityOperationContributor.class) {
+			return typeMatches(contextType, EolPrimitiveType.String);
+		}
+		if (contributorClass == org.eclipse.epsilon.eol.execute.operations.contributors.BasicEUnitOperationContributor.class) {
+			return contextType == EolNoType.Instance;
+		}
+		if (contributorClass == org.eclipse.epsilon.eol.execute.operations.contributors.ModelElementOperationContributor.class) {
+			return contextType instanceof EolModelElementType;
+		}
+		if (contributorClass == org.eclipse.epsilon.eol.execute.operations.contributors.ArrayOperationContributor.class) {
+			return isArrayCompletionContext(contextType);
+		}
+		if (contributorClass == org.eclipse.epsilon.eol.execute.operations.contributors.ScalarOperationContributor.class) {
+			return !(contextType instanceof EolCollectionType) && !isIterableCompletionContext(contextType);
+		}
+		return true;
+	}
+
+	private boolean typeMatches(EolType actualType, EolType expectedType) {
+		return actualType.isAssignableTo(expectedType) || expectedType.isAssignableTo(actualType);
+	}
+
+	private boolean isIterableCompletionContext(EolType contextType) {
+		if (contextType instanceof EolCollectionType) {
+			return true;
+		}
+		Class<?> clazz = contextType.getClazz();
+		return clazz != null && (clazz.isArray() || Iterable.class.isAssignableFrom(clazz));
+	}
+
+	private boolean isArrayCompletionContext(EolType contextType) {
+		Class<?> clazz = contextType.getClazz();
+		return clazz != null && clazz.isArray();
+	}
+
+	private boolean operationAppliesToCompletionContext(IStaticOperation operation, EolType contextType) {
+		EolType operationContextType = operation.getContextType();
+		if (contextType == null) {
+			return false;
+		}
+		if (contextType == EolAnyType.Instance) {
+			return operationContextType == EolAnyType.Instance;
+		}
+		return contextType.isAssignableTo(operationContextType);
+	}
+
+	private void addPropertyCompletions(Map<String, EolCompletion> completions, EolType targetType,
+			boolean typeLiteralTarget, String prefix) {
+		if (targetType instanceof EolTypeLiteral) {
+			targetType = ((EolTypeLiteral) targetType).getWrappedType();
+		}
+		if (targetType == null || targetType == EolAnyType.Instance) {
+			return;
+		}
+
+		if (typeLiteralTarget && targetType instanceof EolModelElementType) {
+			addPropertyCompletion(completions, "all", new EolCollectionType("Sequence", targetType), prefix);
+			addPropertyCompletion(completions, "allInstances", new EolCollectionType("Sequence", targetType), prefix);
+			addPropertyCompletion(completions, "getAllOfKind", new EolCollectionType("Sequence", targetType), prefix);
+			addPropertyCompletion(completions, "getAllOfType", new EolCollectionType("Sequence", targetType), prefix);
+			addPropertyCompletion(completions, "createInstance", targetType, prefix);
+			addPropertyCompletion(completions, "isInstantiable", EolPrimitiveType.Boolean, prefix);
+			return;
+		}
+
+		if (targetType instanceof EolTupleType) {
+			for (Map.Entry<String, EolType> property : ((EolTupleType) targetType).getPropertyTypes().entrySet()) {
+				addPropertyCompletion(completions, property.getKey(), property.getValue(), prefix);
+			}
+			return;
+		}
+
+		IMetaClass metaClass = null;
+		boolean many = false;
+		if (targetType instanceof EolModelElementType && ((EolModelElementType) targetType).getMetaClass() != null) {
+			metaClass = ((EolModelElementType) targetType).getMetaClass();
+		}
+		else if (targetType instanceof EolCollectionType
+				&& ((EolCollectionType) targetType).getContentType() instanceof EolModelElementType) {
+			EolModelElementType contentType = (EolModelElementType) ((EolCollectionType) targetType).getContentType();
+			metaClass = contentType.getMetaClass();
+			many = true;
+		}
+
+		if (metaClass != null) {
+			for (IProperty property : metaClass.getAllProperties()) {
+				EolType propertyType = toStaticAnalyserType(property.getType());
+				if (many) {
+					propertyType = new EolCollectionType("Sequence", propertyType);
+				}
+				addPropertyCompletion(completions, property.getName(), propertyType, prefix);
+			}
+			return;
+		}
+
+		if (targetType instanceof EolNativeType) {
+			addNativePropertyCompletions(completions, targetType, prefix);
+		}
+	}
+
+	private void addNativePropertyCompletions(Map<String, EolCompletion> completions, EolType targetType, String prefix) {
+		Class<?> javaClass = targetType.getClazz();
+		if (javaClass == null) {
+			return;
+		}
+		for (Field field : javaClass.getDeclaredFields()) {
+			if (Modifier.isStatic(field.getModifiers())) {
+				continue;
+			}
+			addPropertyCompletion(completions, field.getName(), javaClassToEolType(field.getType()), prefix);
+		}
+		for (Method method : javaClass.getMethods()) {
+			if (Modifier.isStatic(method.getModifiers()) || method.getParameterTypes().length != 0) {
+				continue;
+			}
+			String propertyName = getterPropertyName(method);
+			if (propertyName != null) {
+				addPropertyCompletion(completions, propertyName, javaClassToEolType(method.getReturnType()), prefix);
+			}
+		}
+	}
+
+	private String getterPropertyName(Method method) {
+		String methodName = method.getName();
+		if (methodName.startsWith("get") && methodName.length() > 3) {
+			return Character.toLowerCase(methodName.charAt(3)) + methodName.substring(4);
+		}
+		if (methodName.startsWith("is") && methodName.length() > 2) {
+			return Character.toLowerCase(methodName.charAt(2)) + methodName.substring(3);
+		}
+		return null;
+	}
+
+	private void addPropertyCompletion(Map<String, EolCompletion> completions, String name, EolType type, String prefix) {
+		if (name.startsWith(prefix)) {
+			completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.PROPERTY, type));
+		}
 	}
 
 	private static boolean isSpecialVariableName(String name) {

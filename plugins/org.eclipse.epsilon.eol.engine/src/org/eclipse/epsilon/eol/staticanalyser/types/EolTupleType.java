@@ -9,6 +9,7 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.staticanalyser.types;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,5 +37,9 @@ public class EolTupleType extends EolType {
 
 	public boolean hasProperty(String name) {
 		return propertyTypes.containsKey(name);
+	}
+
+	public Map<String, EolType> getPropertyTypes() {
+		return Collections.unmodifiableMap(propertyTypes);
 	}
 }

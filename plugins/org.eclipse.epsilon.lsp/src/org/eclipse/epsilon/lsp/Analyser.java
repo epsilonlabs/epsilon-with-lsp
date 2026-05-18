@@ -300,10 +300,14 @@ public class Analyser {
         if (kind == null) {
             return CompletionItemKind.Variable;
         }
-        switch (kind) {
-            // LSP4J does not have a dedicated `Parameter` kind; `Variable`
-            // is the conventional fallback used by most language servers.
-            case PARAMETER:
+			switch (kind) {
+			case OPERATION:
+				return CompletionItemKind.Method;
+			case PROPERTY:
+				return CompletionItemKind.Property;
+			// LSP4J does not have a dedicated `Parameter` kind; `Variable`
+			// is the conventional fallback used by most language servers.
+			case PARAMETER:
             case VARIABLE:
                 return CompletionItemKind.Variable;
             case SPECIAL_VARIABLE:

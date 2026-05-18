@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.eol.staticanalyser;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,7 @@ public class SimpleOperation implements IStaticOperation {
 	private EolType returnType;
 	private List<EolType> parameterTypes;
 	private boolean varArgs;
+	private Method method;
 	private Optional<MethodTypeCalculator> methodTypeCalculator = Optional.empty();
 	private Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator = Optional.empty();
 
@@ -49,6 +51,12 @@ public class SimpleOperation implements IStaticOperation {
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
 			boolean varArgs, Optional<MethodTypeCalculator> methodTypeCalculator,
 			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator) {
+		this(name, contextType, returnType, parameterTypes, varArgs, methodTypeCalculator, methodDiagnosticsCalculator, null);
+	}
+
+	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
+			boolean varArgs, Optional<MethodTypeCalculator> methodTypeCalculator,
+			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator, Method method) {
 		this.name = name;
 		this.contextType = contextType;
 		this.returnType = returnType;
@@ -56,6 +64,7 @@ public class SimpleOperation implements IStaticOperation {
 		this.varArgs = varArgs;
 		this.methodTypeCalculator = methodTypeCalculator;
 		this.methodDiagnosticsCalculator = methodDiagnosticsCalculator;
+		this.method = method;
 	}
 
 	@Override
@@ -91,6 +100,10 @@ public class SimpleOperation implements IStaticOperation {
 	@Override
 	public boolean isVarArgs() {
 		return varArgs;
+	}
+
+	public Method getMethod() {
+		return method;
 	}
 
 	@Override

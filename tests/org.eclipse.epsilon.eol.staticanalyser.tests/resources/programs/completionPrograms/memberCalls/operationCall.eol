@@ -1,0 +1,2 @@
+var s : String = 'hello';
+s.asVa/*@ asVar */('name');

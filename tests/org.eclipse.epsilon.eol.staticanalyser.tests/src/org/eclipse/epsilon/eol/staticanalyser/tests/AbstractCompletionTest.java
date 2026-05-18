@@ -52,7 +52,7 @@ public abstract class AbstractCompletionTest extends AbstractBaseTest {
 	}
 
 	@Test
-	public void visibleVariablesMatchExpectations() throws Exception {
+	public void completionsMatchExpectations() throws Exception {
 		assertFalse("No completion expectations found in " + testTag, completionExpectations.isEmpty());
 
 		for (CompletionExpectation expectation : completionExpectations) {
@@ -79,7 +79,7 @@ public abstract class AbstractCompletionTest extends AbstractBaseTest {
 	}
 
 	private String formatFailureMessage(CompletionExpectation expectation, Set<String> actualNames) {
-		return "Visible variables mismatch for " + testTag
+		return "Completions mismatch for " + testTag
 			+ " at [" + expectation.getLine() + ":" + expectation.getColumn() + "]"
 			+ "\nSource: " + expectation.getSourceLine().trim()
 			+ "\nExpected: " + formatNames(expectation.getExpectedNames())

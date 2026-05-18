@@ -19,7 +19,6 @@ public class PlainXmlMetaClass extends MetaClass {
 		return name;
 	}
 	
-	@Override
 	public Class<?> getClazz() {
 		// THIS SHOULD RETURN W3C Element.class, which should match XMLmodel.root property type		
 		//t_library cannot be assigned to Native<org.w3c.dom.Node>
@@ -45,8 +44,7 @@ public class PlainXmlMetaClass extends MetaClass {
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\nmetaModel: " + metamodel);
-		sb.append("\nname: " + name);
+		sb.append("name: " + name);
 		
 		if (!properties.isEmpty()) {
 			sb.append("\n properties : ");

@@ -168,8 +168,27 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		
 	private void addNodeAttributes (List<Node> nodeAttributes, PlainXmlMetaClass metaClass) {
 		for (Node attribute : nodeAttributes) {	
+			
+			// TODO Clever attribute to property type creation
+
+			// We could get the value of the attributes and try to make a guess a what property types to create
+			// However, we may need to update property types if we discover another node with the same attribute (which is more/less restrictive)
+			// String value = attribute.getNodeValue();
+			
+			// Every thing text so a type of Any and String
 			addMetaClassProperty(metaClass, createAnyProperty(attribute));
-			addMetaClassProperty(metaClass, createIntegerProperty(attribute));
+			addMetaClassProperty(metaClass, createStringProperty(attribute));
+			
+			// Some things are numbers Integers or Reals (1 or 1.0)
+			if(true) {
+				addMetaClassProperty(metaClass, createIntegerProperty(attribute));
+				addMetaClassProperty(metaClass, createRealProperty(attribute));
+			}
+
+			// Very few things would be Booleans (True/False or true/false)
+			if(true) {
+				addMetaClassProperty(metaClass, createBooleanProperty(attribute));
+			}
 		}
 	}
 	
@@ -286,6 +305,20 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		};
 	}
 	
+	private IProperty createStringProperty (Node node) {
+		return new IProperty() {			
+			@Override
+			public EolType getType() {				
+				return EolPrimitiveType.String;
+			}
+			
+			@Override
+			public String getName() {
+				return "s_" + node.getNodeName();
+			}
+		};
+	}
+	
 	private IProperty createIntegerProperty (Node node) {
 		return new IProperty() {			
 			@Override
@@ -296,6 +329,34 @@ public class PlainXmlModelMetamodel extends Metamodel {
 			@Override
 			public String getName() {
 				return "i_" + node.getNodeName();
+			}
+		};
+	}
+	
+	private IProperty createRealProperty (Node node) {
+		return new IProperty() {			
+			@Override
+			public EolType getType() {				
+				return EolPrimitiveType.Real;
+			}
+			
+			@Override
+			public String getName() {
+				return "r_" + node.getNodeName();
+			}
+		};
+	}
+	
+	private IProperty createBooleanProperty (Node node) {
+		return new IProperty() {			
+			@Override
+			public EolType getType() {				
+				return EolPrimitiveType.Boolean;
+			}
+			
+			@Override
+			public String getName() {
+				return "b_" + node.getNodeName();
 			}
 		};
 	}

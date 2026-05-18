@@ -1,0 +1,21 @@
+var i : Integer = 1;
+i.BY/*@ */;
+
+var r : Real = 1.0;
+r.BY/*@ */;
+
+var b : Boolean = true;
+b.TR/*@ */;
+
+var s : String = 'hello';
+s.CASE/*@ */;
+
+var nativeInteger : Native("java.lang.Integer");
+nativeInteger.BY/*@ */;
+
+var file : Native("java.io.File") = new Native("java.io.File")('.');
+file.path/*@ path */;
+file.pathS/*@ */;
+
+var runtime : Native("java.lang.Runtime");
+runtime.runt/*@ */;

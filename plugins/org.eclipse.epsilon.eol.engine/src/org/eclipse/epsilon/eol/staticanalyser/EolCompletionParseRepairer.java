@@ -7,7 +7,7 @@ import org.eclipse.epsilon.common.parse.Position;
 
 public class EolCompletionParseRepairer {
 
-	private static final String PLACEHOLDER = "__epsilon_completion_placeholder";
+	static final String PLACEHOLDER = "__epsilon_completion_placeholder";
 
 	public String repair(String code, Position position) {
 		if (code == null || position == null) {

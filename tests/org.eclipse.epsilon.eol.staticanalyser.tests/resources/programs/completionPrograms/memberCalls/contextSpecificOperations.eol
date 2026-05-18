@@ -1,0 +1,6 @@
+var i : Integer = 1;
+i.getDay/*@ */();
+i.mo/*@ mod */(2);
+
+var today : Native("java.util.Date") = new Native("java.util.Date");
+today.getDayOfTheW/*@ getDayOfTheWeek */();

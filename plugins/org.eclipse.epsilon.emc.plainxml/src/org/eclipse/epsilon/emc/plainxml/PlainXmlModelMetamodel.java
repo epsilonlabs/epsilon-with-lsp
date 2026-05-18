@@ -11,6 +11,7 @@ import org.eclipse.epsilon.eol.m3.Metamodel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
+import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.w3c.dom.Element;
@@ -167,11 +168,6 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		
 	private void addNodeAttributes (List<Node> nodeAttributes, PlainXmlMetaClass metaClass) {
 		for (Node attribute : nodeAttributes) {	
-			
-			
-			//metaClass.addProperty(createAnyProperty(attribute));
-			//metaClass.addProperty(createIntegerProperty(attribute));
-			
 			addMetaClassProperty(metaClass, createAnyProperty(attribute));
 			addMetaClassProperty(metaClass, createIntegerProperty(attribute));
 		}
@@ -191,21 +187,9 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	
 	@Override
 	public IMetaClass getMetaClass(String name) {
-
 		IMetaClass iMetaClass = super.getMetaClass(name);
-		PlainXmlMetaClass xmlMetaClass = getPlainXmlMetaClass(name);
-		
-		/*
-		if (null == iMetaClass) {
-			System.out.println("getMetaClass : " + name + " >> returning : null ");
-		} else {
-			System.out.println("getMetaClass : " + name + " >> returning : " + iMetaClass.getName() + " -- "
-					+ xmlMetaClass.getName());
-		}
-		*/
-				
-		if (null != iMetaClass) {
-			System.out.println("\ngetMetaClass(String " + name + ") " + iMetaClass.toString());
+		if (CONSOLE && null != iMetaClass) {
+			System.out.println("\n getMetaClass(String " + name + ") " + iMetaClass.toString());
 		}
 		return iMetaClass;
 	}
@@ -266,7 +250,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	private PlainXmlMetaClass createPlainXmlMetaClass (Node node) {
 		String metaClassName = "t_" + node.getNodeName();
 		PlainXmlMetaClass metaClass =  new PlainXmlMetaClass(metaClassName, this);
-		
+
 		// link to the element class
 		addMetaClassSuperType(metaClass, elementClass);
 		addMetaClassSubType(elementClass, metaClass);
@@ -316,22 +300,42 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		};
 	}
 
-	private IProperty createCollectionProperty (Node node) {
-		return new IProperty() {
-			
-			@Override
-			public EolType getType() {
-				//EolCollectionType defaultCollection = EolCollectionType.Collection;
-				EolCollectionType defaultCollection = EolCollectionType.Sequence;
-				defaultCollection.setContentType(EolPrimitiveType.String);
-				return defaultCollection;
-			}
-			
-			@Override
-			public String getName() {
-				return "c_" + node.getNodeName();
-			}
-		};
+	private IProperty createCollectionProperty(Node node) {
+
+		PlainXmlMetaClass type = getPlainXMLMetaClass(node);
+
+		if (null != type) {
+			return new IProperty() {
+				@Override
+				public EolType getType() {
+					EolCollectionType defaultCollection = EolCollectionType.Sequence;
+					defaultCollection.setContentType(new EolModelElementType(type));
+					return defaultCollection;
+				}
+
+				@Override
+				public String getName() {
+					return "c_" + node.getNodeName();
+				}
+			};
+		}
+		else {
+			// Another option here would be to create a new t_ class
+			System.err.println("Created Collection<Any> for unknown type in private IProperty createCollectionProperty(Node node) -- node name : " + node.getNodeName());
+			return new IProperty() {
+				@Override
+				public EolType getType() {
+					EolCollectionType defaultCollection = EolCollectionType.Sequence;
+					defaultCollection.setContentType(EolAnyType.Instance);
+					return defaultCollection;
+				}
+
+				@Override
+				public String getName() {
+					return "c_" + node.getNodeName();
+				}
+			};
+		}
 	}
 	
 	private boolean addMetaClassProperty(PlainXmlMetaClass metaClass, IProperty property) {

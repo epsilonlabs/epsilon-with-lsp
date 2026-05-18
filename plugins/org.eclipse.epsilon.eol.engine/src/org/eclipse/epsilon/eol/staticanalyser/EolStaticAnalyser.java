@@ -1574,10 +1574,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	
 	public SimpleOperation methodToSimpleOperation(Method m, EolType contextType) {
 		List<EolType> operationParameterTypes = new ArrayList<EolType>();
+		List<String> operationParameterNames = new ArrayList<String>();
 		Type[] javaParameterTypes = m.getGenericParameterTypes();
+		java.lang.reflect.Parameter[] javaParameters = m.getParameters();
 		boolean isVarArgs = m.isVarArgs();
 		for (int i = 0; i < javaParameterTypes.length; i++) {
 			Type javaParameterType = javaParameterTypes[i];
+			operationParameterNames.add(javaParameters.length > i ? javaParameters[i].getName() : "arg" + i);
 			if (isVarArgs && i == javaParameterTypes.length - 1) {
 				// For varargs, store the component type of the array parameter
 				if (javaParameterType instanceof Class<?> && ((Class<?>) javaParameterType).isArray()) {
@@ -1593,7 +1596,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Optional<MethodTypeCalculator> mtc = Optional.ofNullable(m.getAnnotation(MethodTypeCalculator.class));
 		Optional<MethodDiagnosticsCalculator> mdc = Optional
 				.ofNullable(m.getAnnotation(MethodDiagnosticsCalculator.class));
-		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, isVarArgs, mtc, mdc, m);
+		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, operationParameterNames,
+				isVarArgs, mtc, mdc, m);
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {
@@ -1921,9 +1925,32 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			if (!operation.getName().startsWith(prefix) || !operationShouldBeSuggested(operation, contextType)) {
 				continue;
 			}
-			completions.putIfAbsent(operation.getName(),
-					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, null, "operation"));
+			String signature = operationSignature(operation);
+			completions.putIfAbsent(signature,
+					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, null, "operation", signature));
 		}
+	}
+
+	private String operationSignature(IStaticOperation operation) {
+		StringBuilder signature = new StringBuilder(operation.getName());
+		signature.append("(");
+		List<EolType> parameterTypes = operation.getParameterTypes();
+		List<String> parameterNames = operation.getParameterNames();
+		for (int i = 0; i < parameterTypes.size(); i++) {
+			if (i > 0) {
+				signature.append(", ");
+			}
+			String parameterName = parameterNames != null && i < parameterNames.size() ? parameterNames.get(i) : "arg" + i;
+			EolType parameterType = parameterTypes.get(i);
+			signature.append(parameterName != null && !parameterName.isEmpty() ? parameterName : "arg" + i);
+			signature.append(" : ");
+			signature.append(parameterType != null ? parameterType.toString() : EolAnyType.Instance.toString());
+			if (operation.isVarArgs() && i == parameterTypes.size() - 1) {
+				signature.append("...");
+			}
+		}
+		signature.append(")");
+		return signature.toString();
 	}
 
 	private boolean operationShouldBeSuggested(IStaticOperation operation, EolType contextType) {

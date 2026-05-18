@@ -253,7 +253,7 @@ public class Analyser {
 
 	private static String toCompletionItemLabel(EolCompletion completion) {
 		if (completion.getKind() == EolCompletionKind.OPERATION) {
-			return completion.getName() + "()";
+			return completion.getLabel();
 		}
 		return completion.getName();
 	}

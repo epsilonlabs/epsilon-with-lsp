@@ -241,12 +241,28 @@ public class Analyser {
 		final List<EolCompletion> completions = staticAnalyser.getCompletions(module, epsilonPosition);
         final List<CompletionItem> items = new ArrayList<>(completions.size());
         for (EolCompletion c : completions) {
-            final CompletionItem item = new CompletionItem(c.getName());
+            final CompletionItem item = new CompletionItem(toCompletionItemLabel(c));
             item.setKind(toCompletionItemKind(c.getKind()));
             item.setDetail(c.getDetail());
+            item.setInsertText(toCompletionItemInsertText(c));
+            item.setFilterText(c.getName());
             items.add(item);
         }
 		return items;
+	}
+
+	private static String toCompletionItemLabel(EolCompletion completion) {
+		if (completion.getKind() == EolCompletionKind.OPERATION) {
+			return completion.getName() + "()";
+		}
+		return completion.getName();
+	}
+
+	private static String toCompletionItemInsertText(EolCompletion completion) {
+		if (completion.getKind() == EolCompletionKind.OPERATION) {
+			return completion.getName() + "()";
+		}
+		return completion.getName();
 	}
 
 	protected IEolModule parseRepairedCompletionModule(URI fileUri,

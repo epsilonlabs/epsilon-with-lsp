@@ -7,6 +7,8 @@ import org.w3c.dom.Element;
 
 public class PlainXmlMetaClass extends MetaClass {
 	
+	private boolean CONSOLE = false;
+	
 	private String name;
 	
 	public PlainXmlMetaClass(String typeName, PlainXmlModelMetamodel metaModel) {
@@ -23,8 +25,10 @@ public class PlainXmlMetaClass extends MetaClass {
 		// THIS SHOULD RETURN W3C Element.class, which should match XMLmodel.root property type		
 		//t_library cannot be assigned to Native<org.w3c.dom.Node>
 		
-		Class<Element> c = Element.class;		
-		System.out.println(" [!] getClazz() " + this.getName() + " : " + c);
+		Class<Element> c = Element.class;
+		if (CONSOLE) {
+			System.out.println(" [!] getClazz() " + this.getName() + " : " + c);
+		}
 		return c;
 	}
 	
@@ -45,6 +49,8 @@ public class PlainXmlMetaClass extends MetaClass {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("name: " + name);
+		sb.append("\n clazz: " + getClazz());
+		sb.append("\n class: " + getClass());
 		
 		if (!properties.isEmpty()) {
 			sb.append("\n properties : ");

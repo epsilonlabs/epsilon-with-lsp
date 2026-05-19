@@ -208,7 +208,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	public IMetaClass getMetaClass(String name) {
 		IMetaClass iMetaClass = super.getMetaClass(name);
 		if (CONSOLE && null != iMetaClass) {
-			System.out.println("\n getMetaClass(String " + name + ") " + iMetaClass.toString());
+			System.out.println("\ngetMetaClass(String " + name + ")\n " + iMetaClass.toString() + "\n");
 		}
 		return iMetaClass;
 	}

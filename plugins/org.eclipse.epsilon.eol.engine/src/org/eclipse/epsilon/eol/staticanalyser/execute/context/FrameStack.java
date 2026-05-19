@@ -391,6 +391,14 @@ public class FrameStack implements Cloneable, ConcurrentBaseDelegate<FrameStack>
 	public List<SingleFrame> getFrames() {
 		return getFrames(false);
 	}
+
+	public List<SingleFrame> getLocalFrames() {
+		return new ArrayList<>(locals.getFrames());
+	}
+
+	public List<SingleFrame> getGlobalFrames() {
+		return new ArrayList<>(globals.getFrames());
+	}
 	
 	/**
 	 * 

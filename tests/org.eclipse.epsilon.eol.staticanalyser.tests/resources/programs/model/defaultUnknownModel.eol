@@ -1,0 +1,2 @@
+/*Task*/Task.all.first();
+Task.all.first().prop;

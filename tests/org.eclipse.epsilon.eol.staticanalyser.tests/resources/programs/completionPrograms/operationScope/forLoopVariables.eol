@@ -1,7 +1,10 @@
-operation Sequence<Integer> identity(items : Sequence<Integer>) : Sequence<Integer> {
-	for (item in items) {
-	  //@ hasMore, item, items, loopCount, self
-	}
-	//@ items, self
-	return items;
+var a : String;
+var items : Sequence<Integer>;
+
+for (item in items) {
+	a.asUni/*@asUnicode*/
+	//@ hasMore, item, items, loopCount, a
+	var local : Integer = 0;
+	//@ hasMore, item, items, loopCount, a, local
+	a.asUni/*@asUnicode*/
 }

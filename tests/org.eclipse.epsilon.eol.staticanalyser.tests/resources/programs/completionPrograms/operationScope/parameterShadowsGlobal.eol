@@ -2,5 +2,6 @@ var shared = "global";
 
 operation String use(shared : String) : String {
 	//@ self, shared
+	shared.asUnic/*@asUnicode*/
 	return shared;
 }

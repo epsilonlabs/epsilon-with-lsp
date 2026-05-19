@@ -153,10 +153,16 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	public static class VisibleVariablesSnapshot {
 		public final Region region;
 		public final Map<String, Variable> variables;
+		public final boolean topLevelScope;
 
 		public VisibleVariablesSnapshot(Region region, Map<String, Variable> variables) {
+			this(region, variables, false);
+		}
+
+		public VisibleVariablesSnapshot(Region region, Map<String, Variable> variables, boolean topLevelScope) {
 			this.region = region;
 			this.variables = variables;
+			this.topLevelScope = topLevelScope;
 		}
 	}
 
@@ -1297,10 +1303,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	@Override
 	public void visit(StatementBlock statementBlock) {
 
+		boolean topLevelScope = module != null && statementBlock == module.getMain();
+
 		// Block-wide snapshot: captures the scope as seen on entry (e.g. for
 		// cursor positions that are inside the block but before the first
 		// statement, or between statements).
-		recordVisibleVariables(statementBlock);
+		recordVisibleVariables(statementBlock, topLevelScope);
 
 		Region blockRegion = statementBlock.getRegion();
 		Position blockEnd = blockRegion != null ? blockRegion.getEnd() : null;
@@ -1309,7 +1317,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			// Snapshot for positions INSIDE this statement's own source
 			// region: captured BEFORE the statement is visited, so any
 			// variable it introduces is not yet visible.
-			recordVisibleVariables(statement);
+			recordVisibleVariables(statement, topLevelScope);
 
 			statement.accept(this);
 
@@ -1320,7 +1328,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			// statement will shadow this one via the smallest-region rule.
 			if (blockEnd != null && statement.getRegion() != null
 					&& statement.getRegion().getEnd() != null) {
-				recordVisibleVariables(new Region(statement.getRegion().getEnd(), blockEnd));
+				recordVisibleVariables(new Region(statement.getRegion().getEnd(), blockEnd), topLevelScope);
 			}
 		}
 
@@ -1692,15 +1700,25 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	 */
 	protected void recordVisibleVariables(ModuleElement element) {
 		if (element != null) {
-			recordVisibleVariables(element.getRegion());
+			recordVisibleVariables(element.getRegion(), false);
+		}
+	}
+
+	protected void recordVisibleVariables(ModuleElement element, boolean topLevelScope) {
+		if (element != null) {
+			recordVisibleVariables(element.getRegion(), topLevelScope);
 		}
 	}
 
 	protected void recordVisibleVariables(Region region) {
+		recordVisibleVariables(region, false);
+	}
+
+	protected void recordVisibleVariables(Region region, boolean topLevelScope) {
 		if (region == null || region.getStart() == null || region.getEnd() == null) {
 			return;
 		}
-		visibleVariablesRegistry.add(new VisibleVariablesSnapshot(region, captureVisibleVariables()));
+		visibleVariablesRegistry.add(new VisibleVariablesSnapshot(region, captureVisibleVariables(), topLevelScope));
 	}
 
 	protected Map<String, Variable> captureVisibleVariables() {
@@ -1745,6 +1763,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (end == null || position == null || end.getLine() != position.getLine()) {
 			return false;
 		}
+		return regionEndsBeforeOrAt(region, position);
+	}
+
+	private static boolean regionEndsBeforeOrAt(Region region, Position position) {
+		Position end = region.getEnd();
+		if (end == null || position == null) {
+			return false;
+		}
 		return !position.isBefore(end);
 	}
 
@@ -1784,6 +1810,18 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (best == null) {
 			for (VisibleVariablesSnapshot snapshot : visibleVariablesRegistry) {
 				if (!regionEndsBeforeOrAtOnSameLine(snapshot.region, position)) {
+					continue;
+				}
+				if (isBetterPrecedingSnapshot(snapshot, best)) {
+					best = snapshot;
+				}
+			}
+		}
+
+		if (best == null) {
+			// Trailing whitespace/comments after main statements are still top-level scope.
+			for (VisibleVariablesSnapshot snapshot : visibleVariablesRegistry) {
+				if (!snapshot.topLevelScope || !regionEndsBeforeOrAt(snapshot.region, position)) {
 					continue;
 				}
 				if (isBetterPrecedingSnapshot(snapshot, best)) {

@@ -5,6 +5,8 @@ model Y driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 /*Sequence<Task>*/Task.all;
 task.all;
 Task.all.first().prop;
+var t : Task;
+t.foo();
 
 /*OrderedSet<EOperation>*/EClass.all.first().eOperations;
 //![6:0-6:4]Undefined variable or type task

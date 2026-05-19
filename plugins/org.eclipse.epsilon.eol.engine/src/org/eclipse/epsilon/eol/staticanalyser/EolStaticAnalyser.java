@@ -1716,11 +1716,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	 * snapshot is keyed by the element's source region and can later be queried
 	 * via {@link #getCompletions(IEolModule, Position)}.
 	 *
-	 * <p>"Visible" here matches EOL's scoping rules: we walk the frame stack
-	 * top-to-bottom, collecting each frame's variables (with higher frames
-	 * shadowing lower ones), and stop after the first PROTECTED frame (i.e.
-	 * the enclosing operation), which hides outer locals but still lets the
-	 * global frame contribute via the frame stack's own traversal order.</p>
+	 * <p>"Visible" here matches EOL's scoping rules: local variables shadow
+	 * globals, and a protected local frame hides lower local frames while global
+	 * frames remain visible.</p>
 	 */
 	protected void recordVisibleVariables(ModuleElement element) {
 		if (element != null) {
@@ -1747,7 +1745,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	protected Map<String, Variable> captureVisibleVariables() {
 		Map<String, Variable> visible = new LinkedHashMap<String, Variable>();
-		for (SingleFrame frame : context.getFrameStack().getFrames()) {
+		captureVisibleVariables(context.getFrameStack().getLocalFrames(), visible);
+		captureVisibleVariables(context.getFrameStack().getGlobalFrames(), visible);
+		return visible;
+	}
+
+	private void captureVisibleVariables(List<SingleFrame> frames, Map<String, Variable> visible) {
+		for (SingleFrame frame : frames) {
 			for (Map.Entry<String, Variable> entry : frame.getAll().entrySet()) {
 				visible.putIfAbsent(entry.getKey(), entry.getValue());
 			}
@@ -1755,7 +1759,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				break;
 			}
 		}
-		return visible;
 	}
 
 	private static boolean regionContains(Region region, Position position) {

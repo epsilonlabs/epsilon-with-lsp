@@ -1,6 +1,7 @@
+var a : String;
 operation Integer compute(input : Integer) : Integer {
-	//@ input, self
+	//@ input, self, a
 	var temp = input;
-	//@ input, self, temp
+	//@ input, self, temp, a
 	return temp;
 }

@@ -1832,10 +1832,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		if (best == null) {
 			NameExpression nameCompletion = findNameCompletion(module, position);
-			if (nameCompletion == null) {
-				return Collections.emptyList();
-			}
-
 			Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
 			addTypeCompletions(completions, getCompletionPrefix(nameCompletion, position));
 			return sortedCompletions(completions);
@@ -1852,9 +1848,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		NameExpression nameCompletion = findNameCompletion(module, position);
-		if (nameCompletion != null) {
-			addTypeCompletions(completions, getCompletionPrefix(nameCompletion, position));
-		}
+		addTypeCompletions(completions, getCompletionPrefix(nameCompletion, position));
 
 		return sortedCompletions(completions);
 	}

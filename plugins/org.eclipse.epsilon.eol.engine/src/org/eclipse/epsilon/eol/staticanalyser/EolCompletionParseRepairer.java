@@ -157,10 +157,12 @@ public class EolCompletionParseRepairer {
 
 	protected boolean canStartFollowingStatement(char c) {
 		switch (c) {
+			case '}':
+				// Closing a block after an expression still requires a semicolon.
+				return true;
 			case ';':
 			case ')':
 			case ']':
-			case '}':
 			case '.':
 			case ',':
 			case '+':

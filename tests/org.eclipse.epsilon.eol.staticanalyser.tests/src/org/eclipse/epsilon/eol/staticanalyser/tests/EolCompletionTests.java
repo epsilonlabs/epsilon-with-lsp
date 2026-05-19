@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -14,7 +15,15 @@ public class EolCompletionTests extends AbstractCompletionTest {
 	private static final String RESOURCES = PROJECT_BASE_FOLDER + "resources/programs";
 	private static final String PROGRAMSET = "completionPrograms";
 	private static final String PROGRAMFILEEXTENSION = ".eol";
+	private static final String MODEL_RESOURCES = PROJECT_BASE_FOLDER + "resources";
+	private static final String MODELSET = "models";
+	private static final String MODELFILEEXTENSION = ".ecore";
 	private static final boolean ENABLECONSOLEOUTPUT = true;
+
+	@BeforeClass
+	public static void registerModelset() {
+		registerModels(MODEL_RESOURCES, MODELSET, MODELFILEEXTENSION);
+	}
 
 	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() throws FileNotFoundException {

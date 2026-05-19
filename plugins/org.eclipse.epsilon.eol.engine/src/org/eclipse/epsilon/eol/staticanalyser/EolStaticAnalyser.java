@@ -1831,20 +1831,38 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		if (best == null) {
-			return Collections.emptyList();
+			NameExpression nameCompletion = findNameCompletion(module, position);
+			if (nameCompletion == null) {
+				return Collections.emptyList();
+			}
+
+			Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
+			addTypeCompletions(completions, getCompletionPrefix(nameCompletion, position));
+			return sortedCompletions(completions);
 		}
 
-		List<EolCompletion> completions = new ArrayList<EolCompletion>();
+		Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
 		for (Map.Entry<String, Variable> entry : best.variables.entrySet()) {
 			String name = entry.getKey();
 			Variable variable = entry.getValue();
 			EolCompletionKind kind = isSpecialVariableName(name)
 					? EolCompletionKind.SPECIAL_VARIABLE
 					: EolCompletionKind.VARIABLE;
-			completions.add(new EolCompletion(name, kind, variable.getType()));
+			completions.putIfAbsent(name, new EolCompletion(name, kind, variable.getType()));
 		}
-		Collections.sort(completions, Comparator.comparing(EolCompletion::getName));
-		return completions;
+
+		NameExpression nameCompletion = findNameCompletion(module, position);
+		if (nameCompletion != null) {
+			addTypeCompletions(completions, getCompletionPrefix(nameCompletion, position));
+		}
+
+		return sortedCompletions(completions);
+	}
+
+	private List<EolCompletion> sortedCompletions(Map<String, EolCompletion> completions) {
+		List<EolCompletion> result = new ArrayList<EolCompletion>(completions.values());
+		Collections.sort(result, Comparator.comparing(EolCompletion::getName));
+		return result;
 	}
 
 	private MemberCompletionContext findMemberCompletion(ModuleElement element, Position position) {
@@ -1913,10 +1931,32 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		Position start = region.getStart();
 		Position end = region.getEnd();
-		if (start.getLine() != position.getLine() || end.getLine() != position.getLine()) {
+		if (start.getLine() != position.getLine() || position.getColumn() < start.getColumn()) {
 			return false;
 		}
-		return position.getColumn() >= start.getColumn() && position.getColumn() <= end.getColumn() + 1;
+		return end.getLine() != position.getLine() || position.getColumn() <= end.getColumn() + 1;
+	}
+
+	private NameExpression findNameCompletion(ModuleElement element, Position position) {
+		return findNameCompletion(element, position, null);
+	}
+
+	private NameExpression findNameCompletion(ModuleElement element, Position position, NameExpression best) {
+		if (element == null) {
+			return best;
+		}
+
+		if (element instanceof NameExpression && positionMatchesNameRegion((NameExpression) element, position)) {
+			NameExpression candidate = (NameExpression) element;
+			if (best == null || regionIsStrictlyInside(candidate.getRegion(), best.getRegion())) {
+				best = candidate;
+			}
+		}
+
+		for (ModuleElement child : element.getChildren()) {
+			best = findNameCompletion(child, position, best);
+		}
+		return best;
 	}
 
 	private List<EolCompletion> getMemberCompletions(MemberCompletionContext context, Position position) {
@@ -1932,11 +1972,16 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	private String getCompletionPrefix(MemberCompletionContext context, Position position) {
-		String typedName = context.nameExpression != null ? context.nameExpression.getName() : null;
+		return getCompletionPrefix(context.nameExpression, position);
+	}
+
+	private String getCompletionPrefix(NameExpression nameExpression, Position position) {
+		String typedName = nameExpression != null ? nameExpression.getName() : null;
 		if (typedName == null || EolCompletionParseRepairer.PLACEHOLDER.equals(typedName)) {
 			return "";
 		}
-		Position start = context.getNameRegion().getStart();
+		Region region = nameExpression.getRegion();
+		Position start = region != null ? region.getStart() : null;
 		if (start == null || start.getLine() != position.getLine()) {
 			return typedName;
 		}
@@ -2167,6 +2212,30 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	private void addPropertyCompletion(Map<String, EolCompletion> completions, String name, EolType type, String prefix) {
 		if (name.startsWith(prefix)) {
 			completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.PROPERTY, type));
+		}
+	}
+
+	private void addTypeCompletions(Map<String, EolCompletion> completions, String prefix) {
+		for (ModelDeclaration modelDeclaration : context.modelDeclarations.values()) {
+			IMetamodel metamodel = modelDeclaration.getMetamodel();
+			if (metamodel == null) {
+				continue;
+			}
+			addTypeCompletions(completions, metamodel.getTypes(), metamodel.getSubPackages(), prefix);
+		}
+	}
+
+	private void addTypeCompletions(Map<String, EolCompletion> completions, List<IMetaClass> types,
+			List<org.eclipse.epsilon.eol.m3.Package> subPackages, String prefix) {
+		for (IMetaClass type : types) {
+			String name = type.getName();
+			if (name.startsWith(prefix)) {
+				completions.putIfAbsent(name,
+						new EolCompletion(name, EolCompletionKind.VARIABLE, new EolModelElementType(type)));
+			}
+		}
+		for (org.eclipse.epsilon.eol.m3.Package subPackage : subPackages) {
+			addTypeCompletions(completions, subPackage.getTypes(), subPackage.getSubPackages(), prefix);
 		}
 	}
 

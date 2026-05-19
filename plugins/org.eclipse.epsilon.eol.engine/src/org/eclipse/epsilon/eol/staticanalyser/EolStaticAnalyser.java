@@ -114,6 +114,7 @@ import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
+import org.eclipse.epsilon.eol.models.UnknownModel;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolUnionType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolTupleType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
@@ -127,6 +128,9 @@ import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolTypeLiteral;
 
 public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
+
+	private static final String DEFAULT_MODEL_NAME = "";
+	private static final String UNKNOWN_MODEL_DRIVER = "Unknown";
 
 	protected List<ModuleMarker> markers = new ArrayList<>();
 	protected IEolModule module;
@@ -1560,6 +1564,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			modelDeclaration.accept(this);
 		}
 
+		if (module.getModelDeclarations().isEmpty()) {
+			useDefaultUnknownModel();
+		}
+
 		if (builtinOperations.isEmpty()) {
 			// Parse builtin operations
 			List<OperationContributor> operationContributors = context.operationContributorRegistry.stream()
@@ -1578,6 +1586,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		module.getDeclaredOperations().forEach(o -> operationPreVisitor(o));
 		module.getDeclaredOperations().forEach(o -> localOperations.add(new SimpleOperation(o)));
 		operationRegistry.put(module.getUri(), localOperations);		
+	}
+
+	private void useDefaultUnknownModel() {
+		if (context.getModelDeclarations().containsKey(DEFAULT_MODEL_NAME)) return;
+
+		IModel model = new UnknownModel();
+		model.setName(DEFAULT_MODEL_NAME);
+
+		ModelDeclaration modelDeclaration = new ModelDeclaration();
+		modelDeclaration.setNameExpression(new NameExpression(DEFAULT_MODEL_NAME));
+		modelDeclaration.setDriverNameExpression(new NameExpression(UNKNOWN_MODEL_DRIVER));
+		modelDeclaration.setModel(model);
+		modelDeclaration.setMetamodel(model.getMetamodel(new StringProperties(), context.getRelativePathResolver()));
+
+		context.getRepository().addModel(model);
+		context.getModelDeclarations().put(DEFAULT_MODEL_NAME, modelDeclaration);
 	}
 	
 	public SimpleOperation methodToSimpleOperation(Method m, EolType contextType) {

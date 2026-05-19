@@ -863,6 +863,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (Expression parameterExpression : parameterExpressions) {
 			parameterExpression.accept(this);
 		}
+		boolean unknownModelElementTarget = isUnknownModelElementType(contextType);
 
 		// Name check
 		List<IStaticOperation> temp = new ArrayList<IStaticOperation>();
@@ -873,7 +874,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
-			if (contextType.equals(EolAnyType.Instance)) {
+			if (contextType.equals(EolAnyType.Instance) || unknownModelElementTarget) {
 				setResolvedType(operationCallExpression, EolAnyType.Instance);
 				return;
 			}
@@ -896,6 +897,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
+			if (unknownModelElementTarget) {
+				setResolvedType(operationCallExpression, EolAnyType.Instance);
+				return;
+			}
 			markers.add(new ModuleMarker(nameExpression,
 					nameExpression.getName() + " can not be invoked on " + getResolvedType(targetExpression),
 					Severity.Error));
@@ -917,6 +922,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
+			if (unknownModelElementTarget) {
+				setResolvedType(operationCallExpression, EolAnyType.Instance);
+				return;
+			}
 			markers.add(new ModuleMarker(nameExpression, "Parameter number mismatch", Severity.Error));
 			return;
 		}
@@ -967,6 +976,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		resolvedOperations = temp;
 		if (resolvedOperations.size() == 0) {
+			if (unknownModelElementTarget) {
+				setResolvedType(operationCallExpression, EolAnyType.Instance);
+				return;
+			}
 			markers.add(new ModuleMarker(nameExpression,
 					"Parameters type mismatch for operation " + nameExpression.getName(), Severity.Error));
 			return;
@@ -1042,6 +1055,18 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				Severity.Warning));
 			}
 		}
+	}
+
+	private boolean isUnknownModelElementType(EolType type) {
+		if (type instanceof EolTypeLiteral) {
+			type = ((EolTypeLiteral) type).getWrappedType();
+		}
+		if (!(type instanceof EolModelElementType)) {
+			return false;
+		}
+		IMetaClass metaClass = ((EolModelElementType) type).getMetaClass();
+		return metaClass != null
+				&& metaClass.getMetamodel() instanceof org.eclipse.epsilon.eol.m3.UnknownMetamodel;
 	}
 	
 	private List<EolType> checkMissingTypes(EolType callExpressionType, Set<EolType> operationTypes){

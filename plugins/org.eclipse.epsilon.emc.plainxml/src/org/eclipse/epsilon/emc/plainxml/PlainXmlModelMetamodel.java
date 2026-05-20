@@ -162,7 +162,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	}
 	
 	private void addNodeAttributes (NamedNodeMap nodeAttributes, PlainXmlMetaClass metaClass) {
-		List<Node> listNodeAttributes = PlainXmlModelMetamodel.namedNodeMapToList(nodeAttributes);
+		List<Node> listNodeAttributes = namedNodeMapToList(nodeAttributes);
 		addNodeAttributes(listNodeAttributes, metaClass);
 	}
 		
@@ -192,7 +192,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		}
 	}
 	
-	public boolean addMetaClass (PlainXmlMetaClass metaClass) {
+	private boolean addMetaClass (PlainXmlMetaClass metaClass) {
 		// Do not duplicate metaClasses
 		for (IMetaClass iMetaClass : metaClasses) {
 			if(iMetaClass.getName().contains(metaClass.getName())) {
@@ -213,7 +213,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		return iMetaClass;
 	}
 	
-	public PlainXmlMetaClass getPlainXmlMetaClass(String metaClassName) {
+	private PlainXmlMetaClass getPlainXmlMetaClass(String metaClassName) {
 		for (IMetaClass iMetaClass : metaClasses) {
 			if (iMetaClass.getName().contains(metaClassName)) {
 				return (PlainXmlMetaClass) iMetaClass;
@@ -222,11 +222,11 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		return null;
 	}
 	
-	public PlainXmlMetaClass getPlainXMLMetaClass(Node node) {
+	private PlainXmlMetaClass getPlainXMLMetaClass(Node node) {
 		return getPlainXmlMetaClass(node.getNodeName());
 	}
 	
-	public static List<Node> namedNodeMapToList (NamedNodeMap namedNodeMap) {
+	private List<Node> namedNodeMapToList (NamedNodeMap namedNodeMap) {
 		ArrayList<Node> nodeList = new ArrayList<Node>();
 		for (int i = 0; i < namedNodeMap.getLength(); i++ ) {
 			nodeList.add(namedNodeMap.item(i));
@@ -234,7 +234,8 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		return nodeList;
 	}
 	
-	public static List<Node> nodeListToList (NodeList nodeList) {		
+	// TODO remove this method if it is not used
+	private List<Node> nodeListToList (NodeList nodeList) {		
 		ArrayList<Node> list = new ArrayList<Node>();
 		for (int i = 0; i < nodeList.getLength(); i++ ) {
 			list.add(nodeList.item(i));
@@ -381,6 +382,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 			};
 		}
 		else {
+			//TODO handle creating a collection when the type (t_) is unknown.
 			// Another option here would be to create a new t_ class
 			System.err.println("Created Collection<Any> for unknown type in private IProperty createCollectionProperty(Node node) -- node name : " + node.getNodeName());
 			return new IProperty() {

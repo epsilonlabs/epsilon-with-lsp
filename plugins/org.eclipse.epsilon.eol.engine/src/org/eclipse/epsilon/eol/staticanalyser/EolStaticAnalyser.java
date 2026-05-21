@@ -1,5 +1,6 @@
 package org.eclipse.epsilon.eol.staticanalyser;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -655,6 +656,17 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			for (ModelDeclarationParameter parameter : modelDeclaration.getModelDeclarationParameters()) {
 				stringProperties.put(parameter.getKey(), parameter.getValue());
 			}
+
+			// TODO Is there a better way to handle the file path for the model drivers?
+			String filePath = stringProperties.getProperty("files");
+			File moduleFile = module.getFile();
+			if(filePath.startsWith(".")) {
+				// A property "file=" starting "."  is prefixed with path of the module file enabling
+				// relative paths for the model file based on the .eol file (parent) being analysed
+				filePath = moduleFile.getParent() + "/" + filePath;
+				stringProperties.setProperty("file", filePath);
+			}
+			
 			modelDeclaration.setMetamodel(
 					modelDeclaration.getModel().getMetamodel(stringProperties, context.getRelativePathResolver()));
 			if (modelDeclaration.getMetamodel() != null) {

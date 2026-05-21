@@ -3,6 +3,7 @@ package org.eclipse.epsilon.emc.emf;
 import java.util.Objects;
 
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 
 public class EmfMetaClass extends MetaClass {
@@ -32,6 +33,8 @@ public class EmfMetaClass extends MetaClass {
 	}
 	
 	public Class<?> getClazz(){
-		return eClassifier.getInstanceClass();
+		Class<?> instanceClass = eClassifier.getInstanceClass();
+		if (instanceClass != null) return instanceClass;
+		else return EObject.class;
 	}
 }

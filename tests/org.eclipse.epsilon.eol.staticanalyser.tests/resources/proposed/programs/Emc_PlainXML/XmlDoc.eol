@@ -1,4 +1,4 @@
-model M driver PlainXml {name="XMLDoc",file="/home/hmz514/git/epsilon-with-lsp/examples/org.eclipse.epsilon.examples.plainxml/gen_library.xml"};
+model M driver PlainXml {name="XMLDoc",file="./gen_library.xml"};
 
 // var a = /*Native<org.eclipse.epsilon.emc.plainxml.PlainXmlModel>*/XMLDoc;
 // var b = /*Native<org.w3c.dom.Node>*/XMLDoc.root;

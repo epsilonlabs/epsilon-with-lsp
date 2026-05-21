@@ -658,7 +658,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 
 			// TODO Is there a better way to handle the file path for the model drivers?
-			String filePath = stringProperties.getProperty("files");
+			String filePath = stringProperties.getProperty("file");
 			File moduleFile = module.getFile();
 			if(filePath.startsWith(".")) {
 				// A property "file=" starting "."  is prefixed with path of the module file enabling

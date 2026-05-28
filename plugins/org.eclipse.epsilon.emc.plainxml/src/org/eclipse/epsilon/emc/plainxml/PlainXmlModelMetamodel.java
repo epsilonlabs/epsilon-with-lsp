@@ -23,81 +23,52 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	
 	private boolean CONSOLE = true;
 	
-	// Element Tag -- possible EClass/EFeature
-	// Element Attributes -- possible EAttribute (Using XML attributes as references)
-	// Element Text -- String Text (EAttribute)
-	
-	
-	// Element -> NodeName -> t_NodeName
+
 	
 	/*
+	 * 
+	 * Element Tag -- possible EClass/EFeature 
+	 * Element Attributes -- possible
+	 * EAttribute (Using XML attributes as references) 
+	 * Element Text -- String Text (EAttribute)
+	 * 
+	 * 
+	 * Element.NodeName -> t_NodeName
 	 * 
 	 * <Type1 Type2=value,Type2=value>Type3</Type1>
 	 * 
 	 * Model root [NodeType1]
 	 * 
-	 * NodeType1 - An XML Element
-	 * 	- NodeType1	[Any] 		(child elements)
-	 * 	- NodeType2 [Any] 		(element attribute)
-	 * 	- NodeType3 [String]	(child texts)
+	 * NodeType1 - An XML Element 
+	 * 	- NodeType1 [Any] (child elements) 
+	 * 	- NodeType2 [Any] (element attribute) 
+	 * 	- NodeType3 [String] (child texts)
 	 * 
-	 * Code convention to handle tags as:
-	 * 	t_ = type
-	 *		e_ = element
-	 *  	c_ = collection
-	 *  	x_ = reference
+	 * Naming convention to handle tags as: 
+	 * 	t_ = type 
+	 * 	e_ = element 
+	 * 	c_ = collection 
+	 * 	x_ = reference
 	 * 
-	 * 	a_ = attribute (string)
-	 * 		s_ = string (alias for a_)
-	 * 		b_ = boolean
-	 * 		r_ = real
-	 * 		i_ = integer
+	 * 	a_ = attribute (string) 
+	 * 	s_ = string (alias for a_) 
+	 * 	b_ = boolean 
+	 * 	r_ = real 
+	 * 	i_ = integer
 	 * 
-	 *  
-	 *  .text = text for an element
-	 *  .children = children of an element (combine with c_ or e_)
-	 *  .parentNode = parent of an element 
-	 *  
-	 *  New elements, `new t_tagname`
-	 *  Add child, `.appendChild()`
-	 *  
-	 *  Set the root element of a document (required) `XMLDoc.root = new t_library;`
-	 *  
-	 *  class t_+type1.name {
-	 *  	attr Any a_+type2.name1;
-	 *  	attr Any a_+type2.name2;
-	 *  	
-	 *  	val Any[] t_+type1.name1;
-	 *  	val Any[] t_+type2.name1;
-	 *  	
-	 *  	val String[] type3.name;  // #text
-	 *  
-	 *  	attr Any parent;
-	 *  	// val Any[] children;
-	 *  
-	 *  	val AnyChild children;
-	 *  }
-	 *  
-	 *  class anyChild {
-	 *  	// one attribute for every child element attribute
-	 *  	attr Any a_+type2.name1
-	 *  	attr Any a_+type2.name2
-	 *  }
-	 *  
-	 *  class node {
-	 *  	attr Any a_+type2.name1
-	 *  }
-	 *  
-	 *  
-	 *  
-	 *  
-	 *  Binds create references, model.bind(sourceTagName, sourceTagAttribute, targetTagName, targetTagAttribute
-	 *  
-	 *  
+	 * All XML nodes have:
+	 * .text = text for an element 
+	 * .children = children of an element (combine with c_ or e_) 
+	 * .parentNode = parent of an element
+	 * 
+	 * New elements, `new t_tagname` enable new types of nodes to be added 
+	 * 
+	 * Add child, `.appendChild()` example of a Java method on an XML node
+	 * 
+	 * Set the root element of a document (required) `XMLDoc.root = new t_library;`
+	 * The t_library is both a type of `t_library` and `XML node`
+	 * 
 	 */
-	
-	
-	// protected List<IMetaClass> metaClasses = new ArrayList<>();
 	
 	
 	protected StringProperties properties;
@@ -131,7 +102,6 @@ public class PlainXmlModelMetamodel extends Metamodel {
 					elementMetaClass = createPlainXmlMetaClass(element);
 					addMetaClass(elementMetaClass);
 				}
-				//elementMetaClass.addNode(element);
 				
 				// Update Meta Class properties 				
 				addNodeAttributes(element.getAttributes(), elementMetaClass);
@@ -152,11 +122,9 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	}
 	
 	private void addCollectionPropertyToParent (Node parent, Node child) {
-		//String elementPropertyName = "e_" + child.getNodeName();
 		IProperty collectionProperty = createCollectionProperty(child);
 		PlainXmlMetaClass parentMetaClass = getPlainXMLMetaClass(parent);
 		if(null != parentMetaClass) {
-			//parentMetaClass.addProperty(collectionProperty);
 			addMetaClassProperty(parentMetaClass, collectionProperty);
 		}
 	}
@@ -234,15 +202,6 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		return nodeList;
 	}
 	
-	// TODO remove this method if it is not used
-	private List<Node> nodeListToList (NodeList nodeList) {		
-		ArrayList<Node> list = new ArrayList<Node>();
-		for (int i = 0; i < nodeList.getLength(); i++ ) {
-			list.add(nodeList.item(i));
-		}		
-		return list;
-	}
-	
 	@Override
 	public boolean equals(Object other) {
 		if(other == this) {
@@ -257,8 +216,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		return 0;
 	}
 	
-	// Needs a MetaClass instance called "Element" which is the parent of all the XML elements
-	
+	// A MetaClass instance called "Element" is the parent of all the XML elements	
 	private PlainXmlMetaClass createElementClass() {
 		PlainXmlMetaClass element = new PlainXmlMetaClass("Element", this);
 		addMetaClassProperty(element, "text", EolPrimitiveType.String);
@@ -382,7 +340,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 			};
 		}
 		else {
-			//TODO handle creating a collection when the type (t_) is unknown.
+			// TODO handle creating a collection when the type (t_) is unknown.
 			// Another option here would be to create a new t_ class
 			System.err.println("Created Collection<Any> for unknown type in private IProperty createCollectionProperty(Node node) -- node name : " + node.getNodeName());
 			return new IProperty() {
@@ -415,10 +373,8 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		if (null == property) {
 			property = createProperty(propertyName, type);
 			metaClass.getProperties().add(property);
-			System.out.println("Added property: " + property.getName() + " on " + metaClass.getName());
 			return true;
 		} 
-		System.out.println("Dupe property: " + propertyName);
 		return false;
 	}
 	

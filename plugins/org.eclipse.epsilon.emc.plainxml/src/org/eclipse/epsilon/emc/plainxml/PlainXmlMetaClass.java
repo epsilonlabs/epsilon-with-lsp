@@ -22,8 +22,8 @@ public class PlainXmlMetaClass extends MetaClass {
 	}
 	
 	public Class<?> getClazz() {
-		// THIS SHOULD RETURN W3C Element.class, which should match XMLmodel.root property type		
-		//t_library cannot be assigned to Native<org.w3c.dom.Node>
+		// THIS SHOULD RETURN W3C Element.class or Node.class, which should match XMLmodel.root 
+		// property type t_library cannot be assigned to Native<org.w3c.dom.Node>
 		
 		Class<Element> c = Element.class;
 		if (CONSOLE) {

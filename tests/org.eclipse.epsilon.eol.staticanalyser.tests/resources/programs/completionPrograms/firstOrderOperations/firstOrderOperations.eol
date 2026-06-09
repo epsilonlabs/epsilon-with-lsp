@@ -1,0 +1,54 @@
+var a = Sequence{1, 2, 3};
+a.atLeastNMatc/*@atLeastNMatch*/
+a.parallelAtLeastNMatc/*@parallelAtLeastNMatch*/
+
+a.atMostNMatc/*@atMostNMatch*/
+a.parallelAtMostNMatc/*@parallelAtMostNMatch*/
+
+a.aggregat/*@aggregate*/
+a.closur/*@closure*/
+
+a.collec/*@collect*/
+a.parallelCollec/*@parallelCollect*/
+
+a.coun/*@count*/
+a.parallelCoun/*@parallelCount*/
+
+a.exist/*@exists*/
+a.parallelExist/*@parallelExists*/
+
+a.forAl/*@forAll*/
+a.parallelForAl/*@parallelForAll*/
+
+a.mapB/*@mapBy*/
+a.parallelMapB/*@parallelMapBy*/
+
+a.nMatc/*@nMatch*/
+a.parallelNMatc/*@parallelNMatch*/
+
+a.non/*@none*/
+a.parallelNon/*@parallelNone*/
+
+a.on/*@one*/
+a.parallelOn/*@parallelOne*/
+
+a.rejec/*@reject, rejectOne*/
+a.parallelRejec/*@parallelReject, parallelRejectOne*/
+
+a.rejectOn/*@rejectOne*/
+a.parallelRejectOn/*@parallelRejectOne*/
+
+a.selec/*@select, selectByKind, selectByType, selectFirst, selectOne*/
+a.parallelSelec/*@parallelSelect, parallelSelectOne*/
+
+a.selectByKind/*@selectByKind*/
+a.parallelSelectByKind/*@*/
+
+a.selectByTyp/*@selectByType*/
+a.parallelSelectByTyp/*@*/
+
+a.selectOn/*@selectOne*/
+a.parallelSelectOn/*@parallelSelectOne*/
+
+a.sortB/*@sortBy*/
+a.parallelSortB/*@parallelSortBy*/

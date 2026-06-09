@@ -17,13 +17,14 @@ public class EolCompletionParseRepairer {
 		int offset = offsetAt(code, position);
 		String before = code.substring(0, offset);
 		String after = code.substring(offset);
+		boolean needsPlaceholder = needsPlaceholder(before);
 
 		StringBuilder repaired = new StringBuilder(code.length() + PLACEHOLDER.length() + 8);
 		repaired.append(before);
-		if (needsPlaceholder(before)) {
+		if (needsPlaceholder) {
 			repaired.append(PLACEHOLDER);
 		}
-		if (needsInlineSemicolon(before, after)) {
+		if (needsInlineSemicolon(before, after) || needsPlaceholder && needsInlineSemicolonAfterPlaceholder(before, after)) {
 			repaired.append(';');
 		}
 		repaired.append(after);
@@ -92,6 +93,14 @@ public class EolCompletionParseRepairer {
 			|| previous == '\''
 			|| previous == '"'
 			|| Character.isJavaIdentifierPart(previous);
+	}
+
+	protected boolean needsInlineSemicolonAfterPlaceholder(String beforeCursor, String afterCursor) {
+		int index = previousNonWhitespaceIndex(beforeCursor);
+		return index > 0
+			&& beforeCursor.charAt(index) == ':'
+			&& beforeCursor.charAt(index - 1) == ':'
+			&& nextSignificantTokenStartsOnLaterLine(afterCursor);
 	}
 
 	protected boolean nextSignificantTokenStartsOnLaterLine(String text) {

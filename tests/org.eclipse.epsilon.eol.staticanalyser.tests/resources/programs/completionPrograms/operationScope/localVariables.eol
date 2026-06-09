@@ -1,7 +1,7 @@
 var a : String;
 operation Integer compute(input : Integer) : Integer {
-	//@ input, self, a
+	//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, a, input, self
 	var temp = input;
-	//@ input, self, temp, a
+	//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, a, input, self, temp
 	return temp;
 }

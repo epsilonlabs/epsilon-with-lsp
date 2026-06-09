@@ -3,8 +3,8 @@ var items : Sequence<Integer>;
 
 for (item in items) {
 	a.asUni/*@asUnicode*/
-	//@ hasMore, item, items, loopCount, a
+	//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, a, hasMore, item, items, loopCount
 	var local : Integer = 0;
-	//@ hasMore, item, items, loopCount, a, local
+	//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, a, hasMore, item, items, local, loopCount
 	a.asUni/*@asUnicode*/
 }

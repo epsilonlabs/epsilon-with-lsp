@@ -132,6 +132,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	private static final String DEFAULT_MODEL_NAME = "";
 	private static final String UNKNOWN_MODEL_DRIVER = "Unknown";
+	private static final String[] BUILTIN_TYPE_COMPLETION_NAMES = new String[] {
+			"Any", "Bag", "Boolean", "Collection", "ConcurrentBag", "ConcurrentMap", "ConcurrentSet",
+			"Integer", "List", "Map", "Native", "None", "Nothing", "OrderedSet", "Real", "Sequence", "Set",
+			"String", "Tuple" };
 
 	protected List<ModuleMarker> markers = new ArrayList<>();
 	protected IEolModule module;
@@ -2440,6 +2444,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	private void addTypeCompletions(Map<String, EolCompletion> completions, TypeCompletionContext typeCompletion) {
+		if (typeCompletion.modelName == null && !typeCompletion.hasPackageQualifier()) {
+			addBuiltinTypeCompletions(completions, typeCompletion.prefix);
+		}
+
 		if (typeCompletion.typeExpression && typeCompletion.modelName == null && !typeCompletion.hasPackageQualifier()
 				&& !typeCompletion.prefix.isEmpty()) {
 			addModelNameCompletions(completions, typeCompletion.prefix);
@@ -2465,6 +2473,18 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			else {
 				addTypeCompletions(completions, metamodel.getTypes(), metamodel.getSubPackages(), typeCompletion.prefix);
 			}
+		}
+	}
+
+	private void addBuiltinTypeCompletions(Map<String, EolCompletion> completions, String prefix) {
+		for (String name : BUILTIN_TYPE_COMPLETION_NAMES) {
+			if (!name.startsWith(prefix)) {
+				continue;
+			}
+			EolType type = "Native".equals(name)
+					? new EolNativeType(Object.class)
+					: toStaticAnalyserType(TypeExpression.getType(name));
+			completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.VARIABLE, type, "type"));
 		}
 	}
 

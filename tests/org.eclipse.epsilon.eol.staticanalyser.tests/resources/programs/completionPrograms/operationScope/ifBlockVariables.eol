@@ -1,9 +1,9 @@
 operation Integer choose(base : Integer) : Integer {
-	//@ base, self
+	//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, base, self
 	if (true) {
 		var branch = base;
-		//@ base, branch, self
+		//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, base, branch, self
 	}
-	//@ base, self
+	//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, base, self
 	return base;
 }

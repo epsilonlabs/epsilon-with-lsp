@@ -1,7 +1,7 @@
 var shared = "global";
 
 operation String use(shared : String) : String {
-	//@ self, shared
+	//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, self, shared
 	shared.asUnic/*@asUnicode*/
 	return shared;
 }

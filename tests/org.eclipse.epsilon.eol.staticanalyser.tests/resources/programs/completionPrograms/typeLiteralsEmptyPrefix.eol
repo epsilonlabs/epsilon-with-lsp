@@ -1,3 +1,3 @@
 model M driver EMF {nsuri="sa"};
 
-/*@A, B, C, Colour, D, container*/
+/*@A, Any, B, Bag, Boolean, C, Collection, Colour, ConcurrentBag, ConcurrentMap, ConcurrentSet, D, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, container*/

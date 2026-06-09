@@ -1,2 +1,2 @@
 var a = Sequence{1, 2, 3};
-a.collect(item | 1   +   /*@ item, a */
+a.collect(item | 1   +   /*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, a, item */

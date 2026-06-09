@@ -1,3 +1,8 @@
 model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 
 EClas/*@EClass, EClassifier*/
+
+Strin/*@String*/
+Intege/*@Integer*/
+Rea/*@Real*/
+Boolea/*@Boolean*/

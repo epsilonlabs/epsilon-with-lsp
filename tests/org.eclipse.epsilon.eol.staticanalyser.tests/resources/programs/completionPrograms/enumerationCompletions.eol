@@ -1,0 +1,3 @@
+model M driver EMF { nsuri="sa" };
+
+var x = Colour#/*@RED, BLUE*/

@@ -61,7 +61,8 @@ public class EolCompletionParseRepairer {
 		char previous = beforeCursor.charAt(index);
 		if (previous == '.' || previous == '|' || previous == '(' || previous == '[' || previous == '{'
 				|| previous == ',' || previous == ':' || previous == '=' || previous == '?' || previous == '>'
-				|| previous == '+' || previous == '-' || previous == '*' || previous == '/' || previous == '!') {
+				|| previous == '+' || previous == '-' || previous == '*' || previous == '/' || previous == '!'
+				|| previous == '#') {
 			return true;
 		}
 		return index > 0 && previous == '-' && beforeCursor.charAt(index - 1) == '>';

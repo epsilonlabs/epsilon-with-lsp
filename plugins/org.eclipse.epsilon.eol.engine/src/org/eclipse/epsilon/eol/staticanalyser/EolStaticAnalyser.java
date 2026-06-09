@@ -281,6 +281,23 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 	}
 
+	protected static class EnumerationLiteralCompletionContext {
+		public final EnumerationLiteralExpression expression;
+		public final String enumerationName;
+		public final String prefix;
+
+		public EnumerationLiteralCompletionContext(EnumerationLiteralExpression expression, String enumerationName,
+				String prefix) {
+			this.expression = expression;
+			this.enumerationName = enumerationName;
+			this.prefix = prefix != null ? prefix : "";
+		}
+
+		public Region getRegion() {
+			return expression != null ? expression.getRegion() : null;
+		}
+	}
+
 	public EolStaticAnalyser() {
 	}
 
@@ -1941,6 +1958,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return getMemberCompletions(memberCompletion, position);
 		}
 
+		EnumerationLiteralCompletionContext enumerationLiteralCompletion = findEnumerationLiteralCompletion(module,
+				position);
+		if (enumerationLiteralCompletion != null) {
+			return getEnumerationLiteralCompletions(enumerationLiteralCompletion);
+		}
+
 		TypeCompletionContext typeCompletion = getTypeCompletionContext(module, position);
 		if (typeCompletion.typeExpression) {
 			Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
@@ -2064,6 +2087,52 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		return best == null || regionIsStrictlyInside(candidate.getNameRegion(), best.getNameRegion());
 	}
 
+	private EnumerationLiteralCompletionContext findEnumerationLiteralCompletion(ModuleElement element,
+			Position position) {
+		return findEnumerationLiteralCompletion(element, position, null);
+	}
+
+	private EnumerationLiteralCompletionContext findEnumerationLiteralCompletion(ModuleElement element,
+			Position position, EnumerationLiteralCompletionContext best) {
+		if (element == null) {
+			return best;
+		}
+
+		EnumerationLiteralCompletionContext candidate = toEnumerationLiteralCompletionContext(element, position);
+		if (candidate != null && (best == null || regionIsStrictlyInside(candidate.getRegion(), best.getRegion()))) {
+			best = candidate;
+		}
+
+		for (ModuleElement child : element.getChildren()) {
+			best = findEnumerationLiteralCompletion(child, position, best);
+		}
+		return best;
+	}
+
+	private EnumerationLiteralCompletionContext toEnumerationLiteralCompletionContext(ModuleElement element,
+			Position position) {
+		if (!(element instanceof EnumerationLiteralExpression)
+				|| !positionMatchesNameRegion(element.getRegion(), position)) {
+			return null;
+		}
+
+		EnumerationLiteralExpression expression = (EnumerationLiteralExpression) element;
+		String textBeforeCursor = getCompletionPrefix(expression.getEnumerationLiteral(), expression.getRegion(),
+				position);
+		int hashIndex = textBeforeCursor.indexOf('#');
+		if (hashIndex < 0) {
+			return null;
+		}
+
+		String enumerationName = textBeforeCursor.substring(0, hashIndex);
+		if (enumerationName.isEmpty()) {
+			return null;
+		}
+
+		String prefix = textBeforeCursor.substring(hashIndex + 1);
+		return new EnumerationLiteralCompletionContext(expression, enumerationName, prefix);
+	}
+
 	private static boolean positionMatchesNameRegion(NameExpression nameExpression, Position position) {
 		return nameExpression != null && positionMatchesNameRegion(nameExpression.getRegion(), position);
 	}
@@ -2168,6 +2237,23 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		List<EolCompletion> result = new ArrayList<EolCompletion>(completions.values());
 		Collections.sort(result, Comparator.comparing(EolCompletion::getName));
 		return result;
+	}
+
+	private List<EolCompletion> getEnumerationLiteralCompletions(EnumerationLiteralCompletionContext context) {
+		Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
+		EolModelElementType enumType = getModelElementType(context.enumerationName, context.expression);
+		if (enumType == null || !(enumType.getMetaClass() instanceof IEnum)) {
+			return sortedCompletions(completions);
+		}
+
+		IEnum enumeration = (IEnum) enumType.getMetaClass();
+		for (String literal : enumeration.getLiterals()) {
+			if (literal.startsWith(context.prefix)) {
+				completions.putIfAbsent(literal,
+						new EolCompletion(literal, EolCompletionKind.VARIABLE, enumType, "enum literal"));
+			}
+		}
+		return sortedCompletions(completions);
 	}
 
 	private String getCompletionPrefix(MemberCompletionContext context, Position position) {

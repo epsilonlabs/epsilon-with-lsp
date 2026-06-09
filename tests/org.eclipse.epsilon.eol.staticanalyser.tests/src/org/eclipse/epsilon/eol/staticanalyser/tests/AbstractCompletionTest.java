@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,12 +71,33 @@ public abstract class AbstractCompletionTest extends AbstractBaseTest {
 			return staticAnalyser.getCompletions(module, expectation.getPosition());
 		}
 
-		String repairedSource = new EolCompletionParseRepairer().repair(programSource, expectation.getPosition());
+		String repairedSource = repairCompletionSource();
 		EolModule repairedModule = new EolModule();
 		repairedModule.parse(repairedSource, programFile);
 		EolStaticAnalyser repairedStaticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
 		repairedStaticAnalyser.validate(repairedModule);
 		return repairedStaticAnalyser.getCompletions(repairedModule, expectation.getPosition());
+	}
+
+	private String repairCompletionSource() {
+		String repairedSource = programSource;
+		List<CompletionExpectation> sortedExpectations = new ArrayList<CompletionExpectation>(completionExpectations);
+		Collections.sort(sortedExpectations, new Comparator<CompletionExpectation>() {
+			@Override
+			public int compare(CompletionExpectation first, CompletionExpectation second) {
+				int lineComparison = Integer.compare(second.getLine(), first.getLine());
+				if (lineComparison != 0) {
+					return lineComparison;
+				}
+				return Integer.compare(second.getColumn(), first.getColumn());
+			}
+		});
+
+		EolCompletionParseRepairer repairer = new EolCompletionParseRepairer();
+		for (CompletionExpectation completionExpectation : sortedExpectations) {
+			repairedSource = repairer.repair(repairedSource, completionExpectation.getPosition());
+		}
+		return repairedSource;
 	}
 
 	private String formatFailureMessage(CompletionExpectation expectation, Set<String> actualNames) {

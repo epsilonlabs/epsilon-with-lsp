@@ -2440,6 +2440,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	private void addTypeCompletions(Map<String, EolCompletion> completions, TypeCompletionContext typeCompletion) {
+		if (typeCompletion.typeExpression && typeCompletion.modelName == null && !typeCompletion.hasPackageQualifier()
+				&& !typeCompletion.prefix.isEmpty()) {
+			addModelNameCompletions(completions, typeCompletion.prefix);
+		}
+
 		for (Map.Entry<String, ModelDeclaration> entry : context.modelDeclarations.entrySet()) {
 			if (typeCompletion.modelName != null && !typeCompletion.modelName.equals(entry.getKey())) {
 				continue;
@@ -2459,6 +2464,15 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 			else {
 				addTypeCompletions(completions, metamodel.getTypes(), metamodel.getSubPackages(), typeCompletion.prefix);
+			}
+		}
+	}
+
+	private void addModelNameCompletions(Map<String, EolCompletion> completions, String prefix) {
+		for (String modelName : context.modelDeclarations.keySet()) {
+			String name = modelName + "!";
+			if (name.startsWith(prefix)) {
+				completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.VARIABLE, null, "model"));
 			}
 		}
 	}

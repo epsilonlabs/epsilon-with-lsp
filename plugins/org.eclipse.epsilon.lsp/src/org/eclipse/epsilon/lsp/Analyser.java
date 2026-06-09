@@ -203,21 +203,17 @@ public class Analyser {
             return Collections.emptyList();
         }
 
-		boolean parseFailed = false;
 		try {
 			module.parse(moduleUri);
 		} catch (Exception e) {
 			// Parsing can fail while the user is typing; fall through and
 			// still try to return completions if a partial AST is available.
-			parseFailed = true;
 			e.printStackTrace();
 		}
 
-		if (parseFailed || !module.getParseProblems().isEmpty()) {
-			IEolModule repairedModule = parseRepairedCompletionModule(fileUri, epsilonPosition);
-			if (repairedModule != null) {
-				module = repairedModule;
-			}
+		IEolModule repairedModule = parseRepairedCompletionModule(fileUri, epsilonPosition);
+		if (repairedModule != null) {
+			module = repairedModule;
 		}
 
         final EolStaticAnalyser staticAnalyser;

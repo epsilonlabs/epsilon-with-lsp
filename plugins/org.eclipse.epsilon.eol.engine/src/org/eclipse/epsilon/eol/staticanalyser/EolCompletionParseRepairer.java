@@ -7,7 +7,7 @@ import org.eclipse.epsilon.common.parse.Position;
 
 public class EolCompletionParseRepairer {
 
-	static final String PLACEHOLDER = "__epsilon_completion_placeholder";
+	static final String PLACEHOLDER = "epsilon_completion_placeholder";
 
 	public String repair(String code, Position position) {
 		if (code == null || position == null) {
@@ -61,7 +61,7 @@ public class EolCompletionParseRepairer {
 		char previous = beforeCursor.charAt(index);
 		if (previous == '.' || previous == '|' || previous == '(' || previous == '[' || previous == '{'
 				|| previous == ',' || previous == ':' || previous == '=' || previous == '?' || previous == '>'
-				|| previous == '+' || previous == '-' || previous == '*' || previous == '/') {
+				|| previous == '+' || previous == '-' || previous == '*' || previous == '/' || previous == '!') {
 			return true;
 		}
 		return index > 0 && previous == '-' && beforeCursor.charAt(index - 1) == '>';

@@ -12,6 +12,7 @@
 package org.eclipse.epsilon.eol.execute.operations;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.epsilon.common.util.StringUtil;
@@ -84,7 +85,11 @@ public class EolOperationFactory {
 	public AbstractOperation getOperationFor(String name) {
 		return operationCache.get(name);
 	}
-	
+
+	public Map<String, AbstractOperation> getOperations() {
+		return Collections.unmodifiableMap(operationCache);
+	}
+
 	/**
 	 * 
 	 * @param name The operation name

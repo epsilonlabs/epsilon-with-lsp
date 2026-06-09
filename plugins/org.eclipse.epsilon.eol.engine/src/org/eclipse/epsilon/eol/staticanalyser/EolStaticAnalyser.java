@@ -106,6 +106,7 @@ import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
 import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
+import org.eclipse.epsilon.eol.execute.operations.declarative.FirstOrderOperation;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.m3.IEnum;
 import org.eclipse.epsilon.eol.m3.IMetaClass;
@@ -186,6 +187,75 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		public Region getNameRegion() {
 			return nameExpression != null ? nameExpression.getRegion() : null;
+		}
+	}
+
+	protected static class FirstOrderStaticOperation implements IStaticOperation {
+		private final String name;
+		private final AbstractOperation operation;
+
+		public FirstOrderStaticOperation(String name, AbstractOperation operation) {
+			this.name = name;
+			this.operation = operation;
+		}
+
+		@Override
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public EolType getContextType() {
+			return EolCollectionType.Collection;
+		}
+
+		@Override
+		public EolType getReturnType(EolType actualContextType, List<EolType> actualParameterTypes) {
+			TypeCalculator typeCalculator = operation.getClass().getAnnotation(TypeCalculator.class);
+			if (typeCalculator == null) {
+				return EolAnyType.Instance;
+			}
+
+			EolType contextType = actualContextType;
+			if (!(contextType instanceof EolCollectionType)) {
+				contextType = new EolCollectionType("Sequence", contextType);
+			}
+			EolType iteratorType = ((EolCollectionType) contextType).getContentType();
+			List<EolType> expressionTypes = new ArrayList<EolType>();
+			if (actualParameterTypes != null) {
+				expressionTypes.addAll(actualParameterTypes);
+			}
+			while (expressionTypes.size() < 2) {
+				expressionTypes.add(EolAnyType.Instance);
+			}
+
+			try {
+				return typeCalculator.klass().newInstance().calculateType(contextType, iteratorType, expressionTypes);
+			}
+			catch (Exception e) {
+				return EolAnyType.Instance;
+			}
+		}
+
+		@Override
+		public List<EolType> getParameterTypes() {
+			return Collections.emptyList();
+		}
+
+		@Override
+		public List<String> getParameterNames() {
+			return Collections.emptyList();
+		}
+
+		@Override
+		public boolean isVarArgs() {
+			return false;
+		}
+
+		@Override
+		public List<ModuleMarker> getExtraDiagnostics(AbstractModuleElement element, EolType actualContextType,
+				List<EolType> actualParameterTypes) {
+			return Collections.emptyList();
 		}
 	}
 
@@ -2044,6 +2114,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		operations.addAll(localOperations);
 		operations.addAll(importedOperations);
 		operations.addAll(builtinOperations);
+		operations.addAll(firstOrderOperationsForCompletion());
 		if (contextType.getClazz() != null) {
 			for (Method method : contextType.getClazz().getMethods()) {
 				operations.add(methodToSimpleOperation(method, contextType));
@@ -2055,8 +2126,28 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				continue;
 			}
 			String signature = operationSignature(operation);
+			EolType returnType = operationReturnTypeForCompletion(operation, contextType);
 			completions.putIfAbsent(signature,
-					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, null, "operation", signature));
+					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, returnType, null, signature));
+		}
+	}
+
+	private List<IStaticOperation> firstOrderOperationsForCompletion() {
+		List<IStaticOperation> operations = new ArrayList<IStaticOperation>();
+		for (Map.Entry<String, AbstractOperation> operation : context.operationFactory.getOperations().entrySet()) {
+			if (operation.getValue() instanceof FirstOrderOperation) {
+				operations.add(new FirstOrderStaticOperation(operation.getKey(), operation.getValue()));
+			}
+		}
+		return operations;
+	}
+
+	private EolType operationReturnTypeForCompletion(IStaticOperation operation, EolType contextType) {
+		try {
+			return operation.getReturnType(contextType, operation.getParameterTypes());
+		}
+		catch (Exception e) {
+			return EolAnyType.Instance;
 		}
 	}
 

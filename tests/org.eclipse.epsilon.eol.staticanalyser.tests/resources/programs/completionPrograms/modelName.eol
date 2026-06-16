@@ -1,7 +1,7 @@
 model Ecore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 
-Ecore!EClas/*@EClass, EClassifier*/;
-var a : Ecore!EClas/*@EClass, EClassifier*/;
-var b : Ecore!/*@EAnnotation, EAttribute, EClass, EClassifier, EDataType, EEnum, EEnumLiteral, EFactory, EGenericType, EModelElement, ENamedElement, EObject, EOperation, EPackage, EParameter, EReference, EStringToStringMapEntry, EStructuralFeature, ETypeParameter, ETypedElement*/;
+Ecore!EClas/*@EClass, EClassifier*/
+var a : Ecore!EClas/*@EClass, EClassifier*/
+var b : Ecore!/*@EAnnotation, EAttribute, EClass, EClassifier, EDataType, EEnum, EEnumLiteral, EFactory, EGenericType, EModelElement, ENamedElement, EObject, EOperation, EPackage, EParameter, EReference, EStringToStringMapEntry, EStructuralFeature, ETypeParameter, ETypedElement*/
 
-var c:Ecor/*@Ecore!*/;
+var c:Ecor/*@Ecore!*/

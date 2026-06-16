@@ -99,8 +99,9 @@ public class EolCompletionParseRepairer {
 	protected boolean needsInlineSemicolonAfterPlaceholder(String beforeCursor, String afterCursor) {
 		int index = previousNonWhitespaceIndex(beforeCursor);
 		return index > 0
-			&& beforeCursor.charAt(index) == ':'
-			&& beforeCursor.charAt(index - 1) == ':'
+			&& (beforeCursor.charAt(index) == '!'
+				|| beforeCursor.charAt(index) == '#'
+				|| beforeCursor.charAt(index) == ':' && beforeCursor.charAt(index - 1) == ':')
 			&& nextSignificantTokenStartsOnLaterLine(afterCursor);
 	}
 

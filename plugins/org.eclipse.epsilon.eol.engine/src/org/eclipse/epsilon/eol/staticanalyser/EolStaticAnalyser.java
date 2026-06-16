@@ -2297,10 +2297,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			if (!operation.getName().startsWith(prefix) || !operationShouldBeSuggested(operation, contextType)) {
 				continue;
 			}
-			String signature = operationSignature(operation);
 			EolType returnType = operationReturnTypeForCompletion(operation, contextType);
+			String returnTypeName = completionTypeName(returnType);
+			String signature = operationSignature(operation, returnTypeName);
 			completions.putIfAbsent(signature,
-					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, returnType, null, signature));
+					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, returnType, returnTypeName, signature));
 		}
 	}
 
@@ -2323,7 +2324,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 	}
 
-	private String operationSignature(IStaticOperation operation) {
+	private String operationSignature(IStaticOperation operation, String returnTypeName) {
 		StringBuilder signature = new StringBuilder(operation.getName());
 		signature.append("(");
 		List<EolType> parameterTypes = operation.getParameterTypes();
@@ -2342,7 +2343,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 		signature.append(")");
+		signature.append(" : ");
+		signature.append(returnTypeName);
 		return signature.toString();
+	}
+
+	private String completionTypeName(EolType type) {
+		return type != null ? type.toString() : EolAnyType.Instance.toString();
 	}
 
 	private boolean operationShouldBeSuggested(IStaticOperation operation, EolType contextType) {

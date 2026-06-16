@@ -2527,7 +2527,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	private void addPropertyCompletion(Map<String, EolCompletion> completions, String name, EolType type, String prefix) {
 		if (name.startsWith(prefix)) {
-			completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.PROPERTY, type));
+			String typeName = completionTypeName(type);
+			completions.putIfAbsent(name,
+					new EolCompletion(name, EolCompletionKind.PROPERTY, type, typeName, name + " : " + typeName));
 		}
 	}
 

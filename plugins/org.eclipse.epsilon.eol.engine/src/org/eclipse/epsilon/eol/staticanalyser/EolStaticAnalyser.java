@@ -54,6 +54,7 @@ import org.eclipse.epsilon.eol.dom.ExecutableBlock;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.ExpressionInBrackets;
 import org.eclipse.epsilon.eol.dom.ExpressionStatement;
+import org.eclipse.epsilon.eol.dom.FeatureCallExpression;
 import org.eclipse.epsilon.eol.dom.FirstOrderOperationCallExpression;
 import org.eclipse.epsilon.eol.dom.ForStatement;
 import org.eclipse.epsilon.eol.dom.GreaterEqualOperatorExpression;
@@ -132,6 +133,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	private static final String DEFAULT_MODEL_NAME = "";
 	private static final String UNKNOWN_MODEL_DRIVER = "Unknown";
+	private static final String DECLARATIONS = "declarations";
 	private static final String[] BUILTIN_TYPE_COMPLETION_NAMES = new String[] {
 			"Any", "Bag", "Boolean", "Collection", "ConcurrentBag", "ConcurrentMap", "ConcurrentSet",
 			"Integer", "List", "Map", "Native", "None", "Nothing", "OrderedSet", "Real", "Sequence", "Set",
@@ -540,7 +542,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, firstOrderOperationCallExpression,
-				new Variable(iterator.getName(), iteratorType));
+				new Variable(iterator.getName(), iteratorType, iterator.getNameExpression()));
 		if (iterator.getRegion() != null && iterator.getRegion().getEnd() != null
 				&& firstOrderOperationCallExpression.getRegion() != null
 				&& firstOrderOperationCallExpression.getRegion().getEnd() != null) {
@@ -826,6 +828,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		Variable variable = context.getFrameStack().get(nameExpression.getName());
 		if (variable != null) {
 			setResolvedType(nameExpression, variable.getType());
+			setDeclaration(nameExpression, variable.getDeclaration());
 		} else if (TypeExpression.getType(nameExpression.getName()) != null) {
 			setResolvedType(nameExpression,
 					new EolTypeLiteral(toStaticAnalyserType(TypeExpression.getType(nameExpression.getName()))));
@@ -1088,6 +1091,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					"Parameters type mismatch for operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
+		setOperationDeclarations(nameExpression, resolvedOperations);
 		
 		//Select the operations with the most specific context type
 		EolType mostSpecificContextType = EolAnyType.Instance;
@@ -1234,7 +1238,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			parameter.getTypeExpression().accept(this);
 		}
 		if (createVariable) {
-			context.getFrameStack().put(new Variable(parameter.getName(), getType(parameter)));
+			context.getFrameStack().put(new Variable(parameter.getName(), getType(parameter), parameter.getNameExpression()));
 		}
 	}
 
@@ -1628,7 +1632,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			markers.add(new ModuleMarker(variableDeclaration,
 					"Variable " + variableDeclaration.getName() + " has already been defined", Severity.Error));
 		} else {
-			context.getFrameStack().put(new Variable(variableDeclaration.getName(), type));
+			context.getFrameStack().put(new Variable(variableDeclaration.getName(), type,
+					variableDeclaration.getNameExpression()));
 			setResolvedType(variableDeclaration, type);
 		}
 
@@ -2020,6 +2025,50 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		return sortedCompletions(completions);
 	}
 
+	public List<ModuleElement> getDeclarations(IEolModule module, Position position) {
+		NameExpression nameExpression = findNameCompletion(module, position);
+		if (nameExpression == null) {
+			return Collections.emptyList();
+		}
+
+		Object declarations = nameExpression.getData().get(DECLARATIONS);
+		if (declarations instanceof ModuleElement) {
+			return Collections.singletonList((ModuleElement) declarations);
+		}
+		if (!(declarations instanceof List<?>)) {
+			return Collections.emptyList();
+		}
+
+		List<ModuleElement> result = new ArrayList<ModuleElement>();
+		for (Object declaration : (List<?>) declarations) {
+			if (declaration instanceof ModuleElement) {
+				result.add((ModuleElement) declaration);
+			}
+		}
+		return result;
+	}
+
+	private void setDeclaration(AbstractModuleElement element, ModuleElement declaration) {
+		if (declaration != null) {
+			element.getData().put(DECLARATIONS, Collections.singletonList(declaration));
+		}
+	}
+
+	private void setOperationDeclarations(NameExpression nameExpression, List<IStaticOperation> operations) {
+		List<ModuleElement> declarations = new ArrayList<ModuleElement>();
+		for (IStaticOperation operation : operations) {
+			if (operation instanceof SimpleOperation) {
+				Operation declaredOperation = ((SimpleOperation) operation).getOperation();
+				if (declaredOperation != null) {
+					declarations.add(declaredOperation.getNameExpression());
+				}
+			}
+		}
+		if (!declarations.isEmpty()) {
+			nameExpression.getData().put(DECLARATIONS, declarations);
+		}
+	}
+
 	private List<EolCompletion> sortedCompletions(Map<String, EolCompletion> completions) {
 		List<EolCompletion> result = new ArrayList<EolCompletion>(completions.values());
 		Collections.sort(result, Comparator.comparing(EolCompletion::getName));
@@ -2207,6 +2256,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	private NameExpression findNameCompletion(ModuleElement element, Position position, NameExpression best) {
 		if (element == null) {
 			return best;
+		}
+
+		if (element instanceof FeatureCallExpression) {
+			NameExpression candidate = ((FeatureCallExpression) element).getNameExpression();
+			if (positionMatchesNameRegion(candidate, position)
+					&& (best == null || regionIsStrictlyInside(candidate.getRegion(), best.getRegion()))) {
+				best = candidate;
+			}
 		}
 
 		if (element instanceof NameExpression && positionMatchesNameRegion((NameExpression) element, position)) {

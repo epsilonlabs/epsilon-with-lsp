@@ -23,10 +23,12 @@ public class SimpleOperation implements IStaticOperation {
 	private List<String> parameterNames;
 	private boolean varArgs;
 	private Method method;
+	private Operation operation;
 	private Optional<MethodTypeCalculator> methodTypeCalculator = Optional.empty();
 	private Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator = Optional.empty();
 
 	public SimpleOperation(Operation op) {
+		operation = op;
 		name = op.getName();
 		contextType = (EolType) op.getData().get("contextType");
 		returnType = (EolType) op.getData().get("returnType");
@@ -140,6 +142,10 @@ public class SimpleOperation implements IStaticOperation {
 
 	public Method getMethod() {
 		return method;
+	}
+
+	public Operation getOperation() {
+		return operation;
 	}
 
 	@Override

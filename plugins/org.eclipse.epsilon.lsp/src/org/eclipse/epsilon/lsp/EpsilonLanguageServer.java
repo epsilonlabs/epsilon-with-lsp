@@ -77,6 +77,8 @@ public class EpsilonLanguageServer implements LanguageServer {
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setResolveProvider(false);
         res.getCapabilities().setCompletionProvider(completionOptions);
+        res.getCapabilities().setDeclarationProvider(true);
+        res.getCapabilities().setDefinitionProvider(true);
 
         analyser.initialize();
         return CompletableFuture.completedFuture(res);

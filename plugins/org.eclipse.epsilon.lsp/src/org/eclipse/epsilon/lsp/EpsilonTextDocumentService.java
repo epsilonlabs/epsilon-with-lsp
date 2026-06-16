@@ -32,6 +32,8 @@ import org.eclipse.gymnast.runtime.core.parser.ParseMessage;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.DeclarationParams;
+import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -43,6 +45,8 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -195,6 +199,33 @@ public class EpsilonTextDocumentService implements TextDocumentService {
             }
         });
     }
+
+	@Override
+	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> declaration(DeclarationParams params) {
+		return declarationOrDefinition(params.getTextDocument().getUri(), params.getPosition());
+	}
+
+	@Override
+	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(DefinitionParams params) {
+		return declarationOrDefinition(params.getTextDocument().getUri(), params.getPosition());
+	}
+
+	private CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> declarationOrDefinition(
+			String uriString, Position position) {
+		if (!(uriString.endsWith(".eol") || uriString.endsWith(".evl") || uriString.endsWith(".egl") || uriString.endsWith(".egx"))) {
+			return CompletableFuture.completedFuture(Either.forLeft(Collections.<Location>emptyList()));
+		}
+
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				return Either.<List<? extends Location>, List<? extends LocationLink>>forLeft(
+					languageServer.analyser.getDeclarations(URI.create(uriString), position));
+			} catch (Exception ex) {
+				log(ex);
+				return Either.<List<? extends Location>, List<? extends LocationLink>>forLeft(Collections.<Location>emptyList());
+			}
+		});
+	}
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {

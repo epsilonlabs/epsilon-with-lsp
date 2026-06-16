@@ -18,7 +18,9 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
+import org.eclipse.epsilon.common.parse.Region;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.egl.EglModule;
 import org.eclipse.epsilon.egl.EgxModule;
@@ -37,6 +39,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -216,14 +219,7 @@ public class Analyser {
 			module = repairedModule;
 		}
 
-        final EolStaticAnalyser staticAnalyser;
-        if (module instanceof EvlModule) {
-            staticAnalyser = new EvlStaticAnalyser(new StaticModelFactory());
-        } else if (module instanceof EglModule) {
-            staticAnalyser = new EglStaticAnalyser(new StaticModelFactory());
-        } else {
-            staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
-        }
+		final EolStaticAnalyser staticAnalyser = createStaticAnalyser(module);
 
 		// Best-effort validation: parser recovery can produce a partial AST even
 		// when there are parse problems, and autocomplete should still use any
@@ -245,6 +241,85 @@ public class Analyser {
             items.add(item);
         }
 		return items;
+	}
+
+	public List<Location> getDeclarations(URI fileUri, Position lspPosition) {
+		IEolModule module = createModule(FilenameUtils.getExtension(fileUri.toString()));
+		if (module == null) {
+			return Collections.emptyList();
+		}
+
+		final org.eclipse.epsilon.common.parse.Position epsilonPosition =
+			new org.eclipse.epsilon.common.parse.Position(
+				lspPosition.getLine() + 1, lspPosition.getCharacter());
+
+		final URI moduleUri;
+		try {
+			moduleUri = new URI(SingletonMapStreamHandlerService.PROTOCOL, "", fileUri.getPath(), null);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			return Collections.emptyList();
+		}
+
+		try {
+			module.parse(moduleUri);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		final EolStaticAnalyser staticAnalyser = createStaticAnalyser(module);
+		try {
+			staticAnalyser.validate(module);
+		} catch (Exception e) {
+			LOGGER.warning("Static analysis failed while resolving declaration: " + e.getMessage());
+		}
+
+		List<Location> locations = new ArrayList<Location>();
+		for (ModuleElement declaration : staticAnalyser.getDeclarations(module, epsilonPosition)) {
+			Location location = toLocation(declaration, fileUri);
+			if (location != null) {
+				locations.add(location);
+			}
+		}
+		return locations;
+	}
+
+	private Location toLocation(ModuleElement element, URI fallbackUri) {
+		Region region = element.getRegion();
+		if (region == null || region.getStart() == null || region.getEnd() == null) {
+			return null;
+		}
+		return new Location(toLspUri(element.getUri(), fallbackUri), new Range(
+			toLspPosition(region.getStart()), toLspPosition(region.getEnd())));
+	}
+
+	private String toLspUri(URI uri, URI fallbackUri) {
+		URI targetUri = uri != null ? uri : fallbackUri;
+		if (SingletonMapStreamHandlerService.PROTOCOL.equals(targetUri.getScheme())) {
+			try {
+				return new URI("file", "", targetUri.getPath(), null).toString();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
+		return targetUri.toString();
+	}
+
+	private Position toLspPosition(org.eclipse.epsilon.common.parse.Position position) {
+		return new Position(position.getLine() - 1, Math.max(position.getColumn(), 0));
+	}
+
+	protected EolStaticAnalyser createStaticAnalyser(IEolModule module) {
+		if (module instanceof EvlModule) {
+			return new EvlStaticAnalyser(new StaticModelFactory());
+		}
+		else if (module instanceof EglModule) {
+			return new EglStaticAnalyser(new StaticModelFactory());
+		}
+		else if (module instanceof EgxModule) {
+			return new EgxStaticAnalyser(new StaticModelFactory());
+		}
+		return new EolStaticAnalyser(new StaticModelFactory());
 	}
 
 	private static String toCompletionItemLabel(EolCompletion completion) {

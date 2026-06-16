@@ -5,7 +5,7 @@ var a : Map<Any,Any> = Map{"foo" = "bar"};
 
 /*Map<String, String>*/ConcurrentMap{"foo" = "bar"};
 
-var alice = new Tuple;
+var alice : Tuple = new Tuple;
 /*Tuple*/alice;
 alice.name = "Alice";
 alice.age = 32;
@@ -14,13 +14,13 @@ alice.age = 32;
 alice.occupation;
 /*Boolean*/alice.occupation.isDefined();
 
-var bob = new Tuple(name = "Bob", age = 28);
+var bob : Tuple = new Tuple(name = "Bob", age = 28);
 /*Tuple*/bob;
 /*String*/bob.name;
 /*Integer*/bob.age;
 bob.occupation;
 
-var charlie = Tuple{"name" = "Charlie", "age" = 36};
+var charlie : Tuple = Tuple{"name" = "Charlie", "age" = 36};
 /*Tuple*/charlie;
 /*String*/charlie.name;
 /*Integer*/charlie.age;

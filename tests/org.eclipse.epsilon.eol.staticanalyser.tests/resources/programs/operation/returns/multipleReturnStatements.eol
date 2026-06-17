@@ -12,5 +12,5 @@ operation switchIntString(key : Integer) : String {
 	}
 }
 
-//![4:19-4:20] Return type should be String instead of Integer
-//![9:9-9:10] Return type should be String instead of Integer
+//![4:12-4:21] Return type should be String instead of Integer
+//![9:2-9:11] Return type should be String instead of Integer

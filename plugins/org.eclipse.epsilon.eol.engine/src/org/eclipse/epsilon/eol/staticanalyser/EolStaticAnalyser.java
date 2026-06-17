@@ -889,6 +889,45 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					parameterExpression.accept(this);
 				}
 			}
+		} else if (type instanceof EolModelElementType) {
+			EolModelElementType modelElementType = (EolModelElementType) type;
+			IMetaClass metaClass = modelElementType.getMetaClass();
+			for (Expression parameterExpression : newInstanceExpression.getParameterExpressions()) {
+				if (parameterExpression instanceof EqualsOperatorExpression
+						&& ((EqualsOperatorExpression) parameterExpression).getFirstOperand() instanceof NameExpression) {
+					EqualsOperatorExpression eoe = (EqualsOperatorExpression) parameterExpression;
+					NameExpression propertyNameExpression = (NameExpression) eoe.getFirstOperand();
+					eoe.getSecondOperand().accept(this);
+
+					if (metaClass != null) {
+						IProperty property = metaClass.getProperty(propertyNameExpression.getName());
+						if (property != null) {
+							EolType propertyType = toStaticAnalyserType(property.getType());
+							if (propertyType == null) {
+								propertyType = EolAnyType.Instance;
+							}
+							setResolvedType(propertyNameExpression, propertyType);
+							EolType valueType = getResolvedType(eoe.getSecondOperand());
+							if (!valueType.isAssignableTo(propertyType)) {
+								if (propertyType.isAssignableTo(valueType)) {
+									createTypeCompatibilityWarning(propertyNameExpression, eoe.getSecondOperand());
+								} else {
+									createTypeCompatibilityError(propertyNameExpression, eoe.getSecondOperand());
+								}
+							}
+						} else {
+							setResolvedType(propertyNameExpression, EolAnyType.Instance);
+							markers.add(new ModuleMarker(propertyNameExpression, "Property " + propertyNameExpression.getName()
+									+ " not found in type " + metaClass.getName(), Severity.Error));
+						}
+					} else {
+						setResolvedType(propertyNameExpression, EolAnyType.Instance);
+					}
+					setResolvedType(parameterExpression, EolPrimitiveType.Boolean);
+				} else {
+					parameterExpression.accept(this);
+				}
+			}
 		} else {
 			for (Expression parameterExpression : newInstanceExpression.getParameterExpressions()) {
 				parameterExpression.accept(this);

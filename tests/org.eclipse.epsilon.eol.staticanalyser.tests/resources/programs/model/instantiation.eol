@@ -1,0 +1,11 @@
+model M driver EMF {nsuri="sa"};
+
+var i = new B(name = 'foo');
+
+var j = new B(name=1);
+
+var k = new B(nme=1);
+
+
+//![5:19-5:20] Integer cannot be assigned to String
+//![7:14-7:17] Property nme not found in type B

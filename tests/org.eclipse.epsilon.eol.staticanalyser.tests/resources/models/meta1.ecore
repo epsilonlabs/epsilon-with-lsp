@@ -9,7 +9,9 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="feature1" eType="#//A"
         containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="B" eSuperTypes="#//A"/>
+  <eClassifiers xsi:type="ecore:EClass" name="B" eSuperTypes="#//A">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="C" eSuperTypes="#//A"/>
   <eClassifiers xsi:type="ecore:EClass" name="D" eSuperTypes="#//B"/>
   <eClassifiers xsi:type="ecore:EEnum" name="Colour">

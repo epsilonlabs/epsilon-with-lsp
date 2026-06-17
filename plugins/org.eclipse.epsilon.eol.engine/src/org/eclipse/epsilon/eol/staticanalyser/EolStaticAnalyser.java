@@ -1401,21 +1401,25 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	@Override
 	public void visit(ReturnStatement returnStatement) {
 		Expression returnedExpression = returnStatement.getReturnedExpression();
-		if (returnedExpression != null) {
+		EolType requiredReturnType = expectedReturnType(returnStatement);
+		if (returnedExpression == null) {
+			if (!requiredReturnType.equals(EolAnyType.Instance))
+				markers.add(new ModuleMarker(returnStatement,
+						"This operation should return " + requiredReturnType, Severity.Error));
+			return;
+		}
 
-			returnedExpression.accept(this);
-			EolType providedReturnType = getResolvedType(returnedExpression);
-			EolType requiredReturnType = expectedReturnType(returnStatement);
+		returnedExpression.accept(this);
+		EolType providedReturnType = getResolvedType(returnedExpression);
 
-			if (!providedReturnType.isAssignableTo(requiredReturnType)) {
-				if (requiredReturnType.isAssignableTo(providedReturnType))
-					markers.add(new ModuleMarker(returnedExpression, "Return type might be " + providedReturnType
-							+ " instead of " + requiredReturnType, Severity.Warning));
-				else
-					markers.add(new ModuleMarker(returnedExpression, "Return type should be " + requiredReturnType
-							+ " instead of " + providedReturnType, Severity.Error));
+		if (!providedReturnType.isAssignableTo(requiredReturnType)) {
+			if (requiredReturnType.isAssignableTo(providedReturnType))
+				markers.add(new ModuleMarker(returnStatement, "Return type might be " + providedReturnType
+						+ " instead of " + requiredReturnType, Severity.Warning));
+			else
+				markers.add(new ModuleMarker(returnStatement, "Return type should be " + requiredReturnType
+						+ " instead of " + providedReturnType, Severity.Error));
 
-			}
 		}
 	}
 	

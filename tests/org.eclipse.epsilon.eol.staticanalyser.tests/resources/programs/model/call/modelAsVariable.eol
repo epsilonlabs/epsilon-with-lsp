@@ -1,0 +1,7 @@
+model Model driver EMF {nsuri='sa'};
+
+// Prints the underlying EMF resource (using reflection)
+Model.resource.println();
+
+// Prints the name (from IModel interface)
+Model.name.println();

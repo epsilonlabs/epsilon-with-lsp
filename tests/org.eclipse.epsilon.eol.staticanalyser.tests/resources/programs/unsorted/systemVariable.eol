@@ -1,0 +1,16 @@
+var optionChoices : Sequence = Sequence{"a","b"};
+var defaultOption = optionChoices[0];
+var defaultOptions = optionChoices;
+
+/*Native<org.eclipse.epsilon.eol.userinput.IUserInput>*/System.user;
+/*Native<org.eclipse.epsilon.eol.userinput.IUserInput>*/UserInput;
+
+if (false) {
+	System.user.inform("testing");
+	System.user.confirm("testing confirm", false);
+	System.user.prompt("testing prompt", "prompt default");
+	System.user.promptInteger("testing prompt integer", 1);
+	System.user.promptReal("testing prompt real", 1.0);
+	System.user.choose("testing choose", optionChoices, defaultOption);
+	System.user.chooseMany("testing choose many", optionChoices, defaultOptions);
+}

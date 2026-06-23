@@ -118,6 +118,8 @@ import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
 import org.eclipse.epsilon.eol.models.UnknownModel;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolUnionType;
+import org.eclipse.epsilon.eol.tools.EolSystem;
+import org.eclipse.epsilon.eol.userinput.IUserInput;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolTupleType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolCollectionType;
@@ -829,6 +831,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		if (variable != null) {
 			setResolvedType(nameExpression, variable.getType());
 			setDeclaration(nameExpression, variable.getDeclaration());
+		} else if ("System".equals(nameExpression.getName())) {
+			setResolvedType(nameExpression, new EolNativeType(EolSystem.class));
+		} else if ("UserInput".equals(nameExpression.getName())) {
+			setResolvedType(nameExpression, new EolNativeType(IUserInput.class));
 		} else if (TypeExpression.getType(nameExpression.getName()) != null) {
 			setResolvedType(nameExpression,
 					new EolTypeLiteral(toStaticAnalyserType(TypeExpression.getType(nameExpression.getName()))));
@@ -1350,7 +1356,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			//.x
 			try {
 				Field f = javaClass.getDeclaredField(nameExpression.getName());
-				setResolvedType(propertyCallExpression, new EolNativeType(f.getClass()));
+				setResolvedType(propertyCallExpression, javaClassToEolType(f.getClass()));
 				return;
 			} catch (Exception e) {}
 			

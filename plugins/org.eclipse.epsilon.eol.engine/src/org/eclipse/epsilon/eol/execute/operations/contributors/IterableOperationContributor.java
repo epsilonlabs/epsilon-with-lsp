@@ -15,6 +15,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.eclipse.epsilon.common.util.CollectionUtil;
 import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
+import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.types.*;
 import org.eclipse.epsilon.eol.types.concurrent.*;
 
@@ -66,6 +68,11 @@ public class IterableOperationContributor extends OperationContributor {
 		return target instanceof Iterable;
 	}
 	
+	@Override
+	public EolType contributesToType() {
+		return new EolNativeType(Iterable.class);
+	}
+
 	@MethodTypeCalculator(klass = ReturnTypeIsContainedType.class)
 	public Object random() {
 		if (isEmpty()) return null;
@@ -299,7 +306,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @since 2.1
 	 */
 	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
-	public Collection<Object> selectByKind(EolType type) {
+	public Collection<Object> selectByKind(org.eclipse.epsilon.eol.types.EolType type) {
 		if (type == null) {
 			type = EolNoType.Instance;
 		}
@@ -315,7 +322,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @since 2.1
 	 */
 	@MethodTypeCalculator(klass = ReturnTypeIsContextType.class)
-	public Collection<Object> selectByType(EolType type) {
+	public Collection<Object> selectByType(org.eclipse.epsilon.eol.types.EolType type) {
 		if (type == null) {
 			type = EolNoType.Instance;
 		}

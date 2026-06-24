@@ -153,12 +153,18 @@ public class EolCollectionType extends EolType {
 		List<EolType> parentTypes = new ArrayList<EolType>();
 		if (this.isBag() || this.isSet() || this.isOrderedSet() || this.isSequence())
 			parentTypes.add(new EolCollectionType("Collection"));
+		if (getClazz() != null)
+			parentTypes.add(new EolNativeType(getClazz()));
 		return parentTypes;
 	}
 	
 	public boolean isAssignableTo(EolType targetType) {
 		if (targetType.equals(EolAnyType.Instance)){
 			return true;
+		}
+		if (targetType instanceof EolNativeType) {
+			Class<?> targetClass = targetType.getClazz();
+			return targetClass != null && getClazz() != null && targetClass.isAssignableFrom(getClazz());
 		}
 		if (!(targetType instanceof EolCollectionType)) {
 			return false;

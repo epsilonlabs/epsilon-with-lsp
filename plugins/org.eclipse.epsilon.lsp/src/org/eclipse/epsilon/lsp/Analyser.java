@@ -110,19 +110,7 @@ public class Analyser {
 				//parser diagnostics
 				diagnostics = getDiagnostics(module);
                 if(diagnostics.size() == 0) {
-                    EolStaticAnalyser staticAnalyser;
-                    if(module instanceof EvlModule) {
-						staticAnalyser = new EvlStaticAnalyser(new StaticModelFactory());
-					}
-                    else if(module instanceof EglModule) {
-                    	staticAnalyser = new EglStaticAnalyser(new StaticModelFactory());
-                    }
-                    else if(module instanceof EgxModule) {
-                    	staticAnalyser = new EgxStaticAnalyser(new StaticModelFactory());
-                    }
-					else{
-						staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
-					}
+                    EolStaticAnalyser staticAnalyser = createStaticAnalyser(module);
                     List<ModuleMarker> markers = staticAnalyser.validate(module);
                     diagnostics.addAll(markersToDiagnostics(markers));
                 }
@@ -310,16 +298,21 @@ public class Analyser {
 	}
 
 	protected EolStaticAnalyser createStaticAnalyser(IEolModule module) {
+		EolStaticAnalyser analyser;
 		if (module instanceof EvlModule) {
-			return new EvlStaticAnalyser(new StaticModelFactory());
+			analyser = new EvlStaticAnalyser(new StaticModelFactory());
 		}
 		else if (module instanceof EglModule) {
-			return new EglStaticAnalyser(new StaticModelFactory());
+			analyser = new EglStaticAnalyser(new StaticModelFactory());
 		}
 		else if (module instanceof EgxModule) {
-			return new EgxStaticAnalyser(new StaticModelFactory());
+			analyser = new EgxStaticAnalyser(new StaticModelFactory());
 		}
-		return new EolStaticAnalyser(new StaticModelFactory());
+		else {
+			analyser = new EolStaticAnalyser(new StaticModelFactory());
+		}
+		analyser.setNativeTypeClassLoader(languageServer.getNativeTypeClassLoader());
+		return analyser;
 	}
 
 	private static String toCompletionItemLabel(EolCompletion completion) {

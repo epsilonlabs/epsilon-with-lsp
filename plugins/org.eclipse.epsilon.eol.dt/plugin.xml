@@ -320,4 +320,13 @@
          scopeName="source.epsilon.egx">
    </scopeNameContentTypeBinding>
 </extension>
+<extension
+      point="org.eclipse.ui.preferencePages">
+   <page
+         category="Epsilon"
+         class="org.eclipse.epsilon.eol.dt.lsp.LspNativeTypeClasspathPreferencePage"
+         id="Epsilon.LspNativeTypeClasspath"
+         name="LSP Native Types">
+   </page>
+</extension>
 </plugin>

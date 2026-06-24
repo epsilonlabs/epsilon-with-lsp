@@ -144,6 +144,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	protected List<ModuleMarker> markers = new ArrayList<>();
 	protected IEolModule module;
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
+	protected ClassLoader nativeTypeClassLoader;
 	protected List<IStaticOperation> localOperations = new ArrayList<>();
 	protected List<IStaticOperation> importedOperations = new ArrayList<>();
 	protected List<IStaticOperation> builtinOperations = new ArrayList<>();
@@ -303,10 +304,24 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	public EolStaticAnalyser() {
+		nativeTypeClassLoader = getClass().getClassLoader();
 	}
 
 	public EolStaticAnalyser(IModelFactory modelFactory) {
+		this();
 		context.modelFactory = modelFactory;
+	}
+
+	public ClassLoader getNativeTypeClassLoader() {
+		return nativeTypeClassLoader;
+	}
+
+	public void setNativeTypeClassLoader(ClassLoader nativeTypeClassLoader) {
+		this.nativeTypeClassLoader = nativeTypeClassLoader != null ? nativeTypeClassLoader : getClass().getClassLoader();
+	}
+
+	protected Class<?> resolveNativeTypeClass(String className) throws ClassNotFoundException {
+		return Class.forName(className, false, getNativeTypeClassLoader());
 	}
 
 	@Override
@@ -361,6 +376,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				targetTupleType.setPropertyType(property.getKey(), property.getValue());
 			}
 		}
+		setResolvedType(assignmentStatement, targetType);
 
 		if (targetType instanceof EolModelElementType && ((EolModelElementType) targetType).getMetaClass() != null)
 			targetType = new EolModelElementType(((EolModelElementType) targetType).getMetaClass());
@@ -1629,7 +1645,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				if (nativeTypeLiteral != null) {
 					String className = nativeTypeLiteral.getValue();
 					try {
-						Class<?> javaClass = Class.forName(className, true, getClass().getClassLoader());
+						Class<?> javaClass = resolveNativeTypeClass(className);
 						type = new EolNativeType(javaClass);
 					} catch (ClassNotFoundException e) {
 						type = new EolNativeType(className);

@@ -28,7 +28,8 @@ public class EpsilonWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeConfiguration(DidChangeConfigurationParams params) {
-        
+        languageServer.configureNativeTypeClasspath(params.getSettings());
+        languageServer.analyser.initialize();
     }
 
     @Override

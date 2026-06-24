@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.eol.staticanalyser.types;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,14 +40,15 @@ public class EolNativeType extends EolType {
 	public List<EolType> getParentTypes() {
 		if (javaClass == null || javaClass == Object.class) {
 			return Collections.emptyList();
-		}else {
-			//TODO Also support Interfaces
-			if(javaClass.getSuperclass() != null) {
-				return Arrays.asList(new EolNativeType(javaClass.getSuperclass()));
-			}else {
-				return Collections.emptyList();
-			}
 		}
+		List<EolType> parentTypes = new ArrayList<EolType>();
+		if(javaClass.getSuperclass() != null) {
+			parentTypes.add(new EolNativeType(javaClass.getSuperclass()));
+		}
+		for (Class<?> interfaceClass : javaClass.getInterfaces()) {
+			parentTypes.add(new EolNativeType(interfaceClass));
+		}
+		return parentTypes;
 	}
 
 }

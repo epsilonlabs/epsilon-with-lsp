@@ -18,7 +18,8 @@ Require-Bundle: org.eclipse.jface.text,
  org.eclipse.lsp4j.jsonrpc,
  org.eclipse.epsilon.lsp,
  org.eclipse.tm4e.core,
- org.eclipse.tm4e.ui
+ org.eclipse.tm4e.ui,
+ org.eclipse.jface
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.epsilon.eol.dt,
  org.eclipse.epsilon.eol.dt.debug,

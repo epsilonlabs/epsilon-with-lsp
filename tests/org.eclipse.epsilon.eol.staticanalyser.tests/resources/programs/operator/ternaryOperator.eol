@@ -2,4 +2,8 @@
 /*String|Integer*/2+2==4 ? "Yes" else 1;
 2+2 ? "Yes" else 1;
 
+var a:Any;
+a ? 1 else 2;
+
 //! [3:0-3:19] The first operand of a ternary expression must be a boolean expression
+//? [6:0-6:13] The first operand of the ternary expression is Any instead of boolean

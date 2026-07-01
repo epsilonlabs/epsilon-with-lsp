@@ -10,10 +10,12 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 
 public class ConnectionProviderSolution extends AbstractConnectionProvider {
     private static final EpsilonLanguageServer LANGUAGE_SERVER = new EpsilonLanguageServer();
+    private static final EclipseWorkspaceNativeTypeClassLoaderProvider NATIVE_TYPE_CLASS_LOADER_PROVIDER = new EclipseWorkspaceNativeTypeClassLoaderProvider();
     private static boolean preferenceListenerRegistered = false;
 
     public ConnectionProviderSolution() {
         super(LANGUAGE_SERVER);
+        LANGUAGE_SERVER.setNativeTypeClassLoaderProvider(NATIVE_TYPE_CLASS_LOADER_PROVIDER);
         configureNativeTypeClasspath();
         registerNativeTypeClasspathPreferenceListener();
     }
@@ -36,6 +38,7 @@ public class ConnectionProviderSolution extends AbstractConnectionProvider {
         IPropertyChangeListener listener = event -> {
             if (LspNativeTypeClasspathPreferencePage.NATIVE_TYPE_CLASSPATH.equals(event.getProperty())) {
                 LANGUAGE_SERVER.setNativeTypeClasspath(event.getNewValue() != null ? event.getNewValue().toString() : "");
+                NATIVE_TYPE_CLASS_LOADER_PROVIDER.clearCache();
                 LANGUAGE_SERVER.analyser.initialize();
             }
         };

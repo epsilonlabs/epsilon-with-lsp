@@ -1568,7 +1568,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	public void visit(TernaryExpression ternaryExpression) {
 		Expression condition = ternaryExpression.getFirstOperand();
 		condition.accept(this);
-		if (!getResolvedType(condition).equals(EolPrimitiveType.Boolean)) {
+		EolType conditionType = getResolvedType(condition);
+		if (conditionType.equals(EolAnyType.Instance)) {
+			markers.add(new ModuleMarker(ternaryExpression, "The first operand of the ternary expression is "
+					+ conditionType + " instead of boolean", Severity.Warning));
+		} else if (!conditionType.equals(EolPrimitiveType.Boolean)) {
 			markers.add(new ModuleMarker(ternaryExpression, "The first operand of a ternary expression must be a boolean expression",
 					Severity.Error));
 		}

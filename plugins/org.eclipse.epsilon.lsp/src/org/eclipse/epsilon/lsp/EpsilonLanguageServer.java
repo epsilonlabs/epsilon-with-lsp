@@ -54,6 +54,7 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected List<String> nativeTypeClasspath = Collections.emptyList();
     protected ClassLoader nativeTypeClassLoader = EpsilonLanguageServer.class.getClassLoader();
     protected URLClassLoader nativeTypeUrlClassLoader = null;
+    protected NativeTypeClassLoaderProvider nativeTypeClassLoaderProvider = null;
 
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
     protected Consumer<Integer> exitFunction = null;
@@ -139,6 +140,24 @@ public class EpsilonLanguageServer implements LanguageServer {
 
     public synchronized ClassLoader getNativeTypeClassLoader() {
         return nativeTypeClassLoader != null ? nativeTypeClassLoader : EpsilonLanguageServer.class.getClassLoader();
+    }
+
+    public synchronized ClassLoader getNativeTypeClassLoader(URI sourceUri) {
+        ClassLoader fallbackClassLoader = getNativeTypeClassLoader();
+        if (nativeTypeClassLoaderProvider == null || sourceUri == null) {
+            return fallbackClassLoader;
+        }
+
+        ClassLoader sourceClassLoader = nativeTypeClassLoaderProvider.getNativeTypeClassLoader(sourceUri, fallbackClassLoader);
+        return sourceClassLoader != null ? sourceClassLoader : fallbackClassLoader;
+    }
+
+    public synchronized NativeTypeClassLoaderProvider getNativeTypeClassLoaderProvider() {
+        return nativeTypeClassLoaderProvider;
+    }
+
+    public synchronized void setNativeTypeClassLoaderProvider(NativeTypeClassLoaderProvider nativeTypeClassLoaderProvider) {
+        this.nativeTypeClassLoaderProvider = nativeTypeClassLoaderProvider;
     }
 
     public synchronized List<String> getNativeTypeClasspath() {

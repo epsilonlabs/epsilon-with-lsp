@@ -311,7 +311,7 @@ public class Analyser {
 		else {
 			analyser = new EolStaticAnalyser(new StaticModelFactory());
 		}
-		analyser.setNativeTypeClassLoader(languageServer.getNativeTypeClassLoader());
+		analyser.setNativeTypeClassLoaders(languageServer.getNativeTypeClassLoaders());
 		return analyser;
 	}
 

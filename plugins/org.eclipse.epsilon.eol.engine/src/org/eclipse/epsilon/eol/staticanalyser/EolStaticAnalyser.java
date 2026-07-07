@@ -7,6 +7,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -144,7 +145,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	protected List<ModuleMarker> markers = new ArrayList<>();
 	protected IEolModule module;
 	protected EolStaticAnalysisContext context = new EolStaticAnalysisContext();
-	protected ClassLoader nativeTypeClassLoader;
+	protected List<ClassLoader> nativeTypeClassLoaders = new ArrayList<ClassLoader>();
 	protected List<IStaticOperation> localOperations = new ArrayList<>();
 	protected List<IStaticOperation> importedOperations = new ArrayList<>();
 	protected List<IStaticOperation> builtinOperations = new ArrayList<>();
@@ -304,7 +305,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	public EolStaticAnalyser() {
-		nativeTypeClassLoader = getClass().getClassLoader();
+		setNativeTypeClassLoaders(Collections.singletonList(getClass().getClassLoader()));
 	}
 
 	public EolStaticAnalyser(IModelFactory modelFactory) {
@@ -312,16 +313,44 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		context.modelFactory = modelFactory;
 	}
 
-	public ClassLoader getNativeTypeClassLoader() {
-		return nativeTypeClassLoader;
+	public List<ClassLoader> getNativeTypeClassLoaders() {
+		return new ArrayList<ClassLoader>(nativeTypeClassLoaders);
 	}
 
-	public void setNativeTypeClassLoader(ClassLoader nativeTypeClassLoader) {
-		this.nativeTypeClassLoader = nativeTypeClassLoader != null ? nativeTypeClassLoader : getClass().getClassLoader();
+	public void setNativeTypeClassLoaders(Collection<ClassLoader> nativeTypeClassLoaders) {
+		this.nativeTypeClassLoaders = new ArrayList<ClassLoader>();
+		if (nativeTypeClassLoaders != null) {
+			for (ClassLoader nativeTypeClassLoader : nativeTypeClassLoaders) {
+				addNativeTypeClassLoader(nativeTypeClassLoader);
+			}
+		}
+		if (this.nativeTypeClassLoaders.isEmpty()) {
+			this.nativeTypeClassLoaders.add(getClass().getClassLoader());
+		}
+	}
+
+	public void addNativeTypeClassLoader(ClassLoader nativeTypeClassLoader) {
+		if (nativeTypeClassLoader != null && !nativeTypeClassLoaders.contains(nativeTypeClassLoader)) {
+			nativeTypeClassLoaders.add(nativeTypeClassLoader);
+		}
 	}
 
 	protected Class<?> resolveNativeTypeClass(String className) throws ClassNotFoundException {
-		return Class.forName(className, false, getNativeTypeClassLoader());
+		ClassNotFoundException notFound = null;
+		for (ClassLoader nativeTypeClassLoader : nativeTypeClassLoaders) {
+			try {
+				return Class.forName(className, false, nativeTypeClassLoader);
+			}
+			catch (ClassNotFoundException e) {
+				if (notFound == null) {
+					notFound = e;
+				}
+				else {
+					notFound.addSuppressed(e);
+				}
+			}
+		}
+		throw notFound != null ? notFound : new ClassNotFoundException(className);
 	}
 
 	@Override

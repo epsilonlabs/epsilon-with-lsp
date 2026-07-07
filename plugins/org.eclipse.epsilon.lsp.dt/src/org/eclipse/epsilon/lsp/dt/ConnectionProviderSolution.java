@@ -1,18 +1,36 @@
 package org.eclipse.epsilon.lsp.dt;
 
+import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.Pipe;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.Future;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.epsilon.common.dt.launching.extensions.ToolExtension;
 import org.eclipse.epsilon.lsp.EpsilonLanguageServer;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.lsp4e.server.StreamConnectionProvider;
+import org.eclipse.lsp4j.jsonrpc.Launcher;
+import org.eclipse.lsp4j.launch.LSPLauncher;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.osgi.framework.Bundle;
 
-public class ConnectionProviderSolution extends AbstractConnectionProvider {
+public class ConnectionProviderSolution implements StreamConnectionProvider {
 
 	private static final EpsilonLanguageServer LANGUAGE_SERVER = createLanguageServer();
-	private static boolean preferenceListenerRegistered = false;
+
+	private InputStream clientInputStream;
+	private OutputStream clientOutputStream;
+	private Launcher<LanguageClient> launcher;
+	private InputStream errorStream;
+	private Future<Void> listener;
+	private Collection<Closeable> streams = new ArrayList<>(4);
 
 	private static EpsilonLanguageServer createLanguageServer() {
 		EpsilonLanguageServer languageServer = new EpsilonLanguageServer();
@@ -20,47 +38,54 @@ public class ConnectionProviderSolution extends AbstractConnectionProvider {
 		return languageServer;
 	}
 
-	public ConnectionProviderSolution() {
-		super(LANGUAGE_SERVER);
-		configureNativeTypeClasspath();
-		registerNativeTypeClasspathPreferenceListener();
-	}
-
 	@Override
 	public void start() throws IOException {
-		super.start();
+		Pipe serverOutputToClientInput = Pipe.open();
+		Pipe clientOutputToServerInput = Pipe.open();
+
+		errorStream = new ByteArrayInputStream("Error output on console".getBytes(StandardCharsets.UTF_8));
+		InputStream serverInputStream = Channels.newInputStream(clientOutputToServerInput.source());
+		OutputStream serverOutputStream = Channels.newOutputStream(serverOutputToClientInput.sink());
+		launcher = LSPLauncher.createServerLauncher(LANGUAGE_SERVER, serverInputStream, serverOutputStream);
+		clientInputStream = Channels.newInputStream(serverOutputToClientInput.source());
+		clientOutputStream = Channels.newOutputStream(clientOutputToServerInput.sink());
+		listener = launcher.startListening();
+		streams.add(clientInputStream);
+		streams.add(clientOutputStream);
+		streams.add(serverInputStream);
+		streams.add(serverOutputStream);
+		streams.add(errorStream);
 		LANGUAGE_SERVER.connect(launcher.getRemoteProxy());
 	}
 
-	private static synchronized void configureNativeTypeClasspath() {
-		LANGUAGE_SERVER.setNativeTypeClasspath(getNativeTypeClasspathPreference());
+	@Override
+	public InputStream getInputStream() {
+		return clientInputStream;
 	}
 
-	private static synchronized void registerNativeTypeClasspathPreferenceListener() {
-		IPreferenceStore preferenceStore = getPreferenceStore();
-		if (preferenceListenerRegistered || preferenceStore == null) {
-			return;
-		}
+	@Override
+	public OutputStream getOutputStream() {
+		return clientOutputStream;
+	}
 
-		IPropertyChangeListener listener = event -> {
-			if (LspNativeTypeClasspathPreferencePage.NATIVE_TYPE_CLASSPATH.equals(event.getProperty())) {
-				LANGUAGE_SERVER.setNativeTypeClasspath(event.getNewValue() != null ? event.getNewValue().toString() : "");
-				LANGUAGE_SERVER.analyser.initialize();
+	@Override
+	public void stop() {
+		streams.forEach(stream -> {
+			try {
+				stream.close();
 			}
-		};
-		preferenceStore.addPropertyChangeListener(listener);
-		preferenceListenerRegistered = true;
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		streams.clear();
+		listener.cancel(true);
+		listener = null;
 	}
 
-	private static String getNativeTypeClasspathPreference() {
-		IPreferenceStore preferenceStore = getPreferenceStore();
-		return preferenceStore != null
-			? preferenceStore.getString(LspNativeTypeClasspathPreferencePage.NATIVE_TYPE_CLASSPATH)
-			: "";
-	}
-
-	private static IPreferenceStore getPreferenceStore() {
-		return Activator.getDefault() != null ? Activator.getDefault().getPreferenceStore() : null;
+	@Override
+	public InputStream getErrorStream() {
+		return errorStream;
 	}
 
 	private static class ExtensionPointToolClassLoader extends ClassLoader {

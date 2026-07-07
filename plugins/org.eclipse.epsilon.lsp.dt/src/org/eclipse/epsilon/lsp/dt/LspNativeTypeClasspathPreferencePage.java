@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  ******************************************************************************/
-package org.eclipse.epsilon.eol.dt.lsp;
+package org.eclipse.epsilon.lsp.dt;
 
-import org.eclipse.epsilon.eol.dt.EolPlugin;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -38,7 +38,7 @@ public class LspNativeTypeClasspathPreferencePage extends PreferencePage impleme
 		GridData classpathTextData = new GridData(SWT.FILL, SWT.FILL, true, true);
 		classpathTextData.heightHint = 160;
 		classpathText.setLayoutData(classpathTextData);
-		classpathText.setText(EolPlugin.getDefault().getPreferenceStore().getString(NATIVE_TYPE_CLASSPATH));
+		classpathText.setText(getLspPreferenceStore().getString(NATIVE_TYPE_CLASSPATH));
 
 		return composite;
 	}
@@ -49,14 +49,17 @@ public class LspNativeTypeClasspathPreferencePage extends PreferencePage impleme
 
 	@Override
 	public boolean performOk() {
-		EolPlugin.getDefault().getPreferenceStore().setValue(NATIVE_TYPE_CLASSPATH, classpathText.getText());
+		getLspPreferenceStore().setValue(NATIVE_TYPE_CLASSPATH, classpathText.getText());
 		return true;
 	}
 
 	@Override
 	protected void performDefaults() {
-		classpathText.setText(EolPlugin.getDefault().getPreferenceStore().getDefaultString(NATIVE_TYPE_CLASSPATH));
+		classpathText.setText(getLspPreferenceStore().getDefaultString(NATIVE_TYPE_CLASSPATH));
 		super.performDefaults();
 	}
 
+	private IPreferenceStore getLspPreferenceStore() {
+		return Activator.getDefault().getPreferenceStore();
+	}
 }

@@ -52,7 +52,8 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
     public Analyser analyser = new Analyser(this);
     protected List<String> nativeTypeClasspath = Collections.emptyList();
-    protected ClassLoader nativeTypeClassLoader = EpsilonLanguageServer.class.getClassLoader();
+    protected List<ClassLoader> nativeTypeClassLoaders = new ArrayList<ClassLoader>();
+    protected List<ClassLoader> contributedNativeTypeClassLoaders = new ArrayList<ClassLoader>();
     protected URLClassLoader nativeTypeUrlClassLoader = null;
 
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -60,6 +61,10 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected LanguageClient client;
     
     protected List<WorkspaceFolder> workspaceFolders;
+
+    public EpsilonLanguageServer() {
+        rebuildNativeTypeClassLoaders();
+    }
     
     public void connect(LanguageClient remoteProxy) {
         this.client = remoteProxy;
@@ -137,8 +142,15 @@ public class EpsilonLanguageServer implements LanguageServer {
         return ePackageRegistryManager;
     }
 
-    public synchronized ClassLoader getNativeTypeClassLoader() {
-        return nativeTypeClassLoader != null ? nativeTypeClassLoader : EpsilonLanguageServer.class.getClassLoader();
+    public synchronized List<ClassLoader> getNativeTypeClassLoaders() {
+        return new ArrayList<ClassLoader>(nativeTypeClassLoaders);
+    }
+
+    public synchronized void addNativeTypeClassLoader(ClassLoader nativeTypeClassLoader) {
+        if (nativeTypeClassLoader != null && !contributedNativeTypeClassLoaders.contains(nativeTypeClassLoader)) {
+            contributedNativeTypeClassLoaders.add(nativeTypeClassLoader);
+            rebuildNativeTypeClassLoaders();
+        }
     }
 
     public synchronized List<String> getNativeTypeClasspath() {
@@ -156,11 +168,29 @@ public class EpsilonLanguageServer implements LanguageServer {
         URL[] urls = toClasspathUrls(cleanedEntries);
         nativeTypeUrlClassLoader = urls.length == 0
             ? null
-            : new URLClassLoader(urls, EpsilonLanguageServer.class.getClassLoader());
-        nativeTypeClassLoader = nativeTypeUrlClassLoader != null
-            ? nativeTypeUrlClassLoader
-            : EpsilonLanguageServer.class.getClassLoader();
+            : new URLClassLoader(urls, getProcessClassLoader());
+        rebuildNativeTypeClassLoaders();
         close(previousClassLoader);
+    }
+
+    protected synchronized void rebuildNativeTypeClassLoaders() {
+        List<ClassLoader> classLoaders = new ArrayList<ClassLoader>();
+        addClassLoader(classLoaders, getProcessClassLoader());
+        addClassLoader(classLoaders, nativeTypeUrlClassLoader);
+        for (ClassLoader classLoader : contributedNativeTypeClassLoaders) {
+            addClassLoader(classLoaders, classLoader);
+        }
+        nativeTypeClassLoaders = classLoaders;
+    }
+
+    protected ClassLoader getProcessClassLoader() {
+        return EpsilonLanguageServer.class.getClassLoader();
+    }
+
+    protected void addClassLoader(List<ClassLoader> classLoaders, ClassLoader classLoader) {
+        if (classLoader != null && !classLoaders.contains(classLoader)) {
+            classLoaders.add(classLoader);
+        }
     }
 
     public void configureNativeTypeClasspath(Object options) {

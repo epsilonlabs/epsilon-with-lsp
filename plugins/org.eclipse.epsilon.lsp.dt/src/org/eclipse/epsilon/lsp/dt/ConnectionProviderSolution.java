@@ -11,13 +11,14 @@ import org.osgi.framework.Bundle;
 
 public class ConnectionProviderSolution extends AbstractConnectionProvider {
 
-	private static final EpsilonLanguageServer LANGUAGE_SERVER = new EpsilonLanguageServer() {
-		@Override
-		public synchronized ClassLoader getNativeTypeClassLoader() {
-			return new ExtensionPointToolClassLoader(super.getNativeTypeClassLoader());
-		}
-	};
+	private static final EpsilonLanguageServer LANGUAGE_SERVER = createLanguageServer();
 	private static boolean preferenceListenerRegistered = false;
+
+	private static EpsilonLanguageServer createLanguageServer() {
+		EpsilonLanguageServer languageServer = new EpsilonLanguageServer();
+		languageServer.addNativeTypeClassLoader(new ExtensionPointToolClassLoader());
+		return languageServer;
+	}
 
 	public ConnectionProviderSolution() {
 		super(LANGUAGE_SERVER);
@@ -63,8 +64,8 @@ public class ConnectionProviderSolution extends AbstractConnectionProvider {
 	}
 
 	private static class ExtensionPointToolClassLoader extends ClassLoader {
-		public ExtensionPointToolClassLoader(ClassLoader parent) {
-			super(parent);
+		public ExtensionPointToolClassLoader() {
+			super(null);
 		}
 
 		@Override

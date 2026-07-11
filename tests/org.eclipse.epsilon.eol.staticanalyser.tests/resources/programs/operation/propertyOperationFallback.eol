@@ -1,0 +1,15 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var numbers : Sequence<Integer> = Sequence {1, 2, 3};
+/*Integer*/ numbers.size;
+/*Integer*/ numbers.hashCode;
+/*Integer*/ "abc".length;
+
+var eClass : EClass = new EClass;
+/*String*/ eClass.name;
+/*Native<org.eclipse.emf.ecore.EClass>*/ eClass.eClass;
+/*String*/ eClass.id;
+
+/*Integer*/ EClass.all.size;
+/*Sequence<String>*/ EClass.all.name;
+/*Sequence<String>*/ EClass.all.id;

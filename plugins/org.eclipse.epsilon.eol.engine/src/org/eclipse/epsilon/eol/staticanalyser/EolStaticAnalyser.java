@@ -109,6 +109,8 @@ import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.contributors.ReflectiveOperationContributor;
+import org.eclipse.epsilon.eol.execute.operations.contributors.ScalarOperationContributor;
+import org.eclipse.epsilon.eol.execute.operations.contributors.WrapperOperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.declarative.FirstOrderOperation;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.m3.IEnum;
@@ -1349,134 +1351,154 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	public void visit(PropertyCallExpression propertyCallExpression) {
 		Expression targetExpression = propertyCallExpression.getTargetExpression();
 		NameExpression nameExpression = propertyCallExpression.getNameExpression();
-		String propertyName = nameExpression.getName();
 		targetExpression.accept(this);
+
 		EolType targetType = getResolvedType(targetExpression);
-		boolean typeLiteralTarget = targetType instanceof EolTypeLiteral;
-		if (typeLiteralTarget) {
+		if (targetType instanceof EolTypeLiteral) {
 			targetType = ((EolTypeLiteral) targetType).getWrappedType();
 			setResolvedType(targetExpression, targetType);
 		}
-		//Early return if target expression could not be resolved (e.g. out of scope variable)
-		if(targetType  == EolAnyType.Instance) {
+
+		// Early return if the target expression could not be resolved (e.g. an out-of-scope variable)
+		if (targetType == EolAnyType.Instance) {
 			setResolvedType(propertyCallExpression, EolAnyType.Instance);
 			return;
 		}
 
-		// Extended properties
+		String propertyName = nameExpression.getName();
 		if (propertyName.startsWith("~")) {
 			setResolvedType(propertyCallExpression, EolAnyType.Instance);
 			return;
 		}
-		
-		// Property call on TypeName e.g EPackage.all
+
+		// Property call on a model-element type, e.g. EPackage.all
 		if (targetExpression instanceof NameExpression && ((NameExpression) targetExpression).isTypeName()
-				&& getResolvedType(targetExpression) instanceof EolModelElementType) {
-
-			if (propertyName.equalsIgnoreCase("all")
-					|| propertyName.equalsIgnoreCase("allinstances")
-					|| propertyName.equalsIgnoreCase("getallofkind")
-					|| propertyName.equalsIgnoreCase("getalloftype")) {
-				setResolvedType(propertyCallExpression,
-						new EolCollectionType("Sequence", getResolvedType(targetExpression)));
-			}
-			else if (propertyName.equalsIgnoreCase("createInstance")) {
-				setResolvedType(propertyCallExpression, getResolvedType(targetExpression));
-			}
-			else if (propertyName.equalsIgnoreCase("isInstantiable")) {
-				setResolvedType(propertyCallExpression, EolPrimitiveType.Boolean);
-			}
-			else {
-				setResolvedType(propertyCallExpression, EolAnyType.Instance);
-				markers.add(new ModuleMarker(nameExpression, "Property " + propertyName
-				+ " not found for type " + ((NameExpression)targetExpression).getName(), Severity.Error));
-			}
-		}
-		// Regular properties
-		else {
-			EolType type = getResolvedType(targetExpression);
-
-			// Property call on a Tuple
-			if (type instanceof EolTupleType) {
-				EolTupleType tupleType = (EolTupleType) type;
-				if (tupleType.hasProperty(propertyName)) {
-					setResolvedType(propertyCallExpression, tupleType.getPropertyType(propertyName));
-				} else {
-					setResolvedType(propertyCallExpression, EolAnyType.Instance);
-					// Suppress error when used as target of isDefined/isUndefined/ifDefined/ifUndefined,
-					// mirroring the runtime exception-swallowing behaviour in OperationCallExpression.execute()
-					ModuleElement parent = propertyCallExpression.getParent();
-					if (parent instanceof OperationCallExpression) {
-						String opName = ((OperationCallExpression) parent).getNameExpression().getName();
-						if ("isDefined".equals(opName) || "isUndefined".equals(opName)
-								|| "ifDefined".equals(opName) || "ifUndefined".equals(opName)) {
-							// no error
-						} else {
-							markers.add(new ModuleMarker(nameExpression, "Property '" + propertyName
-									+ "' not found", Severity.Error));
-						}
-					} else {
-						markers.add(new ModuleMarker(nameExpression, "Property '" + propertyName
-								+ "' not found", Severity.Error));
-					}
-				}
-			}
-			else {
-				boolean many = false;
-				IMetaClass metaClass = null;
-				if (type instanceof EolCollectionType) {
-					EolType propertyOperationType = getPropertyOperationFallbackType(propertyName, type, nameExpression);
-					if (propertyOperationType != null) {
-						setResolvedType(propertyCallExpression, propertyOperationType);
-						return;
-					}
-				}
-				if (type instanceof EolModelElementType && ((EolModelElementType) type).getMetaClass() != null) {
-					metaClass = ((EolModelElementType) type).getMetaClass();
-				} else if (type instanceof EolCollectionType
-						&& ((EolCollectionType) type).getContentType() instanceof EolModelElementType) {
-					metaClass = ((EolModelElementType) ((EolCollectionType) type).getContentType()).getMetaClass();
-					many = true;
-				}
-
-				if (metaClass != null) {
-					IProperty property = metaClass.getProperty(propertyName);
-					if (property != null) {
-						setResolvedType(propertyCallExpression, toStaticAnalyserType(property.getType()));
-						if (many) {
-							setResolvedType(propertyCallExpression,
-									new EolCollectionType("Sequence", getResolvedType(propertyCallExpression)));
-						}
-
-					} else {
-						EolType propertyOperationType = many
-								? getPropertyOperationFallbackType(propertyName, ((EolCollectionType) type).getContentType(), nameExpression)
-								: getPropertyOperationFallbackType(propertyName, type, nameExpression);
-						if (propertyOperationType != null) {
-							setResolvedType(propertyCallExpression, many
-									? new EolCollectionType("Sequence", propertyOperationType)
-									: propertyOperationType);
-							return;
-						}
-						setResolvedType(propertyCallExpression, EolAnyType.Instance);
-						markers.add(new ModuleMarker(nameExpression, "Property " + propertyName
-								+ " not found in type " + metaClass.getName(), Severity.Error));
-					}
-				} else {
-					EolType propertyOperationType = getPropertyOperationFallbackType(propertyName, type, nameExpression);
-					if (propertyOperationType != null) {
-						setResolvedType(propertyCallExpression, propertyOperationType);
-						return;
-					}
-					setResolvedType(propertyCallExpression, EolAnyType.Instance);
-				}
-			}
-
+				&& targetType instanceof EolModelElementType) {
+			visitModelElementTypeProperty(propertyCallExpression, (EolModelElementType) targetType);
+			return;
 		}
 
+		EolType propertyType = getPropertyType(targetType, propertyName, nameExpression);
+		setResolvedType(propertyCallExpression, propertyType != null ? propertyType : EolAnyType.Instance);
+		if (propertyType == null) {
+			addPropertyNotFoundMarker(propertyCallExpression, targetType);
+		}
 	}
 
-	private EolType getPropertyOperationFallbackType(String propertyName, EolType contextType, NameExpression nameExpression) {
+	private void visitModelElementTypeProperty(PropertyCallExpression propertyCallExpression,
+			EolModelElementType targetType) {
+		NameExpression nameExpression = propertyCallExpression.getNameExpression();
+		String propertyName = nameExpression.getName();
+		EolType propertyType;
+
+		if (propertyName.equalsIgnoreCase("all") || propertyName.equalsIgnoreCase("allInstances")
+				|| propertyName.equalsIgnoreCase("getAllOfKind") || propertyName.equalsIgnoreCase("getAllOfType")) {
+			propertyType = new EolCollectionType("Sequence", targetType);
+		}
+		else if (propertyName.equalsIgnoreCase("createInstance")) {
+			propertyType = targetType;
+		}
+		else if (propertyName.equalsIgnoreCase("isInstantiable")) {
+			propertyType = EolPrimitiveType.Boolean;
+		}
+		else {
+			propertyType = EolAnyType.Instance;
+			markers.add(new ModuleMarker(nameExpression, "Property " + propertyName + " not found for type "
+					+ ((NameExpression) propertyCallExpression.getTargetExpression()).getName(), Severity.Error));
+		}
+
+		setResolvedType(propertyCallExpression, propertyType);
+	}
+
+	private EolType getPropertyType(EolType targetType, String propertyName, NameExpression nameExpression) {
+		if (targetType == EolAnyType.Instance) {
+			return EolAnyType.Instance;
+		}
+
+		if (targetType instanceof EolUnionType) {
+			Set<EolType> propertyTypes = new LinkedHashSet<EolType>();
+			for (EolType containedType : ((EolUnionType) targetType).containedTypes) {
+				EolType propertyType = getPropertyType(containedType, propertyName, nameExpression);
+				if (propertyType == null) {
+					return null;
+				}
+				propertyTypes.add(propertyType);
+			}
+			return propertyTypes.size() == 1 ? propertyTypes.iterator().next() : new EolUnionType(propertyTypes);
+		}
+
+		EolType directPropertyType = getDirectPropertyType(targetType, propertyName, nameExpression);
+		if (directPropertyType != null || !(targetType instanceof EolCollectionType)) {
+			return directPropertyType;
+		}
+
+		EolCollectionType collectionType = (EolCollectionType) targetType;
+		EolType contentPropertyType = getPropertyType(collectionType.getContentType(), propertyName, nameExpression);
+		return contentPropertyType != null ? getProjectedPropertyType(collectionType, contentPropertyType) : null;
+	}
+
+	private EolType getDirectPropertyType(EolType targetType, String propertyName, NameExpression nameExpression) {
+		if (targetType instanceof EolTupleType) {
+			EolTupleType tupleType = (EolTupleType) targetType;
+			return tupleType.hasProperty(propertyName) ? tupleType.getPropertyType(propertyName) : null;
+		}
+
+		if (targetType instanceof EolModelElementType) {
+			IMetaClass metaClass = ((EolModelElementType) targetType).getMetaClass();
+			if (metaClass != null) {
+				IProperty property = metaClass.getProperty(propertyName);
+				if (property != null) {
+					return toStaticAnalyserType(property.getType());
+				}
+			}
+		}
+
+		return getPropertyOperationFallbackType(propertyName, targetType, nameExpression);
+	}
+
+	private EolType getProjectedPropertyType(EolCollectionType sourceType, EolType contentPropertyType) {
+		String resultCollectionType = "Bag";
+		if (sourceType.isSequence() || sourceType.isOrderedSet()) {
+			resultCollectionType = "Sequence";
+		}
+		else if (sourceType.isCollection()) {
+			resultCollectionType = "Collection";
+		}
+		return new EolCollectionType(resultCollectionType, contentPropertyType);
+	}
+
+	private void addPropertyNotFoundMarker(PropertyCallExpression propertyCallExpression, EolType targetType) {
+		while (targetType instanceof EolCollectionType) {
+			targetType = ((EolCollectionType) targetType).getContentType();
+		}
+
+		NameExpression nameExpression = propertyCallExpression.getNameExpression();
+		String propertyName = nameExpression.getName();
+		if (targetType instanceof EolTupleType) {
+			if (!isUndefinedGuard(propertyCallExpression)) {
+				markers.add(new ModuleMarker(nameExpression, "Property '" + propertyName + "' not found", Severity.Error));
+			}
+		}
+		else if (targetType instanceof EolModelElementType) {
+			IMetaClass metaClass = ((EolModelElementType) targetType).getMetaClass();
+			if (metaClass != null) {
+				markers.add(new ModuleMarker(nameExpression,
+						"Property " + propertyName + " not found in type " + metaClass.getName(), Severity.Error));
+			}
+		}
+	}
+
+	private boolean isUndefinedGuard(PropertyCallExpression propertyCallExpression) {
+		ModuleElement parent = propertyCallExpression.getParent();
+		if (!(parent instanceof OperationCallExpression)) {
+			return false;
+		}
+		String operationName = ((OperationCallExpression) parent).getNameExpression().getName();
+		return StringUtil.isOneOf(operationName, "isDefined", "isUndefined", "ifDefined", "ifUndefined");
+	}
+
+	private EolType getPropertyOperationFallbackType(String propertyName, EolType contextType,
+			NameExpression nameExpression) {
 		IStaticOperation operation = getPropertyOperationFallback(propertyName, contextType);
 		if (operation == null) {
 			return null;
@@ -1490,8 +1512,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return null;
 		}
 
-		for (String operationName : getPropertyOperationNames(propertyName)) {
-			for (OperationContributor contributor : context.operationContributorRegistry.stream().collect(Collectors.toList())) {
+		String[] operationNames = { "get" + propertyName, propertyName, "is" + propertyName };
+		List<OperationContributor> contributors = context.operationContributorRegistry.stream()
+				.collect(Collectors.toList());
+		for (String operationName : operationNames) {
+			for (OperationContributor contributor : contributors) {
 				IStaticOperation operation = contributor instanceof ReflectiveOperationContributor
 						? getJavaPropertyOperation(operationName, contextType)
 						: getPropertyOperationFromContributor(contributor, operationName, contextType);
@@ -1509,7 +1534,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return null;
 		}
 		for (Method method : javaClass.getMethods()) {
-			if (method.getName().equalsIgnoreCase(operationName) && canBeCalledWithoutParameters(method)) {
+			if (getEolMethodName(method).equalsIgnoreCase(operationName) && canBeCalledWithoutParameters(method)) {
 				return methodToSimpleOperation(method, contextType);
 			}
 		}
@@ -1518,16 +1543,28 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	private IStaticOperation getPropertyOperationFromContributor(OperationContributor contributor, String operationName,
 			EolType contextType) {
-		if (!contributorMethodAppliesToContext(contributor.getClass(), contextType)) {
+		if (contributor instanceof WrapperOperationContributor
+				|| !propertyContributorAppliesToContext(contributor, contextType)) {
 			return null;
 		}
 
 		for (Method method : contributor.getClass().getDeclaredMethods()) {
-			if (method.getName().equals(operationName) && canBeCalledWithoutParameters(method)) {
+			if (getEolMethodName(method).equals(operationName) && canBeCalledWithoutParameters(method)) {
 				return methodToSimpleOperation(method, contributor.contributesToType());
 			}
 		}
 		return null;
+	}
+
+	private boolean propertyContributorAppliesToContext(OperationContributor contributor, EolType contextType) {
+		if (contributor instanceof ScalarOperationContributor) {
+			Class<?> javaClass = getJavaClass(contextType);
+			return !(contextType instanceof EolCollectionType)
+					&& (javaClass == null || !Collection.class.isAssignableFrom(javaClass));
+		}
+		EolType contributorType = contributor.contributesToType();
+		return (contributorType == EolAnyType.Instance || contextType.isAssignableTo(contributorType))
+				&& contributorMethodAppliesToContext(contributor.getClass(), contextType);
 	}
 
 	private Class<?> getJavaClass(EolType type) {
@@ -1539,16 +1576,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 	}
 
-	private List<String> getPropertyOperationNames(String propertyName) {
-		List<String> names = new ArrayList<String>();
-		names.add("get" + propertyName);
-		names.add(propertyName);
-		names.add("is" + propertyName);
-		return names;
-	}
-
 	private boolean canBeCalledWithoutParameters(Method method) {
 		return method.getParameterCount() == 0 || method.isVarArgs() && method.getParameterCount() == 1;
+	}
+
+	private String getEolMethodName(Method method) {
+		String methodName = method.getName();
+		return methodName.startsWith("_") ? methodName.substring(1) : methodName;
 	}
 
 	@Override

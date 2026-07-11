@@ -3,12 +3,25 @@ model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 var numbers : Sequence<Integer> = Sequence {1, 2, 3};
 /*Integer*/ numbers.size;
 /*Integer*/ numbers.hashCode;
+/*Integer*/ numbers.random;
 /*Integer*/ "abc".length;
+
+/*Sequence<Integer>*/ Sequence {"a", "bb"}.length;
+/*Sequence<Integer>*/ Sequence {1, 2}.factorial;
+/*Bag<Integer>*/ Set {1, 2}.factorial;
+/*Sequence<Sequence<Integer>>*/ Sequence {Sequence {1}, Sequence {2}}.factorial;
+/*Integer*/ Sequence {Sequence {1}, Sequence {1, 2}}.size;
+/*Sequence<Integer>*/ Sequence {Tuple {value = 1}}.value;
+
+var file : Native("java.io.File");
+/*String*/ file.path;
+/*Boolean*/ file.absolute;
 
 var eClass : EClass = new EClass;
 /*String*/ eClass.name;
 /*Native<org.eclipse.emf.ecore.EClass>*/ eClass.eClass;
 /*String*/ eClass.id;
+/*Sequence<String>*/ Sequence {new EClass, new EPackage}.name;
 
 /*Integer*/ EClass.all.size;
 /*Sequence<String>*/ EClass.all.name;

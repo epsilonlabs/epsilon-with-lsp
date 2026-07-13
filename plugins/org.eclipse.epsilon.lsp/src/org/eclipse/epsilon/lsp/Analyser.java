@@ -34,7 +34,7 @@ import org.eclipse.epsilon.eol.analyse.EolCompletionParseRepairer;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.dom.Import;
 import org.eclipse.epsilon.evl.EvlModule;
-import org.eclipse.epsilon.evl.staticanalyser.EvlStaticAnalyser;
+import org.eclipse.epsilon.evl.analyse.EvlStaticAnalyser;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Diagnostic;

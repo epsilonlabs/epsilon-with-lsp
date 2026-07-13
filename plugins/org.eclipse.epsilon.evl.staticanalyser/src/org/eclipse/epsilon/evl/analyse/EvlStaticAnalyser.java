@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.evl.staticanalyser;
+package org.eclipse.epsilon.evl.analyse;
 
 import java.util.Arrays;
 import java.util.Collections;

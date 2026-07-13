@@ -22,7 +22,7 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.evl.EvlModule;
-import org.eclipse.epsilon.evl.staticanalyser.EvlStaticAnalyser;
+import org.eclipse.epsilon.evl.analyse.EvlStaticAnalyser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

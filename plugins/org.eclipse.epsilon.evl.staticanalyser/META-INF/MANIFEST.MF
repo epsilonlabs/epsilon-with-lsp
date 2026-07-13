@@ -8,4 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.epsilon.evl.engine,
  org.eclipse.epsilon.emc.emf
 Import-Package: org.eclipse.epsilon.eol.analyse
-Export-Package: org.eclipse.epsilon.evl.staticanalyser
+Export-Package: org.eclipse.epsilon.evl.analyse

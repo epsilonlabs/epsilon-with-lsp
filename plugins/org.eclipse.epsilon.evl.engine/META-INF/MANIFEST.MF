@@ -6,8 +6,10 @@ Bundle-SymbolicName: org.eclipse.epsilon.evl.engine
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Version: 2.9.0.qualifier
 Bundle-Vendor: Eclipse Modeling Project
-Require-Bundle: org.eclipse.epsilon.erl.engine;visibility:=reexport
+Require-Bundle: org.eclipse.epsilon.eol.engine;visibility:=reexport,
+ org.eclipse.epsilon.erl.engine;visibility:=reexport
 Export-Package: org.eclipse.epsilon.evl,
+ org.eclipse.epsilon.evl.analyse,
  org.eclipse.epsilon.evl.concurrent,
  org.eclipse.epsilon.evl.debug,
  org.eclipse.epsilon.evl.dom,

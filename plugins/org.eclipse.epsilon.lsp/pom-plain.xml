@@ -64,11 +64,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-  	  <groupId>org.eclipse.epsilon</groupId>
-  	  <artifactId>org.eclipse.epsilon.evl.staticanalyser</artifactId>
-  	  <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.epsilon</groupId>
       <artifactId>org.eclipse.epsilon.egl.engine</artifactId>
       <version>${project.version}</version>

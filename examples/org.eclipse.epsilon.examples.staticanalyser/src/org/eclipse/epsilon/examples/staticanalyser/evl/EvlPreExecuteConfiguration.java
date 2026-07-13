@@ -4,7 +4,7 @@ import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.ModelDeclaration;
 import org.eclipse.epsilon.eol.launch.EolRunConfiguration;
 import org.eclipse.epsilon.evl.EvlModule;
-import org.eclipse.epsilon.evl.staticanalyser.EvlStaticAnalyser;
+import org.eclipse.epsilon.evl.analyse.EvlStaticAnalyser;
 import org.eclipse.epsilon.examples.staticanalyser.eol.SubEmfModelFactory;
 
 public class EvlPreExecuteConfiguration extends EolRunConfiguration {

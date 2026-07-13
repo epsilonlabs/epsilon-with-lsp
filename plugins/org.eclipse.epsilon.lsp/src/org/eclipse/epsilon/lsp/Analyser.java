@@ -24,7 +24,7 @@ import org.eclipse.epsilon.common.parse.Region;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.egl.EglModule;
 import org.eclipse.epsilon.egl.EgxModule;
-import org.eclipse.epsilon.egl.staticanalyser.EglStaticAnalyser;
+import org.eclipse.epsilon.egl.analyse.EglStaticAnalyser;
 import org.eclipse.epsilon.egx.staticanalyser.EgxStaticAnalyser;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;

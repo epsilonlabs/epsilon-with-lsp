@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.egl.staticanalyser;
+package org.eclipse.epsilon.egl.analyse;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

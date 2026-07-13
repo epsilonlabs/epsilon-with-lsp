@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.egx.staticanalyser;
+package org.eclipse.epsilon.egx.analyse;
 
 import java.io.File;
 import java.util.Collections;

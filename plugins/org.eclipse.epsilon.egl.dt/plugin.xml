@@ -115,6 +115,12 @@
       </moduleValidator>
    </extension>
    <extension
+         point="org.eclipse.epsilon.common.dt.moduleValidator">
+      <moduleValidator
+            class="org.eclipse.epsilon.egl.analyse.EglStaticAnalyser">
+      </moduleValidator>
+   </extension>
+   <extension
          point="org.eclipse.epsilon.common.dt.moduleImplementation">
       <implementation
             class="org.eclipse.epsilon.egl.EgxModule"

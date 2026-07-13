@@ -13,8 +13,8 @@ import org.eclipse.epsilon.egl.EglModule;
 import org.eclipse.epsilon.egl.IEglModule;
 import org.eclipse.epsilon.egl.output.IOutputBuffer;
 import org.eclipse.epsilon.eol.IEolModule;
-import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
-import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
+import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
+import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
 

@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.eol.staticanalyser;
+package org.eclipse.epsilon.eol.analyse;
 
 import java.util.List;
 

@@ -2,9 +2,9 @@ package org.eclipse.epsilon.eol.staticanalyser.tests;
 
 import org.eclipse.epsilon.emc.bibtex.BibtexModel;
 import org.eclipse.epsilon.emc.emf.EmfModel;
+import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.UnknownModel;
-import org.eclipse.epsilon.eol.staticanalyser.IModelFactory;
 
 public class StaticModelFactory implements IModelFactory {
 

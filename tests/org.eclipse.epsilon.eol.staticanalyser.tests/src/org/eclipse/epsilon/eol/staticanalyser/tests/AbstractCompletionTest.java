@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.staticanalyser.EolCompletion;
-import org.eclipse.epsilon.eol.staticanalyser.EolCompletionParseRepairer;
-import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
+import org.eclipse.epsilon.eol.analyse.EolCompletion;
+import org.eclipse.epsilon.eol.analyse.EolCompletionParseRepairer;
+import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

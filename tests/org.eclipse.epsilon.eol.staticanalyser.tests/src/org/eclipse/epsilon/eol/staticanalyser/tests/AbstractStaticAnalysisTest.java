@@ -19,7 +19,7 @@ import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.common.parse.Region;
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
+import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.evl.EvlModule;
 import org.eclipse.epsilon.evl.staticanalyser.EvlStaticAnalyser;

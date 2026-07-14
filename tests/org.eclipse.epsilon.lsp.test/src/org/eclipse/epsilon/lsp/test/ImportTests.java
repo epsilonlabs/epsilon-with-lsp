@@ -39,7 +39,7 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 
 		// Initialize the analyser so it processes both files and builds dependency
 		// graph
-		server.analyser.initialize();
+		server.getAnalyser().initialize();
 
 		// Expect empty diagnostics for lib and main initially
 		
@@ -49,7 +49,7 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 		String newLibContent = "var a:Integer = 1.5;";
 
 		// Notify the analyser of the changed library content
-		server.analyser.checkChangedDocument(lib.toURI(), newLibContent);
+		server.getAnalyser().checkChangedDocument(lib.toURI(), newLibContent);
 		assertPublishedExprectedDiagnostics(libUri, List.of("Real cannot be assigned to Integer"));
 	}
 	
@@ -81,7 +81,7 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 
 		// Initialize the analyser so it processes both files and builds dependency
 		// graph
-		server.analyser.initialize();
+		server.getAnalyser().initialize();
 
 		// Expect empty diagnostics for lib and main initially
 		assertPublishedEmptyDiagnostics(libUri);
@@ -91,7 +91,7 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 		String newLibContent = "operation bar(){}";
 
 		// Notify the analyser of the changed library content
-		server.analyser.checkChangedDocument(lib.toURI(), newLibContent);
+		server.getAnalyser().checkChangedDocument(lib.toURI(), newLibContent);
 		assertPublishedExprectedDiagnostics(mainUri, List.of("Undefined operation foo"));
 	}
 	
@@ -120,7 +120,7 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 
 		// Initialize the analyser so it processes both files and builds dependency
 		// graph
-		server.analyser.initialize();
+		server.getAnalyser().initialize();
 
 		// Expect empty diagnostics for lib and main initially
 		assertPublishedEmptyDiagnostics(aUri);

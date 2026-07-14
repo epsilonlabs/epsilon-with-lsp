@@ -39,6 +39,7 @@ Export-Package: org.eclipse.epsilon.egl,
  org.eclipse.epsilon.egl.status,
  org.eclipse.epsilon.egl.traceability,
  org.eclipse.epsilon.egl.types,
- org.eclipse.epsilon.egl.util
+ org.eclipse.epsilon.egl.util,
+ org.eclipse.epsilon.egx.analyse
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: org.eclipse.epsilon.egl.engine

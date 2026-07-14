@@ -22,8 +22,7 @@ Require-Bundle: org.eclipse.lsp4j;bundle-version="0.22.0",
  org.eclipse.epsilon.emc.emf,
  org.apache.commons.io,
  org.eclipse.osgi,
- com.google.guava,
- org.eclipse.epsilon.egx.staticanalyser
+ com.google.guava
 Bundle-Vendor: Eclipse.org
 Automatic-Module-Name: org.eclipse.epsilon.lsp
 Bundle-ActivationPolicy: lazy

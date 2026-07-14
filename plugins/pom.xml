@@ -28,7 +28,6 @@
     <module>org.eclipse.epsilon.egl.dt.traceability.fine.emf</module>
     <module>org.eclipse.epsilon.egl.engine</module>
     <module>org.eclipse.epsilon.egl.traceability.fine</module>
-    <module>org.eclipse.epsilon.egx.staticanalyser</module>
     <module>org.eclipse.epsilon.emc.bibtex</module>
     <module>org.eclipse.epsilon.emc.bibtex.dt</module>
     <module>org.eclipse.epsilon.emc.composite</module>

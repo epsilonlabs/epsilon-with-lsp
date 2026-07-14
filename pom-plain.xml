@@ -136,7 +136,6 @@
     <module>plugins/org.eclipse.epsilon.ecl.engine/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.egl.engine/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.egl.traceability.fine/pom-plain.xml</module>
-    <module>plugins/org.eclipse.epsilon.egx.staticanalyser/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.emc.composite/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.emc.csv/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.emc.plainxml/pom-plain.xml</module>

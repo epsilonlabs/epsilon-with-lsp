@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Epsilon Standalone Language Server
+Bundle-SymbolicName: org.eclipse.epsilon.lsp.standalone
+Bundle-Version: 2.9.0.qualifier
+Export-Package: org.eclipse.epsilon.lsp.standalone
+Require-Bundle: org.eclipse.epsilon.lsp,
+ org.eclipse.lsp4j;bundle-version="0.22.0",
+ org.eclipse.lsp4j.jsonrpc;bundle-version="0.22.0",
+ org.eclipse.emf.common,
+ org.eclipse.emf.ecore,
+ org.eclipse.emf.emfatic.core,
+ org.eclipse.gymnast.runtime.core,
+ org.apache.commons.io
+Bundle-Vendor: Eclipse.org
+Automatic-Module-Name: org.eclipse.epsilon.lsp.standalone
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-11

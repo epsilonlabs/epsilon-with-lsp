@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.parse.Region;
@@ -86,7 +85,7 @@ public class Analyser {
 	
 	public void checkChangedDocument(URI uri, String code) throws URISyntaxException {
 		//Update the in-memory contents of the document
-		SingletonMapStreamHandlerService.Registry
+		MapEntryRegistry
 		.getInstance()
 		.putCode(uri.getPath(), code);
 //		//The transitive closure also includes the node itself
@@ -96,7 +95,7 @@ public class Analyser {
 	}
     
 	public void processDocument(URI uri){
-		IEolModule module = createModule(FilenameUtils.getExtension(uri.toString()));
+		IEolModule module = createModule(getFileExtension(uri));
 		List<Diagnostic> diagnostics = Collections.emptyList();
 		
 		if(module !=null) {
@@ -173,7 +172,7 @@ public class Analyser {
     }
 	
 	public List<CompletionItem> getCompletions(URI fileUri, Position lspPosition) {
-		IEolModule module = createModule(FilenameUtils.getExtension(fileUri.toString()));
+		IEolModule module = createModule(getFileExtension(fileUri));
 		if (module == null) {
 			return Collections.emptyList();
 		}
@@ -190,7 +189,7 @@ public class Analyser {
 		// file on disk when the registry does not contain the path.
         final URI moduleUri;
         try {
-            moduleUri = new URI(SingletonMapStreamHandlerService.PROTOCOL, "", fileUri.getPath(), null);
+            moduleUri = new URI(MapEntryRegistry.PROTOCOL, "", fileUri.getPath(), null);
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return Collections.emptyList();
@@ -234,7 +233,7 @@ public class Analyser {
 	}
 
 	public List<Location> getDeclarations(URI fileUri, Position lspPosition) {
-		IEolModule module = createModule(FilenameUtils.getExtension(fileUri.toString()));
+		IEolModule module = createModule(getFileExtension(fileUri));
 		if (module == null) {
 			return Collections.emptyList();
 		}
@@ -245,7 +244,7 @@ public class Analyser {
 
 		final URI moduleUri;
 		try {
-			moduleUri = new URI(SingletonMapStreamHandlerService.PROTOCOL, "", fileUri.getPath(), null);
+			moduleUri = new URI(MapEntryRegistry.PROTOCOL, "", fileUri.getPath(), null);
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			return Collections.emptyList();
@@ -285,7 +284,7 @@ public class Analyser {
 
 	private String toLspUri(URI uri, URI fallbackUri) {
 		URI targetUri = uri != null ? uri : fallbackUri;
-		if (SingletonMapStreamHandlerService.PROTOCOL.equals(targetUri.getScheme())) {
+		if (MapEntryRegistry.PROTOCOL.equals(targetUri.getScheme())) {
 			try {
 				return new URI("file", "", targetUri.getPath(), null).toString();
 			} catch (URISyntaxException e) {
@@ -343,7 +342,7 @@ public class Analyser {
 			return null;
 		}
 
-		IEolModule repairedModule = createModule(FilenameUtils.getExtension(fileUri.toString()));
+		IEolModule repairedModule = createModule(getFileExtension(fileUri));
 		if (repairedModule == null) {
 			return null;
 		}
@@ -358,7 +357,7 @@ public class Analyser {
 	}
 
 	protected String readDocumentCode(URI fileUri) {
-		String code = SingletonMapStreamHandlerService.Registry.getInstance().getCode(fileUri.getPath());
+		String code = MapEntryRegistry.getInstance().getCode(fileUri.getPath());
 		if (code != null) {
 			return code;
 		}
@@ -376,6 +375,12 @@ public class Analyser {
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
+	}
+
+	protected String getFileExtension(URI uri) {
+		String path = uri.getPath();
+		int dot = path != null ? path.lastIndexOf('.') : -1;
+		return dot >= 0 ? path.substring(dot + 1) : "";
 	}
 
 	private static CompletionItemKind toCompletionItemKind(EolCompletionKind kind) {

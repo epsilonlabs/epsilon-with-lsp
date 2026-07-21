@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.lsp4j.CompletionOptions;
@@ -43,7 +44,16 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected IModelFactory modelFactory = new StaticModelFactory();
 
     public EpsilonLanguageServer() {
+        this(EpsilonTextDocumentService::new, EpsilonWorkspaceService::new);
+    }
+
+    protected EpsilonLanguageServer(
+            Function<EpsilonLanguageServer, EpsilonTextDocumentService> textDocumentServiceFactory,
+            Function<EpsilonLanguageServer, WorkspaceService> workspaceServiceFactory) {
         addNativeTypeClassLoader(EpsilonLanguageServer.class.getClassLoader());
+        textDocumentService = textDocumentServiceFactory.apply(this);
+        workspaceService = workspaceServiceFactory.apply(this);
+        analyser = new Analyser(this);
     }
     
     public void connect(LanguageClient remoteProxy) {
@@ -75,7 +85,6 @@ public class EpsilonLanguageServer implements LanguageServer {
 	@Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		workspaceFolders = params.getWorkspaceFolders();
-		if (workspaceFolders != null) ePackageRegistryManager.initialize(params.getWorkspaceFolders());
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
@@ -117,10 +126,6 @@ public class EpsilonLanguageServer implements LanguageServer {
         return workspaceService;
     }
     
-    public EPackageRegistryManager getEPackageRegistryManager() {
-        return ePackageRegistryManager;
-    }
-
     public synchronized List<ClassLoader> getNativeTypeClassLoaders() {
         return new ArrayList<ClassLoader>(nativeTypeClassLoaders);
     }

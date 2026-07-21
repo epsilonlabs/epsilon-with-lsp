@@ -156,6 +156,7 @@
     <module>plugins/org.eclipse.epsilon.ewl.engine/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.flock.engine/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.lsp/pom-plain.xml</module>
+    <module>plugins/org.eclipse.epsilon.lsp.standalone/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.pinset.engine/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.profiling/pom-plain.xml</module>
 

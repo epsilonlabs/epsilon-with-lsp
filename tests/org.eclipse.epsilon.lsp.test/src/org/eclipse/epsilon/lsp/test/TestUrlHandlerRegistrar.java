@@ -7,7 +7,7 @@ import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.eclipse.epsilon.lsp.SingletonMapStreamHandlerService;
+import org.eclipse.epsilon.lsp.MapEntryRegistry;
 
 public final class TestUrlHandlerRegistrar {
 
@@ -24,19 +24,13 @@ public final class TestUrlHandlerRegistrar {
     }
 
     private static class TestFactory implements URLStreamHandlerFactory {
-        private final SingletonMapStreamHandlerService service = new SingletonMapStreamHandlerService();
-
         @Override
         public URLStreamHandler createURLStreamHandler(String protocol) {
-            if (SingletonMapStreamHandlerService.PROTOCOL.equals(protocol)) {
+            if (MapEntryRegistry.PROTOCOL.equals(protocol)) {
                 return new URLStreamHandler() {
                     @Override
                     protected URLConnection openConnection(URL u) throws IOException {
-                        try {
-                            return service.openConnection(u);
-                        } catch (IOException e) {
-                            throw e;
-                        }
+                        return MapEntryRegistry.getInstance().openConnection(u);
                     }
                 };
             }

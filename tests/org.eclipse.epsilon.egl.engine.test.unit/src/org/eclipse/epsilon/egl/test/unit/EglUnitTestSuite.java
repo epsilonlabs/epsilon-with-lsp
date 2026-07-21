@@ -12,6 +12,7 @@ package org.eclipse.epsilon.egl.test.unit;
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 
+import org.eclipse.epsilon.egl.analyse.TestEglStaticAnalyser;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -19,6 +20,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({OutputSuite.class,
                ParseSuite.class,
+               TestEglStaticAnalyser.class,
                PreprocessorSuite.class,
                ContextSuite.class,
                TemplateSuite.class,

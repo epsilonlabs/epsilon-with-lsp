@@ -55,8 +55,10 @@ public class Analyser {
 //    public static final String LANGUAGE_PINSET = "pinset";
 //    public static final String LANGUAGE_EPL = "epl";
     public static final String LANGUAGE_EOL = "eol";
+
     private static final Logger LOGGER = Logger.getLogger(Analyser.class.getName());
-	protected final EpsilonLanguageServer languageServer;
+
+    protected final EpsilonLanguageServer languageServer;
 	private MutableGraph<URI> dependencyGraph = GraphBuilder.directed().build();
 	
     public Analyser(EpsilonLanguageServer languageServer) {
@@ -299,16 +301,16 @@ public class Analyser {
 	protected EolStaticAnalyser createStaticAnalyser(IEolModule module) {
 		EolStaticAnalyser analyser;
 		if (module instanceof EvlModule) {
-			analyser = new EvlStaticAnalyser(new StaticModelFactory());
+			analyser = new EvlStaticAnalyser(languageServer.getModelFactory());
 		}
 		else if (module instanceof EglModule) {
-			analyser = new EglStaticAnalyser(new StaticModelFactory());
+			analyser = new EglStaticAnalyser(languageServer.getModelFactory());
 		}
 		else if (module instanceof EgxModule) {
-			analyser = new EgxStaticAnalyser(new StaticModelFactory());
+			analyser = new EgxStaticAnalyser(languageServer.getModelFactory());
 		}
 		else {
-			analyser = new EolStaticAnalyser(new StaticModelFactory());
+			analyser = new EolStaticAnalyser(languageServer.getModelFactory());
 		}
 		analyser.setNativeTypeClassLoaders(languageServer.getNativeTypeClassLoaders());
 		return analyser;

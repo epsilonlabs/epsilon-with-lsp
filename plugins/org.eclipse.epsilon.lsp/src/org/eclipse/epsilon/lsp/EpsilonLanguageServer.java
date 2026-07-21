@@ -15,6 +15,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
@@ -28,9 +30,10 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 
 public class EpsilonLanguageServer implements LanguageServer {
 
-    protected EpsilonTextDocumentService textDocumentService;
-    protected WorkspaceService workspaceService;
-    public Analyser analyser;
+    protected EpsilonTextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
+    protected EPackageRegistryManager ePackageRegistryManager = new EPackageRegistryManager();
+    protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
+    protected Analyser analyser;
     protected List<ClassLoader> nativeTypeClassLoaders = new ArrayList<ClassLoader>();
 
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -38,6 +41,7 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected LanguageClient client;
     
     protected List<WorkspaceFolder> workspaceFolders;
+    protected IModelFactory modelFactory = new StaticModelFactory();
 
     public EpsilonLanguageServer() {
         this(EpsilonTextDocumentService::new, EpsilonWorkspaceService::new);
@@ -94,6 +98,7 @@ public class EpsilonLanguageServer implements LanguageServer {
         res.getCapabilities().setDeclarationProvider(true);
         res.getCapabilities().setDefinitionProvider(true);
 
+        analyser = new Analyser(this);
         analyser.initialize();
         return CompletableFuture.completedFuture(res);
     }
@@ -130,4 +135,17 @@ public class EpsilonLanguageServer implements LanguageServer {
             nativeTypeClassLoaders.add(nativeTypeClassLoader);
         }
     }
+
+    public Analyser getAnalyser() {
+    	return analyser;
+    }
+
+	public IModelFactory getModelFactory() {
+		return modelFactory;
+	}
+
+	public void setModelFactory(IModelFactory modelFactory) {
+		this.modelFactory = modelFactory;
+	}
+
 }

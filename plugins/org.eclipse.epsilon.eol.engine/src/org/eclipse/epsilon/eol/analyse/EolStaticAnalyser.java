@@ -2290,13 +2290,38 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			best = candidate;
 		}
 
-		for (ModuleElement child : element.getChildren()) {
+		for (ModuleElement child : getSemanticChildren(element)) {
 			best = findMemberCompletion(child, position, best);
 		}
 		return best;
 	}
 
+	private List<ModuleElement> getSemanticChildren(ModuleElement element) {
+		List<ModuleElement> children = element.getChildren();
+		if (!(element instanceof IEolModule)) {
+			return children;
+		}
+
+		IEolModule eolModule = (IEolModule) element;
+		List<ModuleElement> semanticChildren = new ArrayList<ModuleElement>(children);
+		// Some module views omit executable sections, but language tooling must
+		// still traverse their semantic AST (notably EGL's generated EOL main).
+		if (eolModule.getMain() != null && !semanticChildren.contains(eolModule.getMain())) {
+			semanticChildren.add(eolModule.getMain());
+		}
+		for (Statement statement : eolModule.getPostOperationStatements()) {
+			if (!semanticChildren.contains(statement)) {
+				semanticChildren.add(statement);
+			}
+		}
+		return semanticChildren;
+	}
+
 	private MemberCompletionContext toMemberCompletionContext(ModuleElement element, Position position) {
+		if (isSyntheticFeatureCallElement(element)) {
+			return null;
+		}
+
 		if (element instanceof OperationCallExpression) {
 			OperationCallExpression operationCallExpression = (OperationCallExpression) element;
 			Expression targetExpression = operationCallExpression.getTargetExpression();
@@ -2327,6 +2352,27 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		return null;
 	}
 
+	private boolean isSyntheticFeatureCallElement(ModuleElement element) {
+		FeatureCallExpression featureCall = null;
+		if (element instanceof FeatureCallExpression) {
+			featureCall = (FeatureCallExpression) element;
+		}
+		else if (element.getParent() instanceof FeatureCallExpression) {
+			FeatureCallExpression parentFeatureCall = (FeatureCallExpression) element.getParent();
+			if (parentFeatureCall.getTargetExpression() == element || parentFeatureCall.getNameExpression() == element) {
+				featureCall = parentFeatureCall;
+			}
+		}
+		if (featureCall == null || featureCall.getTargetExpression() == null || featureCall.getNameExpression() == null) {
+			return false;
+		}
+
+		Region region = featureCall.getRegion();
+		return region != null
+			&& region.equals(featureCall.getTargetExpression().getRegion())
+			&& region.equals(featureCall.getNameExpression().getRegion());
+	}
+
 	private boolean isBetterMemberCompletion(MemberCompletionContext candidate, MemberCompletionContext best) {
 		return best == null || regionIsStrictlyInside(candidate.getNameRegion(), best.getNameRegion());
 	}
@@ -2347,7 +2393,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			best = candidate;
 		}
 
-		for (ModuleElement child : element.getChildren()) {
+		for (ModuleElement child : getSemanticChildren(element)) {
 			best = findEnumerationLiteralCompletion(child, position, best);
 		}
 		return best;
@@ -2423,7 +2469,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 
-		for (ModuleElement child : element.getChildren()) {
+		for (ModuleElement child : getSemanticChildren(element)) {
 			best = findTypeCompletion(child, position, best);
 		}
 		return best;
@@ -2458,7 +2504,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return best;
 		}
 
-		if (element instanceof FeatureCallExpression) {
+		if (element instanceof FeatureCallExpression && !isSyntheticFeatureCallElement(element)) {
 			NameExpression candidate = ((FeatureCallExpression) element).getNameExpression();
 			if (positionMatchesNameRegion(candidate, position)
 					&& (best == null || regionIsStrictlyInside(candidate.getRegion(), best.getRegion()))) {
@@ -2466,14 +2512,15 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 
-		if (element instanceof NameExpression && positionMatchesNameRegion((NameExpression) element, position)) {
+		if (element instanceof NameExpression && !isSyntheticFeatureCallElement(element)
+				&& positionMatchesNameRegion((NameExpression) element, position)) {
 			NameExpression candidate = (NameExpression) element;
 			if (best == null || regionIsStrictlyInside(candidate.getRegion(), best.getRegion())) {
 				best = candidate;
 			}
 		}
 
-		for (ModuleElement child : element.getChildren()) {
+		for (ModuleElement child : getSemanticChildren(element)) {
 			best = findNameCompletion(child, position, best);
 		}
 		return best;

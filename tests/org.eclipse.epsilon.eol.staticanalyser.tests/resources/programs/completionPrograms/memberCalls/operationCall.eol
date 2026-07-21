@@ -1,2 +1,6 @@
 var s : String = 'hello';
 s.asVa/*@ asVar */('name');
+
+"".foo/*@ foo */;
+
+operation String foo(x : Integer, y : Integer){}

@@ -31,7 +31,6 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 public class EpsilonLanguageServer implements LanguageServer {
 
     protected EpsilonTextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
-    protected EPackageRegistryManager ePackageRegistryManager = new EPackageRegistryManager();
     protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
     protected Analyser analyser;
     protected List<ClassLoader> nativeTypeClassLoaders = new ArrayList<ClassLoader>();

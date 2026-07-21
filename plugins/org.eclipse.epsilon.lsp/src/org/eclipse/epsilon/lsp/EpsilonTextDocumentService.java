@@ -18,17 +18,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
 
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.emfatic.core.EmfaticResource;
-import org.eclipse.emf.emfatic.core.EmfaticResourceFactory;
 import org.eclipse.epsilon.flexmi.FlexmiParseException;
 import org.eclipse.epsilon.flexmi.FlexmiResource;
 import org.eclipse.epsilon.flexmi.FlexmiResourceFactory;
-import org.eclipse.gymnast.runtime.core.parser.ParseError;
-import org.eclipse.gymnast.runtime.core.parser.ParseMessage;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
@@ -53,7 +48,6 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 
 public class EpsilonTextDocumentService implements TextDocumentService {
     protected final EpsilonLanguageServer languageServer;
-    private static final Logger LOGGER = Logger.getLogger(EpsilonTextDocumentService.class.getName());
     
     public EpsilonTextDocumentService(EpsilonLanguageServer languageServer) {
         this.languageServer = languageServer;
@@ -71,21 +65,6 @@ public class EpsilonTextDocumentService implements TextDocumentService {
         }
     }
     
-    protected List<Diagnostic> getDiagnostics(EmfaticResource resource, String text) {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        for (ParseMessage parseMessage : resource.getParseContext().getMessages()) {
-            Diagnostic diagnostic = new Diagnostic();
-            diagnostic.setSeverity(parseMessage instanceof ParseError ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning);
-            diagnostic.setMessage(parseMessage.getMessage());
-
-            // TODO: Emfatic produces messages with "at line X, column Y" suffix, which are more accurate than the offset/length
-
-            diagnostic.setRange(new Range(getPosition(text, parseMessage.getOffset()), getPosition(text, parseMessage.getOffset() + parseMessage.getLength())));
-            diagnostics.add(diagnostic);
-        }
-        return diagnostics;
-    }
-
     protected List<Diagnostic> getDiagnostics(FlexmiResource resource, String text) {
         List<Diagnostic> diagnostics = new ArrayList<>();
         diagnostics.addAll(getDiagnostics(resource.getWarnings(), DiagnosticSeverity.Warning));
@@ -119,19 +98,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     protected void publishDiagnostics(String code, String uri, String language) {
         List<Diagnostic> diagnostics = Collections.emptyList();
         
-        if (language.equals("emfatic")) {
-            try {
-                ResourceSet resourceSet = new ResourceSetImpl();
-                resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("emf", new EmfaticResourceFactory());
-                EmfaticResource resource = (EmfaticResource) resourceSet.createResource(org.eclipse.emf.common.util.URI.createURI(uri));
-                resource.load(new ByteArrayInputStream(code.getBytes()), null);
-                diagnostics = getDiagnostics(resource, code);
-            }
-            catch (Exception ex) {
-                log(ex);
-            }
-        }
-        else if (language.startsWith("flexmi-")) {
+        if (language.startsWith("flexmi-")) {
             try {
                 ResourceSet resourceSet = new ResourceSetImpl();
                 resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("flexmi", new FlexmiResourceFactory());

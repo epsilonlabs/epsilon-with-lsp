@@ -56,6 +56,9 @@ public class AbstractEpsilonLanguageServerTest {
 
 	protected class TestClient implements LanguageClient {
 		protected Map<String, List<Diagnostic>> publishedDiagnostics = new HashMap<>();
+
+		protected TestClient() {
+		}
 		
 		public void resetPublishedDiagnostics() {
 			this.publishedDiagnostics = new HashMap<>();
@@ -113,19 +116,27 @@ public class AbstractEpsilonLanguageServerTest {
 	}
 
 	protected void assertPublishedEmptyDiagnostics(final String fileURI) throws Exception {
-		List<Diagnostic> diagnostics = testClient.publishedDiagnostics.get(fileURI);
+		List<Diagnostic> diagnostics = getPublishedDiagnostics(fileURI);
 		assertNotNull("Diagnostic should not be null", diagnostics);
 		assertEquals("No specific diagnostics should be listed", 0, diagnostics.size());
 	}
 	
 	protected void assertPublishedExprectedDiagnostics(final String fileURI, List<String> expectedMessages) throws Exception {
-		List<Diagnostic> diagnostics = testClient.publishedDiagnostics.get(fileURI);
+		List<Diagnostic> diagnostics = getPublishedDiagnostics(fileURI);
 		assertEquals("Unexpected number of diagnostics", expectedMessages.size(), diagnostics.size());
 		List<String> actualMessages = diagnostics.stream().map(d -> d.getMessage()).toList();
 		Set<String> expectedMessageSet = new HashSet<String>(expectedMessages);
 		for (String m : actualMessages) {
 			assertTrue("A received diagnostic was not found in the list of expected diagnostics: " + m, expectedMessageSet.contains(m));
 		}
+	}
+
+	protected List<Diagnostic> getPublishedDiagnostics(String fileUri) {
+		return testClient.publishedDiagnostics.get(fileUri);
+	}
+
+	protected TestClient createTestClient() {
+		return new TestClient();
 	}
 
 	protected String didOpen(final File eolFile, final int version) throws IOException {

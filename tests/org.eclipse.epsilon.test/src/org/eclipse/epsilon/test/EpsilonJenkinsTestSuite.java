@@ -42,6 +42,8 @@ import org.eclipse.epsilon.flock.engine.test.acceptance.FlockEngineAcceptanceTes
 import org.eclipse.epsilon.hutn.test.HutnTestSuite;
 import org.eclipse.epsilon.hutn.unparser.HutnUnparserUnitTestSuite;
 import org.eclipse.epsilon.hutn.xmi.test.HutnXmiTestSuite;
+import org.eclipse.epsilon.lsp.test.EpsilonLanguageServerTestSuite;
+import org.eclipse.epsilon.lsp.standalone.test.StandaloneLanguageServerTestSuite;
 import org.eclipse.epsilon.pinset.engine.test.acceptance.PinsetTestSuite;
 import org.eclipse.epsilon.workflow.test.WorkflowTestSuite;
 import org.junit.runner.RunWith;
@@ -95,6 +97,8 @@ import junit.framework.Test;
 	EUnitJUnitTestSuite.class,
 	JSONModelTestSuite.class,
 	EpsilonDebugAdapterTestSuite.class,
+	EpsilonLanguageServerTestSuite.class,
+	StandaloneLanguageServerTestSuite.class,
 	StaticAnalyserTestSuite.class
 })
 public class EpsilonJenkinsTestSuite {

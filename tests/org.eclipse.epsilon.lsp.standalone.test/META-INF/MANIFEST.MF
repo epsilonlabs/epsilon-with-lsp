@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests for the Standalone Epsilon Language Server
+Bundle-SymbolicName: org.eclipse.epsilon.lsp.standalone.test
+Bundle-Version: 2.9.0.qualifier
+Export-Package: org.eclipse.epsilon.lsp.standalone.test
+Require-Bundle: org.eclipse.epsilon.lsp.test,
+ org.eclipse.epsilon.lsp,
+ org.eclipse.epsilon.lsp.standalone,
+ org.eclipse.emf.ecore,
+ org.junit;bundle-version="4.0.0",
+ org.eclipse.lsp4j;bundle-version="0.22.0",
+ org.eclipse.lsp4j.jsonrpc
+Bundle-Vendor: Eclipse.org
+Automatic-Module-Name: org.eclipse.epsilon.lsp.standalone.test
+Bundle-RequiredExecutionEnvironment: JavaSE-17

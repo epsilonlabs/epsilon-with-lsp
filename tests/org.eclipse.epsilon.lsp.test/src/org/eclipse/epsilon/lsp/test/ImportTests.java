@@ -50,7 +50,7 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 
 		// Notify the analyser of the changed library content
 		server.analyser.checkChangedDocument(lib.toURI(), newLibContent);
-		assertPublishedExprectedDiagnostics(libUri, List.of("Real cannot be assigned to Integer"));
+		assertPublishedExprectedDiagnostics(libUri, List.of("Real may not be assigned to Integer"));
 	}
 	
 	@Test

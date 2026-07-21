@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
@@ -27,10 +28,9 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 
 public class EpsilonLanguageServer implements LanguageServer {
 
-    protected EpsilonTextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
-    protected EPackageRegistryManager ePackageRegistryManager = new EPackageRegistryManager();
-    protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
-    public Analyser analyser = new Analyser(this);
+    protected EpsilonTextDocumentService textDocumentService;
+    protected WorkspaceService workspaceService;
+    public Analyser analyser;
     protected List<ClassLoader> nativeTypeClassLoaders = new ArrayList<ClassLoader>();
 
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -40,7 +40,16 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected List<WorkspaceFolder> workspaceFolders;
 
     public EpsilonLanguageServer() {
+        this(EpsilonTextDocumentService::new, EpsilonWorkspaceService::new);
+    }
+
+    protected EpsilonLanguageServer(
+            Function<EpsilonLanguageServer, EpsilonTextDocumentService> textDocumentServiceFactory,
+            Function<EpsilonLanguageServer, WorkspaceService> workspaceServiceFactory) {
         addNativeTypeClassLoader(EpsilonLanguageServer.class.getClassLoader());
+        textDocumentService = textDocumentServiceFactory.apply(this);
+        workspaceService = workspaceServiceFactory.apply(this);
+        analyser = new Analyser(this);
     }
     
     public void connect(LanguageClient remoteProxy) {
@@ -72,7 +81,6 @@ public class EpsilonLanguageServer implements LanguageServer {
 	@Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		workspaceFolders = params.getWorkspaceFolders();
-		if (workspaceFolders != null) ePackageRegistryManager.initialize(params.getWorkspaceFolders());
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
@@ -113,10 +121,6 @@ public class EpsilonLanguageServer implements LanguageServer {
         return workspaceService;
     }
     
-    public EPackageRegistryManager getEPackageRegistryManager() {
-        return ePackageRegistryManager;
-    }
-
     public synchronized List<ClassLoader> getNativeTypeClassLoaders() {
         return new ArrayList<ClassLoader>(nativeTypeClassLoaders);
     }

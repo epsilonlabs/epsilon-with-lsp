@@ -35,7 +35,7 @@ public abstract class AbstractCompletionTest extends AbstractBaseTest {
 	public void setUp() throws Exception {
 		programSource = new String(Files.readAllBytes(programFile.toPath()), StandardCharsets.UTF_8);
 		module = new EolModule();
-		staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+		staticAnalyser = new EolStaticAnalyser(createModelFactory());
 		module.parse(programSource, programFile);
 		if (module.getParseProblems().isEmpty()) {
 			staticAnalyser.validate(module);
@@ -70,7 +70,7 @@ public abstract class AbstractCompletionTest extends AbstractBaseTest {
 		if (!repairedSource.equals(programSource) || !module.getParseProblems().isEmpty()) {
 			EolModule repairedModule = new EolModule();
 			repairedModule.parse(repairedSource, programFile);
-			EolStaticAnalyser repairedStaticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+			EolStaticAnalyser repairedStaticAnalyser = new EolStaticAnalyser(createModelFactory());
 			repairedStaticAnalyser.validate(repairedModule);
 			return repairedStaticAnalyser.getCompletions(repairedModule, expectation.getPosition());
 		}

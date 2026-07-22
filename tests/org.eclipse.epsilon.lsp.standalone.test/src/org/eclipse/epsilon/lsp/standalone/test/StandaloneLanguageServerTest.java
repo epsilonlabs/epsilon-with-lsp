@@ -3,6 +3,7 @@ package org.eclipse.epsilon.lsp.standalone.test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.net.Socket;
@@ -13,7 +14,11 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EcoreFactory;
+import org.eclipse.epsilon.emc.bibtex.BibtexModel;
+import org.eclipse.epsilon.emc.emf.EmfModel;
 import org.eclipse.epsilon.lsp.test.AbstractEpsilonLanguageServerTest;
 import org.eclipse.epsilon.lsp.standalone.StandaloneEpsilonLanguageServer;
 import org.eclipse.epsilon.lsp.standalone.StandaloneLanguageServerLauncher;
@@ -71,6 +76,45 @@ public class StandaloneLanguageServerTest extends AbstractEpsilonLanguageServerT
 		finally {
 			EPackage.Registry.INSTANCE.remove(namespaceUri);
 		}
+	}
+
+	@Test
+	public void emfModelsUseTheGlobalPackageRegistry() throws Exception {
+		String namespaceUri = "urn:epsilon:lsp:test:global-registry";
+		EPackage ePackage = EcoreFactory.eINSTANCE.createEPackage();
+		ePackage.setName("registrytest");
+		ePackage.setNsPrefix("registrytest");
+		ePackage.setNsURI(namespaceUri);
+		EClass eClass = EcoreFactory.eINSTANCE.createEClass();
+		eClass.setName("Person");
+		ePackage.getEClassifiers().add(eClass);
+		EPackage.Registry.INSTANCE.put(namespaceUri, ePackage);
+
+		EmfModel model = (EmfModel) server.getModelFactory().createModel("EMF");
+		Path modelFile = Files.createTempFile("epsilon-lsp-registry", ".model");
+		Files.write(modelFile, (
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<registrytest:Person xmi:version=\"2.0\" " +
+			"xmlns:xmi=\"http://www.omg.org/XMI\" " +
+			"xmlns:registrytest=\"" + namespaceUri + "\"/>")
+			.getBytes(StandardCharsets.UTF_8));
+		try {
+			model.setMetamodelUri(namespaceUri);
+			model.setModelFile(modelFile.toString());
+			model.loadModelFromUri();
+			assertSame(eClass, model.getModelImpl().getContents().get(0).eClass());
+		}
+		finally {
+			if (model.getModelImpl() != null) {
+				model.getModelImpl().unload();
+			}
+			EPackage.Registry.INSTANCE.remove(namespaceUri);
+		}
+	}
+
+	@Test
+	public void defaultModelFactoryProvidesBibtexModels() {
+		assertTrue(server.getModelFactory().createModel("bibtex") instanceof BibtexModel);
 	}
 
 	@Test

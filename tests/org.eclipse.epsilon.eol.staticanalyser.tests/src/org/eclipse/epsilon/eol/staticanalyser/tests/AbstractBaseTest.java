@@ -18,6 +18,9 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.common.parse.Region;
+import org.eclipse.epsilon.emc.bibtex.BibtexModel;
+import org.eclipse.epsilon.emc.emf.EmfModel;
+import org.eclipse.epsilon.eol.analyse.StaticModelFactory;
 
 public abstract class AbstractBaseTest {
 	
@@ -58,6 +61,12 @@ public abstract class AbstractBaseTest {
 		this.programFile = epsilonProgramFile;
 		this.programFolder = epsilonProgramFile.getParentFile();
 		AbstractBaseTest.isConsoleOutputActive = outputToConsole;
+	}
+
+	protected static StaticModelFactory createModelFactory() {
+		return new StaticModelFactory()
+			.registerModel("EMF", EmfModel::new)
+			.registerModel("bibtex", BibtexModel::new);
 	}
 
 	private static List<File> findFilesWithin(File baseFolder, String fileExtension) {

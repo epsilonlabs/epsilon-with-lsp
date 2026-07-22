@@ -52,11 +52,11 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 		switch (fileExt) {
 		case "eol":
 			module = new EolModule();
-			staticAnalyser = new EolStaticAnalyser(new StaticModelFactory());
+			staticAnalyser = new EolStaticAnalyser(createModelFactory());
 			break;
 		case "evl":
 			module = new EvlModule();
-			staticAnalyser = new EvlStaticAnalyser(new StaticModelFactory());
+			staticAnalyser = new EvlStaticAnalyser(createModelFactory());
 			break;
 		default:
 			fail("Unknown file extension, can't find suitable module");

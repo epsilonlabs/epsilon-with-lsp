@@ -5,6 +5,9 @@ Bundle-SymbolicName: org.eclipse.epsilon.lsp.standalone
 Bundle-Version: 2.9.0.qualifier
 Export-Package: org.eclipse.epsilon.lsp.standalone
 Require-Bundle: org.eclipse.epsilon.lsp,
+ org.eclipse.epsilon.eol.engine,
+ org.eclipse.epsilon.emc.bibtex,
+ org.eclipse.epsilon.emc.emf,
  org.eclipse.lsp4j;bundle-version="0.22.0",
  org.eclipse.lsp4j.jsonrpc;bundle-version="0.22.0",
  org.eclipse.emf.common,

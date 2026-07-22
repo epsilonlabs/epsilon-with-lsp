@@ -5,8 +5,6 @@ Bundle-SymbolicName: org.eclipse.epsilon.lsp.test
 Bundle-Version: 2.9.0.qualifier
 Export-Package: org.eclipse.epsilon.lsp.test
 Require-Bundle: org.eclipse.epsilon.lsp,
- org.eclipse.epsilon.emc.emf,
- org.eclipse.emf.ecore,
  org.junit;bundle-version="4.0.0",
  org.eclipse.lsp4j;bundle-version="0.22.0",
  org.eclipse.lsp4j.jsonrpc,

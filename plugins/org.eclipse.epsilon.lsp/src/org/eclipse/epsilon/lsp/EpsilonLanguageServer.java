@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
+import org.eclipse.epsilon.eol.analyse.StaticModelFactory;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;

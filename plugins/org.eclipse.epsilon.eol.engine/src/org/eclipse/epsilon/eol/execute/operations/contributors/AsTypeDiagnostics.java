@@ -12,7 +12,7 @@ import org.eclipse.epsilon.eol.execute.operations.IMethodDiagnosticsCalculator;
 
 /**
  * A diagnostics calculator that checks whether the parameter to asType()
- * is a type literal rather than a regular value.
+ * is a compatible type literal rather than a regular value.
  */
 public class AsTypeDiagnostics implements IMethodDiagnosticsCalculator {
 
@@ -30,6 +30,14 @@ public class AsTypeDiagnostics implements IMethodDiagnosticsCalculator {
 		if (!(parameterType instanceof EolTypeLiteral)) {
 			markers.add(new ModuleMarker(element,
 					"Expected type literal instead of " + parameterType.getName(),
+					Severity.Error));
+			return markers;
+		}
+
+		EolType castType = ((EolTypeLiteral) parameterType).getWrappedType();
+		if (!contextType.isAssignableTo(castType) && !castType.isAssignableTo(contextType)) {
+			markers.add(new ModuleMarker(element,
+					contextType.getName() + " cannot be cast to " + castType.getName(),
 					Severity.Error));
 		}
 

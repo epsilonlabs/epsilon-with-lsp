@@ -2,11 +2,14 @@ model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 
 var c : EClass;
 var e : ENamedElement = new EClass;
+var p : EPackage;
 
 if (e.isTypeOf(EClass)){
   c = e.asType(EClass);
 }
 
+p.asType(EClass).println();
 1.asType(1.0);
 
-//![10:2-10:13] Expected type literal instead of Real
+//![11:2-11:16] EPackage cannot be cast to EClass
+//![12:2-12:13] Expected type literal instead of Real

@@ -2,12 +2,12 @@ package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.util.List;
 
+import org.eclipse.epsilon.eol.analyse.types.EolAnyType;
+import org.eclipse.epsilon.eol.analyse.types.EolNativeType;
+import org.eclipse.epsilon.eol.analyse.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
+import org.eclipse.epsilon.eol.analyse.types.EolUnionType;
 import org.eclipse.epsilon.eol.execute.operations.IMethodTypeCalculator;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolUnionType;
 
 public class MinMaxReturnType implements IMethodTypeCalculator {
 

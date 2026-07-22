@@ -7,13 +7,13 @@ import java.util.Optional;
 
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
+import org.eclipse.epsilon.eol.analyse.types.EolAnyType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 
 public class SimpleOperation implements IStaticOperation {
 	private String name;

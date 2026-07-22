@@ -13,14 +13,14 @@ import org.eclipse.epsilon.egl.dom.GenerationRule;
 import org.eclipse.epsilon.egl.dom.IEgxVisitor;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
+import org.eclipse.epsilon.eol.analyse.execute.context.Variable;
+import org.eclipse.epsilon.eol.analyse.types.EolNativeType;
+import org.eclipse.epsilon.eol.analyse.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.ReturnStatement;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
-import org.eclipse.epsilon.eol.staticanalyser.execute.context.Variable;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.erl.dom.Post;
 import org.eclipse.epsilon.erl.dom.Pre;
 

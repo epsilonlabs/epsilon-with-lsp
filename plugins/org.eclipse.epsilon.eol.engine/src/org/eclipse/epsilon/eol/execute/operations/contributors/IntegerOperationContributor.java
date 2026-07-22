@@ -11,8 +11,8 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.contributors;
 
-import org.eclipse.epsilon.eol.staticanalyser.types.EolPrimitiveType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.eclipse.epsilon.eol.analyse.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 import org.eclipse.epsilon.eol.types.EolSequence;
 
 public class IntegerOperationContributor extends OperationContributor {

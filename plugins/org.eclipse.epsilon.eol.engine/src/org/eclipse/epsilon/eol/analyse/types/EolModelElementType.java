@@ -8,7 +8,7 @@
  *     Dimitrios Kolovos - initial API and implementation
  *     Sina Madani - bug #538175
  ******************************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.types;
+package org.eclipse.epsilon.eol.analyse.types;
 
 import java.util.ArrayList;
 import java.util.Collection;

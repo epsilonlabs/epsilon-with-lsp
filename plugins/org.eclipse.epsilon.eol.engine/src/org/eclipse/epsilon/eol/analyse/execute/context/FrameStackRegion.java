@@ -8,7 +8,7 @@
  *     Louis Rose, Antonio García-Domínguez - initial API and implementation
  *     Sina Madani - concurrency support
  ******************************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.execute.context;
+package org.eclipse.epsilon.eol.analyse.execute.context;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;

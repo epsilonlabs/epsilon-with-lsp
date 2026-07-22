@@ -8,7 +8,7 @@
  *     Dimitrios Kolovos - initial API and implementation
  *     Antonio García-Domínguez - split into interface + implementation
  ******************************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.execute.context;
+package org.eclipse.epsilon.eol.analyse.execute.context;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

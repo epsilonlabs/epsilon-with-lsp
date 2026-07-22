@@ -2,10 +2,10 @@ package org.eclipse.epsilon.eol.execute.operations.declarative;
 
 import java.util.List;
 
+import org.eclipse.epsilon.eol.analyse.types.EolCollectionType;
+import org.eclipse.epsilon.eol.analyse.types.EolMapType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 import org.eclipse.epsilon.eol.execute.operations.ITypeCalculator;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolCollectionType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolMapType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 
 public class MapByTypeCalculator implements ITypeCalculator {
 

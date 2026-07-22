@@ -7,7 +7,7 @@
 *
 * SPDX-License-Identifier: EPL-2.0
 **********************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.types;
+package org.eclipse.epsilon.eol.analyse.types;
 
 import org.eclipse.epsilon.eol.types.EolMap;
 

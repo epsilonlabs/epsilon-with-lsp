@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.eol.staticanalyser.types;
+package org.eclipse.epsilon.eol.analyse.types;
 
 public class EolTypeLiteral extends EolType {
 	private EolType wrappedType;

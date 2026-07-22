@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.eol.staticanalyser.types;
+package org.eclipse.epsilon.eol.analyse.types;
 
 import java.util.ArrayList;
 import java.util.Collections;

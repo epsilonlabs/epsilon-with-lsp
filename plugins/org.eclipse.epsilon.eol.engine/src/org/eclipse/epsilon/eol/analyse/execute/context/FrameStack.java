@@ -9,7 +9,7 @@
  *     Antonio García-Domínguez - allow for multiple global stack frames
  *     Sina Madani - Concurrency support
  ******************************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.execute.context;
+package org.eclipse.epsilon.eol.analyse.execute.context;
 
 import java.util.ArrayList;
 import java.util.Collection;

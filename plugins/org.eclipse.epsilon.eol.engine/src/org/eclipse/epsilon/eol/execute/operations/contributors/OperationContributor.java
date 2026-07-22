@@ -14,11 +14,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.epsilon.common.parse.AST;
+import org.eclipse.epsilon.eol.analyse.types.EolAnyType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.introspection.java.ObjectMethod;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.util.ReflectionUtil;
 
 /**

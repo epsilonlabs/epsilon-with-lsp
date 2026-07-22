@@ -7,17 +7,13 @@
  * Contributors:
  *     Dimitrios Kolovos - initial API and implementation
  ******************************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.execute.context;
+package org.eclipse.epsilon.eol.analyse.execute.context;
 
 import java.util.Map.Entry;
 import java.util.Objects;
 import org.eclipse.epsilon.common.module.ModuleElement;
-//import org.eclipse.epsilon.eol.exceptions.EolIllegalVariableAssignmentException;
-//import org.eclipse.epsilon.eol.exceptions.EolReadOnlyVariableException;
-//import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
-//import org.eclipse.epsilon.eol.execute.context.IEolContext;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.eclipse.epsilon.eol.analyse.types.EolAnyType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 
 public class Variable {
 	

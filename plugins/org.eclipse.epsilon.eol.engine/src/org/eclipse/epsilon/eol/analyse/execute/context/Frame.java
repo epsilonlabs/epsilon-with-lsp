@@ -7,7 +7,7 @@
  * Contributors:
  *     Dimitrios Kolovos - initial API and implementation
  ******************************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.execute.context;
+package org.eclipse.epsilon.eol.analyse.execute.context;
 
 import java.util.Map;
 import org.eclipse.epsilon.common.module.ModuleElement;

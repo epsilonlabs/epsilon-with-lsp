@@ -7,34 +7,28 @@
  * Contributors:
  *     Dimitrios Kolovos - initial API and implementation
  ******************************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.types;
+package org.eclipse.epsilon.eol.analyse.types;
 
-public class EolAnyType extends EolType {
-
-	public static final EolAnyType Instance = new EolAnyType();
+public class EolNoType extends EolType {
 	
-	@Override
-	public boolean isNot(EolType type) {
-		return false;
-	}
+	public static final EolNoType Instance  = new EolNoType();
+	public static final EolNoTypeInstance NoInstance = new EolNoTypeInstance();
 	
 	@Override
 	public String getName() {
-		return "Any";
+		return "_NOTYPE";
 	}
 	
+	public static class EolNoTypeInstance{}
+
 	@Override
-	public String toString() {
-		return getName();
-	}
-	
-	@Override
-	protected EolType getParentType() {
+	public EolType getParentType() {
 		return null;
 	}
 	
 	@Override
-	public boolean isAncestorOf(EolType type) {
+	public boolean isAncestorOf(EolType type){
 		return false;
 	}
+	
 }

@@ -6,8 +6,8 @@ import java.util.List;
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolCollectionType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.eclipse.epsilon.eol.analyse.types.EolCollectionType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 
 /**
  * A diagnostics calculator that checks whether the parameter type is compatible

@@ -11,9 +11,9 @@ package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.util.stream.LongStream;
 
+import org.eclipse.epsilon.eol.analyse.types.EolNativeType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
 import org.eclipse.epsilon.eol.types.NumberUtil;
 
 public class NumberOperationContributor extends OperationContributor {

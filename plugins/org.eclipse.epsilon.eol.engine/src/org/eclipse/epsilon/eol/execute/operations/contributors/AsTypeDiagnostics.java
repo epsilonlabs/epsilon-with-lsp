@@ -6,9 +6,9 @@ import java.util.List;
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
+import org.eclipse.epsilon.eol.analyse.types.EolTypeLiteral;
 import org.eclipse.epsilon.eol.execute.operations.IMethodDiagnosticsCalculator;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolTypeLiteral;
 
 /**
  * A diagnostics calculator that checks whether the parameter to asType()

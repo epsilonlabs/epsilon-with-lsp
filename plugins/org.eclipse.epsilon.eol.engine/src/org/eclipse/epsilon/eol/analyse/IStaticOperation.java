@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 
 public interface IStaticOperation {
 

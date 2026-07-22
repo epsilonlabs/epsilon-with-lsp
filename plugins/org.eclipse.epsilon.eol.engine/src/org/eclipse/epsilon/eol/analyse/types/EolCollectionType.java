@@ -10,7 +10,7 @@
  *                                remove type cache (bug #410403).
  *    Sina Madani - concurrent types
  ******************************************************************************/
-package org.eclipse.epsilon.eol.staticanalyser.types;
+package org.eclipse.epsilon.eol.analyse.types;
 
 import java.util.ArrayList;
 import java.util.List;

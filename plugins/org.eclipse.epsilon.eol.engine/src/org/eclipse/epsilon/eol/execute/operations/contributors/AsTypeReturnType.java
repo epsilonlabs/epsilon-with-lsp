@@ -2,10 +2,10 @@ package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.util.List;
 
+import org.eclipse.epsilon.eol.analyse.types.EolAnyType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
+import org.eclipse.epsilon.eol.analyse.types.EolTypeLiteral;
 import org.eclipse.epsilon.eol.execute.operations.IMethodTypeCalculator;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolAnyType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolTypeLiteral;
 
 public class AsTypeReturnType implements IMethodTypeCalculator {
 

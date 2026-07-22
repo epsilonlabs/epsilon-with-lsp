@@ -13,8 +13,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.epsilon.eol.staticanalyser.types.EolNativeType;
-import org.eclipse.epsilon.eol.staticanalyser.types.EolType;
+import org.eclipse.epsilon.eol.analyse.types.EolNativeType;
+import org.eclipse.epsilon.eol.analyse.types.EolType;
 
 public class DateOperationContributor extends OperationContributor {
 

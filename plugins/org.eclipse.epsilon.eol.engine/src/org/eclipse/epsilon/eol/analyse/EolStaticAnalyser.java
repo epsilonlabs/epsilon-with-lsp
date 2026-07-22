@@ -807,6 +807,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		String modelName = modelDeclaration.getNameExpression().getName();
 		IModel model = context.getModelFactory().createModel(modelDeclaration.getDriverNameExpression().getName());
+		if (model == null) {
+			markers.add(new ModuleMarker(modelDeclaration.getDriverNameExpression(), "Unknown driver", Severity.Warning));
+			return;
+		}
 		model.setName(modelName);
 
 		for (NameExpression alias : modelDeclaration.getAliasNameExpressions()) {
@@ -839,30 +843,25 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 //			}
 //		}
 
-		if (modelDeclaration.getModel() == null) {
-			context.addErrorMarker(modelDeclaration.getDriverNameExpression(),
-					"Unknown type of model: " + modelDeclaration.getDriverNameExpression().getName());
+		StringProperties stringProperties = new StringProperties();
+		for (ModelDeclarationParameter parameter : modelDeclaration.getModelDeclarationParameters()) {
+			stringProperties.put(parameter.getKey(), parameter.getValue());
+		}
+		modelDeclaration.setMetamodel(
+				modelDeclaration.getModel().getMetamodel(stringProperties, context.getRelativePathResolver()));
+		if (modelDeclaration.getMetamodel() != null) {
+			for (String error : modelDeclaration.getMetamodel().getErrors()) {
+				markers.add(new ModuleMarker(modelDeclaration, error, Severity.Error));
+			}
+			for (String warning : modelDeclaration.getMetamodel().getWarnings()) {
+				markers.add(new ModuleMarker(modelDeclaration, warning, Severity.Warning));
+			}
 		} else {
-			StringProperties stringProperties = new StringProperties();
-			for (ModelDeclarationParameter parameter : modelDeclaration.getModelDeclarationParameters()) {
-				stringProperties.put(parameter.getKey(), parameter.getValue());
-			}
-			modelDeclaration.setMetamodel(
-					modelDeclaration.getModel().getMetamodel(stringProperties, context.getRelativePathResolver()));
-			if (modelDeclaration.getMetamodel() != null) {
-				for (String error : modelDeclaration.getMetamodel().getErrors()) {
-					markers.add(new ModuleMarker(modelDeclaration, error, Severity.Error));
-				}
-				for (String warning : modelDeclaration.getMetamodel().getWarnings()) {
-					markers.add(new ModuleMarker(modelDeclaration, warning, Severity.Warning));
-				}
-			} else {
-				markers.add(new ModuleMarker(modelDeclaration,
-						"Model driver '" + modelDeclaration.getDriverNameExpression().getName()
-								+ "' does not provide a metamodel; type checking is unavailable for model '"
-								+ modelName + "'",
-						Severity.Warning));
-			}
+			markers.add(new ModuleMarker(modelDeclaration,
+					"Model driver '" + modelDeclaration.getDriverNameExpression().getName()
+							+ "' does not provide a metamodel; type checking is unavailable for model '"
+							+ modelName + "'",
+					Severity.Warning));
 		}
 
 	}

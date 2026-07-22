@@ -34,7 +34,7 @@ public class ConnectionProviderSolution implements StreamConnectionProvider {
 
 	private static EpsilonLanguageServer createLanguageServer() {
 		EpsilonLanguageServer languageServer = new EpsilonLanguageServer();
-		// TODO: make the server use the ExtensionBasedModelFactory
+		languageServer.setModelFactory(new ExtensionBasedModelFactory());
 		languageServer.addNativeTypeClassLoader(new ExtensionPointToolClassLoader());
 		return languageServer;
 	}

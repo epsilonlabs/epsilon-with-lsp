@@ -13,8 +13,12 @@ public class ExtensionBasedModelFactory implements IModelFactory {
 		if ("Unknown".equals(driver)) {
 			return new UnknownModel();
 		}
+		ModelTypeExtension modelType = ModelTypeExtension.forType(driver);
+		if (modelType == null) {
+			return null;
+		}
 		try {
-			return ModelTypeExtension.forType(driver).createModel();
+			return modelType.createModel();
 		} catch (CoreException e) {
 			e.printStackTrace();
 			return null;

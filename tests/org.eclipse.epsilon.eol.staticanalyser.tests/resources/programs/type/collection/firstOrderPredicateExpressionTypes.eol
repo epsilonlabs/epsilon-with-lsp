@@ -1,0 +1,59 @@
+var c : Sequence;
+c.select(x | 5);
+c.selectOne(x | 5);
+c.selectFirst(x | 5);
+c.reject(x | 5);
+c.rejectOne(x | 5);
+c.exists(x | 5);
+c.forAll(x | 5);
+c.count(x | 5);
+c.one(x | 5);
+c.none(x | 5);
+c.nMatch(x | 5, 1);
+c.atLeastNMatch(x | 5, 1);
+c.atMostNMatch(x | 5, 1);
+c.find(x | 5);
+c.findOne(x | 5);
+c.parallelSelect(x | 5);
+c.parallelSelectOne(x | 5);
+c.parallelReject(x | 5);
+c.parallelRejectOne(x | 5);
+c.parallelExists(x | 5);
+c.parallelForAll(x | 5);
+c.parallelCount(x | 5);
+c.parallelOne(x | 5);
+c.parallelNone(x | 5);
+c.parallelNMatch(x | 5, 1);
+c.parallelAtLeastNMatch(x | 5, 1);
+c.parallelAtMostNMatch(x | 5, 1);
+
+/*Sequence<Integer>*/c.collect(x | 5);
+/*Sequence<Integer>*/c.parallelCollect(x | 5);
+
+//![2:13-2:14] Expression type should be Boolean instead of Integer
+//![3:16-3:17] Expression type should be Boolean instead of Integer
+//![4:18-4:19] Expression type should be Boolean instead of Integer
+//![5:13-5:14] Expression type should be Boolean instead of Integer
+//![6:16-6:17] Expression type should be Boolean instead of Integer
+//![7:13-7:14] Expression type should be Boolean instead of Integer
+//![8:13-8:14] Expression type should be Boolean instead of Integer
+//![9:12-9:13] Expression type should be Boolean instead of Integer
+//![10:10-10:11] Expression type should be Boolean instead of Integer
+//![11:11-11:12] Expression type should be Boolean instead of Integer
+//![12:13-12:14] Expression type should be Boolean instead of Integer
+//![13:20-13:21] Expression type should be Boolean instead of Integer
+//![14:19-14:20] Expression type should be Boolean instead of Integer
+//![15:11-15:12] Expression type should be Boolean instead of Integer
+//![16:14-16:15] Expression type should be Boolean instead of Integer
+//![17:21-17:22] Expression type should be Boolean instead of Integer
+//![18:24-18:25] Expression type should be Boolean instead of Integer
+//![19:21-19:22] Expression type should be Boolean instead of Integer
+//![20:24-20:25] Expression type should be Boolean instead of Integer
+//![21:21-21:22] Expression type should be Boolean instead of Integer
+//![22:21-22:22] Expression type should be Boolean instead of Integer
+//![23:20-23:21] Expression type should be Boolean instead of Integer
+//![24:18-24:19] Expression type should be Boolean instead of Integer
+//![25:19-25:20] Expression type should be Boolean instead of Integer
+//![26:21-26:22] Expression type should be Boolean instead of Integer
+//![27:28-27:29] Expression type should be Boolean instead of Integer
+//![28:27-28:28] Expression type should be Boolean instead of Integer

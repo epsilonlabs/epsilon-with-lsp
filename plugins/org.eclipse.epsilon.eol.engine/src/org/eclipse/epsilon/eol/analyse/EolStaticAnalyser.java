@@ -123,7 +123,11 @@ import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContribu
 import org.eclipse.epsilon.eol.execute.operations.contributors.ReflectiveOperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.contributors.ScalarOperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.contributors.WrapperOperationContributor;
+import org.eclipse.epsilon.eol.execute.operations.declarative.CountOperation;
 import org.eclipse.epsilon.eol.execute.operations.declarative.FirstOrderOperation;
+import org.eclipse.epsilon.eol.execute.operations.declarative.NMatchOperation;
+import org.eclipse.epsilon.eol.execute.operations.declarative.SelectBasedOperation;
+import org.eclipse.epsilon.eol.execute.operations.declarative.SelectOperation;
 import org.eclipse.epsilon.eol.m3.IEnum;
 import org.eclipse.epsilon.eol.m3.IMetaClass;
 import org.eclipse.epsilon.eol.m3.IMetamodel;
@@ -572,10 +576,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return;
 		}
 		TypeCalculator tc = operation.getClass().getAnnotation(TypeCalculator.class);
-		if (tc == null) {
-			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);
-			return;
-		}
 
 		Expression targetExpression = firstOrderOperationCallExpression.getTargetExpression();
 		targetExpression.accept(this);
@@ -606,7 +606,21 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 		List<EolType> expressionTypes = expressions.stream().map(e -> getResolvedType(e)).collect(Collectors.toList());
+		if (!expressions.isEmpty()
+				&& (operation instanceof SelectOperation
+						|| operation instanceof SelectBasedOperation
+						|| operation instanceof CountOperation
+						|| operation instanceof NMatchOperation)
+				&& !expressionTypes.get(0).isAssignableTo(EolPrimitiveType.Boolean)) {
+			markers.add(new ModuleMarker(expressions.get(0), "Expression type should be Boolean instead of "
+					+ expressionTypes.get(0), Severity.Error));
+		}
 		context.getFrameStack().leaveLocal(firstOrderOperationCallExpression);
+
+		if (tc == null) {
+			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);
+			return;
+		}
 
 		try {
 			EolType returnType = tc.klass().newInstance().calculateType(contextType, iteratorType, expressionTypes);

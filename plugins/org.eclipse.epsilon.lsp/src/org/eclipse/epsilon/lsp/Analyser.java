@@ -38,6 +38,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -273,6 +274,31 @@ public class Analyser {
 		return locations;
 	}
 
+	public List<DocumentSymbol> getDocumentSymbols(URI fileUri) {
+		IEolModule module = createModule(getFileExtension(fileUri));
+		if (module == null) {
+			return Collections.emptyList();
+		}
+
+		final URI moduleUri;
+		try {
+			moduleUri = new URI(MapEntryRegistry.PROTOCOL, "", fileUri.getPath(), null);
+		} catch (URISyntaxException e) {
+			LOGGER.warning("Failed to create document symbol URI: " + e.getMessage());
+			return Collections.emptyList();
+		}
+
+		try {
+			module.parse(moduleUri);
+		} catch (Exception e) {
+			// Parser recovery may still have produced declarations that are useful
+			// while the document is being edited.
+			LOGGER.warning("Failed to parse document while computing symbols: " + e.getMessage());
+		}
+
+		return DocumentSymbolExtractor.extract(module, readDocumentCode(fileUri));
+	}
+
 	private Location toLocation(ModuleElement element, URI fallbackUri) {
 		Region region = element.getRegion();
 		if (region == null || region.getStart() == null || region.getEnd() == null) {
@@ -364,7 +390,7 @@ public class Analyser {
 		try {
 			return new String(Files.readAllBytes(Paths.get(fileUri)), StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			LOGGER.warning("Failed to read completion source: " + e.getMessage());
+			LOGGER.warning("Failed to read document source: " + e.getMessage());
 			return null;
 		}
 	}

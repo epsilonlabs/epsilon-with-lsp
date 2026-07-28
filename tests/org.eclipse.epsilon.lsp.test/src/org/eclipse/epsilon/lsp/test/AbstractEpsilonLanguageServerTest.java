@@ -27,16 +27,21 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.epsilon.lsp.EpsilonLanguageServer;
+import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
+import org.eclipse.lsp4j.SymbolKind;
+import org.eclipse.lsp4j.SymbolKindCapabilities;
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -53,6 +58,7 @@ public class AbstractEpsilonLanguageServerTest {
 	protected EpsilonLanguageServer server;
 	protected TextDocumentService docService;
 	protected TestClient testClient;
+	protected InitializeResult initializeResult;
 
 	protected class TestClient implements LanguageClient {
 		protected Map<String, List<Diagnostic>> publishedDiagnostics = new HashMap<>();
@@ -97,10 +103,20 @@ public class AbstractEpsilonLanguageServerTest {
 		testClient = new TestClient();
 		server.connect(testClient);
 
-		InitializeResult initResults = server.initialize(new InitializeParams()).get(5, TimeUnit.SECONDS);
-		assertNotNull("Initialisation should have completed in 5s", initResults);
+		DocumentSymbolCapabilities documentSymbolCapabilities = new DocumentSymbolCapabilities();
+		documentSymbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
+		documentSymbolCapabilities.setSymbolKind(new SymbolKindCapabilities(List.of(SymbolKind.values())));
+		TextDocumentClientCapabilities textDocumentCapabilities = new TextDocumentClientCapabilities();
+		textDocumentCapabilities.setDocumentSymbol(documentSymbolCapabilities);
+		ClientCapabilities clientCapabilities = new ClientCapabilities();
+		clientCapabilities.setTextDocument(textDocumentCapabilities);
+		InitializeParams initializeParams = new InitializeParams();
+		initializeParams.setCapabilities(clientCapabilities);
+
+		initializeResult = server.initialize(initializeParams).get(5, TimeUnit.SECONDS);
+		assertNotNull("Initialisation should have completed in 5s", initializeResult);
 		assertEquals("Should be using full-text synchronisation",
-			TextDocumentSyncKind.Full, initResults.getCapabilities().getTextDocumentSync().getLeft());
+			TextDocumentSyncKind.Full, initializeResult.getCapabilities().getTextDocumentSync().getLeft());
 
 		docService = server.getTextDocumentService();
 	}

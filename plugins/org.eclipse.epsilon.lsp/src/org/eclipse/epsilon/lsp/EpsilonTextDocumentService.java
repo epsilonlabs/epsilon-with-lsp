@@ -17,7 +17,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -35,19 +37,23 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
+import org.eclipse.lsp4j.DocumentSymbol;
+import org.eclipse.lsp4j.DocumentSymbolParams;
+import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 public class EpsilonTextDocumentService implements TextDocumentService {
     protected final EpsilonLanguageServer languageServer;
+    private final Set<String> openDocumentPaths = ConcurrentHashMap.newKeySet();
     
     public EpsilonTextDocumentService(EpsilonLanguageServer languageServer) {
         this.languageServer = languageServer;
@@ -58,7 +64,12 @@ public class EpsilonTextDocumentService implements TextDocumentService {
         final TextDocumentItem doc = params.getTextDocument();
         
         if (doc.getUri().endsWith(".eol") || doc.getUri().endsWith(".evl") || doc.getUri().endsWith(".egl") || doc.getUri().endsWith(".egx")) {
-            languageServer.analyser.processDocument(URI.create(doc.getUri()));
+            URI uri = URI.create(doc.getUri());
+            if (uri.getPath() != null) {
+                MapEntryRegistry.getInstance().putCode(uri.getPath(), doc.getText());
+                openDocumentPaths.add(uri.getPath());
+            }
+            languageServer.analyser.processDocument(uri);
         }
         else {
         	publishDiagnostics(doc.getText(), doc.getUri(), doc.getLanguageId());
@@ -168,6 +179,55 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     }
 
 	@Override
+	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(DocumentSymbolParams params) {
+		final String uriString = params.getTextDocument().getUri();
+		if (!(uriString.endsWith(".eol") || uriString.endsWith(".evl") || uriString.endsWith(".egl") || uriString.endsWith(".egx"))) {
+			return CompletableFuture.completedFuture(Collections.emptyList());
+		}
+
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				List<DocumentSymbol> symbols = languageServer.analyser.getDocumentSymbols(URI.create(uriString));
+				normalizeSymbolKinds(symbols);
+				List<Either<SymbolInformation, DocumentSymbol>> result = new ArrayList<>(symbols.size());
+				if (languageServer.supportsHierarchicalDocumentSymbols()) {
+					for (DocumentSymbol symbol : symbols) {
+						result.add(Either.forRight(symbol));
+					}
+				}
+				else {
+					addSymbolInformation(result, symbols, uriString, null);
+				}
+				return result;
+			} catch (Exception ex) {
+				log(ex);
+				return Collections.emptyList();
+			}
+		});
+	}
+
+	private void normalizeSymbolKinds(List<DocumentSymbol> symbols) {
+		for (DocumentSymbol symbol : symbols) {
+			symbol.setKind(languageServer.getSupportedDocumentSymbolKind(symbol.getKind()));
+			if (symbol.getChildren() != null) {
+				normalizeSymbolKinds(symbol.getChildren());
+			}
+		}
+	}
+
+	private void addSymbolInformation(List<Either<SymbolInformation, DocumentSymbol>> result,
+			List<DocumentSymbol> symbols, String uri, String containerName) {
+		for (DocumentSymbol symbol : symbols) {
+			SymbolInformation information = new SymbolInformation(symbol.getName(), symbol.getKind(),
+				new Location(uri, symbol.getSelectionRange()), containerName);
+			result.add(Either.forLeft(information));
+			if (symbol.getChildren() != null) {
+				addSymbolInformation(result, symbol.getChildren(), uri, symbol.getName());
+			}
+		}
+	}
+
+	@Override
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> declaration(DeclarationParams params) {
 		return declarationOrDefinition(params.getTextDocument().getUri(), params.getPosition());
 	}
@@ -196,7 +256,18 @@ public class EpsilonTextDocumentService implements TextDocumentService {
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
+		URI uri = URI.create(params.getTextDocument().getUri());
+		if (uri.getPath() != null && openDocumentPaths.remove(uri.getPath())) {
+			MapEntryRegistry.getInstance().removeCode(uri.getPath());
+		}
     }
+
+	void clearOpenDocuments() {
+		for (String path : openDocumentPaths) {
+			MapEntryRegistry.getInstance().removeCode(path);
+		}
+		openDocumentPaths.clear();
+	}
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {

@@ -10,7 +10,8 @@ import junit.framework.Test;
 @RunWith(Suite.class)
 @SuiteClasses({
 	SyntaxCheckTest.class,
-	ImportTests.class
+	ImportTests.class,
+	DocumentSymbolTest.class
 })
 public class EpsilonLanguageServerTestSuite {
 	public static Test suite() {

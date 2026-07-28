@@ -10,7 +10,9 @@
 package org.eclipse.epsilon.lsp;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -19,9 +21,11 @@ import java.util.function.Function;
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.analyse.StaticModelFactory;
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -39,6 +43,8 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
     protected Consumer<Integer> exitFunction = null;
     protected LanguageClient client;
+    protected boolean hierarchicalDocumentSymbolSupport;
+    protected Set<SymbolKind> supportedDocumentSymbolKinds = defaultDocumentSymbolKinds();
     
     protected List<WorkspaceFolder> workspaceFolders;
     protected IModelFactory modelFactory = new StaticModelFactory();
@@ -85,6 +91,17 @@ public class EpsilonLanguageServer implements LanguageServer {
 	@Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		workspaceFolders = params.getWorkspaceFolders();
+        DocumentSymbolCapabilities documentSymbolCapabilities = params.getCapabilities() == null
+            || params.getCapabilities().getTextDocument() == null
+            ? null : params.getCapabilities().getTextDocument().getDocumentSymbol();
+        hierarchicalDocumentSymbolSupport = documentSymbolCapabilities != null
+            && Boolean.TRUE.equals(documentSymbolCapabilities.getHierarchicalDocumentSymbolSupport());
+        supportedDocumentSymbolKinds = documentSymbolCapabilities == null
+            || documentSymbolCapabilities.getSymbolKind() == null
+            || documentSymbolCapabilities.getSymbolKind().getValueSet() == null
+            || documentSymbolCapabilities.getSymbolKind().getValueSet().isEmpty()
+            ? defaultDocumentSymbolKinds()
+            : EnumSet.copyOf(documentSymbolCapabilities.getSymbolKind().getValueSet());
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
@@ -97,6 +114,7 @@ public class EpsilonLanguageServer implements LanguageServer {
         res.getCapabilities().setCompletionProvider(completionOptions);
         res.getCapabilities().setDeclarationProvider(true);
         res.getCapabilities().setDefinitionProvider(true);
+        res.getCapabilities().setDocumentSymbolProvider(true);
 
         analyser = new Analyser(this);
         analyser.initialize();
@@ -106,6 +124,7 @@ public class EpsilonLanguageServer implements LanguageServer {
     @Override
     public CompletableFuture<Object> shutdown() {
     	shutdown.set(true);
+        textDocumentService.clearOpenDocuments();
         return CompletableFuture.completedFuture(null);
     }
 
@@ -138,6 +157,26 @@ public class EpsilonLanguageServer implements LanguageServer {
 
     public Analyser getAnalyser() {
     	return analyser;
+    }
+
+    public boolean supportsHierarchicalDocumentSymbols() {
+        return hierarchicalDocumentSymbolSupport;
+    }
+
+    public SymbolKind getSupportedDocumentSymbolKind(SymbolKind preferred) {
+        if (supportedDocumentSymbolKinds.contains(preferred)) {
+            return preferred;
+        }
+
+        SymbolKind fallback = preferred == SymbolKind.Object ? SymbolKind.Variable : SymbolKind.Function;
+        if (supportedDocumentSymbolKinds.contains(fallback)) {
+            return fallback;
+        }
+        return supportedDocumentSymbolKinds.iterator().next();
+    }
+
+    private static Set<SymbolKind> defaultDocumentSymbolKinds() {
+        return EnumSet.range(SymbolKind.File, SymbolKind.Array);
     }
 
 	public IModelFactory getModelFactory() {

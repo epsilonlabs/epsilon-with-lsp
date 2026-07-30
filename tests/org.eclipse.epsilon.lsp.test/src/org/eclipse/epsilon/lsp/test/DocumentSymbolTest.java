@@ -247,8 +247,8 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 		return document.toUri().toString();
 	}
 
-	private String open(Path document, String languageId, String source) {
-		String uri = document.toAbsolutePath().toUri().toString();
+	private String open(Path document, String languageId, String source) throws Exception {
+		String uri = document.toFile().getCanonicalFile().toURI().toString();
 		docService.didOpen(new DidOpenTextDocumentParams(new TextDocumentItem(uri, languageId, 1, source)));
 		return uri;
 	}

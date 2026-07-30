@@ -280,23 +280,20 @@ public class Analyser {
 			return Collections.emptyList();
 		}
 
-		final URI moduleUri;
-		try {
-			moduleUri = new URI(MapEntryRegistry.PROTOCOL, "", fileUri.getPath(), null);
-		} catch (URISyntaxException e) {
-			LOGGER.warning("Failed to create document symbol URI: " + e.getMessage());
+		String code = readDocumentCode(fileUri);
+		if (code == null) {
 			return Collections.emptyList();
 		}
 
 		try {
-			module.parse(moduleUri);
+			module.parse(code, sourceFileFor(fileUri));
 		} catch (Exception e) {
 			// Parser recovery may still have produced declarations that are useful
 			// while the document is being edited.
 			LOGGER.warning("Failed to parse document while computing symbols: " + e.getMessage());
 		}
 
-		return DocumentSymbolExtractor.extract(module, readDocumentCode(fileUri));
+		return DocumentSymbolExtractor.extract(module, code);
 	}
 
 	private Location toLocation(ModuleElement element, URI fallbackUri) {

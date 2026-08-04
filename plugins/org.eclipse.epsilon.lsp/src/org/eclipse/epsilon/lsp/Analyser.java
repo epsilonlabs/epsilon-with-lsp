@@ -13,7 +13,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -61,6 +63,7 @@ public class Analyser {
 
     protected final EpsilonLanguageServer languageServer;
 	private MutableGraph<URI> dependencyGraph = GraphBuilder.directed().build();
+	private final Map<URI, URI> publishedDocumentUris = new HashMap<>();
 	
     public Analyser(EpsilonLanguageServer languageServer) {
         this.languageServer = languageServer;
@@ -90,6 +93,7 @@ public class Analyser {
 		.getInstance()
 		.putCode(uri.getPath(), code);
 		URI documentUri = MapEntryRegistry.canonicalFileUri(uri);
+		publishedDocumentUris.putIfAbsent(documentUri, toFileUri(uri));
 //		//The transitive closure also includes the node itself
 		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(documentUri)) {
 			processDocument(withScheme(uriDependent, MapEntryRegistry.PROTOCOL));
@@ -99,6 +103,14 @@ public class Analyser {
 	public void processDocument(URI uri){
 		IEolModule module = createModule(getFileExtension(uri));
 		List<Diagnostic> diagnostics = Collections.emptyList();
+		URI documentUri = MapEntryRegistry.canonicalFileUri(uri);
+		URI publishedDocumentUri = toFileUri(uri);
+		if (MapEntryRegistry.PROTOCOL.equals(uri.getScheme())) {
+			publishedDocumentUris.putIfAbsent(documentUri, publishedDocumentUri);
+		}
+		else {
+			publishedDocumentUris.put(documentUri, publishedDocumentUri);
+		}
 		
 		if(module !=null) {
 			try {
@@ -125,16 +137,9 @@ public class Analyser {
 			}
 		} 
 
-		String uriString = uri.toString();
-		if (uri.getScheme().equals("mapentry")) {
-			try {
-				uriString = withScheme(uri, "file").toString();
-			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(uriString, diagnostics));
+		URI diagnosticUri = publishedDocumentUris.getOrDefault(documentUri, publishedDocumentUri);
+		languageServer.getClient().publishDiagnostics(
+			new PublishDiagnosticsParams(diagnosticUri.toString(), diagnostics));
 
 	}
 	
@@ -416,6 +421,18 @@ public class Analyser {
 	private static URI withScheme(URI uri, String scheme) throws URISyntaxException {
 		return new URI(scheme, uri.getAuthority() == null ? "" : uri.getAuthority(),
 			uri.getPath(), uri.getQuery(), uri.getFragment());
+	}
+
+	private static URI toFileUri(URI uri) {
+		if (MapEntryRegistry.PROTOCOL.equals(uri.getScheme())) {
+			try {
+				return withScheme(uri, "file");
+			}
+			catch (URISyntaxException ex) {
+				return uri;
+			}
+		}
+		return uri;
 	}
 
 	private Position toLspPosition(org.eclipse.epsilon.common.parse.Position position) {

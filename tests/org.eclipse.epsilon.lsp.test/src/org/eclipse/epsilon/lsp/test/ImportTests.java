@@ -1,6 +1,7 @@
 package org.eclipse.epsilon.lsp.test;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -8,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -93,6 +95,44 @@ public class ImportTests extends AbstractEpsilonLanguageServerTest {
 		// Notify the analyser of the changed library content
 		server.getAnalyser().checkChangedDocument(lib.toURI(), newLibContent);
 		assertPublishedExprectedDiagnostics(mainUri, List.of("Undefined operation foo"));
+	}
+
+	@Test
+	public void recheckedDiagnosticsUseWorkspaceUrisAcrossSymlinks() throws Exception {
+		Path directory = Files.createTempDirectory("eol-import-alias-test").toRealPath();
+		Files.createDirectory(directory.resolve("workspace"));
+		Path alias = directory.resolveSibling(directory.getFileName() + "-alias");
+		try {
+			Files.createSymbolicLink(alias, directory);
+		}
+		catch (IOException | UnsupportedOperationException | SecurityException ex) {
+			Assume.assumeNoException(ex);
+			return;
+		}
+		Path workspace = alias.resolve("workspace");
+
+		Path library = workspace.resolve("lib.eol");
+		Path main = workspace.resolve("main.eol");
+		Path standalone = workspace.resolve("standalone.eol");
+		Files.writeString(library, "operation foo(){}", StandardCharsets.UTF_8);
+		Files.writeString(main, "import 'lib.eol';\nfoo();", StandardCharsets.UTF_8);
+		Files.writeString(standalone, "var a:Integer = 42;", StandardCharsets.UTF_8);
+
+		Field wfField = server.getClass().getDeclaredField("workspaceFolders");
+		wfField.setAccessible(true);
+		wfField.set(server, List.of(new WorkspaceFolder(workspace.toUri().toString(), workspace.toString())));
+		server.getAnalyser().initialize();
+
+		assertPublishedEmptyDiagnostics(library.toUri().toString());
+		assertPublishedEmptyDiagnostics(main.toUri().toString());
+		assertPublishedEmptyDiagnostics(standalone.toUri().toString());
+
+		server.getAnalyser().checkChangedDocument(standalone.toUri(), "var a:Integer = 1.5;");
+		assertPublishedExprectedDiagnostics(standalone.toUri().toString(),
+			List.of("Real may not be assigned to Integer"));
+
+		server.getAnalyser().checkChangedDocument(library.toUri(), "operation bar(){}");
+		assertPublishedExprectedDiagnostics(main.toUri().toString(), List.of("Undefined operation foo"));
 	}
 	
 	@Test

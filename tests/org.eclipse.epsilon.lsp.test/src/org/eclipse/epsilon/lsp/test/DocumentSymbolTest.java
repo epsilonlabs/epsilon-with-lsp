@@ -15,6 +15,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -45,6 +46,7 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
@@ -387,6 +389,37 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 
 		assertNotNull(location);
 		assertEquals(new Position(0, 10), location.getRange().getStart());
+	}
+
+	@Test
+	public void absoluteImportThroughSymlinkUsesCanonicalBufferAndLocation() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols").toRealPath();
+		Path alias = directory.resolveSibling(directory.getFileName() + "-alias");
+		try {
+			Files.createSymbolicLink(alias, directory);
+		}
+		catch (IOException | UnsupportedOperationException | SecurityException ex) {
+			Assume.assumeNoException(ex);
+			return;
+		}
+
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library, "operation broken() {", StandardCharsets.UTF_8);
+		MapEntryRegistry.getInstance().putCode(
+			library.toFile().getCanonicalFile().toURI().getPath(), "operation imported() {}");
+		Path document = directory.resolve("main.eol");
+		String source = "import '" + alias.resolve("library.eol").toString().replace('\\', '/')
+			+ "';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		assertEquals(List.of("imported"), names(libraryImport.getChildren()));
+		Location location = navigate(uri, libraryImport, List.of(0));
+		assertEquals(library.toFile().getCanonicalFile().toURI(), URI.create(location.getUri()));
+
+		didChange(library.toFile(), 2, "operation added() {}\noperation imported() {}");
+		assertEquals(List.of("added", "imported"), names(documentSymbols(uri).get(0).getChildren()));
 	}
 
 	@Test

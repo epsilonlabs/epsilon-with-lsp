@@ -1,6 +1,7 @@
 package org.eclipse.epsilon.lsp;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -29,15 +30,15 @@ public final class MapEntryRegistry {
 	}
 
 	public String getCode(String path) {
-		return pathToCode.get(path);
+		return pathToCode.get(canonicalPath(path));
 	}
 
 	public void putCode(String path, String code) {
-		pathToCode.put(path, code);
+		pathToCode.put(canonicalPath(path), code);
 	}
 
 	public void removeCode(String path) {
-		pathToCode.remove(path);
+		pathToCode.remove(canonicalPath(path));
 	}
 
 	public void clear() {
@@ -55,6 +56,38 @@ public final class MapEntryRegistry {
 		}
 		catch (URISyntaxException ex) {
 			throw new IOException("Invalid map entry URL " + url, ex);
+		}
+	}
+
+	/** Returns one stable identity for file and {@value #PROTOCOL} URI aliases. */
+	static URI canonicalFileUri(URI uri) {
+		URI normalized = uri.normalize();
+		if (PROTOCOL.equals(normalized.getScheme())) {
+			try {
+				normalized = new URI("file", normalized.getAuthority(), normalized.getPath(), null, null);
+			}
+			catch (URISyntaxException ex) {
+				return normalized;
+			}
+		}
+		if (!"file".equalsIgnoreCase(normalized.getScheme())) {
+			return normalized;
+		}
+
+		try {
+			return new File(normalized).getCanonicalFile().toURI();
+		}
+		catch (IOException | IllegalArgumentException | SecurityException ex) {
+			return normalized;
+		}
+	}
+
+	private static String canonicalPath(String path) {
+		try {
+			return canonicalFileUri(new URI("file", null, path, null)).getPath();
+		}
+		catch (URISyntaxException | IllegalArgumentException ex) {
+			return path;
 		}
 	}
 

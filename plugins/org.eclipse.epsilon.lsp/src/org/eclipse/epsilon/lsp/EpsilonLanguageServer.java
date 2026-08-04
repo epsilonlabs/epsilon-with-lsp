@@ -22,6 +22,7 @@ import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.analyse.StaticModelFactory;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentSymbolCapabilities;
+import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
@@ -115,6 +116,8 @@ public class EpsilonLanguageServer implements LanguageServer {
         res.getCapabilities().setDeclarationProvider(true);
         res.getCapabilities().setDefinitionProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(true);
+		res.getCapabilities().setExecuteCommandProvider(
+			new ExecuteCommandOptions(List.of(EpsilonWorkspaceService.OPEN_DOCUMENT_SYMBOL_COMMAND)));
 
         analyser = new Analyser(this);
         analyser.initialize();

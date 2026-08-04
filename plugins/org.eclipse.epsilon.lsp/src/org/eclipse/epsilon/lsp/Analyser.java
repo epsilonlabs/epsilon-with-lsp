@@ -91,7 +91,7 @@ public class Analyser {
 		.putCode(uri.getPath(), code);
 //		//The transitive closure also includes the node itself
 		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(uri)) {
-			processDocument( new URI("mapentry", "", uriDependent.getPath(), null));
+			processDocument(withScheme(uriDependent, MapEntryRegistry.PROTOCOL));
 		}
 	}
     
@@ -125,7 +125,7 @@ public class Analyser {
 		String uriString = uri.toString();
 		if (uri.getScheme().equals("mapentry")) {
 			try {
-				uriString = new URI("file","", uri.getPath(),null).toString();
+				uriString = withScheme(uri, "file").toString();
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -190,7 +190,7 @@ public class Analyser {
 		// file on disk when the registry does not contain the path.
         final URI moduleUri;
         try {
-            moduleUri = new URI(MapEntryRegistry.PROTOCOL, "", fileUri.getPath(), null);
+            moduleUri = withScheme(fileUri, MapEntryRegistry.PROTOCOL);
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return Collections.emptyList();
@@ -245,7 +245,7 @@ public class Analyser {
 
 		final URI moduleUri;
 		try {
-			moduleUri = new URI(MapEntryRegistry.PROTOCOL, "", fileUri.getPath(), null);
+			moduleUri = withScheme(fileUri, MapEntryRegistry.PROTOCOL);
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			return Collections.emptyList();
@@ -275,17 +275,21 @@ public class Analyser {
 	}
 
 	public List<DocumentSymbol> getDocumentSymbols(URI fileUri) {
+		return extractDocumentSymbols(fileUri).symbols;
+	}
+
+	DocumentSymbolExtractor.Extraction extractDocumentSymbols(URI fileUri) {
 		IEolModule module = createModule(getFileExtension(fileUri));
 		if (module == null) {
-			return Collections.emptyList();
+			return DocumentSymbolExtractor.Extraction.empty();
 		}
 
 		final URI moduleUri;
 		try {
-			moduleUri = new URI(MapEntryRegistry.PROTOCOL, "", fileUri.getPath(), null);
+			moduleUri = withScheme(fileUri, MapEntryRegistry.PROTOCOL);
 		} catch (URISyntaxException e) {
 			LOGGER.warning("Failed to create document symbol URI: " + e.getMessage());
-			return Collections.emptyList();
+			return DocumentSymbolExtractor.Extraction.empty();
 		}
 
 		try {
@@ -297,6 +301,92 @@ public class Analyser {
 		}
 
 		return DocumentSymbolExtractor.extract(module, readDocumentCode(fileUri));
+	}
+
+	Location getDocumentSymbolLocation(URI fileUri, int rootLine, int rootCharacter,
+			List<String> pathSignatures, List<Integer> childPath,
+			List<List<String>> siblingSignatures) {
+		if (childPath == null || pathSignatures == null
+				|| siblingSignatures == null || pathSignatures.size() != childPath.size() + 1
+				|| siblingSignatures.size() != childPath.size()) {
+			return null;
+		}
+
+		DocumentSymbolExtractor.Extraction extraction = extractDocumentSymbols(fileUri);
+		for (DocumentSymbol root : extraction.symbols) {
+			if (root.getRange() == null || root.getRange().getStart() == null) {
+				continue;
+			}
+			Position rootPosition = root.getRange().getStart();
+			if (rootPosition.getLine() != rootLine || rootPosition.getCharacter() != rootCharacter
+					|| !EpsilonWorkspaceService.documentSymbolSignature(root).equals(pathSignatures.get(0))) {
+				continue;
+			}
+
+			DocumentSymbol selected = root;
+			for (int depth = 0; depth < childPath.size(); depth++) {
+				Integer childIndex = childPath.get(depth);
+				List<DocumentSymbol> children = selected.getChildren();
+				if (childIndex == null || childIndex < 0 || children == null) {
+					return null;
+				}
+				String signature = pathSignatures.get(depth + 1);
+				if (sameDocumentSymbolSignatures(children, siblingSignatures.get(depth))) {
+					if (childIndex >= children.size()) {
+						return null;
+					}
+					selected = children.get(childIndex);
+					if (!EpsilonWorkspaceService.documentSymbolSignature(selected).equals(signature)) {
+						return null;
+					}
+				}
+				else {
+					if (Collections.frequency(siblingSignatures.get(depth), signature) != 1) {
+						return null;
+					}
+					selected = uniqueDocumentSymbol(children, signature);
+					if (selected == null) {
+						return null;
+					}
+				}
+			}
+			Location location = extraction.locations.get(selected);
+			return location == null ? null : copy(location);
+		}
+		return null;
+	}
+
+	private static boolean sameDocumentSymbolSignatures(
+			List<DocumentSymbol> symbols, List<String> signatures) {
+		if (signatures == null || symbols.size() != signatures.size()) {
+			return false;
+		}
+		for (int index = 0; index < symbols.size(); index++) {
+			if (!EpsilonWorkspaceService.documentSymbolSignature(symbols.get(index)).equals(signatures.get(index))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static DocumentSymbol uniqueDocumentSymbol(List<DocumentSymbol> symbols, String signature) {
+		DocumentSymbol match = null;
+		for (DocumentSymbol symbol : symbols) {
+			if (EpsilonWorkspaceService.documentSymbolSignature(symbol).equals(signature)) {
+				if (match != null) {
+					return null;
+				}
+				match = symbol;
+			}
+		}
+		return match;
+	}
+
+	private static Location copy(Location location) {
+		Range range = location.getRange();
+		return new Location(location.getUri(), new Range(
+			new Position(range.getStart().getLine(), range.getStart().getCharacter()),
+			new Position(range.getEnd().getLine(), range.getEnd().getCharacter())));
 	}
 
 	private Location toLocation(ModuleElement element, URI fallbackUri) {
@@ -312,12 +402,17 @@ public class Analyser {
 		URI targetUri = uri != null ? uri : fallbackUri;
 		if (MapEntryRegistry.PROTOCOL.equals(targetUri.getScheme())) {
 			try {
-				return new URI("file", "", targetUri.getPath(), null).toString();
+				return withScheme(targetUri, "file").toString();
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
 			}
 		}
 		return targetUri.toString();
+	}
+
+	private static URI withScheme(URI uri, String scheme) throws URISyntaxException {
+		return new URI(scheme, uri.getAuthority() == null ? "" : uri.getAuthority(),
+			uri.getPath(), uri.getQuery(), uri.getFragment());
 	}
 
 	private Position toLspPosition(org.eclipse.epsilon.common.parse.Position position) {

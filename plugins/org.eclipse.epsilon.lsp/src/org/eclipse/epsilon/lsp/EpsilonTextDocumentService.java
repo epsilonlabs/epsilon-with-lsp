@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -187,7 +188,9 @@ public class EpsilonTextDocumentService implements TextDocumentService {
 
 		return CompletableFuture.supplyAsync(() -> {
 			try {
-				List<DocumentSymbol> symbols = languageServer.analyser.getDocumentSymbols(URI.create(uriString));
+				DocumentSymbolExtractor.Extraction extraction =
+					languageServer.analyser.extractDocumentSymbols(URI.create(uriString));
+				List<DocumentSymbol> symbols = extraction.symbols;
 				normalizeSymbolKinds(symbols);
 				List<Either<SymbolInformation, DocumentSymbol>> result = new ArrayList<>(symbols.size());
 				if (languageServer.supportsHierarchicalDocumentSymbols()) {
@@ -196,7 +199,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
 					}
 				}
 				else {
-					addSymbolInformation(result, symbols, uriString, null);
+					addSymbolInformation(result, symbols, extraction.locations, uriString, null);
 				}
 				return result;
 			} catch (Exception ex) {
@@ -216,13 +219,18 @@ public class EpsilonTextDocumentService implements TextDocumentService {
 	}
 
 	private void addSymbolInformation(List<Either<SymbolInformation, DocumentSymbol>> result,
-			List<DocumentSymbol> symbols, String uri, String containerName) {
+			List<DocumentSymbol> symbols, Map<DocumentSymbol, Location> locations,
+			String fallbackUri, String containerName) {
 		for (DocumentSymbol symbol : symbols) {
+			Location location = locations.get(symbol);
+			if (location == null) {
+				location = new Location(fallbackUri, symbol.getSelectionRange());
+			}
 			SymbolInformation information = new SymbolInformation(symbol.getName(), symbol.getKind(),
-				new Location(uri, symbol.getSelectionRange()), containerName);
+				location, containerName);
 			result.add(Either.forLeft(information));
 			if (symbol.getChildren() != null) {
-				addSymbolInformation(result, symbol.getChildren(), uri, symbol.getName());
+				addSymbolInformation(result, symbol.getChildren(), locations, fallbackUri, symbol.getName());
 			}
 		}
 	}

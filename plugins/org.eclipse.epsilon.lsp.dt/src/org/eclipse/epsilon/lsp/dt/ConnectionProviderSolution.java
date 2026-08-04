@@ -23,14 +23,14 @@ import org.osgi.framework.Bundle;
 
 public class ConnectionProviderSolution implements StreamConnectionProvider {
 
-	private static final EpsilonLanguageServer LANGUAGE_SERVER = createLanguageServer();
-
+	private EpsilonLanguageServer languageServer;
 	private InputStream clientInputStream;
 	private OutputStream clientOutputStream;
 	private Launcher<LanguageClient> launcher;
 	private InputStream errorStream;
 	private Future<Void> listener;
 	private Collection<Closeable> streams = new ArrayList<>(4);
+	private boolean navigationInstalled;
 
 	private static EpsilonLanguageServer createLanguageServer() {
 		EpsilonLanguageServer languageServer = new EpsilonLanguageServer();
@@ -41,13 +41,14 @@ public class ConnectionProviderSolution implements StreamConnectionProvider {
 
 	@Override
 	public void start() throws IOException {
+		languageServer = createLanguageServer();
 		Pipe serverOutputToClientInput = Pipe.open();
 		Pipe clientOutputToServerInput = Pipe.open();
 
 		errorStream = new ByteArrayInputStream("Error output on console".getBytes(StandardCharsets.UTF_8));
 		InputStream serverInputStream = Channels.newInputStream(clientOutputToServerInput.source());
 		OutputStream serverOutputStream = Channels.newOutputStream(serverOutputToClientInput.sink());
-		launcher = LSPLauncher.createServerLauncher(LANGUAGE_SERVER, serverInputStream, serverOutputStream);
+		launcher = LSPLauncher.createServerLauncher(languageServer, serverInputStream, serverOutputStream);
 		clientInputStream = Channels.newInputStream(serverOutputToClientInput.source());
 		clientOutputStream = Channels.newOutputStream(clientOutputToServerInput.sink());
 		listener = launcher.startListening();
@@ -56,7 +57,9 @@ public class ConnectionProviderSolution implements StreamConnectionProvider {
 		streams.add(serverInputStream);
 		streams.add(serverOutputStream);
 		streams.add(errorStream);
-		LANGUAGE_SERVER.connect(launcher.getRemoteProxy());
+		languageServer.connect(launcher.getRemoteProxy());
+		ImportedDocumentSymbolNavigation.install();
+		navigationInstalled = true;
 	}
 
 	@Override
@@ -71,6 +74,10 @@ public class ConnectionProviderSolution implements StreamConnectionProvider {
 
 	@Override
 	public void stop() {
+		if (navigationInstalled) {
+			ImportedDocumentSymbolNavigation.uninstall();
+			navigationInstalled = false;
+		}
 		streams.forEach(stream -> {
 			try {
 				stream.close();
@@ -80,8 +87,10 @@ public class ConnectionProviderSolution implements StreamConnectionProvider {
 			}
 		});
 		streams.clear();
-		listener.cancel(true);
-		listener = null;
+		if (listener != null) {
+			listener.cancel(true);
+			listener = null;
+		}
 	}
 
 	@Override

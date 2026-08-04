@@ -11,6 +11,7 @@ package org.eclipse.epsilon.lsp.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -24,11 +25,16 @@ import java.util.stream.Collectors;
 
 import org.eclipse.epsilon.lsp.MapEntryRegistry;
 import org.eclipse.epsilon.lsp.EpsilonLanguageServer;
+import org.eclipse.epsilon.lsp.EpsilonWorkspaceService;
+import org.eclipse.lsp4e.outline.SymbolsModel;
+import org.eclipse.lsp4e.outline.SymbolsModel.DocumentSymbolWithURI;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
+import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.InitializeParams;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.SymbolKind;
@@ -70,10 +76,12 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 	public void advertisesDocumentSymbolSupport() {
 		assertEquals(Boolean.TRUE,
 			initializeResult.getCapabilities().getDocumentSymbolProvider().getLeft());
+		assertEquals(List.of(EpsilonWorkspaceService.OPEN_DOCUMENT_SYMBOL_COMMAND),
+			initializeResult.getCapabilities().getExecuteCommandProvider().getCommands());
 	}
 
 	@Test
-	public void eolSymbolsUseCurrentBufferAndExcludeImportedDeclarations() throws Exception {
+	public void eolSymbolsUseCurrentBufferAndNestImportedDeclarations() throws Exception {
 		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
 		Path library = directory.resolve("library.eol");
 		Files.writeString(library, "operation importedOnly() {\n}\n", StandardCharsets.UTF_8);
@@ -94,6 +102,11 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 		assertEquals(new Position(3, 10), symbols.get(2).getSelectionRange().getStart());
 		assertEquals(new Position(3, 18), symbols.get(2).getSelectionRange().getEnd());
 		assertEquals("()", symbols.get(2).getDetail());
+		DocumentSymbol libraryImport = symbols.get(0);
+		assertNotNull(libraryImport.getChildren());
+		assertEquals(List.of("importedOnly"), names(libraryImport.getChildren()));
+		assertEquals(libraryImport.getRange(), libraryImport.getChildren().get(0).getRange());
+		assertEquals(libraryImport.getSelectionRange(), libraryImport.getChildren().get(0).getSelectionRange());
 
 		didChange(document.toFile(), 2, "operation changed() {\n}\n");
 		symbols = documentSymbols(uri);
@@ -104,6 +117,324 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 		symbols = documentSymbols(uri);
 		assertTrue(names(symbols).contains("diskOnly"));
 		assertFalse(names(symbols).contains("changed"));
+	}
+
+	@Test
+	@SuppressWarnings("restriction")
+	public void importedOutlinesAreRecursive() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Files.writeString(directory.resolve("leaf.eol"), "operation leaf() {}", StandardCharsets.UTF_8);
+		Files.writeString(directory.resolve("library.eol"),
+			"import 'leaf.eol';\noperation middle() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		List<DocumentSymbol> symbols = documentSymbols(open(document, "eol", source));
+		assertEquals(List.of("library.eol", "root"), names(symbols));
+		DocumentSymbol libraryImport = symbols.get(0);
+		assertEquals(List.of("leaf.eol", "middle"), names(libraryImport.getChildren()));
+		DocumentSymbol leafImport = libraryImport.getChildren().get(0);
+		assertEquals(List.of("leaf"), names(leafImport.getChildren()));
+		assertEquals(libraryImport.getRange(), leafImport.getRange());
+		assertEquals(libraryImport.getRange(), leafImport.getChildren().get(0).getRange());
+
+		SymbolsModel lsp4eModel = new SymbolsModel();
+		lsp4eModel.setUri(document.toUri());
+		lsp4eModel.update(symbols.stream()
+			.map(symbol -> Either.<SymbolInformation, DocumentSymbol>forRight(symbol))
+			.collect(Collectors.toList()));
+		DocumentSymbolWithURI wrappedLibrary = (DocumentSymbolWithURI) lsp4eModel.getElements()[0];
+		DocumentSymbolWithURI wrappedLeaf = (DocumentSymbolWithURI) lsp4eModel.getChildren(wrappedLibrary)[0];
+		DocumentSymbolWithURI wrappedLeafOperation =
+			(DocumentSymbolWithURI) lsp4eModel.getChildren(wrappedLeaf)[0];
+		assertEquals("leaf.eol", wrappedLeaf.symbol.getName());
+		assertEquals("leaf", wrappedLeafOperation.symbol.getName());
+	}
+
+	@Test
+	public void recursiveImportedOutlinesUseNestedOpenBuffers() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path leaf = directory.resolve("leaf.eol");
+		Files.writeString(leaf, "operation diskLeaf() {}", StandardCharsets.UTF_8);
+		open(leaf, "eol", "operation bufferLeaf() {}");
+		Files.writeString(directory.resolve("library.eol"),
+			"import 'leaf.eol';\noperation middle() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		DocumentSymbol libraryImport = documentSymbols(open(document, "eol", source)).get(0);
+		DocumentSymbol leafImport = libraryImport.getChildren().get(0);
+		assertEquals("leaf.eol", leafImport.getName());
+		assertEquals(List.of("bufferLeaf"), names(leafImport.getChildren()));
+	}
+
+	@Test
+	public void recursiveImportedOutlinesRetainMalformedDescendantImport() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Files.writeString(directory.resolve("leaf.eol"),
+			"operation broken() {", StandardCharsets.UTF_8);
+		Files.writeString(directory.resolve("library.eol"),
+			"import 'leaf.eol';\noperation middle() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		DocumentSymbol libraryImport = documentSymbols(open(document, "eol", source)).get(0);
+		assertEquals(List.of("leaf.eol", "middle"), names(libraryImport.getChildren()));
+	}
+
+	@Test
+	public void recursiveImportedOutlinesRetainRuntimeReproduction() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Files.writeString(directory.resolve("script4.eol"),
+			"model M driver EMF {nsuri=\"http://www.eclipse.org/emf/2002/Ecore\"};\n"
+				+ "operation String foo(x : Integer) {}", StandardCharsets.UTF_8);
+		Files.writeString(directory.resolve("script3.eol"),
+			"import 'script4.eol';\n"
+				+ "model X driver Unknow;\n"
+				+ "model Y driver EMF {nsuri=\"http://www.eclipse.org/emf/2002/Ecore\"};\n"
+				+ "task.all;\n",
+			StandardCharsets.UTF_8);
+		Path document = directory.resolve("script1.eol");
+		String source = "import 'script3.eol';\n"
+			+ "model M driver EMF {nsuri=\"http://www.eclipse.org/emf/2002/Ecore\"};\n"
+			+ "operation String foo(x : Integer) {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		DocumentSymbol script3Import = documentSymbols(open(document, "eol", source)).get(0);
+		assertEquals("script4.eol", script3Import.getChildren().get(0).getName());
+		assertEquals(List.of("M", "foo"), names(script3Import.getChildren().get(0).getChildren()));
+	}
+
+	@Test
+	public void importedSymbolNavigationOpensItsRealLocation() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path leaf = directory.resolve("leaf.eol");
+		Files.writeString(leaf, "operation leaf() {}", StandardCharsets.UTF_8);
+		Files.writeString(directory.resolve("library.eol"),
+			"import 'leaf.eol';\noperation middle() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		Location location = navigate(uri, libraryImport, List.of(0, 0));
+
+		assertNotNull(location);
+		assertEquals(leaf.toFile().getCanonicalFile().toURI(), URI.create(location.getUri()));
+		assertEquals(new Position(0, 10), location.getRange().getStart());
+		assertEquals(new Position(0, 14), location.getRange().getEnd());
+	}
+
+	@Test
+	public void importedSymbolNavigationUsesChildIndexForDuplicateSymbols() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library,
+			"operation duplicate() {}\noperation duplicate() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		assertEquals(List.of("duplicate", "duplicate"), names(libraryImport.getChildren()));
+		Location location = navigate(uri, libraryImport, List.of(1));
+
+		assertNotNull(location);
+		assertEquals(new Position(1, 10), location.getRange().getStart());
+		assertEquals(new Position(1, 19), location.getRange().getEnd());
+	}
+
+	@Test
+	public void staleDuplicateSymbolNavigationDoesNotSelectAnotherDuplicate() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library,
+			"operation duplicate() {}\noperation duplicate() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		didChange(library.toFile(), 2,
+			"operation inserted() {}\noperation duplicate() {}\noperation duplicate() {}");
+
+		assertNull(navigate(uri, libraryImport, List.of(1)));
+	}
+
+	@Test
+	public void staleOutOfBoundsIndexFallsBackToUniqueSymbol() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library,
+			"operation removed() {}\noperation retained() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		didChange(library.toFile(), 2, "operation retained() {}");
+
+		Location location = navigate(uri, libraryImport, List.of(1));
+		assertNotNull(location);
+		assertEquals(new Position(0, 10), location.getRange().getStart());
+		assertEquals(new Position(0, 18), location.getRange().getEnd());
+	}
+
+	@Test
+	public void importedSymbolNavigationUsesCurrentImportedBuffer() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library, "operation imported() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		didChange(library.toFile(), 2, "operation added() {}\noperation imported() {}");
+
+		Location location = navigate(uri, libraryImport, List.of(0));
+
+		assertNotNull(location);
+		assertEquals(library.toFile().getCanonicalFile().toURI(), URI.create(location.getUri()));
+		assertEquals(new Position(1, 10), location.getRange().getStart());
+		assertEquals(new Position(1, 18), location.getRange().getEnd());
+	}
+
+	@Test
+	public void importedSymbolNavigationRejectsHashCollidingReplacement() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library, "operation Aa() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		didChange(library.toFile(), 2, "operation BB() {}");
+
+		assertNull(navigate(uri, libraryImport, List.of(0)));
+	}
+
+	@Test
+	public void latestImportedSymbolNavigationRequestWins() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library,
+			"operation first() {}\noperation second() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		var first = EpsilonWorkspaceService.createOpenDocumentSymbolCommand(
+			URI.create(uri), libraryImport, List.of(0));
+		var second = EpsilonWorkspaceService.createOpenDocumentSymbolCommand(
+			URI.create(uri), libraryImport, List.of(1));
+
+		Location secondLocation = executeNavigation(second);
+		assertNotNull(secondLocation);
+		assertEquals(new Position(1, 10), secondLocation.getRange().getStart());
+		assertNull(executeNavigation(first));
+	}
+
+	@Test
+	public void absoluteImportNavigationUsesCurrentImportedBuffer() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library, "operation imported() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import '" + library.toAbsolutePath().toString().replace('\\', '/')
+			+ "';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		didChange(library.toFile(), 2, "operation added() {}\noperation imported() {}");
+		assertEquals(List.of("added", "imported"), names(documentSymbols(uri).get(0).getChildren()));
+
+		Location location = navigate(uri, libraryImport, List.of(0));
+
+		assertNotNull(location);
+		assertEquals(new Position(1, 10), location.getRange().getStart());
+	}
+
+	@Test
+	public void absoluteImportUsesValidBufferWhenDiskSourceIsMalformed() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library, "operation broken() {", StandardCharsets.UTF_8);
+		open(library, "eol", "operation imported() {}");
+		Path document = directory.resolve("main.eol");
+		String source = "import '" + library.toAbsolutePath().toString().replace('\\', '/')
+			+ "';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		String uri = open(document, "eol", source);
+		DocumentSymbol libraryImport = documentSymbols(uri).get(0);
+		assertEquals(List.of("imported"), names(libraryImport.getChildren()));
+
+		Location location = navigate(uri, libraryImport, List.of(0));
+
+		assertNotNull(location);
+		assertEquals(new Position(0, 10), location.getRange().getStart());
+	}
+
+	@Test
+	public void importedOutlineCyclesTerminateAtTheBackReference() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+		Files.writeString(directory.resolve("library.eol"),
+			"import 'main.eol';\noperation imported() {}", StandardCharsets.UTF_8);
+
+		List<DocumentSymbol> symbols = documentSymbols(open(document, "eol", source));
+		DocumentSymbol libraryImport = symbols.get(0);
+		assertEquals(List.of("main.eol", "imported"), names(libraryImport.getChildren()));
+		assertNull(libraryImport.getChildren().get(0).getChildren());
+	}
+
+	@Test
+	public void unopenedOutlineCyclesTerminateAcrossMapEntryAndFileUris() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path document = directory.resolve("main.eol");
+		Path library = directory.resolve("library.eol");
+		String source = "import 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+		Files.writeString(library,
+			"import '" + document.toAbsolutePath().toString().replace('\\', '/')
+				+ "';\noperation imported() {}", StandardCharsets.UTF_8);
+
+		DocumentSymbol libraryImport = documentSymbols(document.toUri().toString()).get(0);
+		assertEquals(List.of(document.toAbsolutePath().toString().replace('\\', '/'), "imported"),
+			names(libraryImport.getChildren()));
+		assertNull(libraryImport.getChildren().get(0).getChildren());
+	}
+
+	@Test
+	public void duplicateImportsHaveIndependentOutlines() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Files.writeString(directory.resolve("library.eol"),
+			"operation imported() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		String source = "import 'library.eol';\nimport 'library.eol';\noperation root() {}";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		List<DocumentSymbol> symbols = documentSymbols(open(document, "eol", source));
+		assertEquals(List.of("library.eol", "library.eol", "root"), names(symbols));
+		assertEquals(List.of("imported"), names(symbols.get(0).getChildren()));
+		assertEquals(List.of("imported"), names(symbols.get(1).getChildren()));
+		assertFalse(symbols.get(0).getChildren() == symbols.get(1).getChildren());
 	}
 
 	@Test
@@ -169,6 +500,21 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 	}
 
 	@Test
+	public void importedEglOutlinesUseTemplateDeclarations() throws Exception {
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Files.writeString(directory.resolve("library.egl"),
+			"[*- Library *]\n[% operation child() {} %]", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.egl");
+		String source = "[% import 'library.egl'; %]\n[*- Main *]";
+		Files.writeString(document, source, StandardCharsets.UTF_8);
+
+		List<DocumentSymbol> symbols = documentSymbols(open(document, "egl", source));
+		assertEquals(List.of("library.egl", "Main"), names(symbols));
+		assertEquals(List.of("Library", "child"), names(symbols.get(0).getChildren()));
+		assertFalse(names(symbols.get(0).getChildren()).contains("main"));
+	}
+
+	@Test
 	public void egxRulesAndLifecycleBlocksAreSymbols() throws Exception {
 		String source = "pre {\n"
 			+ "}\n"
@@ -222,6 +568,31 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 	}
 
 	@Test
+	public void nonHierarchicalImportedSymbolsUseTheirRealLocations() throws Exception {
+		EpsilonLanguageServer flatServer = new EpsilonLanguageServer();
+		flatServer.connect(createTestClient());
+		flatServer.initialize(new InitializeParams()).get(5, TimeUnit.SECONDS);
+		Path directory = Files.createTempDirectory("epsilon-lsp-document-symbols");
+		Path library = directory.resolve("library.eol");
+		Files.writeString(library, "operation imported() {}", StandardCharsets.UTF_8);
+		Path document = directory.resolve("main.eol");
+		Files.writeString(document, "import 'library.eol';\noperation root() {}", StandardCharsets.UTF_8);
+
+		try {
+			List<Either<SymbolInformation, DocumentSymbol>> response = documentSymbolResponse(
+				flatServer.getTextDocumentService(), document.toUri().toString());
+			assertEquals(List.of("library.eol", "imported", "root"), response.stream()
+				.map(symbol -> symbol.getLeft().getName()).collect(Collectors.toList()));
+			assertEquals(library.toFile().getCanonicalFile().toURI(),
+				URI.create(response.get(1).getLeft().getLocation().getUri()));
+			assertEquals(new Position(0, 10), response.get(1).getLeft().getLocation().getRange().getStart());
+		}
+		finally {
+			flatServer.shutdown().get(5, TimeUnit.SECONDS);
+		}
+	}
+
+	@Test
 	public void shutdownClearsOpenBufferContents() throws Exception {
 		Path document = Files.createTempFile("epsilon-lsp-document-symbols", ".eol");
 		Files.writeString(document, "operation diskOnly() {}", StandardCharsets.UTF_8);
@@ -251,6 +622,16 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 		String uri = document.toFile().getCanonicalFile().toURI().toString();
 		docService.didOpen(new DidOpenTextDocumentParams(new TextDocumentItem(uri, languageId, 1, source)));
 		return uri;
+	}
+
+	private Location navigate(String uri, DocumentSymbol root, List<Integer> childPath) throws Exception {
+		return executeNavigation(EpsilonWorkspaceService.createOpenDocumentSymbolCommand(
+			URI.create(uri), root, childPath));
+	}
+
+	private Location executeNavigation(ExecuteCommandParams command) throws Exception {
+		Object result = server.getWorkspaceService().executeCommand(command).get(5, TimeUnit.SECONDS);
+		return EpsilonWorkspaceService.toDocumentSymbolLocation(result);
 	}
 
 	private List<DocumentSymbol> documentSymbols(String uri) throws Exception {

@@ -89,8 +89,9 @@ public class Analyser {
 		MapEntryRegistry
 		.getInstance()
 		.putCode(uri.getPath(), code);
+		URI documentUri = MapEntryRegistry.canonicalFileUri(uri);
 //		//The transitive closure also includes the node itself
-		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(uri)) {
+		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(documentUri)) {
 			processDocument(withScheme(uriDependent, MapEntryRegistry.PROTOCOL));
 		}
 	}
@@ -104,9 +105,11 @@ public class Analyser {
 				
 				module.parse(uri);
 				//build dependency graph
-				dependencyGraph.addNode(module.getUri());
+				URI moduleUri = MapEntryRegistry.canonicalFileUri(module.getUri());
+				dependencyGraph.addNode(moduleUri);
 				for(Import i : module.getImports()) {
-					dependencyGraph.putEdge(module.getUri(), i.getImportedModule().getUri());
+					dependencyGraph.putEdge(moduleUri,
+						MapEntryRegistry.canonicalFileUri(i.getImportedModule().getUri()));
 				}
 
 				//parser diagnostics

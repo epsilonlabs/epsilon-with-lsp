@@ -453,32 +453,12 @@ final class DocumentSymbolExtractor {
 
 	private static URI sourceIdentityUri(IEolModule module) {
 		URI sourceUri = normalizedSourceUri(module);
-		if (sourceUri == null || !MapEntryRegistry.PROTOCOL.equals(sourceUri.getScheme())) {
-			return sourceUri;
-		}
-
-		try {
-			return new URI("file", sourceUri.getAuthority() == null ? "" : sourceUri.getAuthority(),
-				sourceUri.getPath(), sourceUri.getQuery(), sourceUri.getFragment()).normalize();
-		}
-		catch (URISyntaxException ex) {
-			return sourceUri;
-		}
+		return sourceUri == null ? null : MapEntryRegistry.canonicalFileUri(sourceUri);
 	}
 
 	private static URI sourceLocationUri(IEolModule module) {
 		URI sourceUri = normalizedSourceUri(module);
-		if (sourceUri == null || !MapEntryRegistry.PROTOCOL.equals(sourceUri.getScheme())) {
-			return sourceUri;
-		}
-
-		try {
-			return new URI("file", sourceUri.getAuthority() == null ? "" : sourceUri.getAuthority(),
-				sourceUri.getPath(), sourceUri.getQuery(), sourceUri.getFragment());
-		}
-		catch (URISyntaxException ex) {
-			return null;
-		}
+		return sourceUri == null ? null : MapEntryRegistry.canonicalFileUri(sourceUri);
 	}
 
 	static class Extraction {

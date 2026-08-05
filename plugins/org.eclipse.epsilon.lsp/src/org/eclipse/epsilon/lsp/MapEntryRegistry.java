@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -74,6 +75,12 @@ public final class MapEntryRegistry {
 			return normalized;
 		}
 
+		try {
+			return Paths.get(normalized).toRealPath().toUri();
+		}
+		catch (IOException | RuntimeException ex) {
+			// Non-existent files still benefit from canonicalising their existing parents.
+		}
 		try {
 			return new File(normalized).getCanonicalFile().toURI();
 		}

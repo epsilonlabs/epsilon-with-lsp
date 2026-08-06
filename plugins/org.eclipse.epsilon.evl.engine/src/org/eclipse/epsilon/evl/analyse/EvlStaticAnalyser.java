@@ -13,7 +13,7 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.analyse.SimpleOperation;
-import org.eclipse.epsilon.eol.analyse.execute.context.Variable;
+import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.types.EolType;

@@ -33,9 +33,9 @@ import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.common.util.StringUtil;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
-import org.eclipse.epsilon.eol.analyse.execute.context.FrameStack;
-import org.eclipse.epsilon.eol.analyse.execute.context.SingleFrame;
-import org.eclipse.epsilon.eol.analyse.execute.context.Variable;
+import org.eclipse.epsilon.eol.execute.context.FrameStack;
+import org.eclipse.epsilon.eol.execute.context.SingleFrame;
+import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.dom.AbortStatement;
 import org.eclipse.epsilon.eol.dom.AbstractExecutableModuleElement;
 import org.eclipse.epsilon.eol.dom.AndOperatorExpression;
@@ -592,7 +592,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, firstOrderOperationCallExpression,
-				new Variable(iterator.getName(), iteratorType, iterator.getNameExpression()));
+				createVariable(iterator.getName(), iteratorType, iterator.getNameExpression()));
 		if (iterator.getRegion() != null && iterator.getRegion().getEnd() != null
 				&& firstOrderOperationCallExpression.getRegion() != null
 				&& firstOrderOperationCallExpression.getRegion().getEnd() != null) {
@@ -1344,8 +1344,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			parameter.getTypeExpression().accept(this);
 		}
 		if (createVariable) {
-			context.getFrameStack().put(new Variable(parameter.getName(), getType(parameter), parameter.getNameExpression()));
+			context.getFrameStack().put(createVariable(parameter.getName(), getType(parameter), parameter.getNameExpression()));
 		}
+	}
+
+	private Variable createVariable(String name, EolType type, ModuleElement declaration) {
+		Variable variable = new Variable(name, type);
+		variable.setDeclaration(declaration);
+		return variable;
 	}
 
 	@Override
@@ -1830,7 +1836,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			markers.add(new ModuleMarker(variableDeclaration,
 					"Variable " + variableDeclaration.getName() + " has already been defined", Severity.Error));
 		} else {
-			context.getFrameStack().put(new Variable(variableDeclaration.getName(), type,
+			context.getFrameStack().put(createVariable(variableDeclaration.getName(), type,
 					variableDeclaration.getNameExpression()));
 			setResolvedType(variableDeclaration, type);
 		}

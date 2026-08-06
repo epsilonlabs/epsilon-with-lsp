@@ -11,6 +11,7 @@ package org.eclipse.epsilon.eol.execute.context;
 
 import java.util.Map.Entry;
 import java.util.Objects;
+import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.eol.exceptions.EolIllegalVariableAssignmentException;
 import org.eclipse.epsilon.eol.exceptions.EolReadOnlyVariableException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
@@ -24,6 +25,7 @@ public class Variable {
 	protected EolType type;
 	protected boolean readOnly = false;
 	protected String deprecationInfo;
+	protected ModuleElement declaration;
 	
 	public static Variable createReadOnlyVariable(String name, Object value) {
 		return new Variable(name, value, EolAnyType.Instance, true);
@@ -83,6 +85,7 @@ public class Variable {
 	public Variable(Variable v) {
 		this(v.name, v.value, v.type, v.readOnly);
 		this.deprecationInfo = v.deprecationInfo;
+		this.declaration = v.declaration;
 	}
 
 	public Object getValue() {
@@ -133,6 +136,14 @@ public class Variable {
 
 	public void setDeprecationInfo(String deprecationInfo) {
 		this.deprecationInfo = deprecationInfo;
+	}
+
+	public ModuleElement getDeclaration() {
+		return declaration;
+	}
+
+	public void setDeclaration(ModuleElement declaration) {
+		this.declaration = declaration;
 	}
 	
 	@Override

@@ -54,6 +54,11 @@ public class EolModelElementType extends EolType {
 			typeName = modelAndMetaClass;
 		}
 	}
+
+	public EolModelElementType(String modelAndMetaClass, IEolModule module) {
+		this(modelAndMetaClass);
+		this.module = module;
+	}
 	
 	public EolModelElementType(String modelAndMetaClass, IEolContext context) throws EolModelNotFoundException, EolModelElementTypeNotFoundException {
 		this(modelAndMetaClass);
@@ -112,6 +117,11 @@ public class EolModelElementType extends EolType {
 			return "";
 		else
 			return "(" + statement.getFile() + "@" + statement.getRegion().getStart().getLine() + ":" + statement.getRegion().getStart().getColumn() + ")";
+	}
+
+	@Override
+	public Class<?> getClazz() {
+		return metaClass != null ? metaClass.getClazz() : null;
 	}
 
 	public String getModelName() {
@@ -259,31 +269,25 @@ public class EolModelElementType extends EolType {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(
-			super.hashCode(),
-			getName(),
-			module,
-			metaClass != null ? metaClass.getName() : metaClass
-		);
+		return metaClass != null ? Objects.hash(metaClass) : Objects.hash(getName(), module);
 	}
 	
 	@Override
 	public boolean equals(Object other) {
-		boolean eq = super.equals(other);
-		if (!eq) return false;
-		
-		EolModelElementType eme = (EolModelElementType) other;
-		eq = Objects.equals(this.getName(), eme.getName());
-		
-		if (eq && !(this.metaClass == null && eme.metaClass == null)) {
-			if (this.metaClass == null || eme.metaClass == null)
-				return false;
-			
-			eq = Objects.equals(this.metaClass.getName(), eme.metaClass.getName());
+		if (this == other) return true;
+		if (!(other instanceof EolModelElementType)) return false;
+
+		EolModelElementType modelElementType = (EolModelElementType) other;
+		if (metaClass != null || modelElementType.metaClass != null) {
+			return Objects.equals(metaClass, modelElementType.metaClass);
 		}
-		eq = eq && Objects.equals(this.module, eme.module);
-		
-		return eq;
+		return Objects.equals(getName(), modelElementType.getName())
+			&& Objects.equals(module, modelElementType.module);
+	}
+
+	@Override
+	public boolean isAbstract() {
+		return metaClass != null && metaClass.isAbstract();
 	}
 
 	@Override
@@ -298,9 +302,12 @@ public class EolModelElementType extends EolType {
 	@Override
 	public List<EolType> getChildrenTypes() {
 		if (this.metaClass != null && !this.metaClass.getSubTypes().isEmpty()) {
-			return this.metaClass.getSubTypes().stream().map(s -> new EolModelElementType(s)).collect(Collectors.toList());
+			return this.metaClass.getSubTypes().stream()
+				.filter(subType -> subType.getSuperTypes().contains(this.metaClass))
+				.map(EolModelElementType::new)
+				.collect(Collectors.toList());
 		} else {
-			return super.getParentTypes();
+			return super.getChildrenTypes();
 		}
 	}
 }

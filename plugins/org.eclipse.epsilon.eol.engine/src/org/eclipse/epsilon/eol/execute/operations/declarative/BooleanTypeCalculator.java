@@ -2,8 +2,8 @@ package org.eclipse.epsilon.eol.execute.operations.declarative;
 
 import java.util.List;
 
-import org.eclipse.epsilon.eol.analyse.types.EolPrimitiveType;
-import org.eclipse.epsilon.eol.analyse.types.EolType;
+import org.eclipse.epsilon.eol.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.execute.operations.ITypeCalculator;
 
 public class BooleanTypeCalculator implements ITypeCalculator {

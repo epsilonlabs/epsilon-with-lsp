@@ -12,8 +12,8 @@ package org.eclipse.epsilon.eol.analyse.execute.context;
 import java.util.Map.Entry;
 import java.util.Objects;
 import org.eclipse.epsilon.common.module.ModuleElement;
-import org.eclipse.epsilon.eol.analyse.types.EolAnyType;
-import org.eclipse.epsilon.eol.analyse.types.EolType;
+import org.eclipse.epsilon.eol.types.EolAnyType;
+import org.eclipse.epsilon.eol.types.EolType;
 
 public class Variable {
 	

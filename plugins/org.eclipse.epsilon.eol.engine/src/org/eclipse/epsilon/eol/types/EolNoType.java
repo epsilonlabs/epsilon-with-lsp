@@ -50,5 +50,10 @@ public class EolNoType extends EolType {
 	public EolType getParentType() {
 		return null;
 	}
-	
+
+	@Override
+	public boolean isAncestorOf(EolType type) {
+		return false;
+	}
+
 }

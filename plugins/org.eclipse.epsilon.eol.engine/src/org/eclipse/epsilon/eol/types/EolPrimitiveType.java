@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.types;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.epsilon.eol.exceptions.EolIllegalOperationParametersException;
@@ -83,5 +84,13 @@ public class EolPrimitiveType extends EolType {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	@Override
+	public List<EolType> getParentTypes() {
+		if (this == Integer) {
+			return Arrays.asList(Real, new EolNativeType(getClazz()));
+		}
+		return Arrays.asList(new EolNativeType(getClazz()));
 	}
 }

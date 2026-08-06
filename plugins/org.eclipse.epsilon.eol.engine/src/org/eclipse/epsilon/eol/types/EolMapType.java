@@ -39,6 +39,11 @@ public class EolMapType extends EolType {
 	public EolMapType(EolType keyType, EolType valueType) {
 		this(keyType, valueType, false);
 	}
+
+	@Override
+	public Class<?> getClazz() {
+		return EolMap.class;
+	}
 	
 	/**
 	 * 
@@ -106,5 +111,21 @@ public class EolMapType extends EolType {
 	@Override
 	public String toString() {
 		return getName()+"<" + keyType + ", " + valueType + ">";
+	}
+
+	@Override
+	public boolean isAssignableTo(EolType targetType) {
+		if (EolAnyType.Instance.equals(targetType)) {
+			return true;
+		}
+		if (!(targetType instanceof EolMapType)) {
+			return false;
+		}
+
+		EolMapType targetMapType = (EolMapType) targetType;
+		boolean wildcardTypes = (EolAnyType.Instance.equals(targetMapType.getKeyType()) || EolAnyType.Instance.equals(keyType))
+			&& (EolAnyType.Instance.equals(targetMapType.getValueType()) || EolAnyType.Instance.equals(valueType));
+		return wildcardTypes
+			|| targetMapType.getKeyType().equals(keyType) && targetMapType.getValueType().equals(valueType);
 	}
 }

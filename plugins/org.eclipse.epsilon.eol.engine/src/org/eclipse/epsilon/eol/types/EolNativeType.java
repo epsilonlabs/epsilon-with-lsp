@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -21,8 +22,20 @@ public class EolNativeType extends EolAnyType {
 	
 	protected IEolContext context;
 	protected String clazz;
+	private Class<?> javaClass;
 	protected IToolNativeTypeDelegate delegate;
 	
+	public static final EolNativeType Number = new EolNativeType(java.lang.Number.class);
+
+	public EolNativeType(Class<?> javaClass) {
+		this.javaClass = javaClass;
+		this.clazz = javaClass.getName();
+	}
+
+	public EolNativeType(String clazz) {
+		this.clazz = clazz;
+	}
+
 	/**
 	 * 
 	 * @param actualClass
@@ -71,8 +84,18 @@ public class EolNativeType extends EolAnyType {
 	}
 	
 	@Override
+	public Class<?> getClazz() {
+		return javaClass != null ? javaClass : getJavaClass();
+	}
+
+	@Override
 	public String getName() {
 		return "Native (" + clazz + ")";
+	}
+
+	@Override
+	public String toString() {
+		return "Native<" + clazz + ">";
 	}
 
 	@Override
@@ -110,4 +133,20 @@ public class EolNativeType extends EolAnyType {
 		return false;
 	}
 	
+	@Override
+	public List<EolType> getParentTypes() {
+		Class<?> resolvedClass = getClazz();
+		if (resolvedClass == null || resolvedClass == Object.class) {
+			return Collections.emptyList();
+		}
+
+		List<EolType> parentTypes = new ArrayList<>();
+		if (resolvedClass.getSuperclass() != null) {
+			parentTypes.add(new EolNativeType(resolvedClass.getSuperclass()));
+		}
+		for (Class<?> implementedInterface : resolvedClass.getInterfaces()) {
+			parentTypes.add(new EolNativeType(implementedInterface));
+		}
+		return parentTypes;
+	}
 }

@@ -36,17 +36,6 @@ import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.analyse.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.analyse.execute.context.SingleFrame;
 import org.eclipse.epsilon.eol.analyse.execute.context.Variable;
-import org.eclipse.epsilon.eol.analyse.types.EolAnyType;
-import org.eclipse.epsilon.eol.analyse.types.EolCollectionType;
-import org.eclipse.epsilon.eol.analyse.types.EolMapType;
-import org.eclipse.epsilon.eol.analyse.types.EolModelElementType;
-import org.eclipse.epsilon.eol.analyse.types.EolNativeType;
-import org.eclipse.epsilon.eol.analyse.types.EolNoType;
-import org.eclipse.epsilon.eol.analyse.types.EolPrimitiveType;
-import org.eclipse.epsilon.eol.analyse.types.EolTupleType;
-import org.eclipse.epsilon.eol.analyse.types.EolType;
-import org.eclipse.epsilon.eol.analyse.types.EolTypeLiteral;
-import org.eclipse.epsilon.eol.analyse.types.EolUnionType;
 import org.eclipse.epsilon.eol.dom.AbortStatement;
 import org.eclipse.epsilon.eol.dom.AbstractExecutableModuleElement;
 import org.eclipse.epsilon.eol.dom.AndOperatorExpression;
@@ -137,6 +126,17 @@ import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
 import org.eclipse.epsilon.eol.models.UnknownModel;
 import org.eclipse.epsilon.eol.tools.EolSystem;
+import org.eclipse.epsilon.eol.types.EolAnyType;
+import org.eclipse.epsilon.eol.types.EolCollectionType;
+import org.eclipse.epsilon.eol.types.EolMapType;
+import org.eclipse.epsilon.eol.types.EolModelElementType;
+import org.eclipse.epsilon.eol.types.EolNativeType;
+import org.eclipse.epsilon.eol.types.EolNoType;
+import org.eclipse.epsilon.eol.types.EolPrimitiveType;
+import org.eclipse.epsilon.eol.types.EolTupleType;
+import org.eclipse.epsilon.eol.types.EolType;
+import org.eclipse.epsilon.eol.types.EolTypeLiteral;
+import org.eclipse.epsilon.eol.types.EolUnionType;
 import org.eclipse.epsilon.eol.userinput.IUserInput;
 
 public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
@@ -898,7 +898,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			setResolvedType(nameExpression, new EolNativeType(IUserInput.class));
 		} else if (TypeExpression.getType(nameExpression.getName()) != null) {
 			setResolvedType(nameExpression,
-					new EolTypeLiteral(toStaticAnalyserType(TypeExpression.getType(nameExpression.getName()))));
+					new EolTypeLiteral(TypeExpression.getType(nameExpression.getName())));
 		} else if(context.repository.getModelByNameSafe(nameExpression.getName()) != null){
 			IModel m = context.repository.getModelByNameSafe(nameExpression.getName());
 			setResolvedType(nameExpression, new EolNativeType(m.getClass()));
@@ -969,7 +969,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					if (metaClass != null) {
 						IProperty property = metaClass.getProperty(propertyNameExpression.getName());
 						if (property != null) {
-							EolType propertyType = toStaticAnalyserType(property.getType());
+							EolType propertyType = property.getType();
 							if (propertyType == null) {
 								propertyType = EolAnyType.Instance;
 							}
@@ -1461,7 +1461,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			if (metaClass != null) {
 				IProperty property = metaClass.getProperty(propertyName);
 				if (property != null) {
-					return toStaticAnalyserType(property.getType());
+					return property.getType();
 				}
 			}
 		}
@@ -1745,26 +1745,16 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(TypeExpression typeExpression) {
-		EolType type = toStaticAnalyserType(TypeExpression.getType(typeExpression.getName()));
+		EolType type = TypeExpression.getType(typeExpression.getName());
 
 		for (TypeExpression typeExp : typeExpression.getParameterTypeExpressions()) {
 			typeExp.accept(this);
 		}
 
-		if (type instanceof EolAnyType) {
-			setResolvedType(typeExpression, type);
-		}
-
-		if (type instanceof EolPrimitiveType) {
-			setResolvedType(typeExpression, type);
-		}
-
 		if (type instanceof EolCollectionType) {
-			setResolvedType(typeExpression, type);
 			if (typeExpression.getParameterTypeExpressions().size() == 1) {
 				((EolCollectionType) type)
 						.setContentType(getResolvedType(typeExpression.getParameterTypeExpressions().get(0)));
-				setResolvedType(typeExpression, type);
 			} else if (typeExpression.getParameterTypeExpressions().size() > 1) {
 				markers.add(new ModuleMarker(typeExpression, "Collection types can have at most one content type",
 						Severity.Error));
@@ -1772,7 +1762,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		if (type instanceof EolMapType) {
-			setResolvedType(typeExpression, type);
 			if (typeExpression.getParameterTypeExpressions().size() == 2) {
 				((EolMapType) type).setKeyType(getResolvedType(typeExpression.getParameterTypeExpressions().get(0)));
 				((EolMapType) type).setValueType(getResolvedType(typeExpression.getParameterTypeExpressions().get(1)));
@@ -1780,10 +1769,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				markers.add(new ModuleMarker(typeExpression, "Maps need two types: key-type and value-type",
 						Severity.Error));
 			}
-		}
-
-		if (type instanceof EolTupleType) {
-			setResolvedType(typeExpression, type);
 		}
 
 		if (type == null) {
@@ -1804,27 +1789,27 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				} else {
 					type = new EolNativeType(Object.class);
 				}
-				setResolvedType(typeExpression, type);
-				return;
 			}
-			
-			// TODO: Remove duplication between this and NameExpression
-			EolModelElementType modelElementType = getModelElementType(typeExpression.getName(), typeExpression);
-			if (modelElementType != null) {
-				type = modelElementType;
-				if (modelElementType.getMetaClass() == null && !context.getModelDeclarations().isEmpty()) {
-					markers.add(new ModuleMarker(typeExpression, "Unknown type " + typeExpression.getName(),
-							Severity.Error));
+			else {
+				// TODO: Remove duplication between this and NameExpression
+				EolModelElementType modelElementType = getModelElementType(typeExpression.getName(), typeExpression);
+				if (modelElementType != null) {
+					type = modelElementType;
+					if (modelElementType.getMetaClass() == null && !context.getModelDeclarations().isEmpty()) {
+						markers.add(new ModuleMarker(typeExpression, "Unknown type " + typeExpression.getName(),
+								Severity.Error));
+					}
+				} else if (modelHasNoMetamodel(typeExpression.getName())) {
+					type = EolAnyType.Instance;
+				} else {
+					markers.add(new ModuleMarker(typeExpression,
+							"Undefined variable or type " + typeExpression.getName(), Severity.Error));
 				}
-			} else if (modelHasNoMetamodel(typeExpression.getName())) {
-				type = EolAnyType.Instance;
-			} else {
-				markers.add(new ModuleMarker(typeExpression, "Undefined variable or type " + typeExpression.getName(),
-						Severity.Error));
 			}
 		}
-		if (type instanceof EolModelElementType)
+		if (type != null) {
 			setResolvedType(typeExpression, type);
+		}
 
 	}
 
@@ -2795,7 +2780,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		if (metaClass != null) {
 			for (IProperty property : metaClass.getAllProperties()) {
-				EolType propertyType = toStaticAnalyserType(property.getType());
+				EolType propertyType = property.getType();
 				if (many) {
 					propertyType = new EolCollectionType("Sequence", propertyType);
 				}
@@ -2890,7 +2875,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 			EolType type = "Native".equals(name)
 					? new EolNativeType(Object.class)
-					: toStaticAnalyserType(TypeExpression.getType(name));
+					: TypeExpression.getType(name);
 			completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.VARIABLE, type, "type"));
 		}
 	}
@@ -3219,58 +3204,6 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		} else {
 			return null;
-		}
-
-	}
-
-	private EolType toStaticAnalyserType(org.eclipse.epsilon.eol.types.EolType type) {
-		if (type == null) {
-			return null;
-		} else if (type instanceof org.eclipse.epsilon.eol.types.EolModelElementType) {
-			org.eclipse.epsilon.eol.types.EolModelElementType type2 = (org.eclipse.epsilon.eol.types.EolModelElementType) type;
-			String modelAndMetaClass = type2.getModelName().equals("") ? type2.getMetaClass().getName()
-					: type2.getModelName() + "!" + type2.getMetaClass().getName();
-			EolModelElementType newType = new EolModelElementType(modelAndMetaClass, this.module);
-			newType.setMetaClass(type2.getMetaClass());
-			return newType;
-		} else {
-			String name = type.getName();
-			switch (name) {
-			case "Integer":
-				return EolPrimitiveType.Integer;
-			case "Any":
-				return EolAnyType.Instance;
-			case "Boolean":
-				return EolPrimitiveType.Boolean;
-			case "String":
-				return EolPrimitiveType.String;
-			case "Real":
-				return EolPrimitiveType.Real;
-			case "Map":
-			case "ConcurrentMap":
-				return new EolMapType(name);
-			case "List":
-				name = "Sequence";
-			case "Bag":
-			case "Collection":
-			case "ConcurrentBag":
-			case "ConcurrentSet":
-			case "OrderedSet":
-			case "Sequence":
-			case "Set":
-				if ( ((org.eclipse.epsilon.eol.types.EolCollectionType)type).getContentType() != null) {
-					return new EolCollectionType(name, toStaticAnalyserType(((org.eclipse.epsilon.eol.types.EolCollectionType) type).getContentType()));
-				}else {
-					 return new EolCollectionType(name);
-				}
-			case "Nothing":
-			case "None":
-				return EolNoType.Instance;
-			case "Tuple":
-				return new EolTupleType();
-			default:
-				return null;
-			}
 		}
 
 	}

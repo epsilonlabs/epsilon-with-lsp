@@ -6,8 +6,8 @@ import java.util.List;
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
-import org.eclipse.epsilon.eol.analyse.types.EolType;
-import org.eclipse.epsilon.eol.analyse.types.EolTypeLiteral;
+import org.eclipse.epsilon.eol.types.EolType;
+import org.eclipse.epsilon.eol.types.EolTypeLiteral;
 import org.eclipse.epsilon.eol.execute.operations.IMethodDiagnosticsCalculator;
 
 /**

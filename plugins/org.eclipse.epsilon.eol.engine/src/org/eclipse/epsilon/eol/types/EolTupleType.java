@@ -9,6 +9,8 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.types;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +23,8 @@ import org.eclipse.epsilon.eol.execute.context.Variable;
  * @since 2.2
  */
 public class EolTupleType extends EolType {
+
+	protected Map<String, EolType> propertyTypes = new HashMap<>();
 	
 	@Override
 	public String getName() {
@@ -62,6 +66,22 @@ public class EolTupleType extends EolType {
 			}
 		}
 		return tuple;
+	}
+
+	public void setPropertyType(String name, EolType type) {
+		propertyTypes.put(name, type);
+	}
+
+	public EolType getPropertyType(String name) {
+		return propertyTypes.get(name);
+	}
+
+	public boolean hasProperty(String name) {
+		return propertyTypes.containsKey(name);
+	}
+
+	public Map<String, EolType> getPropertyTypes() {
+		return Collections.unmodifiableMap(propertyTypes);
 	}
 
 }

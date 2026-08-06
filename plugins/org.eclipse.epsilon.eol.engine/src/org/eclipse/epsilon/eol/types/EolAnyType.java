@@ -20,6 +20,11 @@ public class EolAnyType extends EolType {
 	public static final EolAnyType Instance = new EolAnyType();
 
 	@Override
+	public boolean isNot(EolType type) {
+		return this == Instance ? false : super.isNot(type);
+	}
+
+	@Override
 	public boolean isType(Object o) {
 		return false;
 	}
@@ -53,5 +58,10 @@ public class EolAnyType extends EolType {
 	@Override
 	protected EolType getParentType() {
 		return null;
+	}
+
+	@Override
+	public boolean isAncestorOf(EolType type) {
+		return this == Instance ? false : super.isAncestorOf(type);
 	}
 }

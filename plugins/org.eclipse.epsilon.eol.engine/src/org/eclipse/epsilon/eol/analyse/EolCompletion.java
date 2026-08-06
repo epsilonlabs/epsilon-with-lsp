@@ -1,6 +1,6 @@
 package org.eclipse.epsilon.eol.analyse;
 
-import org.eclipse.epsilon.eol.analyse.types.EolType;
+import org.eclipse.epsilon.eol.types.EolType;
 
 public class EolCompletion {
 

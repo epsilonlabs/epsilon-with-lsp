@@ -12,6 +12,7 @@
  ******************************************************************************/
 package org.eclipse.epsilon.eol.types;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +53,18 @@ public class EolCollectionType extends EolType {
 	public EolCollectionType(String name, EolType contentType) {
 		this(name);
 		this.contentType = contentType;
+	}
+
+	@Override
+	public Class<?> getClazz() {
+		if (isCollection()) return EolCollection.class;
+		if (isBag()) return EolBag.class;
+		if (isSequence()) return EolSequence.class;
+		if (isSet()) return EolSet.class;
+		if (isOrderedSet()) return EolOrderedSet.class;
+		if (isConcurrentBag()) return EolConcurrentBag.class;
+		if (isConcurrentSet()) return EolConcurrentSet.class;
+		return null;
 	}
 	
 	public EolCollectionType getTypeOf(Collection<?> c) {
@@ -224,20 +237,45 @@ public class EolCollectionType extends EolType {
 		return this.getName() + "<" + this.getContentType() + ">";
 	}
 	
-	/*
-	If A is a sub-type of B, then the parent types of Sequence(A) are:
-		- Collection(A)
-		- Sequence(B) [This is not supported yet by the implementation below]
-	 */
 	@Override
 	public EolType getParentType() {
-		if (this.isBag() || this.isSet() || this.isOrderedSet() || this.isSequence())
-			return new EolCollectionType("Collection", this.getContentType());
-		else {
-			if (!(this.getContentType() instanceof EolAnyType))
-				return new EolCollectionType("Collection", EolAnyType.Instance);
-			else
-				return EolAnyType.Instance;
+		return isBag() || isSet() || isOrderedSet() || isSequence()
+			? new EolCollectionType("Collection")
+			: null;
+	}
+
+	@Override
+	public List<EolType> getParentTypes() {
+		List<EolType> parentTypes = new ArrayList<>(super.getParentTypes());
+		if (getClazz() != null) {
+			parentTypes.add(new EolNativeType(getClazz()));
 		}
+		return parentTypes;
+	}
+
+	@Override
+	public boolean isAssignableTo(EolType targetType) {
+		if (EolAnyType.Instance.equals(targetType)) {
+			return true;
+		}
+		if (targetType instanceof EolNativeType) {
+			Class<?> targetClass = targetType.getClazz();
+			return targetClass != null && getClazz() != null && targetClass.isAssignableFrom(getClazz());
+		}
+		if (!(targetType instanceof EolCollectionType)) {
+			return false;
+		}
+
+		EolCollectionType targetCollectionType = (EolCollectionType) targetType;
+		EolCollectionType sourceKind = new EolCollectionType(getName());
+		EolCollectionType targetKind = new EolCollectionType(targetType.getName());
+		if (!targetKind.isAncestorOf(sourceKind)) {
+			return false;
+		}
+
+		EolType targetContentType = targetCollectionType.getContentType();
+		return EolAnyType.Instance.equals(targetContentType)
+			|| EolAnyType.Instance.equals(contentType)
+			|| targetContentType.equals(contentType);
 	}
 }

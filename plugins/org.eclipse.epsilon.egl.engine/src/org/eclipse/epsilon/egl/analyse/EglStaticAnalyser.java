@@ -11,7 +11,7 @@ import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.analyse.execute.context.Variable;
-import org.eclipse.epsilon.eol.analyse.types.EolNativeType;
+import org.eclipse.epsilon.eol.types.EolNativeType;
 
 public class EglStaticAnalyser extends EolStaticAnalyser {
 	

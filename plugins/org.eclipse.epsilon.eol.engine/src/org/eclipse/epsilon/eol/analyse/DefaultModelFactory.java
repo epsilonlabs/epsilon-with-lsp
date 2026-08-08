@@ -8,15 +8,15 @@ import java.util.function.Supplier;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.models.UnknownModel;
 
-public class StaticModelFactory implements IModelFactory {
+public class DefaultModelFactory implements IModelFactory {
 
 	protected final Map<String, Supplier<? extends IModel>> modelSuppliers = new HashMap<>();
 
-	public StaticModelFactory() {
+	public DefaultModelFactory() {
 		registerModel("Unknown", UnknownModel::new);
 	}
 
-	public StaticModelFactory registerModel(String driver, Supplier<? extends IModel> modelSupplier) {
+	public DefaultModelFactory registerModel(String driver, Supplier<? extends IModel> modelSupplier) {
 		modelSuppliers.put(
 			Objects.requireNonNull(driver, "driver"),
 			Objects.requireNonNull(modelSupplier, "modelSupplier"));

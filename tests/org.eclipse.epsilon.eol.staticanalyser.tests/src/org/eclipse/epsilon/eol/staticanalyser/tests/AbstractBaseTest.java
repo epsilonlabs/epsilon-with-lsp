@@ -20,7 +20,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.epsilon.common.parse.Region;
 import org.eclipse.epsilon.emc.bibtex.BibtexModel;
 import org.eclipse.epsilon.emc.emf.EmfModel;
-import org.eclipse.epsilon.eol.analyse.StaticModelFactory;
+import org.eclipse.epsilon.eol.analyse.DefaultModelFactory;
 
 public abstract class AbstractBaseTest {
 	
@@ -63,8 +63,8 @@ public abstract class AbstractBaseTest {
 		AbstractBaseTest.isConsoleOutputActive = outputToConsole;
 	}
 
-	protected static StaticModelFactory createModelFactory() {
-		return new StaticModelFactory()
+	protected static DefaultModelFactory createModelFactory() {
+		return new DefaultModelFactory()
 			.registerModel("EMF", EmfModel::new)
 			.registerModel("bibtex", BibtexModel::new);
 	}

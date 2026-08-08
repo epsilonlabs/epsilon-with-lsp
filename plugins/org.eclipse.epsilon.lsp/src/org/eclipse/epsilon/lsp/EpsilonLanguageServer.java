@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
-import org.eclipse.epsilon.eol.analyse.StaticModelFactory;
+import org.eclipse.epsilon.eol.analyse.DefaultModelFactory;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -48,7 +48,7 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected Set<SymbolKind> supportedDocumentSymbolKinds = defaultDocumentSymbolKinds();
     
     protected List<WorkspaceFolder> workspaceFolders;
-    protected IModelFactory modelFactory = new StaticModelFactory();
+    protected IModelFactory modelFactory = new DefaultModelFactory();
 
     public EpsilonLanguageServer() {
         this(EpsilonTextDocumentService::new, EpsilonWorkspaceService::new);

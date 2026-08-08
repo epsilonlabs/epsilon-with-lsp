@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.epsilon.emc.bibtex.BibtexModel;
 import org.eclipse.epsilon.emc.emf.EmfModel;
-import org.eclipse.epsilon.eol.analyse.StaticModelFactory;
+import org.eclipse.epsilon.eol.analyse.DefaultModelFactory;
 import org.eclipse.epsilon.lsp.EpsilonLanguageServer;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
@@ -18,7 +18,7 @@ public class StandaloneEpsilonLanguageServer extends EpsilonLanguageServer {
 		super(
 			server -> new StandaloneEpsilonTextDocumentService((StandaloneEpsilonLanguageServer) server),
 			server -> new StandaloneEpsilonWorkspaceService((StandaloneEpsilonLanguageServer) server));
-		setModelFactory(new StaticModelFactory()
+		setModelFactory(new DefaultModelFactory()
 			.registerModel("EMF", EmfModel::new)
 			.registerModel("bibtex", BibtexModel::new));
 		addNativeTypeClassLoader(StandaloneEpsilonLanguageServer.class.getClassLoader());

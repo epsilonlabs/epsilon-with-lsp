@@ -30,6 +30,11 @@ public class UnknownMetamodel extends Metamodel {
 	}
 
 	@Override
+	public IMetaType getMetaType(String name) {
+		return getMetaClass(name);
+	}
+
+	@Override
 	public List<IMetaClass> getTypes() {
 		return Collections.emptyList();
 	}

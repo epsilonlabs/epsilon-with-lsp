@@ -2,7 +2,7 @@ package org.eclipse.epsilon.eol.m3;
 
 import java.util.List;
 
-public interface IMetaClass {
+public interface IMetaClass extends IMetaType {
 	List<IMetaClass> getSuperTypes();
 	
 	List<IMetaClass> getSubTypes();
@@ -17,9 +17,12 @@ public interface IMetaClass {
 	
 	IProperty getProperty(String name);
 	
+	@Override
 	String getName();
 	
+	@Override
 	IMetamodel getMetamodel();
 
+	@Override
 	Class<?> getClazz();
 }

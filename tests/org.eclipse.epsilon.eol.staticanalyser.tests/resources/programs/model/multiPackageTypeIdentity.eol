@@ -1,0 +1,7 @@
+model M driver EMF {nsuri="packages"};
+
+var outer : package1::package2::C1 = new package1::package2::C1;
+var inner : package1::package2::package3::C1 = new package1::package2::package3::C1;
+inner = outer;
+
+//! [5:8-5:13] package1::package2::C1 cannot be assigned to package1::package2::package3::C1

@@ -118,7 +118,9 @@ import org.eclipse.epsilon.eol.execute.operations.declarative.NMatchOperation;
 import org.eclipse.epsilon.eol.execute.operations.declarative.SelectBasedOperation;
 import org.eclipse.epsilon.eol.execute.operations.declarative.SelectOperation;
 import org.eclipse.epsilon.eol.m3.IEnum;
+import org.eclipse.epsilon.eol.m3.IDataType;
 import org.eclipse.epsilon.eol.m3.IMetaClass;
+import org.eclipse.epsilon.eol.m3.IMetaType;
 import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.models.IModel;
@@ -128,6 +130,7 @@ import org.eclipse.epsilon.eol.models.UnknownModel;
 import org.eclipse.epsilon.eol.tools.EolSystem;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
+import org.eclipse.epsilon.eol.types.EolDataType;
 import org.eclipse.epsilon.eol.types.EolMapType;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolNativeType;
@@ -504,8 +507,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		String enumName = enumeration.substring(0, hashIndex);
 		String literalName = enumeration.substring(hashIndex + 1);
 
-		EolModelElementType enumType = getModelElementType(enumName, enumerationLiteralExpression);
-		if (enumType == null) {
+		IMetaType metaType = getEnumerationType(enumName);
+		if (metaType == null) {
 			if (modelHasNoMetamodel(enumName)) {
 				setResolvedType(enumerationLiteralExpression, EolAnyType.Instance);
 			} else {
@@ -513,22 +516,21 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 						Severity.Error));
 			}
 			return;
-		} else {
-			IMetaClass metaClass = enumType.getMetaClass();
-			if (!(metaClass instanceof IEnum)) {
-				markers.add(new ModuleMarker(enumerationLiteralExpression, enumName + " is not an enumeration type",
-						Severity.Error));
-				return;
-			} else {
-				IEnum enumerationType = (IEnum) metaClass;
-				if (!enumerationType.isValidEnumLiteral(literalName)) {
-					markers.add(new ModuleMarker(enumerationLiteralExpression,
-							"Undefined enumeration literal " + literalName + " for enumeration " + enumName,
-							Severity.Error));
-					return;
-				}
-			}
 		}
+		if (!(metaType instanceof IEnum)) {
+			markers.add(new ModuleMarker(enumerationLiteralExpression, enumName + " is not an enumeration type",
+					Severity.Error));
+			return;
+		}
+
+		IEnum enumerationType = (IEnum) metaType;
+		if (!enumerationType.isValidEnumLiteral(literalName)) {
+			markers.add(new ModuleMarker(enumerationLiteralExpression,
+					"Undefined enumeration literal " + literalName + " for enumeration " + enumName,
+					Severity.Error));
+			return;
+		}
+		setResolvedType(enumerationLiteralExpression, new EolDataType(enumerationType, enumName));
 	}
 
 	@Override
@@ -2544,12 +2546,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	private List<EolCompletion> getEnumerationLiteralCompletions(EnumerationLiteralCompletionContext context) {
 		Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
-		EolModelElementType enumType = getModelElementType(context.enumerationName, context.expression);
-		if (enumType == null || !(enumType.getMetaClass() instanceof IEnum)) {
+		IMetaType metaType = getEnumerationType(context.enumerationName);
+		if (!(metaType instanceof IEnum)) {
 			return sortedCompletions(completions);
 		}
 
-		IEnum enumeration = (IEnum) enumType.getMetaClass();
+		IEnum enumeration = (IEnum) metaType;
+		EolType enumType = new EolDataType(enumeration, context.enumerationName);
 		for (String literal : enumeration.getLiterals()) {
 			if (literal.startsWith(context.prefix)) {
 				completions.putIfAbsent(literal,
@@ -3138,6 +3141,55 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		ModelDeclaration md = context.modelDeclarations.get(modelName);
 		return md != null && md.getMetamodel() == null;
+	}
+
+	private IMetaType getEnumerationType(String modelAndType) {
+		int separator = modelAndType.indexOf('!');
+		String modelName = separator >= 0 ? modelAndType.substring(0, separator) : "";
+		String typeName = separator >= 0 ? modelAndType.substring(separator + 1) : modelAndType;
+		IMetaType nonEnumerationFallback = null;
+		IMetaType unknownFallback = null;
+
+		for (Map.Entry<String, ModelDeclaration> entry : context.modelDeclarations.entrySet()) {
+			ModelDeclaration declaration = entry.getValue();
+			if (!modelName.isEmpty() && !matchesModelName(declaration, modelName)) {
+				continue;
+			}
+
+			IMetamodel metamodel = declaration.getMetamodel();
+			if (metamodel == null) {
+				continue;
+			}
+			IDataType dataType = metamodel.getDataType(typeName);
+			if (dataType instanceof IEnum) {
+				return dataType;
+			}
+
+			IMetaType metaType = dataType != null ? dataType : metamodel.getMetaType(typeName);
+			if (metaType == null) continue;
+			if (metamodel instanceof org.eclipse.epsilon.eol.m3.UnknownMetamodel) {
+				if (unknownFallback == null) {
+					unknownFallback = metaType;
+				}
+			}
+			else if (nonEnumerationFallback == null) {
+				nonEnumerationFallback = metaType;
+			}
+		}
+		return nonEnumerationFallback != null ? nonEnumerationFallback : unknownFallback;
+	}
+
+	private boolean matchesModelName(ModelDeclaration declaration, String modelName) {
+		if (declaration.getNameExpression() != null
+				&& modelName.equals(declaration.getNameExpression().getName())) {
+			return true;
+		}
+		for (NameExpression alias : declaration.getAliasNameExpressions()) {
+			if (modelName.equals(alias.getName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public EolModelElementType getModelElementType(String modelAndType, AbstractModuleElement element) {

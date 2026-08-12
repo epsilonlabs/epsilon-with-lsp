@@ -15,10 +15,12 @@ import java.util.Objects;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EDataType;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.epsilon.common.util.StringProperties;
+import org.eclipse.epsilon.eol.m3.DataType;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.m3.Metamodel;
 import org.eclipse.epsilon.eol.m3.Package;
@@ -35,6 +37,7 @@ public class EmfModelMetamodel extends Metamodel {
 	public EmfModelMetamodel(StringProperties properties, IRelativePathResolver resolver, String modelName) {
 		
 		HashMap<EClass, MetaClass> eClassMetaClassMap = new HashMap<>();
+		HashMap<EDataType, DataType> eDataTypeMap = new HashMap<>();
 		nsuri = properties.getProperty("nsuri");
 		if (nsuri == null) {
 			getErrors().add("Required property nsuri not found");
@@ -45,7 +48,7 @@ public class EmfModelMetamodel extends Metamodel {
 				getErrors().add("EPackage with nsURI " + nsuri + " is not available in EPackage.Registry.INSTANCE");
 			}
 			else {
-				populatePackage(this, ePackage, eClassMetaClassMap);
+				populatePackage(this, ePackage, eClassMetaClassMap, eDataTypeMap);
 				
 				for (EClass eClass : eClassMetaClassMap.keySet()) {
 					MetaClass metaClass = eClassMetaClassMap.get(eClass);
@@ -63,7 +66,8 @@ public class EmfModelMetamodel extends Metamodel {
 					
 					
 					for (EAttribute eAttribute : eClass.getEAttributes()) {
-						IProperty attribute = new EmfProperty(eAttribute);
+						IProperty attribute = new EmfProperty(eAttribute,
+							eDataTypeMap.get(eAttribute.getEAttributeType()));
 						metaClass.getProperties().add(attribute);
 					}
 					
@@ -80,39 +84,46 @@ public class EmfModelMetamodel extends Metamodel {
 		}
 	}
 	
-	private void populatePackage(Package pkg, EPackage ePackage, HashMap<EClass, MetaClass> eClassMetaClassMap) {
+	private void populatePackage(Package pkg, EPackage ePackage, HashMap<EClass, MetaClass> eClassMetaClassMap,
+			HashMap<EDataType, DataType> eDataTypeMap) {
 		pkg.setName(ePackage.getName());
 		
 		for (EClassifier eClassifier : ePackage.getEClassifiers()) {
 			if (eClassifier instanceof EClass) {
-				EmfMetaClass metaClass = new EmfMetaClass(eClassifier, this);
+				EmfMetaClass metaClass = new EmfMetaClass((EClass) eClassifier, this);
 				eClassMetaClassMap.put((EClass) eClassifier, metaClass);
 				pkg.getTypes().add(metaClass);
 			}
 			else if (eClassifier instanceof EEnum) {
-				EmfMetaClass metaClass = new EmfEnumMetaClass((EEnum) eClassifier, this);
-				pkg.getTypes().add(metaClass);
+				EmfEnum enumeration = new EmfEnum((EEnum) eClassifier, this);
+				eDataTypeMap.put((EDataType) eClassifier, enumeration);
+				pkg.getDataTypes().add(enumeration);
+			}
+			else if (eClassifier instanceof EDataType) {
+				EmfDataType dataType = new EmfDataType((EDataType) eClassifier, this);
+				eDataTypeMap.put((EDataType) eClassifier, dataType);
+				pkg.getDataTypes().add(dataType);
 			}
 		}
 		
 		for (EPackage eSubPackage : ePackage.getESubpackages()) {
 			Package subPkg = new Package();
 			pkg.getSubPackages().add(subPkg);
-			populatePackage(subPkg, eSubPackage, eClassMetaClassMap);
+			populatePackage(subPkg, eSubPackage, eClassMetaClassMap, eDataTypeMap);
 		}
 	}
 	
 	public boolean equals(Object other) {
-		if (!(other instanceof EmfModelMetamodel)){
+		if (other == null || getClass() != other.getClass()) {
 			return false;
 		}
 		EmfModelMetamodel otherMetamodel = (EmfModelMetamodel) other;
-		return this.getNsURI().equals(otherMetamodel.getNsURI());
+		return Objects.equals(getNsURI(), otherMetamodel.getNsURI());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(nsuri, getClass().getName());
+		return Objects.hash(nsuri, getClass());
 	}
 	
 }

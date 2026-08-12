@@ -1,0 +1,6 @@
+model M driver EMF { nsuri="sa" };
+
+var b : B;
+b.colour = Size#SMALL;
+
+//! [4:11-4:21] Size cannot be assigned to Colour

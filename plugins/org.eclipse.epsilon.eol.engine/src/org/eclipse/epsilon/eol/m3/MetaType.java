@@ -9,28 +9,17 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.m3;
 
-import java.util.ArrayList;
-import java.util.List;
+public abstract class MetaType implements IMetaType {
 
-public class Package{
-	
-	protected List<Package> subPackages = new ArrayList<>();
-	protected List<IMetaClass> metaClasses = new ArrayList<>();
-	protected List<IDataType> dataTypes = new ArrayList<>();
+	protected IMetamodel metamodel;
 	protected String name;
-	
-	public List<Package> getSubPackages() {
-		return subPackages;
-	}
-	
-	public List<IMetaClass> getTypes() {
-		return metaClasses;
+
+	@Override
+	public IMetamodel getMetamodel() {
+		return metamodel;
 	}
 
-	public List<IDataType> getDataTypes() {
-		return dataTypes;
-	}
-
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -38,5 +27,4 @@ public class Package{
 	public void setName(String name) {
 		this.name = name;
 	}
-	
 }

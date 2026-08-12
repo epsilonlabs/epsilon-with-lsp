@@ -11,11 +11,16 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="B" eSuperTypes="#//A">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="colour" eType="#//Colour"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="C" eSuperTypes="#//A"/>
   <eClassifiers xsi:type="ecore:EClass" name="D" eSuperTypes="#//B"/>
   <eClassifiers xsi:type="ecore:EEnum" name="Colour">
-    <eLiterals name="RED"/>
+    <eLiterals name="RED" literal="red"/>
     <eLiterals name="BLUE" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="Size">
+    <eLiterals name="SMALL"/>
+    <eLiterals name="LARGE" value="1"/>
   </eClassifiers>
 </ecore:EPackage>

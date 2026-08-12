@@ -4,10 +4,13 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.epsilon.common.util.StringUtil;
+import org.eclipse.epsilon.eol.m3.DataType;
+import org.eclipse.epsilon.eol.m3.IEnum;
 import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.m3.MetaClass;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
+import org.eclipse.epsilon.eol.types.EolDataType;
 import org.eclipse.epsilon.eol.types.EolMapType;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
@@ -18,7 +21,7 @@ public class EmfProperty implements IProperty {
 	private EolType type;
 	private String name;
 	
-	EmfProperty(EAttribute eAttribute) {
+	EmfProperty(EAttribute eAttribute, DataType dataType) {
 		this.name = eAttribute.getName();
 		EolType featureType;
 		String instanceClassName = eAttribute.getEAttributeType().getInstanceClassName();
@@ -31,6 +34,8 @@ public class EmfProperty implements IProperty {
 		} else if ((instanceClassName != null) && (instanceClassName.equals(Float.class.getCanonicalName())
 				|| instanceClassName.equals(Double.class.getCanonicalName()))) {
 			featureType = EolPrimitiveType.Real;
+		} else if (dataType instanceof IEnum) {
+			featureType = new EolDataType(dataType);
 		} else
 			featureType = EolAnyType.Instance;
 		calculateType(eAttribute, featureType);

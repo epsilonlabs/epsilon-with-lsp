@@ -25,6 +25,16 @@ public abstract class Metamodel extends Package implements IMetamodel{
 		return errors;
 	}
 	
+	@Override
+	public IMetaType getMetaType(String name) {
+		IMetaClass metaClass = getMetaClass(name);
+		if (metaClass != null) {
+			return metaClass;
+		}
+		return getDataType(name);
+	}
+
+	@Override
 	public IMetaClass getMetaClass(String name) {
 		if (name.contains("::")) {
 			String[] parts = name.split("::");
@@ -63,6 +73,50 @@ public abstract class Metamodel extends Package implements IMetamodel{
 		}
 		for (Package sub : pkg.getSubPackages()) {
 			IMetaClass result = findMetaClass(sub, name);
+			if (result != null) return result;
+		}
+		return null;
+	}
+
+	@Override
+	public IDataType getDataType(String name) {
+		if (name.contains("::")) {
+			String[] parts = name.split("::");
+			Package current = this;
+			int startIndex = 0;
+			if (current.getName() != null && current.getName().equals(parts[0])) {
+				startIndex = 1;
+			}
+			for (int i = startIndex; i < parts.length - 1; i++) {
+				Package found = null;
+				for (Package sub : current.getSubPackages()) {
+					if (sub.getName().equals(parts[i])) {
+						found = sub;
+						break;
+					}
+				}
+				if (found == null) return null;
+				current = found;
+			}
+			String typeName = parts[parts.length - 1];
+			for (IDataType type : current.getDataTypes()) {
+				if (type.getName().equals(typeName)) {
+					return type;
+				}
+			}
+			return null;
+		}
+		return findDataType(this, name);
+	}
+
+	private IDataType findDataType(Package pkg, String name) {
+		for (IDataType type : pkg.getDataTypes()) {
+			if (type.getName().equals(name)) {
+				return type;
+			}
+		}
+		for (Package sub : pkg.getSubPackages()) {
+			IDataType result = findDataType(sub, name);
 			if (result != null) return result;
 		}
 		return null;

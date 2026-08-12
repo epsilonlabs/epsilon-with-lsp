@@ -1,0 +1,8 @@
+model M driver EMF { nsuri="sa" };
+
+/*Colour*/Colour#RED;
+/*M!Colour*/M!Colour#BLUE;
+
+var b : B;
+/*Colour*/b.colour;
+b.colour = Colour#RED;

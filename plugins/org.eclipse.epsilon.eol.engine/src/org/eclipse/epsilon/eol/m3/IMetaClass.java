@@ -16,13 +16,4 @@ public interface IMetaClass extends IMetaType {
 	void setAbstract(boolean isAbstract);
 	
 	IProperty getProperty(String name);
-	
-	@Override
-	String getName();
-	
-	@Override
-	IMetamodel getMetamodel();
-
-	@Override
-	Class<?> getClazz();
 }

@@ -61,6 +61,7 @@ public class PlainXmlModel extends CachedModel<Element> implements IOperationCon
 	protected static final String DEFAULT_NEW_TAG_NAME = "element";
 	public static final String PROPERTY_FILE = "file";
 	public static final String PROPERTY_URI = "uri";
+	public static final String PROPERTY_EXAMPLE = "example";
 	
 	public PlainXmlModel() {
 		propertyGetter = new PlainXmlPropertyGetter(this);

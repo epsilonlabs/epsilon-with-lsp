@@ -1,4 +1,4 @@
-model Output driver PlainXML {file="does-not-exist.xml", readOnLoad="false"};
+model Output driver PlainXML {file="does-not-exist.xml", readOnLoad="false", example="library.xml"};
 
-var element : Element;
-Output.root = element;
+var root = new t_library;
+Output.root = root;

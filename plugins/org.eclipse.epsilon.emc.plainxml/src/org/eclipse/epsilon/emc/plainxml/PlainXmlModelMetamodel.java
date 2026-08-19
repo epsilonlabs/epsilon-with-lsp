@@ -8,7 +8,6 @@ package org.eclipse.epsilon.emc.plainxml;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -24,7 +23,6 @@ import org.eclipse.epsilon.common.util.StringUtil;
 import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.m3.Metamodel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
-import org.eclipse.epsilon.eol.models.Model;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolNativeType;
@@ -41,47 +39,38 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	protected final String source;
 
 	public PlainXmlModelMetamodel(StringProperties properties, IRelativePathResolver resolver, String modelName) {
-		boolean readOnLoad = properties.getBooleanProperty(Model.PROPERTY_READONLOAD, true);
+		String example = properties.getProperty(PlainXmlModel.PROPERTY_EXAMPLE);
 		String resolvedSource;
 		try {
-			resolvedSource = getSource(properties, resolver, modelName);
+			resolvedSource = getSource(example, resolver, modelName);
 		}
 		catch (RuntimeException ex) {
 			resolvedSource = "model:" + modelName;
-			getErrors().add("Could not resolve Plain XML sample: " + ex.getMessage());
+			getErrors().add("Could not resolve Plain XML example: " + ex.getMessage());
 		}
 		source = resolvedSource;
 
 		PlainXmlMetaClass elementClass = new PlainXmlMetaClass(PlainXmlModel.ELEMENT_TYPE, this);
 		getTypes().add(elementClass);
 		addCoreProperties(elementClass);
-		if (!readOnLoad) {
-			return;
-		}
 		if (!getErrors().isEmpty()) {
 			return;
 		}
 
-		String file = properties.getProperty(PlainXmlModel.PROPERTY_FILE);
-		String uri = properties.getProperty(PlainXmlModel.PROPERTY_URI);
-		if (StringUtil.isEmpty(file) && StringUtil.isEmpty(uri)) {
-			getErrors().add("Required property file or uri not found");
-			return;
-		}
-		if (StringUtil.isEmpty(file) && !isLocalUri(uri)) {
-			getErrors().add("Plain XML metamodel inference only supports local file URIs");
+		if (StringUtil.isEmpty(example)) {
+			getErrors().add("Required property example not found");
 			return;
 		}
 
 		try {
-			inferTypes(parseSample(file, uri, resolver), elementClass);
+			inferTypes(parseExample(example, resolver), elementClass);
 		}
 		catch (Exception ex) {
-			getErrors().add("Error whilst loading Plain XML sample for model " + modelName + ": " + ex.getMessage());
+			getErrors().add("Error whilst loading Plain XML example for model " + modelName + ": " + ex.getMessage());
 		}
 	}
 
-	private Collection<Element> parseSample(String file, String uri, IRelativePathResolver resolver) throws Exception {
+	private Collection<Element> parseExample(String example, IRelativePathResolver resolver) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
@@ -91,16 +80,8 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 		factory.setExpandEntityReferences(false);
 
-		Document document;
-		if (!StringUtil.isEmpty(file)) {
-			String resolved = resolver != null ? resolver.resolve(file) : file;
-			document = factory.newDocumentBuilder().parse(new File(resolved));
-		}
-		else {
-			URI sampleUri = URI.create(uri);
-			File sampleFile = sampleUri.getScheme() == null ? new File(uri) : new File(sampleUri);
-			document = factory.newDocumentBuilder().parse(sampleFile);
-		}
+		String resolved = resolver != null ? resolver.resolve(example) : example;
+		Document document = factory.newDocumentBuilder().parse(new File(resolved));
 
 		Collection<Element> elements = new ArrayList<>();
 		collectElements(document, elements);
@@ -180,10 +161,9 @@ public class PlainXmlModelMetamodel extends Metamodel {
 		}
 	}
 
-	private static String getSource(StringProperties properties, IRelativePathResolver resolver, String modelName) {
-		String file = properties.getProperty(PlainXmlModel.PROPERTY_FILE);
-		if (!StringUtil.isEmpty(file)) {
-			String resolved = resolver != null ? resolver.resolve(file) : file;
+	private static String getSource(String example, IRelativePathResolver resolver, String modelName) {
+		if (!StringUtil.isEmpty(example)) {
+			String resolved = resolver != null ? resolver.resolve(example) : example;
 			try {
 				return new File(resolved).getCanonicalFile().toURI().toString();
 			}
@@ -191,27 +171,7 @@ public class PlainXmlModelMetamodel extends Metamodel {
 				return new File(resolved).getAbsoluteFile().toURI().toString();
 			}
 		}
-
-		String uri = properties.getProperty(PlainXmlModel.PROPERTY_URI);
-		if (!StringUtil.isEmpty(uri)) {
-			try {
-				return URI.create(uri).normalize().toString();
-			}
-			catch (IllegalArgumentException ex) {
-				return uri;
-			}
-		}
 		return "model:" + modelName;
-	}
-
-	private static boolean isLocalUri(String uri) {
-		try {
-			String scheme = URI.create(uri).getScheme();
-			return scheme == null || "file".equalsIgnoreCase(scheme);
-		}
-		catch (IllegalArgumentException ex) {
-			return false;
-		}
 	}
 
 	@Override

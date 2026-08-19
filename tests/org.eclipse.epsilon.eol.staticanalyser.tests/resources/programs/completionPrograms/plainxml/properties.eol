@@ -1,4 +1,4 @@
-model XMLDoc driver PlainXML {file="../../model/plainxml/library.xml"};
+model XMLDoc driver PlainXML {example="../../model/plainxml/library.xml"};
 
 var book : t_book;
 book.a_ti/*@ a_title */;

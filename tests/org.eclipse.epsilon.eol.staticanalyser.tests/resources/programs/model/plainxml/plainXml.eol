@@ -1,4 +1,4 @@
-model XMLDoc driver plainxml {file="library.xml"};
+model XMLDoc driver plainxml {example="library.xml"};
 
 var books = /*Sequence<t_book>*/t_book.all;
 var library = /*t_library*/new t_library;

@@ -20,8 +20,8 @@ public class PlainXmlProperty {
 		PlainXmlProperty p = new PlainXmlProperty();
 		
 		if (property.startsWith("a_") || property.startsWith("b_") ||
-			property.startsWith("i_") || property.startsWith("f_") || 
-			property.startsWith("d_") || property.startsWith("s_")) {
+			property.startsWith("i_") || property.startsWith("f_") ||
+			property.startsWith("d_") || property.startsWith("r_") || property.startsWith("s_")) {
 			
 			p.dataType = p.dataTypeFor(property.charAt(0) + "");
 			p.type = PlainXmlPropertyType.Attribute;
@@ -95,7 +95,7 @@ public class PlainXmlProperty {
 		else if (letter.equals("f")) {
 			return PlainXmlPropertyDataType.FLOAT;
 		}
-		else if (letter.equals("d")) {
+		else if (letter.equals("d") || letter.equals("r")) {
 			return PlainXmlPropertyDataType.DOUBLE;
 		}
 		else if (letter.equals("i")){

@@ -298,6 +298,17 @@ public class EolModelElementType extends EolType {
 			return super.getParentTypes();
 		}
 	}
+
+	@Override
+	public boolean isAssignableTo(EolType targetType) {
+		if (targetType instanceof EolNativeType && getClazz() != null) {
+			Class<?> targetClass = targetType.getClazz();
+			if (targetClass != null && targetClass.isAssignableFrom(getClazz())) {
+				return true;
+			}
+		}
+		return super.isAssignableTo(targetType);
+	}
 	
 	@Override
 	public List<EolType> getChildrenTypes() {

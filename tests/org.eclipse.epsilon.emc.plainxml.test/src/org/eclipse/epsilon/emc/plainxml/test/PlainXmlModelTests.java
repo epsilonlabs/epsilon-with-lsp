@@ -76,6 +76,11 @@ public class PlainXmlModelTests {
 	public void testIntegerAttribute() {
 		assertEquals(212, evaluator.evaluate("t_book.all.first().i_pages"));
 	}
+
+	@Test
+	public void testRealAttribute() {
+		assertEquals(212.0d, evaluator.evaluate("t_book.all.first().r_pages"));
+	}
 	
 	@Test
 	public void testMultipleReferenceAttribute() {

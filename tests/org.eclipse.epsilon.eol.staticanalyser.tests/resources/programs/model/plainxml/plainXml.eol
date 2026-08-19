@@ -1,0 +1,32 @@
+model XMLDoc driver plainxml {file="library.xml"};
+
+var books = /*Sequence<t_book>*/t_book.all;
+var library = /*t_library*/new t_library;
+var book : t_book = new t_book;
+var element : Element = book;
+
+/*String*/book.a_title;
+/*String*/book.s_title;
+/*Integer*/book.i_pages;
+/*Real*/book.r_rating;
+/*Boolean*/book.b_available;
+book.x_author;
+//! [13:5-13:13] Property x_author not found in type t_book
+
+/*String*/book.name;
+/*String*/book.tagName;
+/*String*/book.text;
+/*Element*/book.parent;
+/*Native<org.w3c.dom.Node>*/book.parentNode;
+/*String*/book.parent.name;
+/*Sequence<Element>*/book.children;
+/*Sequence<Element>*/book.descendants;
+
+/*t_published*/book.e_published;
+/*Sequence<t_author>*/book.c_author;
+/*String*/book.e_published.text;
+
+var author = /*t_author*/new t_author;
+var appended = /*Native<org.w3c.dom.Node>*/book.appendChild(author);
+XMLDoc.root = new t_library;
+var root = /*Native<org.w3c.dom.Node>*/XMLDoc.root;

@@ -1,0 +1,7 @@
+model XMLDoc driver PlainXML {file="../../model/plainxml/library.xml"};
+
+var book : t_book;
+book.a_ti/*@ a_title */;
+book.c_au/*@ c_author */;
+book.e_pub/*@ e_published */;
+book.par/*@ parent, parentNode */;

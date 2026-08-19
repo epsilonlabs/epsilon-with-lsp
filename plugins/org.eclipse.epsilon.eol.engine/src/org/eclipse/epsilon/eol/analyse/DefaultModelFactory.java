@@ -1,6 +1,7 @@
 package org.eclipse.epsilon.eol.analyse;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -18,14 +19,15 @@ public class DefaultModelFactory implements IModelFactory {
 
 	public DefaultModelFactory registerModel(String driver, Supplier<? extends IModel> modelSupplier) {
 		modelSuppliers.put(
-			Objects.requireNonNull(driver, "driver"),
+			Objects.requireNonNull(driver, "driver").toLowerCase(Locale.ROOT),
 			Objects.requireNonNull(modelSupplier, "modelSupplier"));
 		return this;
 	}
 
 	@Override
 	public IModel createModel(String driver) {
-		Supplier<? extends IModel> modelSupplier = modelSuppliers.get(driver);
+		Supplier<? extends IModel> modelSupplier = modelSuppliers.get(
+			Objects.requireNonNull(driver, "driver").toLowerCase(Locale.ROOT));
 		return modelSupplier != null ? modelSupplier.get() : null;
 	}
 }

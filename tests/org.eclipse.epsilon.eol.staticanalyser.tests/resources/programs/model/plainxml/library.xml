@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Library xmlns:p="urn:library">
+  <p:Book title="EMF Eclipse Modeling Framework" pages="744" rating="4.8" available="true">
+    <author>Dave Steinberg</author>
+    <author>Frank Budinsky</author>
+    <published>2009</published>
+  </p:Book>
+</Library>

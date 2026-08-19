@@ -6,6 +6,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -124,6 +126,7 @@ import org.eclipse.epsilon.eol.m3.IMetaType;
 import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.m3.IProperty;
 import org.eclipse.epsilon.eol.models.IModel;
+import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.eclipse.epsilon.eol.models.ModelGroup;
 import org.eclipse.epsilon.eol.models.ModelRepository.TypeAmbiguityCheckResult;
 import org.eclipse.epsilon.eol.models.UnknownModel;
@@ -863,8 +866,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (ModelDeclarationParameter parameter : modelDeclaration.getModelDeclarationParameters()) {
 			stringProperties.put(parameter.getKey(), parameter.getValue());
 		}
-		modelDeclaration.setMetamodel(
-				modelDeclaration.getModel().getMetamodel(stringProperties, context.getRelativePathResolver()));
+		modelDeclaration.setMetamodel(modelDeclaration.getModel().getMetamodel(stringProperties,
+				getRelativePathResolver(modelDeclaration)));
 		if (modelDeclaration.getMetamodel() != null) {
 			for (String error : modelDeclaration.getMetamodel().getErrors()) {
 				markers.add(new ModuleMarker(modelDeclaration, error, Severity.Error));
@@ -880,6 +883,35 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					Severity.Warning));
 		}
 
+	}
+
+	private IRelativePathResolver getRelativePathResolver(ModelDeclaration modelDeclaration) {
+		if (context.getRelativePathResolver() != null) {
+			return context.getRelativePathResolver();
+		}
+
+		URI sourceUri = modelDeclaration.getUri();
+		if (sourceUri == null) {
+			return null;
+		}
+
+		try {
+			URI fileUri = "file".equalsIgnoreCase(sourceUri.getScheme())
+					? sourceUri
+					: new URI("file", sourceUri.getAuthority(), sourceUri.getPath(), null, null);
+			Path sourcePath = Paths.get(fileUri);
+			Path parent = sourcePath.toAbsolutePath().normalize().getParent();
+			if (parent == null) {
+				return null;
+			}
+			return relativePath -> {
+				Path path = Paths.get(relativePath);
+				return (path.isAbsolute() ? path : parent.resolve(path)).normalize().toString();
+			};
+		}
+		catch (Exception ex) {
+			return null;
+		}
 	}
 
 	@Override
@@ -1289,6 +1321,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		List<EolType> missingTypes = new ArrayList<EolType>();
 		if (operationTypes.contains(EolAnyType.Instance) || callExpressionType.equals(EolAnyType.Instance)) {
 			return missingTypes;
+		}
+		for (EolType operationType : operationTypes) {
+			if (callExpressionType.isAssignableTo(operationType)) {
+				return missingTypes;
+			}
 		}
 
 		// Contained types are not taken into account for operation context types.

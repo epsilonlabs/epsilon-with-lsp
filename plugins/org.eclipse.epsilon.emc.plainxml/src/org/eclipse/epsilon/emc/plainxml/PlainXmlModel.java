@@ -37,6 +37,7 @@ import org.eclipse.epsilon.eol.exceptions.models.EolModelLoadingException;
 import org.eclipse.epsilon.eol.exceptions.models.EolNotInstantiableModelElementTypeException;
 import org.eclipse.epsilon.eol.execute.operations.contributors.IOperationContributorProvider;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
+import org.eclipse.epsilon.eol.m3.IMetamodel;
 import org.eclipse.epsilon.eol.models.CachedModel;
 import org.eclipse.epsilon.eol.models.IRelativePathResolver;
 import org.w3c.dom.Document;
@@ -468,5 +469,10 @@ public class PlainXmlModel extends CachedModel<Element> implements IOperationCon
 	@Override
 	public OperationContributor getOperationContributor() {
 		return operationContributor;
+	}
+
+	@Override
+	public IMetamodel getMetamodel(StringProperties properties, IRelativePathResolver resolver) {
+		return new PlainXmlModelMetamodel(properties, resolver, getName());
 	}
 }

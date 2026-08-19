@@ -1,0 +1,4 @@
+model Output driver PlainXML {file="does-not-exist.xml", readOnLoad="false"};
+
+var element : Element;
+Output.root = element;

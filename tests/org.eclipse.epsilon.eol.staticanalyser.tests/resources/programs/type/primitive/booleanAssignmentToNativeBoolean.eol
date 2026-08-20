@@ -1,0 +1,2 @@
+var f:Native("javax.swing.JFrame") = new Native("javax.swing.JFrame");
+f.visible = true;

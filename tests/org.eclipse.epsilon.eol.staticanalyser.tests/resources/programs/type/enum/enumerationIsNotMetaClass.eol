@@ -3,6 +3,8 @@ model M driver EMF { nsuri="sa" };
 var c = new Colour;
 
 Colour.all;
+var a:Colour;
 
 //! [3:12-3:18] Undefined variable or type Colour
 //! [5:0-5:6] Undefined variable or type Colour
+//! [6:6-6:12] Undefined variable or type Colour

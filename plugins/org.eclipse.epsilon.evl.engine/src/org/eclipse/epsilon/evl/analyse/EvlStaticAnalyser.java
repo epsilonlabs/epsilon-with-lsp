@@ -13,6 +13,7 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.analyse.SimpleOperation;
+import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
@@ -107,12 +108,18 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 
 	@Override
 	public void visit(Constraint constraint) {
-		checkBoolean(constraint.getGuardBlock());
+		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, constraint);
+		try {
+			checkBoolean(constraint.getGuardBlock());
 
-		checkBoolean(constraint.getCheckBlock());
+			checkBoolean(constraint.getCheckBlock());
 
-		for (Fix f : constraint.getFixes())
-			f.accept(this);
+			for (Fix f : constraint.getFixes())
+				f.accept(this);
+		}
+		finally {
+			context.getFrameStack().leaveLocal(constraint);
+		}
 	}
 	
 	private void checkBoolean(ExecutableBlock<Boolean> block) {

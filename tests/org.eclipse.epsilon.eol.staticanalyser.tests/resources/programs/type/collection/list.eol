@@ -1,0 +1,11 @@
+var a : List(String) = List{"a","b","c"};
+var b : Sequence(String);
+b = a;
+
+processList(a);
+
+operation processList(items : List(String)){
+	for (i in items){
+		i.println();
+	}
+}

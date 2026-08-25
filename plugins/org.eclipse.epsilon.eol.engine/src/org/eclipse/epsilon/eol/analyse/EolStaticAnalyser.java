@@ -463,16 +463,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				e.accept(this);
 				types.add(getResolvedType(e));
 			}
-			if (types.size() == 1) {
-				setResolvedType(collectionLiteralExpression, new EolCollectionType(
-						collectionLiteralExpression.getCollectionType(), types.iterator().next()));
-			}
-			else {
-				setResolvedType(collectionLiteralExpression,
-						new EolCollectionType(collectionLiteralExpression.getCollectionType(),
-								new EolUnionType(types)));
-
-			}
+			EolType contentType = types.size() == 1 ? types.iterator().next() : new EolUnionType(types);
+			EolCollectionType collectionType =
+					(EolCollectionType) TypeExpression.getType(collectionLiteralExpression.getCollectionType());
+			collectionType.setContentType(contentType);
+			setResolvedType(collectionLiteralExpression, collectionType);
 		}
 	}
 

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -37,9 +38,11 @@ import org.w3c.dom.NodeList;
 public class PlainXmlModelMetamodel extends Metamodel {
 
 	protected final String source;
+	protected final List<String> bindingDeclarations;
 
 	public PlainXmlModelMetamodel(StringProperties properties, IRelativePathResolver resolver, String modelName) {
 		String example = properties.getProperty(PlainXmlModel.PROPERTY_EXAMPLE);
+		bindingDeclarations = new ArrayList<>(properties.getPropertyValues(PlainXmlModel.PROPERTY_BIND));
 		String resolvedSource;
 		try {
 			resolvedSource = getSource(example, resolver, modelName);
@@ -122,6 +125,41 @@ public class PlainXmlModelMetamodel extends Metamodel {
 				addProperty(metaClass, "c_" + childTagName, new EolCollectionType("Sequence", childType));
 			}
 		}
+
+		for (String declaration : bindingDeclarations) {
+			addReferenceProperty(declaration, classesByTag);
+		}
+	}
+
+	private void addReferenceProperty(String declaration, Map<String, PlainXmlMetaClass> classesByTag) {
+		Binding binding;
+		try {
+			binding = Binding.parse(declaration);
+		}
+		catch (IllegalArgumentException ex) {
+			getErrors().add("Invalid Plain XML binding '" + declaration + "': " + ex.getMessage());
+			return;
+		}
+
+		PlainXmlMetaClass sourceClass = classesByTag.get(binding.getSourceTag().toLowerCase(Locale.ROOT));
+		if (sourceClass == null) {
+			getErrors().add("Source tag '" + binding.getSourceTag()
+				+ "' in Plain XML binding was not found in the example");
+			return;
+		}
+
+		PlainXmlMetaClass targetClass = classesByTag.get(binding.getTargetTag().toLowerCase(Locale.ROOT));
+		if (targetClass == null) {
+			getErrors().add("Target tag '" + binding.getTargetTag()
+				+ "' in Plain XML binding was not found in the example");
+			return;
+		}
+
+		EolType targetType = new EolModelElementType(targetClass);
+		if (binding.isMany()) {
+			targetType = new EolCollectionType("Sequence", targetType);
+		}
+		addProperty(sourceClass, "x_" + binding.getSourceAttribute(), targetType);
 	}
 
 	private String getTypeTagName(Element element) {
@@ -178,12 +216,14 @@ public class PlainXmlModelMetamodel extends Metamodel {
 	public boolean equals(Object other) {
 		if (this == other) return true;
 		if (!(other instanceof PlainXmlModelMetamodel)) return false;
-		return Objects.equals(source, ((PlainXmlModelMetamodel) other).source);
+		PlainXmlModelMetamodel otherMetamodel = (PlainXmlModelMetamodel) other;
+		return Objects.equals(source, otherMetamodel.source)
+			&& Objects.equals(bindingDeclarations, otherMetamodel.bindingDeclarations);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(source, getClass());
+		return Objects.hash(source, bindingDeclarations, getClass());
 	}
 
 	private static class PlainXmlMetaProperty implements IProperty {

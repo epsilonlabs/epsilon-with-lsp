@@ -859,7 +859,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		StringProperties stringProperties = new StringProperties();
 		for (ModelDeclarationParameter parameter : modelDeclaration.getModelDeclarationParameters()) {
-			stringProperties.put(parameter.getKey(), parameter.getValue());
+			stringProperties.addProperty(parameter.getKey(), parameter.getValue());
 		}
 		modelDeclaration.setMetamodel(modelDeclaration.getModel().getMetamodel(stringProperties,
 				getRelativePathResolver(modelDeclaration)));

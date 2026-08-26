@@ -1,4 +1,4 @@
-model XMLDoc driver plainxml {example="library.xml"};
+model XMLDoc driver plainxml {example="library.xml", bind="book.authors:author.id:true", bind="book.editor:editor.name:false"};
 
 var books = /*Sequence<t_book>*/t_book.all;
 var library = /*t_library*/new t_library;
@@ -12,6 +12,9 @@ var element : Element = book;
 /*Boolean*/book.b_available;
 book.x_author;
 //! [13:5-13:13] Property x_author not found in type t_book
+
+/*Sequence<t_author>*/book.x_authors;
+/*t_editor*/book.x_editor;
 
 /*String*/book.name;
 /*String*/book.tagName;

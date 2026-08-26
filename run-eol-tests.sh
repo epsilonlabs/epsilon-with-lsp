@@ -2,7 +2,7 @@
 #
 # Fast test runner for EolBuildTests, EolCompletionTests and EvlBuildTests.
 #
-# Rebuilds eol.engine + test module via Maven, then runs tests directly with java.
+# Rebuilds common, eol.engine + test module via Maven, then runs tests directly with java.
 #
 # Usage:
 #   ./run-eol-tests.sh                          # run all EOL static analyser tests
@@ -18,7 +18,7 @@ TYCHO_CACHE="$HOME/.m2/repository/.cache/tycho"
 # --- Step 1: Rebuild eol.engine (and its deps) + test module ---
 
 echo "=== Rebuilding ==="
-mvn package -pl plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,tests/org.eclipse.epsilon.eol.staticanalyser.tests -am -DskipTests -q
+mvn package -pl plugins/org.eclipse.epsilon.common,plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,tests/org.eclipse.epsilon.eol.staticanalyser.tests -am -DskipTests -q
 echo "=== Build done ==="
 
 # --- Step 2: Resolve external dependency JARs from Tycho cache ---

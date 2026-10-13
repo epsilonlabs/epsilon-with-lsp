@@ -2242,23 +2242,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 
-		if (best == null) {
-			Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
-			addTypeCompletions(completions, typeCompletion);
-			return sortedCompletions(completions);
-		}
-
 		Map<String, EolCompletion> completions = new LinkedHashMap<String, EolCompletion>();
-		for (Map.Entry<String, Variable> entry : best.variables.entrySet()) {
-			String name = entry.getKey();
-			Variable variable = entry.getValue();
-			EolCompletionKind kind = isSpecialVariableName(name)
-					? EolCompletionKind.SPECIAL_VARIABLE
-					: EolCompletionKind.VARIABLE;
-			completions.putIfAbsent(name, new EolCompletion(name, kind, variable.getType()));
+		if (best != null) {
+			for (Map.Entry<String, Variable> entry : best.variables.entrySet()) {
+				String name = entry.getKey();
+				Variable variable = entry.getValue();
+				EolCompletionKind kind = isSpecialVariableName(name)
+						? EolCompletionKind.SPECIAL_VARIABLE
+						: EolCompletionKind.VARIABLE;
+				completions.putIfAbsent(name, new EolCompletion(name, kind, variable.getType()));
+			}
 		}
 
 		addTypeCompletions(completions, typeCompletion);
+		if (typeCompletion.modelName == null && !typeCompletion.hasPackageQualifier()) {
+			addOperationCompletions(completions, EolNoType.Instance, typeCompletion.prefix);
+		}
 
 		return sortedCompletions(completions);
 	}
@@ -2630,7 +2629,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		operations.addAll(importedOperations);
 		operations.addAll(builtinOperations);
 		operations.addAll(firstOrderOperationsForCompletion());
-		if (contextType.getClazz() != null) {
+		if (contextType != EolNoType.Instance && contextType.getClazz() != null) {
 			for (Method method : contextType.getClazz().getMethods()) {
 				operations.add(methodToSimpleOperation(method, contextType));
 			}
@@ -2774,6 +2773,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		EolType operationContextType = operation.getContextType();
 		if (contextType == null) {
 			return false;
+		}
+		if (contextType == EolNoType.Instance) {
+			return operationContextType == EolNoType.Instance;
 		}
 		if (contextType == EolAnyType.Instance) {
 			return operationContextType == EolAnyType.Instance;

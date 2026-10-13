@@ -1,0 +1,3 @@
+import 'contextlessOperations.eol';
+
+fo/*@foo*/;

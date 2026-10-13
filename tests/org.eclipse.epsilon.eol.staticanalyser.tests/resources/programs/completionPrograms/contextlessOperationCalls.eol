@@ -1,0 +1,5 @@
+fo/*@foo*/
+'test'.foob/*@foobar*/
+
+operation foo(x : String, y : Integer) {}
+operation String foobar() {}

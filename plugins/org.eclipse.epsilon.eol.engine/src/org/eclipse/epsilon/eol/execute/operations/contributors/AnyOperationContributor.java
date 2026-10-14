@@ -153,24 +153,29 @@ public class AnyOperationContributor extends OperationContributor {
 		return println("", "");
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object println(Object prefix) {
 		return println(prefix, "");
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object println(Object prefix, Object suffix) {
 		getContext().getOutputStream().
 			println(prefix + getContext().getPrettyPrinterManager().print(getTarget()) + suffix);
 		return getTarget();
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object print() {
 		return print("", "");
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object print(Object prefix) {
 		return print(prefix, "");
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object print(Object prefix, Object suffix) {
 		getContext().getOutputStream().
 			print(prefix + getContext().getPrettyPrinterManager().print(getTarget()) + suffix);
@@ -194,14 +199,17 @@ public class AnyOperationContributor extends OperationContributor {
 		return getTarget();
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object errln() {
 		return errln("", "");
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object errln(Object prefix) {
 		return errln(prefix, "");
 	}
 	
+	@MethodTypeCalculator(klass=ReturnTypeIsContextType.class)
 	public Object errln(Object prefix, Object suffix) {
 		getContext().getErrorStream().
 			println(prefix + getContext().getPrettyPrinterManager().print(getTarget()) + suffix);

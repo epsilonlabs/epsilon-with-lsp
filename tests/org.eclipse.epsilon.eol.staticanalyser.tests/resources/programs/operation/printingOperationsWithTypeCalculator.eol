@@ -1,0 +1,18 @@
+/*String*/ "s".print();
+/*String*/ "s".print("prefix");
+/*String*/ "s".print("prefix", "suffix");
+
+/*Integer*/ 1.println();
+/*Integer*/ 1.println("prefix");
+/*Integer*/ 1.println("prefix", "suffix");
+
+/*Real*/ 1.1.err();
+/*Real*/ 1.1.err("prefix");
+/*Real*/ 1.1.err("prefix", "suffix");
+
+/*Sequence<Integer>*/ Sequence{1, 2}.errln();
+/*Sequence<Integer>*/ Sequence{1, 2}.errln("prefix");
+/*Sequence<Integer>*/ Sequence{1, 2}.errln("prefix", "suffix");
+
+/*Boolean*/ true.print().println("prefix").err("prefix", "suffix").errln();
+/*Integer*/ Sequence{1, 2}.print("prefix", "suffix").size();

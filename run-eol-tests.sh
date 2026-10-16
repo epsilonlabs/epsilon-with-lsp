@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 #
-# Fast test runner for EolBuildTests, EolCompletionTests and EvlBuildTests.
+# Test runner for static analysis, LSP and Eclipse editor regressions.
 #
-# Rebuilds common, eol.engine + test module via Maven, then runs tests directly with java.
+# Rebuilds the engines, language server and test modules, then runs JUnit directly.
 #
 # Usage:
-#   ./run-eol-tests.sh                          # run all EOL static analyser tests
+#   ./run-eol-tests.sh                          # run analyser, LSP and standalone LSP suites
 #   ./run-eol-tests.sh -f multiPackage.eol       # filter output to a specific test file
+#   ./run-eol-tests.sh --ui                    # run Eclipse editor regression tests (needs a display)
 #
 set -euo pipefail
 
@@ -14,11 +15,17 @@ PROJECT="$(cd "$(dirname "$0")" && pwd)"
 PLUGINS="$PROJECT/plugins"
 TESTS="$PROJECT/tests/org.eclipse.epsilon.eol.staticanalyser.tests"
 TYCHO_CACHE="$HOME/.m2/repository/.cache/tycho"
+BUILD_PROJECTS="plugins/org.eclipse.epsilon.common,plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.erl.engine,plugins/org.eclipse.epsilon.egl.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,plugins/org.eclipse.epsilon.flexmi,plugins/org.eclipse.epsilon.lsp,plugins/org.eclipse.epsilon.lsp.dt,tests/org.eclipse.epsilon.eol.staticanalyser.tests,tests/org.eclipse.epsilon.lsp.test"
 
-# --- Step 1: Rebuild eol.engine (and its deps) + test module ---
+if [[ "${1:-}" == "--ui" ]]; then
+  shift
+  exec mvn verify -pl "$BUILD_PROJECTS,tests/org.eclipse.epsilon.lsp.dt.test" -am "$@"
+fi
+
+# --- Step 1: Explicitly rebuild the plugins used by the tests (avoids stale JARs) ---
 
 echo "=== Rebuilding ==="
-mvn package -pl plugins/org.eclipse.epsilon.common,plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,tests/org.eclipse.epsilon.eol.staticanalyser.tests -am -DskipTests -q
+mvn package -pl "$BUILD_PROJECTS,plugins/org.eclipse.epsilon.lsp.standalone,tests/org.eclipse.epsilon.lsp.standalone.test" -am -DskipTests -q
 echo "=== Build done ==="
 
 # --- Step 2: Resolve external dependency JARs from Tycho cache ---
@@ -32,7 +39,23 @@ for jar in \
   "org.eclipse.emf.ecore.xmi_2.*.jar" \
   "org.eclipse.emf.ecore.change_2.*.jar" \
   "org.eclipse.emf_2.*.jar" \
-  "org.eclipse.xsd_2.*.jar"; do
+  "org.eclipse.xsd_2.*.jar" \
+  "org.eclipse.emf.emfatic.core_*.jar" \
+  "org.eclipse.gymnast.runtime.core_*.jar" \
+  "org.apache.commons.io_*.jar" \
+  "org.eclipse.core.runtime_*.jar" \
+  "org.eclipse.equinox.common_*.jar" \
+  "org.eclipse.equinox.registry_*.jar" \
+  "org.eclipse.osgi_*.jar" \
+  "org.eclipse.lsp4e_*.jar" \
+  "org.eclipse.jface_*.jar" \
+  "org.eclipse.lsp4j_*.jar" \
+  "org.eclipse.lsp4j.jsonrpc_*.jar" \
+  "com.google.guava_*.jar" \
+  "com.google.guava.failureaccess_*.jar" \
+  "com.google.gson_*.jar" \
+  "org.apache.commons.lang3_*.jar" \
+  "org.yaml.snakeyaml_*.jar"; do
   found=$(find "$TYCHO_CACHE" -name "$jar" -not -name "*.headers" 2>/dev/null | head -1)
   if [ -z "$found" ]; then
     echo "ERROR: Could not find $jar in Tycho cache" >&2
@@ -54,6 +77,12 @@ CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.plainxml/target/org.eclipse.epsilon.emc
 CP="$CP:$PLUGINS/org.eclipse.epsilon.evl.engine/target/org.eclipse.epsilon.evl.engine-2.9.0-SNAPSHOT.jar"
 CP="$CP:$PLUGINS/org.eclipse.epsilon.erl.engine/target/org.eclipse.epsilon.erl.engine-2.9.0-SNAPSHOT.jar"
 CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.bibtex/target/org.eclipse.epsilon.emc.bibtex-2.9.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.egl.engine/target/org.eclipse.epsilon.egl.engine-2.9.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.lsp/target/org.eclipse.epsilon.lsp-2.9.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.flexmi/target/org.eclipse.epsilon.flexmi-2.9.0-SNAPSHOT.jar"
+CP="$CP:$PROJECT/tests/org.eclipse.epsilon.lsp.test/target/classes"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.lsp.standalone/target/org.eclipse.epsilon.lsp.standalone-2.9.0-SNAPSHOT.jar"
+CP="$CP:$PROJECT/tests/org.eclipse.epsilon.lsp.standalone.test/target/classes"
 CP="$CP:$EXT_CP"
 
 # --- Step 4: Parse arguments ---
@@ -62,7 +91,7 @@ FILTER_FILE=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -f) FILTER_FILE="$2"; shift 2 ;;
-    *)  echo "Usage: $0 [-f file.eol]"; exit 1 ;;
+    *)  echo "Usage: $0 [-f file.eol] | --ui [Maven options]"; exit 1 ;;
   esac
 done
 
@@ -71,7 +100,7 @@ done
 cd "$TESTS"
 
 echo "=== Running tests ==="
-TEST_CLASSES="org.eclipse.epsilon.eol.staticanalyser.tests.EolBuildTests org.eclipse.epsilon.eol.staticanalyser.tests.EolCompletionTests org.eclipse.epsilon.eol.staticanalyser.tests.EvlBuildTests"
+TEST_CLASSES="org.eclipse.epsilon.eol.staticanalyser.tests.StaticAnalyserTestSuite org.eclipse.epsilon.lsp.test.EpsilonLanguageServerTestSuite org.eclipse.epsilon.lsp.standalone.test.StandaloneLanguageServerTestSuite"
 if [ -n "$FILTER_FILE" ]; then
   java -cp "$CP" org.junit.runner.JUnitCore $TEST_CLASSES 2>&1 | \
     awk -v pat="$FILTER_FILE" '

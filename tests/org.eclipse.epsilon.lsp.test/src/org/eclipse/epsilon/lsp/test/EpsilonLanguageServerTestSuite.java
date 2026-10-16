@@ -11,6 +11,7 @@ import junit.framework.Test;
 @SuiteClasses({
 	SyntaxCheckTest.class,
 	ImportTests.class,
+	LspCompletionTests.class,
 	DocumentSymbolTest.class
 })
 public class EpsilonLanguageServerTestSuite {

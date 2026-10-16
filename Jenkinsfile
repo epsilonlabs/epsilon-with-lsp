@@ -46,7 +46,9 @@ pipeline {
               }
             } 
             steps {
-              sh 'mvn -B -T 1C clean install -P eclipse-sign'
+              wrap([$class: 'Xvnc', takeScreenshot: false, useXauthority: false]) {
+                sh 'mvn -B -T 1C clean install -P eclipse-sign'
+              }
             }
           }
           stage('Test') {

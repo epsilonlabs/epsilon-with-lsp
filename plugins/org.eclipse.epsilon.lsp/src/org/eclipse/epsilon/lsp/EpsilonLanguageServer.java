@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.analyse.DefaultModelFactory;
+import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
@@ -44,6 +45,7 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected AtomicBoolean shutdown = new AtomicBoolean(false);
     protected Consumer<Integer> exitFunction = null;
     protected LanguageClient client;
+    protected boolean completionSnippetSupport;
     protected boolean hierarchicalDocumentSymbolSupport;
     protected Set<SymbolKind> supportedDocumentSymbolKinds = defaultDocumentSymbolKinds();
     
@@ -92,6 +94,12 @@ public class EpsilonLanguageServer implements LanguageServer {
 	@Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		workspaceFolders = params.getWorkspaceFolders();
+        CompletionCapabilities completionCapabilities = params.getCapabilities() == null
+            || params.getCapabilities().getTextDocument() == null
+            ? null : params.getCapabilities().getTextDocument().getCompletion();
+        completionSnippetSupport = completionCapabilities != null
+            && completionCapabilities.getCompletionItem() != null
+            && Boolean.TRUE.equals(completionCapabilities.getCompletionItem().getSnippetSupport());
         DocumentSymbolCapabilities documentSymbolCapabilities = params.getCapabilities() == null
             || params.getCapabilities().getTextDocument() == null
             ? null : params.getCapabilities().getTextDocument().getDocumentSymbol();
@@ -164,6 +172,10 @@ public class EpsilonLanguageServer implements LanguageServer {
 
     public boolean supportsHierarchicalDocumentSymbols() {
         return hierarchicalDocumentSymbolSupport;
+    }
+
+    public boolean supportsCompletionSnippets() {
+        return completionSnippetSupport;
     }
 
     public SymbolKind getSupportedDocumentSymbolKind(SymbolKind preferred) {

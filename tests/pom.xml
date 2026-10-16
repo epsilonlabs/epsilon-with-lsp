@@ -43,6 +43,7 @@
     <module>org.eclipse.epsilon.eol.engine.test.unit</module>
     <module>org.eclipse.epsilon.eol.staticanalyser.tests</module>
     <module>org.eclipse.epsilon.lsp.test</module>
+    <module>org.eclipse.epsilon.lsp.dt.test</module>
     <module>org.eclipse.epsilon.lsp.standalone.test</module>
     <module>org.eclipse.epsilon.epl.engine.test.acceptance</module>
     <module>org.eclipse.epsilon.etl.engine.test.acceptance</module>

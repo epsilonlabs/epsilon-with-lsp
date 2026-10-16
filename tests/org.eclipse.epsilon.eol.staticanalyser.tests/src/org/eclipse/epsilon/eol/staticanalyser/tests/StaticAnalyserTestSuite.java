@@ -8,6 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	EolBuildTests.class,
 	EolCompletionTests.class,
+	CompletionExpectationParserTests.class,
 	EvlBuildTests.class,
 })
 public class StaticAnalyserTestSuite {

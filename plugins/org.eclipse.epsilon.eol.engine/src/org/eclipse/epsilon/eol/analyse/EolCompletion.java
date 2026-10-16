@@ -1,5 +1,9 @@
 package org.eclipse.epsilon.eol.analyse;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.epsilon.eol.types.EolType;
 
 public class EolCompletion {
@@ -9,6 +13,7 @@ public class EolCompletion {
 	protected final EolType type;
 	protected final String detail;
 	protected final String label;
+	protected final List<String> parameterNames;
 
 	public EolCompletion(String name, EolCompletionKind kind, EolType type) {
 		this(name, kind, type, type != null ? type.toString() : "Any");
@@ -19,11 +24,17 @@ public class EolCompletion {
 	}
 
 	public EolCompletion(String name, EolCompletionKind kind, EolType type, String detail, String label) {
+		this(name, kind, type, detail, label, Collections.emptyList());
+	}
+
+	public EolCompletion(String name, EolCompletionKind kind, EolType type, String detail, String label,
+			List<String> parameterNames) {
 		this.name = name;
 		this.kind = kind;
 		this.type = type;
 		this.detail = detail != null && !detail.isEmpty() ? detail : (type != null ? type.toString() : "Any");
 		this.label = label != null && !label.isEmpty() ? label : name;
+		this.parameterNames = Collections.unmodifiableList(new ArrayList<String>(parameterNames));
 	}
 
 	public String getName() {
@@ -44,6 +55,10 @@ public class EolCompletion {
 
 	public String getLabel() {
 		return label;
+	}
+
+	public List<String> getParameterNames() {
+		return parameterNames;
 	}
 
 	@Override

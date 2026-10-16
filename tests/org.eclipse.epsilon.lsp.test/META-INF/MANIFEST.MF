@@ -13,4 +13,5 @@ Require-Bundle: org.eclipse.epsilon.lsp,
 Bundle-Vendor: Eclipse.org
 Automatic-Module-Name: org.eclipse.epsilon.lsp.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Import-Package: org.eclipse.epsilon.eol
+Import-Package: org.eclipse.epsilon.eol,
+ org.eclipse.epsilon.eol.analyse

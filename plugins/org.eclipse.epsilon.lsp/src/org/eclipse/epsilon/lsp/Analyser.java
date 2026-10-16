@@ -41,6 +41,7 @@ import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.DocumentSymbol;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -234,7 +235,12 @@ public class Analyser {
             final CompletionItem item = new CompletionItem(toCompletionItemLabel(c));
             item.setKind(toCompletionItemKind(c.getKind()));
             item.setDetail(c.getDetail());
-            item.setInsertText(toCompletionItemInsertText(c));
+            boolean snippet = c.getKind() == EolCompletionKind.OPERATION
+                && !c.getParameterNames().isEmpty() && languageServer.supportsCompletionSnippets();
+            item.setInsertText(toCompletionItemInsertText(c, snippet));
+            if (snippet) {
+                item.setInsertTextFormat(InsertTextFormat.Snippet);
+            }
             item.setFilterText(c.getName());
             items.add(item);
         }
@@ -464,11 +470,27 @@ public class Analyser {
 		return completion.getName();
 	}
 
-	private static String toCompletionItemInsertText(EolCompletion completion) {
+	private static String toCompletionItemInsertText(EolCompletion completion, boolean snippet) {
 		if (completion.getKind() == EolCompletionKind.OPERATION) {
-			return completion.getName() + "()";
+			if (!snippet) {
+				return completion.getName() + "()";
+			}
+			StringBuilder insertText = new StringBuilder(escapeSnippetText(completion.getName())).append("(");
+			List<String> parameterNames = completion.getParameterNames();
+			for (int i = 0; i < parameterNames.size(); i++) {
+				if (i > 0) {
+					insertText.append(", ");
+				}
+				insertText.append("${").append(i + 1).append(":")
+					.append(escapeSnippetText(parameterNames.get(i))).append("}");
+			}
+			return insertText.append(")$0").toString();
 		}
 		return completion.getName();
+	}
+
+	private static String escapeSnippetText(String text) {
+		return text.replace("\\", "\\\\").replace("$", "\\$").replace("}", "\\}");
 	}
 
 	protected IEolModule parseRepairedCompletionModule(URI fileUri,

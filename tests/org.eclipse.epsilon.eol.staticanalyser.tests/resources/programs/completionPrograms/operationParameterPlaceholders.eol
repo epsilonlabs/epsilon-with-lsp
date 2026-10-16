@@ -1,0 +1,6 @@
+var food = 1;
+fo/*@foo(x, y), foo(), food*/;
+foo//@foo(x,y), foo(), food
+
+operation foo(x : Integer, y : Integer) {}
+operation foo() {}

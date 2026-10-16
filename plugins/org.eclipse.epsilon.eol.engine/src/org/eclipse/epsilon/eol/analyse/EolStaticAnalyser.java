@@ -2643,7 +2643,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			String returnTypeName = completionTypeName(returnType);
 			String signature = operationSignature(operation, returnTypeName);
 			completions.putIfAbsent(signature,
-					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, returnType, returnTypeName, signature));
+					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, returnType, returnTypeName,
+							signature, operation.getParameterNames()));
 		}
 	}
 

@@ -55,5 +55,10 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: metadataLog
-        path: tests/org.eclipse.epsilon.test/target/work/data/.metadata/.log
+        name: metadataLog-${{ matrix.os }}-jdk${{ matrix.jdk }}
+        include-hidden-files: true
+        path: |
+          tests/org.eclipse.epsilon.test/target/work/data/.metadata/.log
+          tests/org.eclipse.epsilon.test/target/surefire-reports/
+          tests/org.eclipse.epsilon.lsp.dt.test/target/work/data/.metadata/.log
+          tests/org.eclipse.epsilon.lsp.dt.test/target/surefire-reports/

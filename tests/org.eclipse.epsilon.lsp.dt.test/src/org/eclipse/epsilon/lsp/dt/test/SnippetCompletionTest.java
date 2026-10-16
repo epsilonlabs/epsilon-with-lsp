@@ -99,8 +99,20 @@ public class SnippetCompletionTest {
 			assertNoCompletionPopup();
 			verifyKey(viewer, SWT.ESC);
 			await(() -> !LinkedModeModel.hasInstalledModel(viewer.getDocument()));
-			key('a', 'a');
-			await(() -> completionTable() != null);
+			String activationSource = source.replace("'test'.fo;", "'test'.f;");
+			viewer.getDocument().set(activationSource);
+			viewer.setSelectedRange(activationSource.indexOf(';'), 0);
+			// Linked-mode exit restores activation asynchronously. Drain that work and
+			// regain editor focus before posting the next native key event (notably on Cocoa).
+			boolean[] readyForTyping = { false };
+			Display.getCurrent().asyncExec(() -> {
+				viewer.getTextWidget().setFocus();
+				readyForTyping[0] = true;
+			});
+			await(() -> readyForTyping[0] && viewer.getTextWidget().isFocusControl());
+			key('o', 'o');
+			await(() -> viewer.getDocument().get().startsWith("'test'.fo;"));
+			await(() -> completionTable() != null && selectFoo(completionTable()));
 		}
 		finally {
 			if (editor != null) {

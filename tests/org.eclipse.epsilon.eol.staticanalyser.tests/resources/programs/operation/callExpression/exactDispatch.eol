@@ -1,0 +1,20 @@
+var b : Boolean = /*Boolean*/ "".foo("x");
+
+// Exact matching takes priority over an earlier Any overload, including contextless calls.
+var c : Boolean = /*Boolean*/ bar("x");
+
+// Every argument must match; knowing just one argument is insufficient.
+var d : Boolean = /*Boolean*/ "".pair("x", 1);
+var unknown;
+/*Integer|Boolean*/ "".pair("x", unknown);
+/*Boolean|Integer*/ "".foo(unknown);
+/*Boolean|Integer*/ unknown.foo("x");
+
+operation String foo(x : String) : Boolean { return true; }
+operation String foo(x : Any) : Integer { return 0; }
+
+operation bar(x : Any) : Integer { return 0; }
+operation bar(x : String) : Boolean { return true; }
+
+operation String pair(x : String, y : Any) : Integer { return 0; }
+operation String pair(x : String, y : Integer) : Boolean { return true; }

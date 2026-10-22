@@ -1226,6 +1226,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					"Parameters type mismatch for operation " + nameExpression.getName(), Severity.Error));
 			return;
 		}
+		if (!operationCallExpression.isArrow()) {
+			IStaticOperation exactOperation = findExactUserOperation(resolvedOperations, contextType, provParamTypes);
+			if (exactOperation != null) {
+				resolvedOperations = Collections.singletonList(exactOperation);
+			}
+		}
 		setOperationDeclarations(nameExpression, resolvedOperations);
 		
 		//Select the operations with the most specific context type
@@ -1298,6 +1304,62 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				Severity.Warning));
 			}
 		}
+	}
+
+	private IStaticOperation findExactUserOperation(List<IStaticOperation> operations, EolType contextType,
+			List<EolType> parameterTypes) {
+		if (!hasExactRuntimeType(contextType) || !parameterTypes.stream().allMatch(this::hasExactRuntimeType)) {
+			return null;
+		}
+		// OperationList tries exact receiver and argument types before kind matches,
+		// and takes the first matching declaration rather than combining return types.
+		for (IStaticOperation operation : operations) {
+			if (!(operation instanceof SimpleOperation) || ((SimpleOperation) operation).getOperation() == null) {
+				continue;
+			}
+			if (contextType.equals(operation.getContextType()) && parameterTypes.equals(operation.getParameterTypes())) {
+				return operation;
+			}
+			boolean possiblyExact = mayMatchExactRuntimeType(contextType, operation.getContextType());
+			for (int i = 0; possiblyExact && i < parameterTypes.size(); i++) {
+				possiblyExact = mayMatchExactRuntimeType(parameterTypes.get(i), operation.getParameterTypes().get(i));
+			}
+			// Different static types can share a runtime representation (e.g. String
+			// and Native("java.lang.String")), so an earlier declaration may still win.
+			if (possiblyExact) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	private boolean mayMatchExactRuntimeType(EolType actualType, EolType requiredType) {
+		if (requiredType == EolAnyType.Instance) return false;
+		if (actualType == EolNoType.Instance || requiredType == EolNoType.Instance
+				|| actualType instanceof EolPrimitiveType && requiredType instanceof EolPrimitiveType
+				|| actualType instanceof EolModelElementType && requiredType instanceof EolModelElementType) {
+			return actualType.equals(requiredType);
+		}
+		return true;
+	}
+
+	private boolean hasExactRuntimeType(EolType type) {
+		if (type == EolNoType.Instance || type == EolPrimitiveType.String
+				|| type == EolPrimitiveType.Boolean || type == EolPrimitiveType.Integer
+				|| type instanceof EolTypeLiteral) {
+			return true;
+		}
+		if (type instanceof EolModelElementType) {
+			return ((EolModelElementType) type).getMetaClass() != null && !isUnknownModelElementType(type)
+					&& !type.isAbstract() && type.getChildrenTypes().isEmpty();
+		}
+		if (type instanceof EolNativeType) {
+			Class<?> clazz = type.getClazz();
+			return clazz != null && Modifier.isFinal(clazz.getModifiers());
+		}
+		// Any, unions and types admitting subtypes (including Real, which admits
+		// Integer) do not guarantee an exact match at runtime.
+		return false;
 	}
 
 	private boolean isUnknownModelElementType(EolType type) {

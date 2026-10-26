@@ -2,10 +2,6 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension
-         point="org.eclipse.ui.startup">
-      <startup class="org.eclipse.epsilon.lsp.dt.SnippetCompletionSupport"/>
-   </extension>
-   <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"

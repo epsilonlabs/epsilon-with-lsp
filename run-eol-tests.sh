@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 #
-# Test runner for static analysis, LSP and Eclipse editor regressions.
+# Test runner for static analysis and LSP regressions.
 #
 # Rebuilds the engines, language server and test modules, then runs JUnit directly.
 #
 # Usage:
 #   ./run-eol-tests.sh                          # run analyser, LSP and standalone LSP suites
 #   ./run-eol-tests.sh -f multiPackage.eol       # filter output to a specific test file
-#   ./run-eol-tests.sh --ui                    # run Eclipse editor regression tests (needs a display)
 #
 set -euo pipefail
 
@@ -15,12 +14,7 @@ PROJECT="$(cd "$(dirname "$0")" && pwd)"
 PLUGINS="$PROJECT/plugins"
 TESTS="$PROJECT/tests/org.eclipse.epsilon.eol.staticanalyser.tests"
 TYCHO_CACHE="$HOME/.m2/repository/.cache/tycho"
-BUILD_PROJECTS="plugins/org.eclipse.epsilon.common,plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.erl.engine,plugins/org.eclipse.epsilon.egl.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,plugins/org.eclipse.epsilon.flexmi,plugins/org.eclipse.epsilon.lsp,plugins/org.eclipse.epsilon.lsp.dt,tests/org.eclipse.epsilon.eol.staticanalyser.tests,tests/org.eclipse.epsilon.lsp.test"
-
-if [[ "${1:-}" == "--ui" ]]; then
-  shift
-  exec mvn verify -pl "$BUILD_PROJECTS,tests/org.eclipse.epsilon.lsp.dt.test" -am "$@"
-fi
+BUILD_PROJECTS="plugins/org.eclipse.epsilon.common,plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.erl.engine,plugins/org.eclipse.epsilon.egl.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,plugins/org.eclipse.epsilon.flexmi,plugins/org.eclipse.epsilon.lsp,tests/org.eclipse.epsilon.eol.staticanalyser.tests,tests/org.eclipse.epsilon.lsp.test"
 
 # --- Step 1: Explicitly rebuild the plugins used by the tests (avoids stale JARs) ---
 
@@ -91,7 +85,7 @@ FILTER_FILE=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -f) FILTER_FILE="$2"; shift 2 ;;
-    *)  echo "Usage: $0 [-f file.eol] | --ui [Maven options]"; exit 1 ;;
+    *)  echo "Usage: $0 [-f file.eol]"; exit 1 ;;
   esac
 done
 

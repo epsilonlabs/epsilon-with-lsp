@@ -25,7 +25,10 @@ jobs:
       if: runner.os == 'Windows'
     - uses: actions/checkout@v3
     - name: Install Webkit + GTK bindings
-      run: sudo apt-get update && sudo apt install -yq libwebkit2gtk-4.1-dev
+      run: |
+        sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+        sudo apt-get update
+        sudo apt-get install -yq libwebkit2gtk-4.1-dev
       if: runner.os == 'Linux'
     - name: Set up Maven 3.9.5
       uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1
@@ -38,9 +41,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      uses: coactions/setup-xvfb@6b00cf1889f4e1d5a48635647013c0508128ee1a
-      with:
-        run: mvn --batch-mode -U -T 1C clean install
+      run: mvn --batch-mode -U -T 1C clean install
     - name: Run headless test
       uses: coactions/setup-xvfb@6b00cf1889f4e1d5a48635647013c0508128ee1a
       with:
@@ -60,5 +61,3 @@ jobs:
         path: |
           tests/org.eclipse.epsilon.test/target/work/data/.metadata/.log
           tests/org.eclipse.epsilon.test/target/surefire-reports/
-          tests/org.eclipse.epsilon.lsp.dt.test/target/work/data/.metadata/.log
-          tests/org.eclipse.epsilon.lsp.dt.test/target/surefire-reports/

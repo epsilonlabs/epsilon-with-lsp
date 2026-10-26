@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.epsilon</groupId>
   <artifactId>epsilon-plain-parent</artifactId>
-  <version>2.9.0-SNAPSHOT</version>
+  <version>2.10.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Eclipse Epsilon Parent</name>
@@ -18,10 +18,10 @@
   </description>
 
   <scm>
-      <connection>scm:git:https://github.com/eclipse/epsilon.git</connection>
-      <developerConnection>scm:git:https://github.com/eclipse/epsilon.git</developerConnection>
+      <connection>scm:git:https://github.com/eclipse-epsilon/epsilon.git</connection>
+      <developerConnection>scm:git:https://github.com/eclipse-epsilon/epsilon.git</developerConnection>
       <tag>HEAD</tag>
-      <url>https://github.com/eclipse/epsilon</url>
+      <url>https://github.com/eclipse-epsilon/epsilon</url>
   </scm>
 
   <licenses>
@@ -128,6 +128,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <swt.version>3.114.0</swt.version>
     <lsp4j.version>0.23.1</lsp4j.version>
+    <jena.version>5.1.0</jena.version>
   </properties>
 
   <modules>
@@ -206,6 +207,12 @@
     <!-- CLI component -->
     <module>plugins/org.eclipse.epsilon.common.cli/pom-plain.xml</module>
     <module>plugins/org.eclipse.epsilon.eol.cli/pom-plain.xml</module>
+
+    <!-- RDF component -->
+    <module>releng/org.eclipse.epsilon.jena.uberjar</module>
+    <module>plugins/org.eclipse.epsilon.rdf.emf/pom-plain.xml</module>
+    <module>plugins/org.eclipse.epsilon.rdf.validation/pom-plain.xml</module>
+    <module>plugins/org.eclipse.epsilon.emc.rdf.emf/pom-plain.xml</module>
   </modules>
 
   <!--
@@ -711,7 +718,7 @@ same version of EMF / other bits always.
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.7.2</version>
+        <version>1.7.36</version>
       </dependency>
       <dependency>
         <groupId>org.jsoup</groupId>
@@ -730,14 +737,14 @@ same version of EMF / other bits always.
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
-        <version>1.27</version>
+        <version>2.2</version>
       </dependency>
 
-      <!-- JSON-simple -->
+      <!-- Gson -->
       <dependency>
-        <groupId>com.googlecode.json-simple</groupId>
-        <artifactId>json-simple</artifactId>
-        <version>1.1.1</version>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.11.0</version>
       </dependency>
 
       <!-- HTTP client-->
@@ -752,6 +759,13 @@ same version of EMF / other bits always.
         <version>4.4.14</version>
       </dependency>
 
+      <!-- Jena (for RDF) -->
+      <dependency>
+        <groupId>org.apache.jena</groupId>
+        <artifactId>apache-jena-libs</artifactId>
+        <type>pom</type>
+        <version>${jena.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -877,7 +891,7 @@ same version of EMF / other bits always.
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.7.0</version>
+            <version>0.12.0</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>

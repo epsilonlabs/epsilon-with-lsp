@@ -14,19 +14,20 @@ PROJECT="$(cd "$(dirname "$0")" && pwd)"
 PLUGINS="$PROJECT/plugins"
 TESTS="$PROJECT/tests/org.eclipse.epsilon.eol.staticanalyser.tests"
 TYCHO_CACHE="$HOME/.m2/repository/.cache/tycho"
+P2_BUNDLES="$HOME/.m2/repository/p2/osgi/bundle"
 BUILD_PROJECTS="plugins/org.eclipse.epsilon.common,plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.erl.engine,plugins/org.eclipse.epsilon.egl.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,plugins/org.eclipse.epsilon.flexmi,plugins/org.eclipse.epsilon.lsp,tests/org.eclipse.epsilon.eol.staticanalyser.tests,tests/org.eclipse.epsilon.lsp.test"
 
 # --- Step 1: Explicitly rebuild the plugins used by the tests (avoids stale JARs) ---
 
 echo "=== Rebuilding ==="
-mvn package -pl "$BUILD_PROJECTS,plugins/org.eclipse.epsilon.lsp.standalone,tests/org.eclipse.epsilon.lsp.standalone.test" -am -DskipTests -q
+mvn clean package -pl "$BUILD_PROJECTS,plugins/org.eclipse.epsilon.lsp.standalone,tests/org.eclipse.epsilon.lsp.standalone.test" -am -DskipTests -q
 echo "=== Build done ==="
 
 # --- Step 2: Resolve external dependency JARs from Tycho cache ---
 
 EXT_CP=""
 for jar in \
-  "org.antlr.runtime_3.2.0.*.jar" \
+  "org.antlr.runtime_3.5.2.*.jar" \
   "org.apache.commons.collections_3.2.2.*.jar" \
   "org.eclipse.emf.common_2.*.jar" \
   "org.eclipse.emf.ecore_2.*.jar" \
@@ -41,7 +42,7 @@ for jar in \
   "org.eclipse.equinox.common_*.jar" \
   "org.eclipse.equinox.registry_*.jar" \
   "org.eclipse.osgi_*.jar" \
-  "org.eclipse.lsp4e_*.jar" \
+  "org.eclipse.lsp4e_0.19.12.*.jar" \
   "org.eclipse.jface_*.jar" \
   "org.eclipse.lsp4j_*.jar" \
   "org.eclipse.lsp4j.jsonrpc_*.jar" \
@@ -50,7 +51,16 @@ for jar in \
   "com.google.gson_*.jar" \
   "org.apache.commons.lang3_*.jar" \
   "org.yaml.snakeyaml_*.jar"; do
-  found=$(find "$TYCHO_CACHE" -name "$jar" -not -name "*.headers" 2>/dev/null | head -1)
+  # Tycho 5 stores resolved bundles in Maven layout; prefer those over older
+  # downloads in the transport cache, which can contain stale platform versions.
+  found=""
+  bundle="${jar%%_*}"
+  if [ -d "$P2_BUNDLES/$bundle" ]; then
+    found=$(find "$P2_BUNDLES/$bundle" -name "${jar/_/-}" 2>/dev/null | sort -V | tail -1)
+  fi
+  if [ -z "$found" ]; then
+    found=$(find "$TYCHO_CACHE" -name "$jar" -not -name "*.headers" 2>/dev/null | sort -V | tail -1)
+  fi
   if [ -z "$found" ]; then
     echo "ERROR: Could not find $jar in Tycho cache" >&2
     exit 1
@@ -64,18 +74,18 @@ EXT_CP="${EXT_CP#:}"
 # --- Step 3: Build runtime classpath from target/ JARs ---
 
 CP="$TESTS/target/classes"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.eol.engine/target/org.eclipse.epsilon.eol.engine-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.common/target/org.eclipse.epsilon.common-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.emf/target/org.eclipse.epsilon.emc.emf-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.plainxml/target/org.eclipse.epsilon.emc.plainxml-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.evl.engine/target/org.eclipse.epsilon.evl.engine-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.erl.engine/target/org.eclipse.epsilon.erl.engine-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.bibtex/target/org.eclipse.epsilon.emc.bibtex-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.egl.engine/target/org.eclipse.epsilon.egl.engine-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.lsp/target/org.eclipse.epsilon.lsp-2.9.0-SNAPSHOT.jar"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.flexmi/target/org.eclipse.epsilon.flexmi-2.9.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.eol.engine/target/org.eclipse.epsilon.eol.engine-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.common/target/org.eclipse.epsilon.common-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.emf/target/org.eclipse.epsilon.emc.emf-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.plainxml/target/org.eclipse.epsilon.emc.plainxml-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.evl.engine/target/org.eclipse.epsilon.evl.engine-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.erl.engine/target/org.eclipse.epsilon.erl.engine-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.bibtex/target/org.eclipse.epsilon.emc.bibtex-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.egl.engine/target/org.eclipse.epsilon.egl.engine-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.lsp/target/org.eclipse.epsilon.lsp-2.10.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.flexmi/target/org.eclipse.epsilon.flexmi-2.10.0-SNAPSHOT.jar"
 CP="$CP:$PROJECT/tests/org.eclipse.epsilon.lsp.test/target/classes"
-CP="$CP:$PLUGINS/org.eclipse.epsilon.lsp.standalone/target/org.eclipse.epsilon.lsp.standalone-2.9.0-SNAPSHOT.jar"
+CP="$CP:$PLUGINS/org.eclipse.epsilon.lsp.standalone/target/org.eclipse.epsilon.lsp.standalone-2.10.0-SNAPSHOT.jar"
 CP="$CP:$PROJECT/tests/org.eclipse.epsilon.lsp.standalone.test/target/classes"
 CP="$CP:$EXT_CP"
 

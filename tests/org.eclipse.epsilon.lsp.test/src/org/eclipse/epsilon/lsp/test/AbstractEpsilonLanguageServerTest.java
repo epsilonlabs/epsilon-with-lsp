@@ -140,7 +140,8 @@ public class AbstractEpsilonLanguageServerTest {
 	protected void assertPublishedExprectedDiagnostics(final String fileURI, List<String> expectedMessages) throws Exception {
 		List<Diagnostic> diagnostics = getPublishedDiagnostics(fileURI);
 		assertEquals("Unexpected number of diagnostics", expectedMessages.size(), diagnostics.size());
-		List<String> actualMessages = diagnostics.stream().map(d -> d.getMessage()).toList();
+		List<String> actualMessages = diagnostics.stream()
+			.map(d -> d.getMessage().map(text -> text, markup -> markup.getValue())).toList();
 		Set<String> expectedMessageSet = new HashSet<String>(expectedMessages);
 		for (String m : actualMessages) {
 			assertTrue("A received diagnostic was not found in the list of expected diagnostics: " + m, expectedMessageSet.contains(m));

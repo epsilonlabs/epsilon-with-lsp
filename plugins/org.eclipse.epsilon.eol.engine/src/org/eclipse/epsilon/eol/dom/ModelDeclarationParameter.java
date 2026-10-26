@@ -22,7 +22,8 @@ public class ModelDeclarationParameter extends AbstractModuleElement {
 	public void build(AST cst, IModule module) {
 		super.build(cst, module);
 		this.key = cst.getFirstChild().getText();
-		this.value = cst.getSecondChild().getText();
+		String text = cst.getSecondChild().getText();
+		this.value = text.substring(1, text.length() - 1);
 	}
 
 	public String getKey() {

@@ -25,8 +25,10 @@ import org.eclipse.epsilon.emc.graphml.tests.GraphmlTestSuite;
 import org.eclipse.epsilon.emc.hutn.test.HutnEmcDriverTestSuite;
 import org.eclipse.epsilon.emc.json.tests.JSONModelTestSuite;
 import org.eclipse.epsilon.emc.plainxml.test.PlainXmlTestSuite;
+import org.eclipse.epsilon.emc.rdf.emf.test.RdfEmfModelTestSuite;
 import org.eclipse.epsilon.emc.spreadsheets.test.SpreadsheetDriverTestSuite;
 import org.eclipse.epsilon.emc.yaml.test.YamlTestSuite;
+import org.eclipse.epsilon.emg.engine.test.acceptance.EmgAcceptanceTestSuite;
 import org.eclipse.epsilon.eml.engine.test.acceptance.EmlAcceptanceTestSuite;
 import org.eclipse.epsilon.eol.dap.test.EpsilonDebugAdapterTestSuite;
 import org.eclipse.epsilon.eol.engine.test.acceptance.EolAcceptanceTestSuite;
@@ -83,6 +85,7 @@ import junit.framework.Test;
 	EtlAcceptanceTestSuite.class,
 	EclAcceptanceTestSuite.class,
 	EmlAcceptanceTestSuite.class,
+	EmgAcceptanceTestSuite.class,
 	EwlAcceptanceTestSuite.class,
 	EplAcceptanceTestSuite.class,
 	PlainXmlTestSuite.class,
@@ -99,7 +102,8 @@ import junit.framework.Test;
 	EpsilonDebugAdapterTestSuite.class,
 	EpsilonLanguageServerTestSuite.class,
 	StandaloneLanguageServerTestSuite.class,
-	StaticAnalyserTestSuite.class
+	StaticAnalyserTestSuite.class,
+	RdfEmfModelTestSuite.class
 })
 public class EpsilonJenkinsTestSuite {
 	public static Test suite() {

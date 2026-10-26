@@ -1,7 +1,7 @@
 @NonCPS
 def getSlackMessage() {
     def duration = currentBuild.durationString.minus(" and counting")
-    def message = "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> of <https://github.com/eclipse/epsilon/tree/${env.BRANCH_NAME}|${currentBuild.fullProjectName}> "
+    def message = "Build <${env.BUILD_URL}|#${env.BUILD_NUMBER}> of <https://github.com/eclipse-epsilon/epsilon/tree/${env.BRANCH_NAME}|${currentBuild.fullProjectName}> "
     
     message += (currentBuild.currentResult == "SUCCESS" ? "passed" : "failed") + " in ${duration}\n\n"
 
@@ -28,8 +28,8 @@ pipeline {
       buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '2', daysToKeepStr: '14', numToKeepStr: ''))
     }
     tools {
-        maven 'apache-maven-3.9.5'
-        jdk 'openjdk-jdk17-latest'
+        maven 'apache-maven-3.9.9'
+        jdk 'openjdk-jdk21-latest'
     }
     triggers {
         pollSCM('H/5 * * * *')
@@ -46,7 +46,13 @@ pipeline {
               }
             } 
             steps {
-              sh 'mvn -B -T 1C clean install -P eclipse-sign'
+              /* We need the Jena uber-JAR to be locally installed (and the plain
+               * Maven parent POM) to resolve the Tycho target platform. */
+              sh '''
+                mvn -B -T 1C -N -f pom-plain.xml install -P eclipse-sign
+                mvn -B -T 1C -pl releng/org.eclipse.epsilon.jena.uberjar -f pom-plain.xml clean install -P eclipse-sign
+                mvn -B -T 1C clean install -P eclipse-sign
+              '''
             }
           }
           stage('Test') {

@@ -39,6 +39,11 @@ public class ExampleTests extends AbstractSimulinkTest {
 	}
 	
 	@Test
+	public void testCreateBlocksWithPaths() {
+		eolResourceFile = ROOT + "createBlocksWithPaths.eol";
+	}
+	
+	@Test
 	public void testLinkPortsWithStringNames() {
 		eolResourceFile = ROOT + "linkStringPorts.eol";
 	}
@@ -57,6 +62,12 @@ public class ExampleTests extends AbstractSimulinkTest {
 	public void testCachingSFChart() {
 		activeCache = true;
 		eolResourceFile = ROOT + "caching.eol";
+	}
+	
+	@Test
+	public void testCachingSubsystems() {
+		activeCache = true;
+		eolResourceFile = ROOT + "cachingSubsystems.eol";
 	}
 
 	@Test

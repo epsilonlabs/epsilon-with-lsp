@@ -26,8 +26,8 @@ SPDX-License-Identifier: EPL-2.0
 
 The project maintains the following source code repositories:
 
-* https://github.com/eclipse/epsilon
-* https://github.com/eclipse/epsilon-website
+* https://github.com/eclipse-epsilon/epsilon
+* https://github.com/eclipse-epsilon/epsilon-website
 
 ## Third-party Content
 
@@ -54,6 +54,10 @@ Apache Commons Math (3.5.0)
 * License: Apache License, 2.0, New BSD License
 
 Apache commons-collections-3.2.jar (3.2)
+
+* License: Apache License, 2.0
+
+Apache Jena (5.1.0)
 
 * License: Apache License, 2.0
 
@@ -102,6 +106,10 @@ Google Guava
 
 * License: Apache License 2.0
 
+Gson
+
+* License: Apache License 2.0
+
 Jdom (1.0)
 
 * License: JDom License (based on Apache 1.1 Style License)
@@ -111,12 +119,6 @@ JQuery (1.8.1)
 * License: MIT License
 * Project: http://jquery.com
 * Source: https://github.com/jquery/jquery
-
-json-simple (1.1.1)
-
-* License: Apache License 2.0
-* Project: https://code.google.com/archive/p/json-simple/
-* Source: https://github.com/fangyidong/json-simple
 
 jsoup (1.7.2)
 
@@ -128,7 +130,7 @@ JUnit (4.13)
 
 Mockito
 
-* License: Apache License, 2.0, New BSD license, MIT license
+* License: Apache License 2.0, New BSD license, MIT license
 * License: MIT
 
 plantUML (2018.8)
@@ -138,7 +140,11 @@ plantUML (2018.8)
    GPL-2.0-or-later OR LGPL-3.0-or-later OR AGPL-3.0-or-later) AND BSD-3-Clause
    AND MIT AND Apache-2.0
 
-SLF4J API (1.7.2)
+SnakeYAML (2.2.0)
+
+* License: Apache License 2.0
+
+SLF4J API (1.7.36)
 
 * License: MIT License
 

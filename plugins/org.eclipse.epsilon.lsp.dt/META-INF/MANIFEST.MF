@@ -2,13 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Epsilon Language Server Development Tools
 Bundle-SymbolicName: org.eclipse.epsilon.lsp.dt;singleton:=true
-Bundle-Version: 2.9.0.qualifier
+Bundle-Version: 2.10.0.qualifier
 Bundle-Vendor: Eclipse Modeling Project
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.epsilon.common.dt,
  org.eclipse.epsilon.lsp,
  org.eclipse.jface.text,
- org.eclipse.lsp4e;bundle-version="[0.18.17,0.19.0)",
+ org.eclipse.lsp4e;bundle-version="[0.19.12,0.20.0)",
  org.eclipse.lsp4j,
  org.eclipse.lsp4j.jsonrpc,
  org.eclipse.osgi,

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests for the Standalone Epsilon Language Server
 Bundle-SymbolicName: org.eclipse.epsilon.lsp.standalone.test
-Bundle-Version: 2.9.0.qualifier
+Bundle-Version: 2.10.0.qualifier
 Export-Package: org.eclipse.epsilon.lsp.standalone.test
 Require-Bundle: org.eclipse.epsilon.lsp.test,
  org.eclipse.epsilon.lsp,

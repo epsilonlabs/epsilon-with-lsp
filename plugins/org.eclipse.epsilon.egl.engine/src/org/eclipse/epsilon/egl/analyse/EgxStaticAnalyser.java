@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.egx.analyse;
+package org.eclipse.epsilon.egl.analyse;
 
 import java.io.File;
 import java.util.Collections;

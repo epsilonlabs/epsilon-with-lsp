@@ -242,6 +242,8 @@ public class Analyser {
                 item.setInsertTextFormat(InsertTextFormat.Snippet);
             }
             item.setFilterText(c.getName());
+            // Completions that match the expected type (e.g. of an operation parameter) come first
+            item.setSortText((c.isExpectedTypeMatch() ? "0" : "1") + item.getLabel());
             items.add(item);
         }
 		return items;

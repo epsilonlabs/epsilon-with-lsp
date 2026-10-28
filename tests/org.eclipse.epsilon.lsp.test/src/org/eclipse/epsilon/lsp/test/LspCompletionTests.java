@@ -7,6 +7,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -87,6 +88,26 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 			finally {
 				docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
 			}
+		}
+	}
+
+	@Test
+	public void completionsMatchingTheExpectedArgumentTypeAreSortedFirst() throws Exception {
+		File program = temporaryFolder.newFile("arguments.eol");
+		Files.writeString(program.toPath(), "var count : Integer = 1;\nvar greeting : String = \"hello\";\n"
+			+ "\"hello\".concat();\n", StandardCharsets.UTF_8);
+
+		initialize(true);
+		String uri = program.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(program, 1);
+			List<String> actual = completions(uri, new Position(2, 15)).stream()
+				.sorted(Comparator.comparing(CompletionItem::getSortText))
+				.map(CompletionItem::getLabel).toList();
+			assertEquals(List.of("greeting", "count"), actual);
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
 		}
 	}
 

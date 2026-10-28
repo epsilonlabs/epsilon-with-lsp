@@ -8,6 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	EolBuildTests.class,
 	EolCompletionTests.class,
+	ExpectedArgumentTypeRankingTests.class,
 	CompletionExpectationParserTests.class,
 	EvlBuildTests.class,
 })

@@ -1,0 +1,16 @@
+// Inside the parentheses of an operation call, type names that cannot start an argument of the parameter's type are not proposed.
+model M driver EMF {nsuri="sa"};
+var greeting : String = "hello";
+var count : Integer = 1;
+var items : Sequence(String) = Sequence{};
+"hello".concat(/*@ A, B, C, D, container, count, greeting, items, shout */);
+"hello".indexOf(/*@ A, B, C, D, container, count, greeting, items, shout */);
+"hello".substring(1, /*@ A, B, C, D, container, count, greeting, items, shout */);
+shout(/*@ A, B, C, D, container, count, greeting, items, shout */);
+items.includesAll(/*@ A, B, Bag, C, Collection, D, List, OrderedSet, Sequence, Set, container, count, greeting, items, shout */);
+greeting.isKindOf(/*@ A, Any, B, Bag, Boolean, C, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, D, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, container, count, greeting, items, shout */);
+greeting.println(/*@ A, Any, B, Bag, Boolean, C, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, D, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, container, count, greeting, items, shout */);
+"hello".equals(/*@ A, Any, B, Bag, Boolean, C, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, D, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, container, count, greeting, items, shout */);
+"hello".concat(1 + /*@ A, Any, B, Bag, Boolean, C, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, D, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, container, count, greeting, items, shout */);
+
+operation shout(times : Integer) {}

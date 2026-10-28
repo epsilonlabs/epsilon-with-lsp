@@ -1,0 +1,25 @@
+// Inside the parentheses of a completed operation call whose parameters accept any value, completions match those of a new line in the same scope.
+var greeting : String = "hello";
+//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting
+"".print(/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */);
+"".print( /*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */ );
+greeting.print(/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */);
+greeting.println(/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */);
+greeting.concat(greeting /*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */);
+greeting.concat("!").print(/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */);
+"".print(greeting.shout(/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */));
+greeting.shout(/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */);
+greet(/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */);
+greeting.println(
+	/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting */
+);
+"".pri/*@ print, println */();
+"".print/*@ print, println */();
+
+operation greet(name) {}
+
+operation String shout(times) : String {
+	//@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting, self, times
+	self.print(/*@ Any, Bag, Boolean, Collection, ConcurrentBag, ConcurrentMap, ConcurrentSet, Integer, List, Map, Native, None, Nothing, OrderedSet, Real, Sequence, Set, String, Tuple, greet, greeting, self, times */);
+	return self;
+}

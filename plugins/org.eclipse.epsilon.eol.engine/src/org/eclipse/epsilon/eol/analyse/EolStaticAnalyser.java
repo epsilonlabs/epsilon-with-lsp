@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -150,6 +151,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	private static final String DEFAULT_MODEL_NAME = "";
 	private static final String UNKNOWN_MODEL_DRIVER = "Unknown";
 	private static final String DECLARATIONS = "declarations";
+	private static final String RESOLVED_OPERATIONS = "resolvedOperations";
 	private static final String[] BUILTIN_TYPE_COMPLETION_NAMES = new String[] {
 			"Any", "Bag", "Boolean", "Collection", "ConcurrentBag", "ConcurrentMap", "ConcurrentSet",
 			"Integer", "List", "Map", "Native", "None", "Nothing", "OrderedSet", "Real", "Sequence", "Set",
@@ -1257,7 +1259,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 		resolvedOperations = temp;
-		
+		// Kept for completions, which rank arguments by the parameter types of these operations
+		operationCallExpression.getData().put(RESOLVED_OPERATIONS, resolvedOperations);
+
 		if (resolvedOperations.size() == 1) {
 			markers.addAll(resolvedOperations.get(0).getExtraDiagnostics(nameExpression, contextType, provParamTypes));
 		}
@@ -2187,7 +2191,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	private void captureVisibleVariables(List<SingleFrame> frames, Map<String, Variable> visible) {
 		for (SingleFrame frame : frames) {
 			for (Map.Entry<String, Variable> entry : frame.getAll().entrySet()) {
-				visible.putIfAbsent(entry.getKey(), entry.getValue());
+				// Copied, as disposing the frames after validation clears the variables' types
+				visible.putIfAbsent(entry.getKey(), new Variable(entry.getValue()));
 			}
 			if (frame.isProtected()) {
 				break;
@@ -2321,6 +2326,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			addOperationCompletions(completions, EolNoType.Instance, typeCompletion.prefix);
 		}
 
+		applyExpectedArgumentTypes(completions, getExpectedArgumentTypes(findNameCompletion(module, position)));
 		return sortedCompletions(completions);
 	}
 
@@ -2523,7 +2529,20 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	private static boolean positionMatchesNameRegion(NameExpression nameExpression, Position position) {
-		return nameExpression != null && positionMatchesNameRegion(nameExpression.getRegion(), position);
+		if (nameExpression == null || nameExpression.getName() == null || position == null) {
+			return false;
+		}
+		Region region = nameExpression.getRegion();
+		if (region == null || region.getStart() == null) {
+			return false;
+		}
+		// The region of an operation call's name also spans its parentheses and
+		// arguments, so only the name itself is matched: a position inside
+		// "".print() must not be treated as completing "print".
+		Position start = region.getStart();
+		return start.getLine() == position.getLine()
+			&& position.getColumn() >= start.getColumn()
+			&& position.getColumn() <= start.getColumn() + nameExpression.getName().length();
 	}
 
 	private static boolean positionMatchesNameRegion(Region region, Position position) {
@@ -2635,6 +2654,119 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		List<EolCompletion> result = new ArrayList<EolCompletion>(completions.values());
 		Collections.sort(result, Comparator.comparing(EolCompletion::getName));
 		return result;
+	}
+
+	/**
+	 * Returns the types that the operations resolved for an operation call
+	 * accept at the position of the given argument. Arguments made up of anything
+	 * other than the name being completed (e.g. 1 + name) have no expected type.
+	 */
+	private Set<EolType> getExpectedArgumentTypes(NameExpression argument) {
+		Set<EolType> expectedTypes = new LinkedHashSet<EolType>();
+		if (argument == null || !(argument.getParent() instanceof OperationCallExpression)) {
+			return expectedTypes;
+		}
+
+		OperationCallExpression operationCallExpression = (OperationCallExpression) argument.getParent();
+		int index = -1;
+		List<Expression> parameterExpressions = operationCallExpression.getParameterExpressions();
+		for (int i = 0; i < parameterExpressions.size(); i++) {
+			if (parameterExpressions.get(i) == argument) {
+				index = i;
+			}
+		}
+		Object resolvedOperations = operationCallExpression.getData().get(RESOLVED_OPERATIONS);
+		if (index < 0 || !(resolvedOperations instanceof List<?>)) {
+			return expectedTypes;
+		}
+
+		for (Object resolvedOperation : (List<?>) resolvedOperations) {
+			IStaticOperation operation = (IStaticOperation) resolvedOperation;
+			List<EolType> parameterTypes = operation.getParameterTypes();
+			// For varargs operations, the last parameter type applies to all remaining arguments
+			int parameterIndex = (operation.isVarArgs() && index >= parameterTypes.size())
+					? parameterTypes.size() - 1
+					: index;
+			if (parameterIndex >= 0 && parameterIndex < parameterTypes.size()) {
+				expectedTypes.add(parameterTypes.get(parameterIndex));
+			}
+		}
+		return expectedTypes;
+	}
+
+	/**
+	 * Drops type names that cannot start a value of any of the expected types,
+	 * and marks the completions whose values are assignable to one of them so
+	 * that clients can rank them first. Other completions are kept, as they may
+	 * start a matching expression (e.g. count.toString()).
+	 */
+	private void applyExpectedArgumentTypes(Map<String, EolCompletion> completions, Set<EolType> expectedTypes) {
+		if (expectedTypes.isEmpty() || expectedTypes.stream().anyMatch(EolStaticAnalyser::acceptsAnyArgument)) {
+			return;
+		}
+
+		Iterator<Map.Entry<String, EolCompletion>> entries = completions.entrySet().iterator();
+		while (entries.hasNext()) {
+			Map.Entry<String, EolCompletion> entry = entries.next();
+			EolType type = entry.getValue().getType();
+			if (type instanceof EolTypeLiteral && !canStartArgument((EolTypeLiteral) type, expectedTypes)) {
+				entries.remove();
+			}
+			else if (isExpectedTypeMatch(type, expectedTypes)) {
+				entry.setValue(entry.getValue().withExpectedTypeMatch(true));
+			}
+		}
+	}
+
+	private static boolean acceptsAnyArgument(EolType expectedType) {
+		return expectedType == null
+			|| EolAnyType.Instance.equals(expectedType)
+			|| expectedType instanceof EolNativeType
+				&& (expectedType.getClazz() == null || expectedType.getClazz() == Object.class);
+	}
+
+	private static boolean canStartArgument(EolTypeLiteral typeLiteral, Set<EolType> expectedTypes) {
+		EolType wrappedType = typeLiteral.getWrappedType();
+		// Model element types also start expressions such as Tree.all, which may evaluate to any type
+		return wrappedType instanceof EolModelElementType
+			|| isCompatibleWithAny(typeLiteral, expectedTypes)
+			|| hasLiteralSyntax(wrappedType) && isCompatibleWithAny(wrappedType, expectedTypes);
+	}
+
+	private static boolean isExpectedTypeMatch(EolType type, Set<EolType> expectedTypes) {
+		if (type == null || EolAnyType.Instance.equals(type)) {
+			return false;
+		}
+		if (isAssignableToAny(type, expectedTypes)) {
+			return true;
+		}
+		return type instanceof EolTypeLiteral
+			&& hasLiteralSyntax(((EolTypeLiteral) type).getWrappedType())
+			&& isAssignableToAny(((EolTypeLiteral) type).getWrappedType(), expectedTypes);
+	}
+
+	/** Collection, map and tuple type names also start literals, e.g. Sequence{1, 2}. */
+	private static boolean hasLiteralSyntax(EolType type) {
+		return type instanceof EolCollectionType || type instanceof EolMapType || type instanceof EolTupleType;
+	}
+
+	private static boolean isAssignableToAny(EolType type, Set<EolType> expectedTypes) {
+		for (EolType expectedType : expectedTypes) {
+			if (type.isAssignableTo(expectedType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Mirrors the parameter check of operation calls, which accepts both narrowing and widening. */
+	private static boolean isCompatibleWithAny(EolType type, Set<EolType> expectedTypes) {
+		for (EolType expectedType : expectedTypes) {
+			if (type.isAssignableTo(expectedType) || expectedType.isAssignableTo(type)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private List<EolCompletion> getEnumerationLiteralCompletions(EnumerationLiteralCompletionContext context) {
@@ -2982,7 +3114,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			EolType type = "Native".equals(name)
 					? new EolNativeType(Object.class)
 					: TypeExpression.getType(name);
-			completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.VARIABLE, type, "type"));
+			completions.putIfAbsent(name,
+					new EolCompletion(name, EolCompletionKind.VARIABLE, new EolTypeLiteral(type), "type"));
 		}
 	}
 
@@ -3034,8 +3167,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (IMetaClass type : pkg.getTypes()) {
 			String name = type.getName();
 			if (name.startsWith(prefix)) {
-				completions.putIfAbsent(name,
-						new EolCompletion(name, EolCompletionKind.VARIABLE, new EolModelElementType(type)));
+				completions.putIfAbsent(name, modelTypeCompletion(name, type));
 			}
 		}
 		for (org.eclipse.epsilon.eol.m3.Package subPackage : pkg.getSubPackages()) {
@@ -3051,13 +3183,18 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (IMetaClass type : types) {
 			String name = type.getName();
 			if (name.startsWith(prefix)) {
-				completions.putIfAbsent(name,
-						new EolCompletion(name, EolCompletionKind.VARIABLE, new EolModelElementType(type)));
+				completions.putIfAbsent(name, modelTypeCompletion(name, type));
 			}
 		}
 		for (org.eclipse.epsilon.eol.m3.Package subPackage : subPackages) {
 			addTypeCompletions(completions, subPackage.getTypes(), subPackage.getSubPackages(), prefix);
 		}
+	}
+
+	private EolCompletion modelTypeCompletion(String name, IMetaClass type) {
+		EolModelElementType modelElementType = new EolModelElementType(type);
+		return new EolCompletion(name, EolCompletionKind.VARIABLE, new EolTypeLiteral(modelElementType),
+				modelElementType.toString());
 	}
 
 	private static boolean isSpecialVariableName(String name) {

@@ -75,13 +75,6 @@ public class PlainXmlModelMetamodel extends Metamodel {
 
 	private Collection<Element> parseExample(String example, IRelativePathResolver resolver) throws Exception {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-		factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-		factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-		factory.setExpandEntityReferences(false);
 
 		String resolved = resolver != null ? resolver.resolve(example) : example;
 		Document document = factory.newDocumentBuilder().parse(new File(resolved));

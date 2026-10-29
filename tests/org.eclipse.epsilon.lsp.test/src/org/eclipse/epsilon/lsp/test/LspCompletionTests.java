@@ -117,6 +117,30 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 	}
 
 	@Test
+	public void propertiesAreSortedBeforeOperations() throws Exception {
+		File program = temporaryFolder.newFile("properties.eol");
+		Files.writeString(program.toPath(), "var list : Native(\"java.util.ArrayList\");\nlist.\n",
+			StandardCharsets.UTF_8);
+
+		initialize(true);
+		String uri = program.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(program, 1);
+			List<CompletionItemKind> kinds = completions(uri, new Position(1, 5)).stream()
+				.sorted(Comparator.comparing(CompletionItem::getSortText))
+				.map(CompletionItem::getKind)
+				.filter(kind -> kind == CompletionItemKind.Property || kind == CompletionItemKind.Method)
+				.toList();
+			assertTrue(kinds.contains(CompletionItemKind.Property));
+			assertTrue(kinds.contains(CompletionItemKind.Method));
+			assertTrue(kinds.lastIndexOf(CompletionItemKind.Property) < kinds.indexOf(CompletionItemKind.Method));
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	@Test
 	public void snippetsAreOfferedOnlyForTheFirstWordOfALine() throws Exception {
 		File program = temporaryFolder.newFile("snippets.eol");
 		Files.writeString(program.toPath(), "var items = Sequence{};\n\t\nif\nitems.i\nvar x = i\n",

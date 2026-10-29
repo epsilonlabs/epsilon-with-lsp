@@ -246,8 +246,10 @@ public class Analyser {
                 item.setInsertTextFormat(InsertTextFormat.Snippet);
             }
             item.setFilterText(c.getName());
-            // Completions that match the expected type (e.g. of an operation parameter) come first
-            item.setSortText((c.isExpectedTypeMatch() ? "0" : "1") + item.getLabel());
+            // Completions that match the expected type (e.g. of an operation parameter) come first,
+            // and properties come before operations
+            item.setSortText((c.isExpectedTypeMatch() ? "0" : "1")
+                + (c.getKind() == EolCompletionKind.PROPERTY ? "0" : "1") + item.getLabel());
             items.add(item);
         }
 		Snippets snippets = createSnippets(getFileExtension(fileUri));

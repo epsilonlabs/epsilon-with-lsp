@@ -73,7 +73,8 @@ public abstract class Snippets {
 				item.setInsertText(snippet.getBody());
 				item.setInsertTextFormat(InsertTextFormat.Snippet);
 				item.setInsertTextMode(InsertTextMode.AdjustIndentation);
-				item.setSortText("1" + snippet.getName());
+				// Sorted as completions that are neither expected-type matches nor properties (see Analyser)
+				item.setSortText("22" + snippet.getName());
 				items.add(item);
 			}
 		}

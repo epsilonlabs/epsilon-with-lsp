@@ -6,7 +6,6 @@
       <editor
             class="org.eclipse.epsilon.evl.dt.editor.EvlEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-            default="true"
             extensions="evl"
             icon="icons/evl.gif"
             id="org.eclipse.epsilon.evl.dt.editor.EvlEditor"

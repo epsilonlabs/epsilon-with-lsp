@@ -36,7 +36,6 @@
       <editor
             class="org.eclipse.epsilon.egl.dt.editor.EglEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-            default="true"
             extensions="egl"
             icon="icons/egl.png"
             id="org.eclipse.epsilon.egl.dt.editor.EglEditor"
@@ -60,7 +59,6 @@
       <editor
             class="org.eclipse.epsilon.egl.dt.editor.EgxEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-            default="true"
             extensions="egx"
             icon="icons/egx.png"
             id="org.eclipse.epsilon.egl.dt.editor.EgxEditor"

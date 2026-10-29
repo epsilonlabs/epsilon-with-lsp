@@ -52,6 +52,25 @@
       </editorContentTypeBinding>
    </extension>
    <extension
+         point="org.eclipse.ui.genericeditor.icons">
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.eol"
+            icon="icons/eol.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.evl"
+            icon="icons/evl.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.egl"
+            icon="icons/egl.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.egx"
+            icon="icons/egx.png">
+      </icon>
+   </extension>
+   <extension
          point="org.eclipse.lsp4e.languageServer">
       <server
             class="org.eclipse.epsilon.lsp.dt.ConnectionProviderSolution"

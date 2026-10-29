@@ -87,6 +87,7 @@ public class EglModule extends EolModule implements IEglModule {
 	@Override
 	public boolean parse(String code, File file) throws Exception {
 		if ((this.sourceFile = file) != null) try {
+			this.sourceUri = file.toURI();
 			templateRoot = UriUtil.fileToUri(file.getAbsoluteFile().getParentFile());
 		}
 		catch (URISyntaxException e) {}
@@ -108,6 +109,13 @@ public class EglModule extends EolModule implements IEglModule {
 		try (Reader reader = new BufferedReader(new InputStreamReader(uri.toURL().openStream()))) {
 			return parseAndPreprocess(new EglLexer(reader));
 		}
+	}
+	
+	@Override
+	public URI getUri() {
+		// The uri is set when the AST is built, which is skipped if the template has syntax errors
+		URI uri = super.getUri();
+		return uri != null ? uri : sourceUri;
 	}
 	
 	private boolean parseAndPreprocess(EglLexer lexer) throws Exception {

@@ -110,4 +110,42 @@
             scopeName="source.epsilon.egx">
       </scopeNameContentTypeBinding>
    </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.autoEditStrategies">
+      <autoEditStrategy
+            class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"
+            contentType="org.eclipse.epsilon.lsp.contentType.eol">
+      </autoEditStrategy>
+      <autoEditStrategy
+            class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"
+            contentType="org.eclipse.epsilon.lsp.contentType.evl">
+      </autoEditStrategy>
+      <autoEditStrategy
+            class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"
+            contentType="org.eclipse.epsilon.lsp.contentType.egl">
+      </autoEditStrategy>
+      <autoEditStrategy
+            class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"
+            contentType="org.eclipse.epsilon.lsp.contentType.egx">
+      </autoEditStrategy>
+   </extension>
+   <extension
+         point="org.eclipse.tm4e.languageconfiguration.languageConfigurations">
+      <languageConfiguration
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.eol"
+            path="language-configurations/epsilon.json">
+      </languageConfiguration>
+      <languageConfiguration
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.evl"
+            path="language-configurations/epsilon.json">
+      </languageConfiguration>
+      <languageConfiguration
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.egx"
+            path="language-configurations/epsilon.json">
+      </languageConfiguration>
+      <languageConfiguration
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.egl"
+            path="language-configurations/egl.json">
+      </languageConfiguration>
+   </extension>
 </plugin>

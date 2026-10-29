@@ -1,6 +1,8 @@
 package org.eclipse.epsilon.lsp.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URI;
@@ -22,6 +24,7 @@ import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.InsertTextMode;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -81,6 +84,8 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 					.map(this::insertion).sorted().toList();
 				List<String> expected = Boolean.TRUE.equals(snippetSupport)
 					? List.of("Method PlainText foo()", "Method Snippet foo(${1:x}, ${2:y})$0",
+						"Snippet Snippet for (${1:iterator} in ${2:collection}) {\n\t$0\n}",
+						"Snippet Snippet for (${1:iterator} in ${2:collection}) {\n\t($0).println();\n}",
 						"Variable PlainText food")
 					: List.of("Method PlainText foo()", "Method PlainText foo()", "Variable PlainText food");
 				assertEquals("snippetSupport=" + snippetSupport, expected, actual);
@@ -109,6 +114,117 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 		finally {
 			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
 		}
+	}
+
+	@Test
+	public void snippetsAreOfferedOnlyForTheFirstWordOfALine() throws Exception {
+		File program = temporaryFolder.newFile("snippets.eol");
+		Files.writeString(program.toPath(), "var items = Sequence{};\n\t\nif\nitems.i\nvar x = i\n",
+			StandardCharsets.UTF_8);
+
+		initialize(true);
+		String uri = program.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(program, 1);
+			List<String> emptyLine = snippetLabels(uri, new Position(1, 1));
+			assertEquals(List.of("assert", "assertError", "for", "forp", "function", "if", "if else", "import",
+				"operation", "var", "while"), emptyLine);
+			assertEquals(List.of("if", "if else"), snippetLabels(uri, new Position(2, 2)));
+			assertEquals(List.of(), snippetLabels(uri, new Position(3, 7)));
+			assertEquals(List.of(), snippetLabels(uri, new Position(4, 9)));
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	@Test
+	public void snippetsAdjustIndentation() throws Exception {
+		File program = temporaryFolder.newFile("indentation.eol");
+		Files.writeString(program.toPath(), "\tfor\n", StandardCharsets.UTF_8);
+
+		initialize(true);
+		String uri = program.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(program, 1);
+			CompletionItem forSnippet = completions(uri, new Position(0, 4)).stream()
+				.filter(item -> item.getKind() == CompletionItemKind.Snippet && "for".equals(item.getLabel()))
+				.findFirst().orElseThrow();
+			assertEquals(InsertTextMode.AdjustIndentation, forSnippet.getInsertTextMode());
+			assertEquals("iterate over collection", forSnippet.getDetail());
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	@Test
+	public void evlAndEgxSnippetsIncludeEolSnippets() throws Exception {
+		initialize(true);
+		assertSnippetLabelsInclude("snippets.evl", List.of("constraint", "context", "fix", "for", "operation"));
+		assertSnippetLabelsInclude("snippets.egx", List.of("for", "operation", "post", "pre", "transform"));
+	}
+
+	@Test
+	public void eglSnippetsDependOnTheSection() throws Exception {
+		File template = temporaryFolder.newFile("snippets.egl");
+		Files.writeString(template.toPath(), "Hello \n[%\n\n%]\n[%=  %]\n[% gen\n", StandardCharsets.UTF_8);
+
+		initialize(true);
+		String uri = template.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(template, 1);
+			assertEquals(List.of("[% %]", "[%= %]", "[* *]", "[*- *]", "for"), snippetLabels(uri, new Position(0, 6)));
+			List<String> statement = snippetLabels(uri, new Position(2, 0));
+			assertTrue(statement.containsAll(List.of("for", "generate", "if", "process")));
+			assertFalse(statement.contains("[% %]"));
+			assertEquals(List.of(), snippetLabels(uri, new Position(4, 4)));
+			assertEquals(List.of("generate"), snippetLabels(uri, new Position(5, 6)));
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	@Test
+	public void eglSectionsFollowTheEglLexer() throws Exception {
+		File template = temporaryFolder.newFile("sections.egl");
+		Files.writeString(template.toPath(), "[* a [% b\n\n*]\n[% var x = 1; -%]\n\n[%\n\n%]\n",
+			StandardCharsets.UTF_8);
+
+		initialize(true);
+		String uri = template.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(template, 1);
+			// A [% inside a comment does not start a code section
+			assertEquals(List.of(), snippetLabels(uri, new Position(1, 0)));
+			// -%] ends a code section
+			assertEquals(List.of("[% %]", "[%= %]", "[* *]", "[*- *]", "for"), snippetLabels(uri, new Position(4, 0)));
+			assertTrue(snippetLabels(uri, new Position(6, 0)).contains("generate"));
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	private void assertSnippetLabelsInclude(String fileName, List<String> expected) throws Exception {
+		File program = temporaryFolder.newFile(fileName);
+		Files.writeString(program.toPath(), "\n", StandardCharsets.UTF_8);
+		String uri = program.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(program, 1);
+			List<String> actual = snippetLabels(uri, new Position(0, 0));
+			assertTrue(fileName + ": " + actual, actual.containsAll(expected));
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	private List<String> snippetLabels(String uri, Position position) throws Exception {
+		return completions(uri, position).stream()
+			.filter(item -> item.getKind() == CompletionItemKind.Snippet)
+			.map(CompletionItem::getLabel).sorted().toList();
 	}
 
 	private void initialize(Boolean snippetSupport) throws Exception {

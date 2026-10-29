@@ -11,21 +11,21 @@
             priority="normal">
       </content-type>
       <content-type
-            base-type="org.eclipse.core.runtime.text"
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
             file-extensions="evl"
             id="org.eclipse.epsilon.lsp.contentType.evl"
             name="EVL Content Type"
             priority="normal">
       </content-type>
       <content-type
-            base-type="org.eclipse.core.runtime.text"
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
             file-extensions="egl"
             id="org.eclipse.epsilon.lsp.contentType.egl"
             name="EGL Content Type"
             priority="normal">
       </content-type>
       <content-type
-            base-type="org.eclipse.core.runtime.text"
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
             file-extensions="egx"
             id="org.eclipse.epsilon.lsp.contentType.egx"
             name="EGX Content Type"
@@ -36,18 +36,6 @@
          point="org.eclipse.ui.editors">
       <editorContentTypeBinding
             contentTypeId="org.eclipse.epsilon.lsp.contentType.eol"
-            editorId="org.eclipse.ui.genericeditor.GenericEditor">
-      </editorContentTypeBinding>
-      <editorContentTypeBinding
-            contentTypeId="org.eclipse.epsilon.lsp.contentType.evl"
-            editorId="org.eclipse.ui.genericeditor.GenericEditor">
-      </editorContentTypeBinding>
-      <editorContentTypeBinding
-            contentTypeId="org.eclipse.epsilon.lsp.contentType.egl"
-            editorId="org.eclipse.ui.genericeditor.GenericEditor">
-      </editorContentTypeBinding>
-      <editorContentTypeBinding
-            contentTypeId="org.eclipse.epsilon.lsp.contentType.egx"
             editorId="org.eclipse.ui.genericeditor.GenericEditor">
       </editorContentTypeBinding>
    </extension>
@@ -79,18 +67,6 @@
       </server>
       <contentTypeMapping
             contentType="org.eclipse.epsilon.lsp.contentType.eol"
-            id="org.eclipse.epsilon.lsp.server">
-      </contentTypeMapping>
-      <contentTypeMapping
-            contentType="org.eclipse.epsilon.lsp.contentType.evl"
-            id="org.eclipse.epsilon.lsp.server">
-      </contentTypeMapping>
-      <contentTypeMapping
-            contentType="org.eclipse.epsilon.lsp.contentType.egl"
-            id="org.eclipse.epsilon.lsp.server">
-      </contentTypeMapping>
-      <contentTypeMapping
-            contentType="org.eclipse.epsilon.lsp.contentType.egx"
             id="org.eclipse.epsilon.lsp.server">
       </contentTypeMapping>
    </extension>
@@ -135,36 +111,19 @@
             class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"
             contentType="org.eclipse.epsilon.lsp.contentType.eol">
       </autoEditStrategy>
-      <autoEditStrategy
-            class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"
-            contentType="org.eclipse.epsilon.lsp.contentType.evl">
-      </autoEditStrategy>
-      <autoEditStrategy
-            class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"
-            contentType="org.eclipse.epsilon.lsp.contentType.egl">
-      </autoEditStrategy>
-      <autoEditStrategy
-            class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"
-            contentType="org.eclipse.epsilon.lsp.contentType.egx">
-      </autoEditStrategy>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.characterPairMatchers">
+      <characterPairMatcher
+            class="org.eclipse.epsilon.lsp.dt.EolCharacterPairMatcher"
+            contentType="org.eclipse.epsilon.lsp.contentType.eol">
+      </characterPairMatcher>
    </extension>
    <extension
          point="org.eclipse.tm4e.languageconfiguration.languageConfigurations">
       <languageConfiguration
             contentTypeId="org.eclipse.epsilon.lsp.contentType.eol"
-            path="language-configurations/epsilon.json">
-      </languageConfiguration>
-      <languageConfiguration
-            contentTypeId="org.eclipse.epsilon.lsp.contentType.evl"
-            path="language-configurations/epsilon.json">
-      </languageConfiguration>
-      <languageConfiguration
-            contentTypeId="org.eclipse.epsilon.lsp.contentType.egx"
-            path="language-configurations/epsilon.json">
-      </languageConfiguration>
-      <languageConfiguration
-            contentTypeId="org.eclipse.epsilon.lsp.contentType.egl"
-            path="language-configurations/egl.json">
+            path="language-configurations/eol.json">
       </languageConfiguration>
    </extension>
 </plugin>

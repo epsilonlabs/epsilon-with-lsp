@@ -36,6 +36,11 @@ import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.dom.Import;
 import org.eclipse.epsilon.evl.EvlModule;
 import org.eclipse.epsilon.evl.analyse.EvlStaticAnalyser;
+import org.eclipse.epsilon.lsp.snippets.EglSnippets;
+import org.eclipse.epsilon.lsp.snippets.EgxSnippets;
+import org.eclipse.epsilon.lsp.snippets.EolSnippets;
+import org.eclipse.epsilon.lsp.snippets.EvlSnippets;
+import org.eclipse.epsilon.lsp.snippets.Snippets;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Diagnostic;
@@ -133,8 +138,7 @@ public class Analyser {
                     diagnostics.addAll(markersToDiagnostics(markers));
                 }
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// Do nothing
 			}
 		} 
 
@@ -246,6 +250,10 @@ public class Analyser {
             item.setSortText((c.isExpectedTypeMatch() ? "0" : "1") + item.getLabel());
             items.add(item);
         }
+		Snippets snippets = createSnippets(getFileExtension(fileUri));
+		if (snippets != null && languageServer.supportsCompletionSnippets()) {
+			items.addAll(snippets.getCompletionItems(readDocumentCode(fileUri), lspPosition));
+		}
 		return items;
 	}
 
@@ -586,6 +594,16 @@ public class Analyser {
             default:
                 LOGGER.warning("Unknown language " + languageId);
                 return null;
+        }
+    }
+
+    protected Snippets createSnippets(String languageId) {
+        switch (languageId) {
+            case LANGUAGE_EVL: return new EvlSnippets();
+            case LANGUAGE_EGL: return new EglSnippets();
+            case LANGUAGE_EGX: return new EgxSnippets();
+            case LANGUAGE_EOL: return new EolSnippets();
+            default: return null;
         }
     }
 }

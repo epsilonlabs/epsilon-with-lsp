@@ -163,7 +163,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
         // Only the Epsilon languages are handled by the static analyser;
         // for anything else we return an empty completion list so that the
         // client does not keep waiting.
-        if (!(uriString.endsWith(".eol") || uriString.endsWith(".evl") || uriString.endsWith(".egl"))) {
+        if (!(uriString.endsWith(".eol") || uriString.endsWith(".evl") || uriString.endsWith(".egl") || uriString.endsWith(".egx"))) {
             return CompletableFuture.completedFuture(Either.forLeft(Collections.<CompletionItem>emptyList()));
         }
 

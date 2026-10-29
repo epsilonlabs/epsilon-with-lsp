@@ -58,14 +58,27 @@ public class ExtraEUnitOperationContributor extends OperationContributor {
 		return true;
 	}
 
+	/**
+	 * Compares the expected file or directory with the actually generated file or directory.
+	 * For directories, the comparison is done recursively (e.g. expected/foo.txt is compared against actual/foo.txt).
+	 * The comparison is done on a character-by-character basis: any difference will trigger an assertion failure.
+	 * For a version of the comparison that ignores line endings, use {@ref #assertEqualFilesIgnoringLineEndings(String, String)}.
+	 */
 	public void assertEqualFiles(String pathExpected, String pathActual) throws EolAssertionException, EolInternalException {
 		compareTrees(pathExpected, pathActual, true);
 	}
-	
+
+	/**
+	 * Variant of {@ref #assertEqualFiles(String, String)} which ignores line endings during comparison.
+	 */
 	public void assertEqualFilesIgnoringLineEndings(String pathExpected, String pathActual) throws EolAssertionException, EolInternalException {
 		compareTrees(pathExpected, pathActual, true, true);
 	}
 
+	/**
+	 * @deprecated Use {@ref #assertEqualFiles(String, String)} or {@ref #assertEqualFilesIgnoringLineEndings(String, String)} instead, which work with both files and directories.
+	 */
+	@Deprecated
 	public void assertEqualDirectories(String pathExpected, String pathActual) throws EolAssertionException, EolInternalException {
 		compareTrees(pathExpected, pathActual, true);
 	}

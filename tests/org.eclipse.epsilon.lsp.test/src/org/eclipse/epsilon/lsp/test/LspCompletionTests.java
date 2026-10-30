@@ -117,6 +117,24 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 	}
 
 	@Test
+	public void typesHaveTheClassKind() throws Exception {
+		File program = temporaryFolder.newFile("types.eol");
+		Files.writeString(program.toPath(), "var x : Integ\n", StandardCharsets.UTF_8);
+
+		initialize(true);
+		String uri = program.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(program, 1);
+			CompletionItem integer = completions(uri, new Position(0, 13)).stream()
+				.filter(item -> item.getLabel().equals("Integer")).findFirst().orElseThrow();
+			assertEquals(CompletionItemKind.Class, integer.getKind());
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	@Test
 	public void propertiesAreSortedBeforeOperations() throws Exception {
 		File program = temporaryFolder.newFile("properties.eol");
 		Files.writeString(program.toPath(), "var list : Native(\"java.util.ArrayList\");\nlist.\n",

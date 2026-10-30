@@ -2781,7 +2781,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (String literal : enumeration.getLiterals()) {
 			if (literal.startsWith(context.prefix)) {
 				completions.putIfAbsent(literal,
-						new EolCompletion(literal, EolCompletionKind.VARIABLE, enumType, "enum literal"));
+						new EolCompletion(literal, EolCompletionKind.ENUM_LITERAL, enumType, "enum literal"));
 			}
 		}
 		return sortedCompletions(completions);
@@ -3115,7 +3115,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					? new EolNativeType(Object.class)
 					: TypeExpression.getType(name);
 			completions.putIfAbsent(name,
-					new EolCompletion(name, EolCompletionKind.VARIABLE, new EolTypeLiteral(type), "type"));
+					new EolCompletion(name, EolCompletionKind.TYPE, new EolTypeLiteral(type), "type"));
 		}
 	}
 
@@ -3123,7 +3123,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (String modelName : context.modelDeclarations.keySet()) {
 			String name = modelName + "!";
 			if (name.startsWith(prefix)) {
-				completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.VARIABLE, null, "model"));
+				completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.MODEL, null, "model"));
 			}
 		}
 	}
@@ -3173,7 +3173,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		for (org.eclipse.epsilon.eol.m3.Package subPackage : pkg.getSubPackages()) {
 			String name = subPackage.getName();
 			if (name.startsWith(prefix)) {
-				completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.VARIABLE, null, "package"));
+				completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.PACKAGE, null, "package"));
 			}
 		}
 	}
@@ -3193,7 +3193,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	private EolCompletion modelTypeCompletion(String name, IMetaClass type) {
 		EolModelElementType modelElementType = new EolModelElementType(type);
-		return new EolCompletion(name, EolCompletionKind.VARIABLE, new EolTypeLiteral(modelElementType),
+		return new EolCompletion(name, EolCompletionKind.TYPE, new EolTypeLiteral(modelElementType),
 				modelElementType.toString());
 	}
 

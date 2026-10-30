@@ -576,6 +576,14 @@ public class Analyser {
                 // self, loopCount, hasMore are language-level contextual
                 // identifiers, so we surface them as keywords for clarity.
                 return CompletionItemKind.Keyword;
+            case TYPE:
+                return CompletionItemKind.Class;
+            case MODEL:
+                return CompletionItemKind.Module;
+            case PACKAGE:
+                return CompletionItemKind.Folder;
+            case ENUM_LITERAL:
+                return CompletionItemKind.EnumMember;
             default:
                 return CompletionItemKind.Variable;
         }

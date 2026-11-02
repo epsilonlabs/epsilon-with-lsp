@@ -21,6 +21,7 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.debug.EolDebugger;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
@@ -93,7 +94,7 @@ public class PinsetModule extends ErlModule {
 
 	@Override
 	public EpsilonParser createParser(TokenStream tokenStream) {
-		return new PinsetParser(tokenStream);
+		return new PinsetParser(tokenStream, new EpsilonRecognizerState());
 	}
 
 	@Override

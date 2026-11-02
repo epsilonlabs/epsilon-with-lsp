@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.ecore.delegates.execution.EvlConstraint;
 import org.eclipse.epsilon.ecore.delegates.notify.DelegateResourceAdapter;
@@ -44,7 +45,7 @@ public class EvlDelegateContext extends EpsilonDelegateContext<EvlModule, Option
 	
 	@Override
 	protected EpsilonParser createParser(TokenStream stream) {
-		return new EvlParser(stream);
+		return new EvlParser(stream, new EpsilonRecognizerState());
 	}
 	
 	@Override

@@ -21,6 +21,7 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
 import org.eclipse.epsilon.eol.dom.Import;
@@ -84,7 +85,7 @@ public abstract class AbstractEplModule extends ErlModule implements IEplModule 
 
 	@Override
 	public EpsilonParser createParser(TokenStream tokenStream) {
-		return new EplParser(tokenStream);
+		return new EplParser(tokenStream, new EpsilonRecognizerState());
 	}
 
 	@Override

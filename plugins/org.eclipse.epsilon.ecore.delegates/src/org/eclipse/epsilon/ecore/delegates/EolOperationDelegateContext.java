@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.ecore.delegates.execution.EolOperation;
 import org.eclipse.epsilon.ecore.delegates.notify.DelegateResourceAdapter;
@@ -46,7 +47,7 @@ public class EolOperationDelegateContext extends EpsilonDelegateContext<EolModul
 
 	@Override
 	protected EpsilonParser createParser(TokenStream stream) {
-		return new EolParser(stream);
+		return new EolParser(stream, new EpsilonRecognizerState());
 	}
 
 	@Override

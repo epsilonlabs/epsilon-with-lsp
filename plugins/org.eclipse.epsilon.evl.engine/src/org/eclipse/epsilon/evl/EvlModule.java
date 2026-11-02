@@ -27,6 +27,7 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.common.util.CollectionUtil;
 import org.eclipse.epsilon.eol.debug.EolDebugger;
@@ -86,7 +87,7 @@ public class EvlModule extends ErlModule implements IEvlModule {
  
 	@Override
 	public EpsilonParser createParser(TokenStream tokenStream) {
-		return new EvlParser(tokenStream);
+		return new EvlParser(tokenStream, new EpsilonRecognizerState());
 	}
 
 	@Override

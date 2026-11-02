@@ -19,6 +19,7 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
@@ -67,7 +68,7 @@ public class EwlModule extends EolModule implements IEwlModule {
 
 	@Override
 	public EpsilonParser createParser(TokenStream tokenStream) {
-		return new EwlParser(tokenStream);
+		return new EwlParser(tokenStream, new EpsilonRecognizerState());
 	}
 
 	@Override

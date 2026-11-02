@@ -10,7 +10,6 @@
 package org.eclipse.epsilon.common.parse;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +26,7 @@ public class EpsilonTreeAdaptor extends CommonTreeAdaptor {
 	
 	protected URI uri = null;
 	protected IModule module = null;
+	protected EpsilonParser parser = null;
 	
 	public EpsilonTreeAdaptor(File file) {
 		if (file != null) {
@@ -55,20 +55,27 @@ public class EpsilonTreeAdaptor extends CommonTreeAdaptor {
         return new AST(token, uri, module);
     }
 	
+	/**
+	 * Set by {@link EpsilonParser#setDeepTreeAdaptor(org.antlr.runtime.tree.TreeAdaptor)}
+	 */
+	public void setParser(EpsilonParser parser) {
+		this.parser = parser;
+	}
+	
+	public EpsilonParser getParser() {
+		return parser;
+	}
+	
 	@Override
 	public Object errorNode(TokenStream input, Token start, Token stop, RecognitionException e) {
-		WeakReference<EpsilonParser> parserRef = EpsilonParser.tokenStreamParsers.get(input);
-		if (parserRef != null) {
-			EpsilonParser parser = parserRef.get();
-			if (parser != null) {
-				Token replacement = parser.consumeErrorNodeReplacement(e);
-				if (replacement != null) {
-					return new AST(replacement, uri, module);
-				}
-				AST recoveredNavigation = recoverNavigationSubtree(input, start, stop, e, parser);
-				if (recoveredNavigation != null) {
-					return recoveredNavigation;
-				}
+		if (parser != null) {
+			Token replacement = parser.consumeErrorNodeReplacement(e);
+			if (replacement != null) {
+				return new AST(replacement, uri, module);
+			}
+			AST recoveredNavigation = recoverNavigationSubtree(input, start, stop, e, parser);
+			if (recoveredNavigation != null) {
+				return recoveredNavigation;
 			}
 		}
 		return new AST(start, uri, module);

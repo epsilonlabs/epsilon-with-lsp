@@ -27,6 +27,7 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.egl.debug.EgxDebugger;
 import org.eclipse.epsilon.egl.dom.GenerationRule;
@@ -113,7 +114,7 @@ public class EgxModule extends ErlModule implements IEgxModule {
 	
 	@Override
 	public EpsilonParser createParser(TokenStream tokenStream) {
-		return new EgxParser(tokenStream);
+		return new EgxParser(tokenStream, new EpsilonRecognizerState());
 	}
 
 	@Override

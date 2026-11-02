@@ -20,6 +20,7 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.ecl.debug.EclDebugger;
 import org.eclipse.epsilon.ecl.dom.MatchRule;
@@ -63,7 +64,7 @@ public class EclModule extends ErlModule implements IEclModule {
 
 	@Override
 	public EpsilonParser createParser(TokenStream tokenStream) {
-		return new EclParser(tokenStream);
+		return new EclParser(tokenStream, new EpsilonRecognizerState());
 	}
 
 	@Override

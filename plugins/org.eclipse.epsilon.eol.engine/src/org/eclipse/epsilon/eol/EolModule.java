@@ -26,6 +26,7 @@ import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.AST;
 import org.eclipse.epsilon.common.parse.EpsilonParser;
+import org.eclipse.epsilon.common.parse.EpsilonRecognizerState;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.common.util.AstUtil;
 import org.eclipse.epsilon.common.util.ListSet;
@@ -328,7 +329,7 @@ public class EolModule extends AbstractModule implements IEolModule {
 	
 	@Override
 	public EpsilonParser createParser(TokenStream tokenStream) {
-		return new EolParser(tokenStream);
+		return new EolParser(tokenStream, new EpsilonRecognizerState());
 	}
 	
 	@Override

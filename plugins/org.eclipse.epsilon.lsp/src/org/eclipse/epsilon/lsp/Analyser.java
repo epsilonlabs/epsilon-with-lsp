@@ -491,7 +491,8 @@ public class Analyser {
 			List<String> parameterNames = completion.getParameterNames();
 			for (int i = 0; i < parameterNames.size(); i++) {
 				if (i > 0) {
-					insertText.append(", ");
+					// e.g. select(${1:iterator}|${2:condition})
+					insertText.append(i == 1 && completion.isFirstOrder() ? "|" : ", ");
 				}
 				insertText.append("${").append(i + 1).append(":")
 					.append(escapeSnippetText(parameterNames.get(i))).append("}");

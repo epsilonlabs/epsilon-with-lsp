@@ -65,6 +65,14 @@ public class NMatchOperation extends FirstOrderOperation {
 		this.mode = behaviour;
 	}
 
+	/**
+	 * @return The pre-specified number of target matches, or a negative number
+	 * if it is specified on a per-invocation basis.
+	 */
+	public int getTargetMatches() {
+		return n;
+	}
+
 	@Override
 	public final Boolean execute(Object target, NameExpression operationNameExpression, List<Parameter> iterators, List<Expression> expressions, IEolContext context) throws EolRuntimeException {
 		int targetMatches;

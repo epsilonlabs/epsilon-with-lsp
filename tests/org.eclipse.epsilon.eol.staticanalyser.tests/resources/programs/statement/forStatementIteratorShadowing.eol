@@ -1,0 +1,18 @@
+var i : String;
+
+for (i in 1.to(10)) {
+	/*Integer*/i;
+}
+
+/*String*/i;
+var j : Integer = i;
+
+var k : String;
+
+for (k : Integer in Sequence{1, 2, 3}) {
+	/*Integer*/k;
+}
+
+/*String*/k;
+
+//![8:18-8:19] String cannot be assigned to Integer

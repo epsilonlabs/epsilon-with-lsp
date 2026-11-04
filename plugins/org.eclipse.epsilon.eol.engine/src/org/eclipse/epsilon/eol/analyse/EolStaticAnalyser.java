@@ -657,18 +657,22 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	public void visit(ForStatement forStatement) {
 
 		forStatement.getIteratedExpression().accept(this);
-		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, forStatement.getBodyStatementBlock(),
-				new Variable("loopCount", EolPrimitiveType.Integer), new Variable("hasMore", EolPrimitiveType.Boolean));
 
 		Parameter iteratorParameter = forStatement.getIteratorParameter();
-		iteratorParameter.accept(this);
-		if (getType(iteratorParameter) == EolAnyType.Instance) {
-			EolType iteratorType = getResolvedType(forStatement.getIteratedExpression());
-			if (iteratorType instanceof EolCollectionType) {
-				context.getFrameStack().get(iteratorParameter.getName())
-						.setType(((EolCollectionType) iteratorType).getContentType());
+		visit(iteratorParameter, false);
+		EolType iteratorType = getType(iteratorParameter);
+		if (iteratorType == EolAnyType.Instance) {
+			EolType iteratedType = getResolvedType(forStatement.getIteratedExpression());
+			if (iteratedType instanceof EolCollectionType) {
+				iteratorType = ((EolCollectionType) iteratedType).getContentType();
 			}
 		}
+
+		// The iterator is always a new variable, which shadows (rather than reuses)
+		// any variable with the same name in the enclosing scopes
+		context.getFrameStack().enterLocal(FrameType.UNPROTECTED, forStatement.getBodyStatementBlock(),
+				new Variable("loopCount", EolPrimitiveType.Integer), new Variable("hasMore", EolPrimitiveType.Boolean),
+				createVariable(iteratorParameter.getName(), iteratorType, iteratorParameter.getNameExpression()));
 		forStatement.getBodyStatementBlock().accept(this);
 		context.getFrameStack().leaveLocal(forStatement.getBodyStatementBlock());
 
@@ -1453,10 +1457,9 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 	@Override
 	public void visit(Parameter parameter) {
-		if (context.getFrameStack().contains(parameter.getName()))
-			visit(parameter, false);
-		else
-			visit(parameter, true);
+		// Parameters always declare a new variable, which shadows any variable
+		// with the same name in the enclosing scopes
+		visit(parameter, true);
 	}
 
 	public void visit(Parameter parameter, boolean createVariable) {

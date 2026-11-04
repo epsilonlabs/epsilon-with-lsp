@@ -18,6 +18,8 @@ import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.common.parse.Region;
+import org.eclipse.epsilon.egl.EgxModule;
+import org.eclipse.epsilon.egl.analyse.EgxStaticAnalyser;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.types.EolType;
@@ -57,6 +59,10 @@ public abstract class AbstractStaticAnalysisTest extends AbstractBaseTest {
 		case "evl":
 			module = new EvlModule();
 			staticAnalyser = new EvlStaticAnalyser(createModelFactory());
+			break;
+		case "egx":
+			module = new EgxModule();
+			staticAnalyser = new EgxStaticAnalyser(createModelFactory());
 			break;
 		default:
 			fail("Unknown file extension, can't find suitable module");

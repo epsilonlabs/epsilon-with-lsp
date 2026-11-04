@@ -11,6 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	ExpectedArgumentTypeRankingTests.class,
 	CompletionExpectationParserTests.class,
 	EvlBuildTests.class,
+	EgxBuildTests.class,
 })
 public class StaticAnalyserTestSuite {
 

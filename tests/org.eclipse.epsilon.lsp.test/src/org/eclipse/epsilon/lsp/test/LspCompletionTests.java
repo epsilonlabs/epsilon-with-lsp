@@ -92,6 +92,32 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 	}
 
 	@Test
+	public void firstOrderOperationCompletionsHaveIteratorAndExpressionPlaceholders() throws Exception {
+		File program = temporaryFolder.newFile("firstOrder.eol");
+		Files.writeString(program.toPath(), "Sequence{1, 2, 3}.selec;\nSequence{1, 2, 3}.nMatc;\n",
+			StandardCharsets.UTF_8);
+
+		initialize(true);
+		String uri = program.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(program, 1);
+			List<String> actual = new ArrayList<>();
+			for (Position position : List.of(new Position(0, 23), new Position(1, 23))) {
+				completions(uri, position).stream()
+					.filter(item -> List.of("select", "nMatch").contains(item.getFilterText()))
+					.forEach(item -> actual.add(item.getLabel() + " -> " + insertion(item)));
+			}
+			assertEquals(List.of(
+				"select(iterator|condition) : Sequence<Integer> -> Method Snippet select(${1:iterator}|${2:condition})$0",
+				"nMatch(iterator|condition, n) : Boolean -> Method Snippet nMatch(${1:iterator}|${2:condition}, ${3:n})$0"),
+				actual);
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	@Test
 	public void completionsMatchingTheExpectedArgumentTypeAreSortedFirst() throws Exception {
 		File program = temporaryFolder.newFile("arguments.eol");
 		Files.writeString(program.toPath(), "var count : Integer = 1;\nvar greeting : String = \"hello\";\n"

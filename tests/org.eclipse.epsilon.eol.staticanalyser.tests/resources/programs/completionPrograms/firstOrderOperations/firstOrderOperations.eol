@@ -1,45 +1,46 @@
 var a : Sequence = Sequence{1, 2, 3};
-a.atLeastNMatc/*@atLeastNMatch*/
-a.parallelAtLeastNMatc/*@parallelAtLeastNMatch*/
+a.atLeastNMatc/*@atLeastNMatch(iterator, condition, n)*/
+a.parallelAtLeastNMatc/*@parallelAtLeastNMatch(iterator, condition, n)*/
 
-a.atMostNMatc/*@atMostNMatch*/
-a.parallelAtMostNMatc/*@parallelAtMostNMatch*/
+a.atMostNMatc/*@atMostNMatch(iterator, condition, n)*/
+a.parallelAtMostNMatc/*@parallelAtMostNMatch(iterator, condition, n)*/
 
-a.aggregat/*@aggregate*/
-a.closur/*@closure*/
+a.aggregat/*@aggregate(iterator, keyExpression, valueExpression)*/
+a.closur/*@closure(iterator, expression)*/
 
-a.collec/*@collect*/
-a.parallelCollec/*@parallelCollect*/
+a.collec/*@collect(iterator, expression)*/
+a.parallelCollec/*@parallelCollect(iterator, expression)*/
 
+// Bare name: count also has a Java overload, count(Object), whose parameter name depends on compiler flags
 a.coun/*@count*/
-a.parallelCoun/*@parallelCount*/
+a.parallelCoun/*@parallelCount(iterator, condition)*/
 
-a.exist/*@exists*/
-a.parallelExist/*@parallelExists*/
+a.exist/*@exists(iterator, condition)*/
+a.parallelExist/*@parallelExists(iterator, condition)*/
 
-a.forAl/*@forAll*/
-a.parallelForAl/*@parallelForAll*/
+a.forAl/*@forAll(iterator, condition)*/
+a.parallelForAl/*@parallelForAll(iterator, condition)*/
 
-a.mapB/*@mapBy*/
-a.parallelMapB/*@parallelMapBy*/
+a.mapB/*@mapBy(iterator, expression)*/
+a.parallelMapB/*@parallelMapBy(iterator, expression)*/
 
-a.nMatc/*@nMatch*/
-a.parallelNMatc/*@parallelNMatch*/
+a.nMatc/*@nMatch(iterator, condition, n)*/
+a.parallelNMatc/*@parallelNMatch(iterator, condition, n)*/
 
-a.non/*@none*/
-a.parallelNon/*@parallelNone*/
+a.non/*@none(iterator, condition)*/
+a.parallelNon/*@parallelNone(iterator, condition)*/
 
-a.on/*@one*/
-a.parallelOn/*@parallelOne*/
+a.on/*@one(iterator, condition)*/
+a.parallelOn/*@parallelOne(iterator, condition)*/
 
-a.rejec/*@reject, rejectOne*/
-a.parallelRejec/*@parallelReject, parallelRejectOne*/
+a.rejec/*@reject(iterator, condition), rejectOne(iterator, condition)*/
+a.parallelRejec/*@parallelReject(iterator, condition), parallelRejectOne(iterator, condition)*/
 
-a.rejectOn/*@rejectOne*/
-a.parallelRejectOn/*@parallelRejectOne*/
+a.rejectOn/*@rejectOne(iterator, condition)*/
+a.parallelRejectOn/*@parallelRejectOne(iterator, condition)*/
 
-a.selec/*@select, selectByKind, selectByType, selectFirst, selectOne*/
-a.parallelSelec/*@parallelSelect, parallelSelectOne*/
+a.selec/*@select(iterator, condition), selectByKind, selectByType, selectFirst(iterator, condition), selectOne(iterator, condition)*/
+a.parallelSelec/*@parallelSelect(iterator, condition), parallelSelectOne(iterator, condition)*/
 
 a.selectByKind/*@selectByKind*/
 a.parallelSelectByKind/*@*/
@@ -47,8 +48,10 @@ a.parallelSelectByKind/*@*/
 a.selectByTyp/*@selectByType*/
 a.parallelSelectByTyp/*@*/
 
-a.selectOn/*@selectOne*/
-a.parallelSelectOn/*@parallelSelectOne*/
+a.selectOn/*@selectOne(iterator, condition)*/
+a.parallelSelectOn/*@parallelSelectOne(iterator, condition)*/
 
-a.sortB/*@sortBy*/
-a.parallelSortB/*@parallelSortBy*/
+a.sortB/*@sortBy(iterator, expression)*/
+a.parallelSortB/*@parallelSortBy(iterator, expression)*/
+
+Sequence{1, 2, 3}.selec/*@select(iterator, condition), selectByKind, selectByType, selectFirst(iterator, condition), selectOne(iterator, condition)*/

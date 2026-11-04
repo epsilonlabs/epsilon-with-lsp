@@ -9,6 +9,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -115,6 +116,7 @@ import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContribu
 import org.eclipse.epsilon.eol.execute.operations.contributors.ReflectiveOperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.contributors.ScalarOperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.contributors.WrapperOperationContributor;
+import org.eclipse.epsilon.eol.execute.operations.declarative.AggregateOperation;
 import org.eclipse.epsilon.eol.execute.operations.declarative.CountOperation;
 import org.eclipse.epsilon.eol.execute.operations.declarative.FirstOrderOperation;
 import org.eclipse.epsilon.eol.execute.operations.declarative.NMatchOperation;
@@ -267,9 +269,23 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			return Collections.emptyList();
 		}
 
+		/**
+		 * The iterator followed by the expressions, named as in the EOL documentation
+		 * (e.g. select(iterator|condition)). None of them has a declared type.
+		 */
 		@Override
 		public List<String> getParameterNames() {
-			return Collections.emptyList();
+			if (operation instanceof AggregateOperation) {
+				return Arrays.asList("iterator", "keyExpression", "valueExpression");
+			}
+			if (!isConditionOperation(operation)) {
+				return Arrays.asList("iterator", "expression");
+			}
+			// e.g. nMatch(iterator|condition, n), unlike one and none
+			if (operation instanceof NMatchOperation && ((NMatchOperation) operation).getTargetMatches() < 0) {
+				return Arrays.asList("iterator", "condition", "n");
+			}
+			return Arrays.asList("iterator", "condition");
 		}
 
 		@Override
@@ -608,11 +624,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		
 		List<EolType> expressionTypes = expressions.stream().map(e -> getResolvedType(e)).collect(Collectors.toList());
-		if (!expressions.isEmpty()
-				&& (operation instanceof SelectOperation
-						|| operation instanceof SelectBasedOperation
-						|| operation instanceof CountOperation
-						|| operation instanceof NMatchOperation)
+		if (!expressions.isEmpty() && isConditionOperation(operation)
 				&& !expressionTypes.get(0).isAssignableTo(EolPrimitiveType.Boolean)) {
 			markers.add(new ModuleMarker(expressions.get(0), "Expression type should be Boolean instead of "
 					+ expressionTypes.get(0), Severity.Error));
@@ -631,6 +643,14 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);
 			e.printStackTrace();
 		}
+	}
+
+	/** Whether the (first) expression of a first-order operation is a Boolean condition. */
+	private static boolean isConditionOperation(AbstractOperation operation) {
+		return operation instanceof SelectOperation
+				|| operation instanceof SelectBasedOperation
+				|| operation instanceof CountOperation
+				|| operation instanceof NMatchOperation;
 	}
 
 	@Override
@@ -2838,7 +2858,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			String signature = operationSignature(operation, returnTypeName);
 			completions.putIfAbsent(signature,
 					new EolCompletion(operation.getName(), EolCompletionKind.OPERATION, returnType, returnTypeName,
-							signature, operation.getParameterNames()));
+							signature, operation.getParameterNames(), operation instanceof FirstOrderStaticOperation,
+							false));
 		}
 	}
 
@@ -2862,6 +2883,12 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	private String operationSignature(IStaticOperation operation, String returnTypeName) {
+		if (operation instanceof FirstOrderStaticOperation) {
+			// e.g. select(iterator|condition) : Sequence<Integer>, as the iterator and expressions are untyped
+			List<String> parameterNames = operation.getParameterNames();
+			return operation.getName() + "(" + parameterNames.get(0) + "|"
+					+ String.join(", ", parameterNames.subList(1, parameterNames.size())) + ") : " + returnTypeName;
+		}
 		StringBuilder signature = new StringBuilder(operation.getName());
 		signature.append("(");
 		List<EolType> parameterTypes = operation.getParameterTypes();

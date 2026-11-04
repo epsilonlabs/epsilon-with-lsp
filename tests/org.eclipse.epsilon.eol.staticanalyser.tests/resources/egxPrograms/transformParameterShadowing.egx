@@ -1,0 +1,15 @@
+pre {
+	var t : String = "x";
+}
+
+rule R transform t : Integer in: Sequence{1, 2} {
+	pre {
+		/*Integer*/t;
+	}
+	guard : t > 1
+	template : "foo.egl"
+}
+
+post {
+	/*String*/t;
+}

@@ -17,7 +17,7 @@ import java.util.Date;
 import org.eclipse.epsilon.eol.analyse.operations.AsTypeReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
-import org.eclipse.epsilon.eol.analyse.operations.validation.AsTypeValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.AsTypeCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
@@ -38,7 +38,7 @@ public class AnyOperationContributor extends OperationContributor {
 	}
 	
 	@OperationTypeProvider(AsTypeReturnTypeProvider.class)
-	@OperationCallValidator(AsTypeValidator.class)
+	@OperationCallValidator(AsTypeCallValidator.class)
 	public Object asType(Object type) {
 		return getTarget();
 	}

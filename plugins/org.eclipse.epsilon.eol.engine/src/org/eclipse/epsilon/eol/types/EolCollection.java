@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
-import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsContainedTypeValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsContainedTypeCallValidator;
 
 /**
  * Base class for all EOL collections.
@@ -55,7 +55,7 @@ public abstract class EolCollection<T> implements Collection<T> {
 	}
 	
 	@Override
-	@OperationCallValidator(ParameterTypeIsContainedTypeValidator.class)
+	@OperationCallValidator(ParameterTypeIsContainedTypeCallValidator.class)
 	public boolean add(T e) {
 		return wrapped.add(e);
 	}

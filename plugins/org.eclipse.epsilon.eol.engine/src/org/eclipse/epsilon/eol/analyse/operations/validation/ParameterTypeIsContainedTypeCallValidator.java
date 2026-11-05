@@ -13,7 +13,7 @@ import org.eclipse.epsilon.eol.types.EolType;
  * A diagnostics calculator that checks whether the parameter type is compatible
  * with the contained type of a collection.
  */
-public class ParameterTypeIsContainedTypeValidator implements IOperationCallValidator {
+public class ParameterTypeIsContainedTypeCallValidator implements IOperationCallValidator {
 
 	@Override
 	public List<ModuleMarker> validate(AbstractModuleElement element, EolType contextType,

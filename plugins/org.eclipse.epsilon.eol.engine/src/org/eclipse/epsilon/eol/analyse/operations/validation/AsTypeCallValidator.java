@@ -13,7 +13,7 @@ import org.eclipse.epsilon.eol.types.EolTypeLiteral;
  * A diagnostics calculator that checks whether the parameter to asType()
  * is a compatible type literal rather than a regular value.
  */
-public class AsTypeValidator implements IOperationCallValidator {
+public class AsTypeCallValidator implements IOperationCallValidator {
 
 	@Override
 	public List<ModuleMarker> validate(AbstractModuleElement element, EolType contextType,

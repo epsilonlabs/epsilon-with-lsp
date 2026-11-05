@@ -4,6 +4,6 @@ import java.util.List;
 
 import org.eclipse.epsilon.eol.types.EolType;
 
-public interface IMethodTypeCalculator {
+public interface IOperationTypeProvider {
 	public EolType calculateType(EolType contextType, List<EolType> parameterTypes);
 }

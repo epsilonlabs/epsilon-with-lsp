@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.eol.execute.operations.contributors;
+package org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders;
 
 import java.util.List;
 
@@ -7,9 +7,9 @@ import org.eclipse.epsilon.eol.types.EolNativeType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.types.EolUnionType;
-import org.eclipse.epsilon.eol.execute.operations.IMethodTypeCalculator;
+import org.eclipse.epsilon.eol.execute.operations.IOperationTypeProvider;
 
-public class MinMaxReturnType implements IMethodTypeCalculator {
+public class MinMaxReturnTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType calculateType(EolType contextType, List<EolType> parameterTypes) {

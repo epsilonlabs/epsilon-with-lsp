@@ -1,0 +1,14 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+// Nested collections are flattened into a Sequence of their innermost type
+var supertypes : Sequence<EClass> = EClass.all.eSuperTypes.flatten();
+/*Sequence<OrderedSet<EClass>>*/EClass.all.eSuperTypes;
+/*Sequence<EClass>*/EClass.all.eSuperTypes.flatten();
+/*Sequence<Integer>*/Set{Sequence{1}, Sequence{2}}.flatten();
+/*Sequence<Integer>*/Sequence{Sequence{Set{1}}}.flatten();
+/*Sequence<Integer>*/Bag{Sequence{1}, 2}.flatten();
+/*Sequence<Integer|String>*/Sequence{Sequence{1}, Set{"a"}}.flatten();
+
+// Collections without nested collections are returned as is
+/*Set<Integer>*/Set{1, 2}.flatten();
+/*OrderedSet<EClass>*/EClass.all.first().eSuperTypes.flatten();

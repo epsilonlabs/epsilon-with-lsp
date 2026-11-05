@@ -24,10 +24,17 @@ public class EolCompletionParseRepairer {
 		if (needsPlaceholder) {
 			repaired.append(PLACEHOLDER);
 		}
+		int closingDelimitersEnd;
 		if (needsInlineSemicolon(before, after) || needsPlaceholder && needsInlineSemicolonAfterPlaceholder(before, after)) {
-			repaired.append(';');
+			repaired.append(';').append(after);
 		}
-		repaired.append(after);
+		else if ((closingDelimitersEnd = closingDelimitersEndingStatement(after)) >= 0) {
+			// e.g. c.select(x|x.) followed by a statement on a later line
+			repaired.append(after, 0, closingDelimitersEnd).append(';').append(after, closingDelimitersEnd, after.length());
+		}
+		else {
+			repaired.append(after);
+		}
 		appendMissingDelimiters(repaired);
 		appendMissingSemicolon(repaired);
 		return repaired.toString();
@@ -103,6 +110,61 @@ public class EolCompletionParseRepairer {
 				|| beforeCursor.charAt(index) == '#'
 				|| beforeCursor.charAt(index) == ':' && beforeCursor.charAt(index - 1) == ':')
 			&& nextSignificantTokenStartsOnLaterLine(afterCursor);
+	}
+
+	/**
+	 * If the cursor is followed on its line only by closing parentheses/brackets,
+	 * and a statement starts on a later line, returns the offset after the last of
+	 * these delimiters, where the statement's missing semicolon belongs. Returns -1
+	 * otherwise. A following { is not treated as a statement, as it may be the body
+	 * of e.g. an if or a while.
+	 */
+	protected int closingDelimitersEndingStatement(String afterCursor) {
+		int end = -1;
+		for (int i = 0; i < afterCursor.length(); i++) {
+			char c = afterCursor.charAt(i);
+			if (c == ')' || c == ']') {
+				end = i + 1;
+			}
+			else if (startsWith(afterCursor, i, "/*")) {
+				int commentEnd = afterCursor.indexOf("*/", i + 2);
+				if (commentEnd < 0 || containsLineBreak(afterCursor, i + 2, commentEnd)) {
+					break;
+				}
+				i = commentEnd + 1;
+			}
+			else if (c != ' ' && c != '\t') {
+				break;
+			}
+		}
+		if (end < 0 || !nextSignificantTokenStartsOnLaterLine(afterCursor.substring(end))) {
+			return -1;
+		}
+		return nextSignificantChar(afterCursor, end) == '{' ? -1 : end;
+	}
+
+	protected char nextSignificantChar(String text, int fromIndex) {
+		for (int i = fromIndex; i < text.length(); i++) {
+			char c = text.charAt(i);
+			if (startsWith(text, i, "//")) {
+				int end = nextLineBreak(text, i + 2);
+				if (end < 0) {
+					return 0;
+				}
+				i = end;
+			}
+			else if (startsWith(text, i, "/*")) {
+				int end = text.indexOf("*/", i + 2);
+				if (end < 0) {
+					return 0;
+				}
+				i = end + 1;
+			}
+			else if (!Character.isWhitespace(c)) {
+				return c;
+			}
+		}
+		return 0;
 	}
 
 	protected boolean nextSignificantTokenStartsOnLaterLine(String text) {

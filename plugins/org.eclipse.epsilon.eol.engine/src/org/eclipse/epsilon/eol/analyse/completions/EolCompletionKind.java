@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.eol.analyse;
+package org.eclipse.epsilon.eol.analyse.completions;
 
 public enum EolCompletionKind {
 	VARIABLE,

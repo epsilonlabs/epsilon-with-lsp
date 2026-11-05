@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import org.eclipse.epsilon.eol.analyse.operations.declarative.CollectTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -20,9 +23,7 @@ import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.concurrent.EolContextParallel;
 import org.eclipse.epsilon.eol.execute.context.concurrent.IEolContextParallel;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.declarative.CollectOperation;
-import org.eclipse.epsilon.eol.execute.operations.declarative.CollectTypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolFunction;
 import org.eclipse.epsilon.eol.types.EolBag;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
@@ -33,7 +34,7 @@ import org.eclipse.epsilon.eol.types.EolSequence;
  * @author Sina Madani
  * @since 1.6
  */
-@TypeCalculator(klass=CollectTypeCalculator.class)
+@DeclarativeOperationTypeProvider(CollectTypeProvider.class)
 public class ParallelCollectOperation extends CollectOperation {
 
 	@Override

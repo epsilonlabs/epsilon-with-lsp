@@ -77,7 +77,7 @@ itr.excluding(null).logReturnType("itr.excluding(null)");
 itr.excludingAll(incSet).logReturnType("itr.excludingAll(incSet)");  // ERRORs if no Collection (null)
 itr.first(0).logReturnType("itr.first(0)");
 
-//@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+//@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 //public Object first()
 // itr.first().logReturnType("itr.first();")  // ERROR Reason: no viable alternative at input '.'
 

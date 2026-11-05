@@ -11,12 +11,14 @@ package org.eclipse.epsilon.eol.execute.operations.declarative;
 
 import java.util.Collection;
 import java.util.List;
+
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.SelectTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 
 /**
  * Returns a new Collection containing one less element for which the predicate is not satisfied.
@@ -24,7 +26,7 @@ import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
  * @author Sina Madani
  * @since 1.6
  */
-@TypeCalculator(klass = SelectTypeCalculator.class)
+@DeclarativeOperationTypeProvider(SelectTypeProvider.class)
 public class RejectOneOperation extends SelectBasedOperation {
 
 	@Override

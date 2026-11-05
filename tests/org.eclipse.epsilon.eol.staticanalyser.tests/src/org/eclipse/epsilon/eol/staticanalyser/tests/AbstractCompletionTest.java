@@ -15,10 +15,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.analyse.EolCompletion;
-import org.eclipse.epsilon.eol.analyse.EolCompletionKind;
-import org.eclipse.epsilon.eol.analyse.EolCompletionParseRepairer;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletion;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletionKind;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletionParseRepairer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

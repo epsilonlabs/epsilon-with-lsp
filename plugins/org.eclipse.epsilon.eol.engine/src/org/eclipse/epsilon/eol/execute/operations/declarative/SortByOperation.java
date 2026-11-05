@@ -15,17 +15,18 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import org.eclipse.epsilon.common.util.CollectionUtil;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.SortByTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.prettyprinting.PrettyPrinterManager;
 import org.eclipse.epsilon.eol.types.EolSequence;
 import org.eclipse.epsilon.eol.types.NumberUtil;
 
-@TypeCalculator(klass = SortByTypeCalculator.class)
+@DeclarativeOperationTypeProvider(SortByTypeProvider.class)
 public class SortByOperation extends CollectBasedOperation {
 	
 	@Override

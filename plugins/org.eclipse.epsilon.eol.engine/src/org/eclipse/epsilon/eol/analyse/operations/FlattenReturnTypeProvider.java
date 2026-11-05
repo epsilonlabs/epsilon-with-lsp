@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders;
+package org.eclipse.epsilon.eol.analyse.operations;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -7,7 +7,6 @@ import java.util.Set;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.types.EolUnionType;
-import org.eclipse.epsilon.eol.execute.operations.IOperationTypeProvider;
 
 /**
  * Mirrors CollectionUtil.flatten(): a collection with no nested collections
@@ -17,7 +16,7 @@ import org.eclipse.epsilon.eol.execute.operations.IOperationTypeProvider;
 public class FlattenReturnTypeProvider implements IOperationTypeProvider {
 
 	@Override
-	public EolType calculateType(EolType contextType, List<EolType> parameterTypes) {
+	public EolType getType(EolType contextType, List<EolType> parameterTypes) {
 		if (contextType instanceof EolCollectionType) {
 			EolType contentType = ((EolCollectionType) contextType).getContentType();
 			if (containsCollectionType(contentType)) {

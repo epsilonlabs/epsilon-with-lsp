@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.eol.execute.operations;
+package org.eclipse.epsilon.eol.analyse.operations.validation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +13,10 @@ import org.eclipse.epsilon.eol.types.EolType;
  * A diagnostics calculator that checks whether the parameter type is compatible
  * with the contained type of a collection.
  */
-public class ParameterTypeIsContainedType implements IMethodDiagnosticsCalculator {
+public class ParameterTypeIsContainedTypeValidator implements IOperationCallValidator {
 
 	@Override
-	public List<ModuleMarker> calculateDiagnostics(AbstractModuleElement element, EolType contextType,
+	public List<ModuleMarker> validate(AbstractModuleElement element, EolType contextType,
 			List<EolType> parameterTypes) {
 		List<ModuleMarker> markers = new ArrayList<>();
 

@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 
 import org.eclipse.epsilon.common.parse.Position;
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.analyse.EolCompletion;
-import org.eclipse.epsilon.eol.analyse.EolCompletionParseRepairer;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletion;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletionParseRepairer;
 import org.junit.Test;
 
 /**

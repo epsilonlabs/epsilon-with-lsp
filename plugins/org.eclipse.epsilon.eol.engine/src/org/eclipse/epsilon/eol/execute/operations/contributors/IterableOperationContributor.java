@@ -16,10 +16,10 @@ import java.util.stream.StreamSupport;
 import org.eclipse.epsilon.common.util.CollectionUtil;
 import org.eclipse.epsilon.eol.types.EolNativeType;
 import org.eclipse.epsilon.eol.types.EolType;
-import org.eclipse.epsilon.eol.execute.operations.OperationTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders.FlattenReturnTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders.ReturnTypeIsContainedTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders.ReturnTypeIsContextTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.FlattenReturnTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContainedTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
 import org.eclipse.epsilon.eol.types.*;
 import org.eclipse.epsilon.eol.types.concurrent.*;
 
@@ -76,7 +76,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return new EolNativeType(Iterable.class);
 	}
 
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Object random() {
 		if (isEmpty()) return null;
 		final int size = size();
@@ -96,7 +96,7 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Object at(int index) {
 		if (isList()) {
 			return getList().get(index);
@@ -112,7 +112,7 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Object removeAt(int index) {
 		if (isList()) {
 			return getList().remove(index);
@@ -250,7 +250,7 @@ public class IterableOperationContributor extends OperationContributor {
 
 	
 	@Override
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Collection<?> clone() {
 		// May require its own contributor
 		if (isCollection()) {
@@ -308,7 +308,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @return
 	 * @since 2.1
 	 */
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Collection<Object> selectByKind(org.eclipse.epsilon.eol.types.EolType type) {
 		if (type == null) {
 			type = EolNoType.Instance;
@@ -324,7 +324,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @return
 	 * @since 2.1
 	 */
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Collection<Object> selectByType(org.eclipse.epsilon.eol.types.EolType type) {
 		if (type == null) {
 			type = EolNoType.Instance;
@@ -334,7 +334,7 @@ public class IterableOperationContributor extends OperationContributor {
 			.collect(Collectors.toCollection(this::createCollection));
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Collection<Object> includingAll(Collection<?> col) {
 		Collection<Object> result = createCollection();
 		addAll(getTarget(), result);
@@ -342,7 +342,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return result;
 	}
 
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Collection<Object> including(Object o) {
 		Collection<Object> result = createCollection();
 		addAll(getTarget(), result);
@@ -354,7 +354,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * TODO : See this
 	 * @return
 	 */
-	@OperationTypeProvider(klass = FlattenReturnTypeProvider.class)
+	@OperationTypeProvider(FlattenReturnTypeProvider.class)
 	public Collection<Object> flatten() {
 		Collection<Object> col;
 		if (isCollection()) {
@@ -367,7 +367,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return CollectionUtil.flatten(col);
 	}
 
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Collection<Object> excluding(Object o) {
 		Collection<Object> excluding = createCollection();
 		addAll(getTarget(), excluding);
@@ -377,7 +377,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return excluding;
 	}
 
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Collection<Object> excludingAll(Collection<?> col) {
 		Collection<Object> difference = createCollection();
 		for (Object next : getTarget()) {
@@ -399,27 +399,27 @@ public class IterableOperationContributor extends OperationContributor {
 		return result;
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Object first() {
 		return nth(0);
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Object second() {
 		return nth(1);
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Object third() {
 		return nth(2);
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Object fourth() {
 		return nth(3);
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Object last() {
 		if (isCollection()) {
 			return nth(getCollection().size() - 1);
@@ -447,7 +447,7 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	private Object nth(int index) {
 		if (isEmpty()) return null;
 		return at(index);
@@ -463,12 +463,12 @@ public class IterableOperationContributor extends OperationContributor {
 		);
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Number max() {
 		return max(0);
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Number max(Number default_) {
 		Number max = null;
 		for (Object next : getTarget()) {
@@ -485,12 +485,12 @@ public class IterableOperationContributor extends OperationContributor {
 		return max;
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Number min() {
 		return min(0);
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContainedTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContainedTypeProvider.class)
 	public Number min(Number default_) {
 		Number min = null;
 		for (Object next : getTarget()) {
@@ -515,7 +515,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return sequence;
 	}
 
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Collection<Object> createCollection() {
 		if (isCollection()) {
 			return EolCollectionType.createSameType(getCollection());

@@ -11,6 +11,9 @@ package org.eclipse.epsilon.eol.execute.operations.declarative;
 
 import java.util.Collection;
 import java.util.List;
+
+import org.eclipse.epsilon.eol.analyse.operations.declarative.AggregateTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -20,10 +23,9 @@ import org.eclipse.epsilon.eol.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.types.EolMap;
 
-@TypeCalculator(klass = AggregateTypeCalculator.class)
+@DeclarativeOperationTypeProvider(AggregateTypeProvider.class)
 public class AggregateOperation extends FirstOrderOperation {
 	
 	@Override

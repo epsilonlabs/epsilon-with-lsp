@@ -13,9 +13,9 @@ import java.util.stream.LongStream;
 
 import org.eclipse.epsilon.eol.types.EolNativeType;
 import org.eclipse.epsilon.eol.types.EolType;
-import org.eclipse.epsilon.eol.execute.operations.OperationTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders.MinMaxReturnTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders.ReturnTypeIsContextTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.MinMaxReturnTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
 import org.eclipse.epsilon.eol.types.NumberUtil;
 
 public class NumberOperationContributor extends OperationContributor {
@@ -31,7 +31,7 @@ public class NumberOperationContributor extends OperationContributor {
 	}
 	
 	@Override
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	protected Number getTarget() {
 		return (Number) super.getTarget();
 	}
@@ -47,13 +47,13 @@ public class NumberOperationContributor extends OperationContributor {
         return LongStream.rangeClosed(2, n).reduce(1, (a, b) -> a * b);
 	}
 	
-	@OperationTypeProvider(klass = MinMaxReturnTypeProvider.class)
+	@OperationTypeProvider(MinMaxReturnTypeProvider.class)
 	public Number min(Number other) {
 		Number self = getTarget();
 		return NumberUtil.lessThan(self, other) ? self : other;
 	}
 	
-	@OperationTypeProvider(klass = MinMaxReturnTypeProvider.class)
+	@OperationTypeProvider(MinMaxReturnTypeProvider.class)
 	public Number max(Number other) {
 		Number self = getTarget();
 		return NumberUtil.greaterThan(self, other) ? self : other;
@@ -64,7 +64,7 @@ public class NumberOperationContributor extends OperationContributor {
 	}
 	
 
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Number pow(Number n) {
 		Double pow = Math.pow(asDouble(), n.doubleValue());
 		if (getTarget() instanceof Integer && n instanceof Integer && NumberUtil.greaterThan(n, 0)) {
@@ -95,7 +95,7 @@ public class NumberOperationContributor extends OperationContributor {
 		return Math.log10(asDouble());
 	}
 	
-	@OperationTypeProvider(klass = ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Number abs() {
 		Object target = getTarget();
 		if (target instanceof Integer) return Math.abs((Integer) target);

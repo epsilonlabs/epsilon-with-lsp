@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.epsilon.common.util.CollectionUtil;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.ClosureTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -24,10 +26,9 @@ import org.eclipse.epsilon.eol.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.types.EolOrderedSet;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.types.EolType;
 
-@TypeCalculator(klass = ClosureTypeCalculator.class)
+@DeclarativeOperationTypeProvider(ClosureTypeProvider.class)
 public class ClosureOperation extends FirstOrderOperation {
 	
 	protected void closure(Collection<Object> closure, Collection<?> source, Parameter parameter, Expression expression, IEolContext context) throws EolRuntimeException {

@@ -9,11 +9,11 @@ import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolType;
+import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
-import org.eclipse.epsilon.eol.execute.operations.OperationTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
 
 public class SimpleOperation implements IStaticOperation {
 	private String name;
@@ -25,7 +25,7 @@ public class SimpleOperation implements IStaticOperation {
 	private Method method;
 	private Operation operation;
 	private Optional<OperationTypeProvider> operationTypeProvider = Optional.empty();
-	private Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator = Optional.empty();
+	private Optional<OperationCallValidator> operationCallValidator = Optional.empty();
 
 	public SimpleOperation(Operation op) {
 		operation = op;
@@ -49,20 +49,20 @@ public class SimpleOperation implements IStaticOperation {
 
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
 			Optional<OperationTypeProvider> operationTypeProvider,
-			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator) {
-		this(name, contextType, returnType, parameterTypes, false, operationTypeProvider, methodDiagnosticsCalculator);
+			Optional<OperationCallValidator> operationCallValidator) {
+		this(name, contextType, returnType, parameterTypes, false, operationTypeProvider, operationCallValidator);
 	}
 
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
 			boolean varArgs, Optional<OperationTypeProvider> operationTypeProvider,
-			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator) {
+			Optional<OperationCallValidator> operationCallValidator) {
 		this(name, contextType, returnType, parameterTypes, defaultParameterNames(parameterTypes), varArgs,
-				operationTypeProvider, methodDiagnosticsCalculator, null);
+				operationTypeProvider, operationCallValidator, null);
 	}
 
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
 			List<String> parameterNames, boolean varArgs, Optional<OperationTypeProvider> operationTypeProvider,
-			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator, Method method) {
+			Optional<OperationCallValidator> operationCallValidator, Method method) {
 		this.name = name;
 		this.contextType = contextType;
 		this.returnType = returnType;
@@ -70,15 +70,15 @@ public class SimpleOperation implements IStaticOperation {
 		this.parameterNames = normaliseParameterNames(parameterTypes, parameterNames);
 		this.varArgs = varArgs;
 		this.operationTypeProvider = operationTypeProvider;
-		this.methodDiagnosticsCalculator = methodDiagnosticsCalculator;
+		this.operationCallValidator = operationCallValidator;
 		this.method = method;
 	}
 
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
 			boolean varArgs, Optional<OperationTypeProvider> operationTypeProvider,
-			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator, Method method) {
+			Optional<OperationCallValidator> operationCallValidator, Method method) {
 		this(name, contextType, returnType, parameterTypes, defaultParameterNames(parameterTypes), varArgs,
-				operationTypeProvider, methodDiagnosticsCalculator, method);
+				operationTypeProvider, operationCallValidator, method);
 	}
 
 	private static List<String> defaultParameterNames(List<EolType> parameterTypes) {
@@ -114,7 +114,7 @@ public class SimpleOperation implements IStaticOperation {
 	public EolType getReturnType(EolType actualContextType, List<EolType> actualParameterTypes) {
 		if (operationTypeProvider.isPresent()) {
 			try {
-				return operationTypeProvider.get().klass().newInstance().calculateType(actualContextType,
+				return operationTypeProvider.get().value().newInstance().getType(actualContextType,
 						actualParameterTypes);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -151,9 +151,9 @@ public class SimpleOperation implements IStaticOperation {
 	@Override
 	public List<ModuleMarker> getExtraDiagnostics(AbstractModuleElement element, EolType actualContextType,
 			List<EolType> actualParameterTypes) {
-		if (methodDiagnosticsCalculator.isPresent()) {
+		if (operationCallValidator.isPresent()) {
 			try {
-				return methodDiagnosticsCalculator.get().klass().newInstance().calculateDiagnostics(element,
+				return operationCallValidator.get().value().newInstance().validate(element,
 						actualContextType, actualParameterTypes);
 			} catch (Exception e) {
 				e.printStackTrace();

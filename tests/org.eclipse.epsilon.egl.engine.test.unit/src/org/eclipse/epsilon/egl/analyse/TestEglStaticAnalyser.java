@@ -17,8 +17,8 @@ import java.util.List;
 
 import org.eclipse.epsilon.common.parse.Position;
 import org.eclipse.epsilon.egl.EglModule;
-import org.eclipse.epsilon.eol.analyse.EolCompletion;
-import org.eclipse.epsilon.eol.analyse.EolCompletionKind;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletion;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletionKind;
 import org.junit.Test;
 
 public class TestEglStaticAnalyser {

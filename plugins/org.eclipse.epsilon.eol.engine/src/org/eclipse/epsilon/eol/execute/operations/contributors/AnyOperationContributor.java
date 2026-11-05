@@ -14,13 +14,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.eclipse.epsilon.eol.analyse.operations.AsTypeReturnTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.validation.AsTypeValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IUndefined;
-import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
-import org.eclipse.epsilon.eol.execute.operations.OperationTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders.AsTypeReturnTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders.ReturnTypeIsContextTypeProvider;
 import org.eclipse.epsilon.eol.models.IModel;
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
@@ -36,8 +37,8 @@ public class AnyOperationContributor extends OperationContributor {
 		return !(target instanceof EolNoTypeInstance);
 	}
 	
-	@OperationTypeProvider(klass=AsTypeReturnTypeProvider.class)
-	@MethodDiagnosticsCalculator(klass=AsTypeDiagnostics.class)
+	@OperationTypeProvider(AsTypeReturnTypeProvider.class)
+	@OperationCallValidator(AsTypeValidator.class)
 	public Object asType(Object type) {
 		return getTarget();
 	}
@@ -150,68 +151,68 @@ public class AnyOperationContributor extends OperationContributor {
 		else return getTarget();
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object println() {
 		return println("", "");
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object println(Object prefix) {
 		return println(prefix, "");
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object println(Object prefix, Object suffix) {
 		getContext().getOutputStream().
 			println(prefix + getContext().getPrettyPrinterManager().print(getTarget()) + suffix);
 		return getTarget();
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object print() {
 		return print("", "");
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object print(Object prefix) {
 		return print(prefix, "");
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object print(Object prefix, Object suffix) {
 		getContext().getOutputStream().
 			print(prefix + getContext().getPrettyPrinterManager().print(getTarget()) + suffix);
 		return getTarget();
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object err() {
 		return err("", "");
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object err(Object prefix) {
 		return err(prefix, "");
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object err(Object prefix, Object suffix) {
 		getContext().getErrorStream().
 			print(prefix + getContext().getPrettyPrinterManager().print(getTarget()) + suffix);
 		return getTarget();
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object errln() {
 		return errln("", "");
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object errln(Object prefix) {
 		return errln(prefix, "");
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object errln(Object prefix, Object suffix) {
 		getContext().getErrorStream().
 			println(prefix + getContext().getPrettyPrinterManager().print(getTarget()) + suffix);
@@ -291,7 +292,7 @@ public class AnyOperationContributor extends OperationContributor {
 		return new SimpleDateFormat(format).parse(getTarget().toString());
 	}
 	
-	@OperationTypeProvider(klass=ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
 	public Object asVar(String name) {
 		Object target = getTarget();
 		getContext().getFrameStack().put(new Variable(name, getTarget(), EolAnyType.Instance));

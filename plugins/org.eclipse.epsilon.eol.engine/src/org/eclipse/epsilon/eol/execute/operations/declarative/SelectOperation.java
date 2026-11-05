@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.SelectTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -22,11 +24,10 @@ import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.Variable;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
 
-@TypeCalculator(klass = SelectTypeCalculator.class)
+@DeclarativeOperationTypeProvider(SelectTypeProvider.class)
 public class SelectOperation extends FirstOrderOperation {
 	
 	/**

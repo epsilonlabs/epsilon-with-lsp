@@ -37,6 +37,12 @@ import org.eclipse.epsilon.common.util.StringProperties;
 import org.eclipse.epsilon.common.util.StringUtil;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletion;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletionKind;
+import org.eclipse.epsilon.eol.analyse.completions.EolCompletionParseRepairer;
+import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
 import org.eclipse.epsilon.eol.execute.context.FrameStack;
 import org.eclipse.epsilon.eol.execute.context.SingleFrame;
 import org.eclipse.epsilon.eol.execute.context.Variable;
@@ -109,9 +115,6 @@ import org.eclipse.epsilon.eol.dom.WhileStatement;
 import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.operations.AbstractOperation;
-import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
-import org.eclipse.epsilon.eol.execute.operations.OperationTypeProvider;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.contributors.ReflectiveOperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.contributors.ScalarOperationContributor;
@@ -238,8 +241,8 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 
 		@Override
 		public EolType getReturnType(EolType actualContextType, List<EolType> actualParameterTypes) {
-			TypeCalculator typeCalculator = operation.getClass().getAnnotation(TypeCalculator.class);
-			if (typeCalculator == null) {
+			DeclarativeOperationTypeProvider typeProvider = operation.getClass().getAnnotation(DeclarativeOperationTypeProvider.class);
+			if (typeProvider == null) {
 				return EolAnyType.Instance;
 			}
 
@@ -257,7 +260,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 
 			try {
-				return typeCalculator.klass().newInstance().calculateType(contextType, iteratorType, expressionTypes);
+				return typeProvider.value().newInstance().getType(contextType, iteratorType, expressionTypes);
 			}
 			catch (Exception e) {
 				return EolAnyType.Instance;
@@ -593,7 +596,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 					"Undefined first order operation " + name, Severity.Error));
 			return;
 		}
-		TypeCalculator tc = operation.getClass().getAnnotation(TypeCalculator.class);
+		DeclarativeOperationTypeProvider typeProvider = operation.getClass().getAnnotation(DeclarativeOperationTypeProvider.class);
 
 		Expression targetExpression = firstOrderOperationCallExpression.getTargetExpression();
 		targetExpression.accept(this);
@@ -631,13 +634,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		context.getFrameStack().leaveLocal(firstOrderOperationCallExpression);
 
-		if (tc == null) {
+		if (typeProvider == null) {
 			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);
 			return;
 		}
 
 		try {
-			EolType returnType = tc.klass().newInstance().calculateType(contextType, iteratorType, expressionTypes);
+			EolType returnType = typeProvider.value().newInstance().getType(contextType, iteratorType, expressionTypes);
 			setResolvedType(firstOrderOperationCallExpression, returnType);
 		} catch (Exception e) {
 			setResolvedType(firstOrderOperationCallExpression, EolAnyType.Instance);
@@ -2087,10 +2090,10 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		EolType returnType = javaTypeToEolType(m.getGenericReturnType());
 		Optional<OperationTypeProvider> otp = Optional.ofNullable(m.getAnnotation(OperationTypeProvider.class));
-		Optional<MethodDiagnosticsCalculator> mdc = Optional
-				.ofNullable(m.getAnnotation(MethodDiagnosticsCalculator.class));
+		Optional<OperationCallValidator> ocv = Optional
+				.ofNullable(m.getAnnotation(OperationCallValidator.class));
 		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, operationParameterNames,
-				isVarArgs, otp, mdc, m);
+				isVarArgs, otp, ocv, m);
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {

@@ -9,16 +9,16 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.declarative.concurrent;
 
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.SelectOneTypeProvider;
 import org.eclipse.epsilon.eol.execute.operations.declarative.SelectOneOperation;
-import org.eclipse.epsilon.eol.execute.operations.declarative.SelectOneTypeCalculator;
 
 /**
  * 
  * @author Sina Madani
  * @since 1.6
  */
-@TypeCalculator(klass = SelectOneTypeCalculator.class)
+@DeclarativeOperationTypeProvider(SelectOneTypeProvider.class)
 public class ParallelSelectOneOperation extends SelectOneOperation {
 	
 	public ParallelSelectOneOperation() {

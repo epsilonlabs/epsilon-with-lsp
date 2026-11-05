@@ -16,6 +16,9 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
+
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.SelectTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -23,9 +26,7 @@ import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
 import org.eclipse.epsilon.eol.execute.context.concurrent.EolContextParallel;
 import org.eclipse.epsilon.eol.execute.context.concurrent.IEolContextParallel;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.declarative.SelectOperation;
-import org.eclipse.epsilon.eol.execute.operations.declarative.SelectTypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
 import org.eclipse.epsilon.eol.types.EolCollectionType;
 
@@ -34,7 +35,7 @@ import org.eclipse.epsilon.eol.types.EolCollectionType;
  * @author Sina Madani
  * @since 1.6
  */
-@TypeCalculator(klass = SelectTypeCalculator.class)
+@DeclarativeOperationTypeProvider(SelectTypeProvider.class)
 public class ParallelSelectOperation extends SelectOperation {
 	
 	@Override

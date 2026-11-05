@@ -11,13 +11,15 @@ package org.eclipse.epsilon.eol.execute.operations.declarative;
 
 import java.util.Collection;
 import java.util.List;
+
+import org.eclipse.epsilon.eol.analyse.operations.declarative.BooleanTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.exceptions.EolIllegalOperationParametersException;
 import org.eclipse.epsilon.eol.exceptions.EolRuntimeException;
 import org.eclipse.epsilon.eol.execute.context.IEolContext;
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
 
 /**
@@ -28,7 +30,7 @@ import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
  * @author Sina Madani
  * @since 1.6
  */
-@TypeCalculator(klass = BooleanTypeCalculator.class)
+@DeclarativeOperationTypeProvider(BooleanTypeProvider.class)
 public class NMatchOperation extends FirstOrderOperation {
 
 	/**

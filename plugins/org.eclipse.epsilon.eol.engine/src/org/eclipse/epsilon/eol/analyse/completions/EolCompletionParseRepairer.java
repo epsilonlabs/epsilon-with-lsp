@@ -1,4 +1,4 @@
-package org.eclipse.epsilon.eol.analyse;
+package org.eclipse.epsilon.eol.analyse.completions;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -7,7 +7,7 @@ import org.eclipse.epsilon.common.parse.Position;
 
 public class EolCompletionParseRepairer {
 
-	static final String PLACEHOLDER = "epsilon_completion_placeholder";
+	public static final String PLACEHOLDER = "epsilon_completion_placeholder";
 
 	public String repair(String code, Position position) {
 		if (code == null || position == null) {

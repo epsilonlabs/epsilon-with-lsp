@@ -9,16 +9,16 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.declarative.concurrent;
 
-import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.declarative.SortByTypeProvider;
 import org.eclipse.epsilon.eol.execute.operations.declarative.SortByOperation;
-import org.eclipse.epsilon.eol.execute.operations.declarative.SortByTypeCalculator;
 
 /**
  * 
  * @author Sina Madani
  * @since 1.6
  */
-@TypeCalculator(klass = SortByTypeCalculator.class)
+@DeclarativeOperationTypeProvider(SortByTypeProvider.class)
 public class ParallelSortByOperation extends SortByOperation {
 	
 	public ParallelSortByOperation() {

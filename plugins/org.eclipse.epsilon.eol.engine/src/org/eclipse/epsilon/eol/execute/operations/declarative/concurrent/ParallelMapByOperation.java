@@ -17,8 +17,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
-import org.eclipse.epsilon.eol.analyse.operations.declarative.MapByTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -36,7 +34,6 @@ import org.eclipse.epsilon.eol.types.EolSequence;
  * @author Sina Madani
  * @since 1.6
  */
-@DeclarativeOperationTypeProvider(MapByTypeProvider.class)
 public class ParallelMapByOperation extends MapByOperation {
 
 	@Override

@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.eclipse.epsilon.eol.analyse.operations.declarative.CollectTypeProvider;
-import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -34,7 +32,6 @@ import org.eclipse.epsilon.eol.types.EolSequence;
  * @author Sina Madani
  * @since 1.6
  */
-@DeclarativeOperationTypeProvider(CollectTypeProvider.class)
 public class ParallelCollectOperation extends CollectOperation {
 
 	@Override

@@ -9,8 +9,6 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.declarative.concurrent;
 
-import org.eclipse.epsilon.eol.analyse.operations.declarative.BooleanTypeProvider;
-import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
 import org.eclipse.epsilon.eol.execute.operations.declarative.ExistsOperation;
 
 /**
@@ -18,7 +16,6 @@ import org.eclipse.epsilon.eol.execute.operations.declarative.ExistsOperation;
  * @author Sina Madani
  * @since 1.6
  */
-@DeclarativeOperationTypeProvider(BooleanTypeProvider.class)
 public class ParallelExistsOperation extends ExistsOperation {
 
 	public ParallelExistsOperation() {

@@ -17,8 +17,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
-import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
-import org.eclipse.epsilon.eol.analyse.operations.declarative.SelectTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -35,7 +33,6 @@ import org.eclipse.epsilon.eol.types.EolCollectionType;
  * @author Sina Madani
  * @since 1.6
  */
-@DeclarativeOperationTypeProvider(SelectTypeProvider.class)
 public class ParallelSelectOperation extends SelectOperation {
 	
 	@Override

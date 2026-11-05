@@ -1,0 +1,16 @@
+// Subclasses of declarative operations (selectFirst, parallel*) should
+// inherit the type provider of the operation they extend
+var seq : Sequence<Any> = Sequence{0,1,'foo'};
+
+/*Integer*/seq.selectFirst(e:Integer|e<5);
+/*Integer*/seq.parallelSelectOne(e:Integer|e<5);
+/*Sequence<Integer>*/seq.parallelSelect(e:Integer|true);
+/*Sequence<Integer>*/seq.parallelReject(e:Integer|true);
+/*Sequence<Integer>*/seq.parallelRejectOne(e:Integer|true);
+/*Sequence<String>*/seq.parallelCollect(e|e.asString());
+/*Sequence<Any>*/seq.parallelSortBy(e|e.asString());
+/*Boolean*/seq.parallelExists(e|true);
+/*Boolean*/seq.parallelForAll(e|true);
+/*Boolean*/seq.parallelOne(e|true);
+/*Boolean*/seq.parallelNone(e|true);
+/*Integer*/seq.parallelCount(e|true);

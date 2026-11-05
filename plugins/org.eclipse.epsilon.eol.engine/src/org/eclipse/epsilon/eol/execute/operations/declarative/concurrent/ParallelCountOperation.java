@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
-import org.eclipse.epsilon.eol.analyse.operations.declarative.IntegerTypeProvider;
 import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Parameter;
@@ -33,7 +31,6 @@ import org.eclipse.epsilon.eol.function.CheckedEolPredicate;
  * @author Sina Madani
  * @since 1.6
  */
-@DeclarativeOperationTypeProvider(IntegerTypeProvider.class)
 public class ParallelCountOperation extends CountOperation {
 
 	@Override

@@ -9,8 +9,6 @@
 **********************************************************************/
 package org.eclipse.epsilon.eol.execute.operations.declarative.concurrent;
 
-import org.eclipse.epsilon.eol.analyse.operations.declarative.DeclarativeOperationTypeProvider;
-import org.eclipse.epsilon.eol.analyse.operations.declarative.SelectTypeProvider;
 import org.eclipse.epsilon.eol.execute.operations.declarative.RejectOneOperation;
 
 /**
@@ -18,7 +16,6 @@ import org.eclipse.epsilon.eol.execute.operations.declarative.RejectOneOperation
  * @author Sina Madani
  * @since 1.6
  */
-@DeclarativeOperationTypeProvider(SelectTypeProvider.class)
 public class ParallelRejectOneOperation extends RejectOneOperation {
 
 	public ParallelRejectOneOperation() {

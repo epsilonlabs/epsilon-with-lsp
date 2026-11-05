@@ -12,7 +12,7 @@ import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
-import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
+import org.eclipse.epsilon.eol.execute.operations.OperationTypeProvider;
 import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
 
 public class SimpleOperation implements IStaticOperation {
@@ -24,7 +24,7 @@ public class SimpleOperation implements IStaticOperation {
 	private boolean varArgs;
 	private Method method;
 	private Operation operation;
-	private Optional<MethodTypeCalculator> methodTypeCalculator = Optional.empty();
+	private Optional<OperationTypeProvider> operationTypeProvider = Optional.empty();
 	private Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator = Optional.empty();
 
 	public SimpleOperation(Operation op) {
@@ -48,20 +48,20 @@ public class SimpleOperation implements IStaticOperation {
 	}
 
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
-			Optional<MethodTypeCalculator> methodTypeCalculator,
+			Optional<OperationTypeProvider> operationTypeProvider,
 			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator) {
-		this(name, contextType, returnType, parameterTypes, false, methodTypeCalculator, methodDiagnosticsCalculator);
+		this(name, contextType, returnType, parameterTypes, false, operationTypeProvider, methodDiagnosticsCalculator);
 	}
 
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
-			boolean varArgs, Optional<MethodTypeCalculator> methodTypeCalculator,
+			boolean varArgs, Optional<OperationTypeProvider> operationTypeProvider,
 			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator) {
 		this(name, contextType, returnType, parameterTypes, defaultParameterNames(parameterTypes), varArgs,
-				methodTypeCalculator, methodDiagnosticsCalculator, null);
+				operationTypeProvider, methodDiagnosticsCalculator, null);
 	}
 
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
-			List<String> parameterNames, boolean varArgs, Optional<MethodTypeCalculator> methodTypeCalculator,
+			List<String> parameterNames, boolean varArgs, Optional<OperationTypeProvider> operationTypeProvider,
 			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator, Method method) {
 		this.name = name;
 		this.contextType = contextType;
@@ -69,16 +69,16 @@ public class SimpleOperation implements IStaticOperation {
 		this.parameterTypes = parameterTypes;
 		this.parameterNames = normaliseParameterNames(parameterTypes, parameterNames);
 		this.varArgs = varArgs;
-		this.methodTypeCalculator = methodTypeCalculator;
+		this.operationTypeProvider = operationTypeProvider;
 		this.methodDiagnosticsCalculator = methodDiagnosticsCalculator;
 		this.method = method;
 	}
 
 	public SimpleOperation(String name, EolType contextType, EolType returnType, List<EolType> parameterTypes,
-			boolean varArgs, Optional<MethodTypeCalculator> methodTypeCalculator,
+			boolean varArgs, Optional<OperationTypeProvider> operationTypeProvider,
 			Optional<MethodDiagnosticsCalculator> methodDiagnosticsCalculator, Method method) {
 		this(name, contextType, returnType, parameterTypes, defaultParameterNames(parameterTypes), varArgs,
-				methodTypeCalculator, methodDiagnosticsCalculator, method);
+				operationTypeProvider, methodDiagnosticsCalculator, method);
 	}
 
 	private static List<String> defaultParameterNames(List<EolType> parameterTypes) {
@@ -112,9 +112,9 @@ public class SimpleOperation implements IStaticOperation {
 
 	@Override
 	public EolType getReturnType(EolType actualContextType, List<EolType> actualParameterTypes) {
-		if (methodTypeCalculator.isPresent()) {
+		if (operationTypeProvider.isPresent()) {
 			try {
-				return methodTypeCalculator.get().klass().newInstance().calculateType(actualContextType,
+				return operationTypeProvider.get().klass().newInstance().calculateType(actualContextType,
 						actualParameterTypes);
 			} catch (Exception e) {
 				e.printStackTrace();

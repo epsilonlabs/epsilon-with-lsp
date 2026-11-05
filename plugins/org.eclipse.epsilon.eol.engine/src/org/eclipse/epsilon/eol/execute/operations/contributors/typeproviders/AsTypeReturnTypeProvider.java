@@ -1,13 +1,13 @@
-package org.eclipse.epsilon.eol.execute.operations.contributors;
+package org.eclipse.epsilon.eol.execute.operations.contributors.typeproviders;
 
 import java.util.List;
 
 import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.types.EolTypeLiteral;
-import org.eclipse.epsilon.eol.execute.operations.IMethodTypeCalculator;
+import org.eclipse.epsilon.eol.execute.operations.IOperationTypeProvider;
 
-public class AsTypeReturnType implements IMethodTypeCalculator {
+public class AsTypeReturnTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType calculateType(EolType contextType, List<EolType> parameterTypes) {

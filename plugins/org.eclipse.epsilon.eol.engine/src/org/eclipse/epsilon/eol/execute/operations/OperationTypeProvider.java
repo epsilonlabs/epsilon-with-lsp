@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface MethodTypeCalculator {
-	Class<? extends IMethodTypeCalculator> klass();
+public @interface OperationTypeProvider {
+	Class<? extends IOperationTypeProvider> klass();
 }

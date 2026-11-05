@@ -110,7 +110,7 @@ import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
 import org.eclipse.epsilon.eol.execute.operations.AbstractOperation;
 import org.eclipse.epsilon.eol.execute.operations.MethodDiagnosticsCalculator;
-import org.eclipse.epsilon.eol.execute.operations.MethodTypeCalculator;
+import org.eclipse.epsilon.eol.execute.operations.OperationTypeProvider;
 import org.eclipse.epsilon.eol.execute.operations.TypeCalculator;
 import org.eclipse.epsilon.eol.execute.operations.contributors.OperationContributor;
 import org.eclipse.epsilon.eol.execute.operations.contributors.ReflectiveOperationContributor;
@@ -2086,11 +2086,11 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 		EolType returnType = javaTypeToEolType(m.getGenericReturnType());
-		Optional<MethodTypeCalculator> mtc = Optional.ofNullable(m.getAnnotation(MethodTypeCalculator.class));
+		Optional<OperationTypeProvider> otp = Optional.ofNullable(m.getAnnotation(OperationTypeProvider.class));
 		Optional<MethodDiagnosticsCalculator> mdc = Optional
 				.ofNullable(m.getAnnotation(MethodDiagnosticsCalculator.class));
 		return new SimpleOperation(m.getName(), contextType, returnType, operationParameterTypes, operationParameterNames,
-				isVarArgs, mtc, mdc, m);
+				isVarArgs, otp, mdc, m);
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {

@@ -227,6 +227,40 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 	}
 
 	@Test
+	public void evlMessagesAndFixTitlesHaveCompletions() throws Exception {
+		File program = temporaryFolder.newFile("messages.evl");
+		Files.writeString(program.toPath(), "context String {\n"
+			+ "  constraint C {\n"
+			+ "    check : true\n"
+			+ "    message {\n"
+			+ "      var food = 1;\n"
+			+ "      return fo;\n"
+			+ "    }\n"
+			+ "    fix {\n"
+			+ "      title {\n"
+			+ "        var drink = 1;\n"
+			+ "        return dr;\n"
+			+ "      }\n"
+			+ "      do {}\n"
+			+ "    }\n"
+			+ "  }\n"
+			+ "}\n", StandardCharsets.UTF_8);
+
+		initialize(false);
+		String uri = program.getCanonicalFile().toURI().toString();
+		try {
+			didOpen(program, 1);
+			assertTrue(completions(uri, new Position(5, 15)).stream()
+				.anyMatch(item -> "food".equals(item.getLabel())));
+			assertTrue(completions(uri, new Position(10, 17)).stream()
+				.anyMatch(item -> "drink".equals(item.getLabel())));
+		}
+		finally {
+			docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+		}
+	}
+
+	@Test
 	public void evlAndEgxSnippetsIncludeEolSnippets() throws Exception {
 		initialize(true);
 		assertSnippetLabelsInclude("snippets.evl", List.of("constraint", "context", "fix", "for", "operation"));

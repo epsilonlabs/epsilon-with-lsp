@@ -1,0 +1,30 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+context EClass {
+	constraint HasName {
+		check : self.name.isDefined()
+		message : "Class " + self.nme + " has no name"
+		fix {
+			title : "Set name of " + self.nam
+			do {
+				self.name = "Unnamed";
+			}
+		}
+	}
+
+	constraint NonStringMessage {
+		check : true
+		message {
+			return self.eStructuralFeatures.size();
+		}
+		fix {
+			title {
+				return 42;
+			}
+			do {}
+		}
+	}
+}
+
+//![6:28-6:31] Property nme not found in type EClass
+//![8:33-8:36] Property nam not found in type EClass

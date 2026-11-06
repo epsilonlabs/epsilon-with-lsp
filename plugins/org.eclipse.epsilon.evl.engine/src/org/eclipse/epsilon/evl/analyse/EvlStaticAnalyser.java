@@ -114,6 +114,8 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 
 			checkBoolean(constraint.getCheckBlock());
 
+			visitOptional(constraint.getMessageBlock());
+
 			for (Fix f : constraint.getFixes())
 				f.accept(this);
 		}
@@ -122,6 +124,16 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		}
 	}
 	
+	/**
+	 * Visits an optional block (e.g. a constraint message or a fix title)
+	 * without constraining the type of its result.
+	 */
+	private void visitOptional(ExecutableBlock<?> block) {
+		if (block != null) {
+			block.accept(this);
+		}
+	}
+
 	private void checkBoolean(ExecutableBlock<Boolean> block) {
 		if (block != null) {
 			block.accept(this);
@@ -141,7 +153,13 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 			parent = parent.getParent();
 		}
 		if (parent instanceof ExecutableBlock) {
-				return javaClassToEolType(((ExecutableBlock<?>)parent).getExpectedResultClass());
+			Class<?> expectedResultClass = ((ExecutableBlock<?>)parent).getExpectedResultClass();
+			// Values returned by blocks expected to return a String (e.g. messages
+			// and titles) are converted to Strings at runtime (see ExecutableBlock)
+			if (expectedResultClass == String.class) {
+				return EolAnyType.Instance;
+			}
+			return javaClassToEolType(expectedResultClass);
 		} else {
 			return super.expectedReturnType(returnStatement);
 		}
@@ -149,8 +167,8 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 
 	@Override
 	public void visit(Fix fix) {
-		if (fix.getBodyBlock() != null)
-			fix.getBodyBlock().accept(this);
 		checkBoolean(fix.getGuardBlock());
+		visitOptional(fix.getTitleBlock());
+		visitOptional(fix.getBodyBlock());
 	}
 }

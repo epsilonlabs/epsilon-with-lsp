@@ -20,6 +20,6 @@ public interface IStaticOperation {
 
 	public boolean isVarArgs();
 
-	public List<ModuleMarker> getExtraDiagnostics(AbstractModuleElement element, EolType actualContextType,
+	public List<ModuleMarker> validateCall(AbstractModuleElement element, EolType actualContextType,
 			List<EolType> actualParameterTypes);
 }

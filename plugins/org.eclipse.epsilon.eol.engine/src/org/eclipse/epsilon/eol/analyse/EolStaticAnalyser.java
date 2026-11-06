@@ -297,7 +297,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 
 		@Override
-		public List<ModuleMarker> getExtraDiagnostics(AbstractModuleElement element, EolType actualContextType,
+		public List<ModuleMarker> validateCall(AbstractModuleElement element, EolType actualContextType,
 				List<EolType> actualParameterTypes) {
 			return Collections.emptyList();
 		}
@@ -1290,7 +1290,7 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		operationCallExpression.getData().put(RESOLVED_OPERATIONS, resolvedOperations);
 
 		if (resolvedOperations.size() == 1) {
-			markers.addAll(resolvedOperations.get(0).getExtraDiagnostics(nameExpression, contextType, provParamTypes));
+			markers.addAll(resolvedOperations.get(0).validateCall(nameExpression, contextType, provParamTypes));
 		}
 
 		// Process resolved operations

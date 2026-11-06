@@ -149,7 +149,7 @@ public class SimpleOperation implements IStaticOperation {
 	}
 
 	@Override
-	public List<ModuleMarker> getExtraDiagnostics(AbstractModuleElement element, EolType actualContextType,
+	public List<ModuleMarker> validateCall(AbstractModuleElement element, EolType actualContextType,
 			List<EolType> actualParameterTypes) {
 		if (operationCallValidator.isPresent()) {
 			try {

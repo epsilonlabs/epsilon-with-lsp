@@ -106,6 +106,15 @@
       </scopeNameContentTypeBinding>
    </extension>
    <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <!-- Overrides TM4E's default reconciler (registered for all text) so
+           that Epsilon files use the Epsilon > Syntax Coloring preferences -->
+      <presentationReconciler
+            class="org.eclipse.epsilon.lsp.dt.EpsilonPresentationReconciler"
+            contentType="org.eclipse.epsilon.lsp.contentType.eol">
+      </presentationReconciler>
+   </extension>
+   <extension
          point="org.eclipse.ui.genericeditor.autoEditStrategies">
       <autoEditStrategy
             class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"

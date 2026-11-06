@@ -106,6 +106,17 @@
       </scopeNameContentTypeBinding>
    </extension>
    <extension
+         point="org.eclipse.lsp4e.symbolIconsProvider">
+      <!-- Use the legacy Epsilon editors' icons in the outline -->
+      <iconProvider
+            class="org.eclipse.epsilon.lsp.dt.EpsilonSymbolIconProvider"
+            id="org.eclipse.epsilon.lsp.dt.symbolIconProvider">
+         <contentType
+               contentTypeId="org.eclipse.epsilon.lsp.contentType.eol">
+         </contentType>
+      </iconProvider>
+   </extension>
+   <extension
          point="org.eclipse.ui.genericeditor.presentationReconcilers">
       <!-- Overrides TM4E's default reconciler (registered for all text) so
            that Epsilon files use the Epsilon > Syntax Coloring preferences -->

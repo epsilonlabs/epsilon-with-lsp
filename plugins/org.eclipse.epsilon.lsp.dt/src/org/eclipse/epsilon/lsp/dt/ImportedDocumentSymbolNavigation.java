@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.epsilon.lsp.EpsilonSymbolDetails;
 import org.eclipse.epsilon.lsp.EpsilonWorkspaceService;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.lsp4e.LSPEclipseUtils;
@@ -97,7 +98,7 @@ final class ImportedDocumentSymbolNavigation {
 
 		DocumentSymbolWithURI root = path.get(0);
 		if (root == null || root.uri == null || root.symbol.getRange() == null
-				|| root.symbol.getRange().getStart() == null || !"import".equals(root.symbol.getDetail())) {
+				|| root.symbol.getRange().getStart() == null || !EpsilonSymbolDetails.IMPORT.equals(root.symbol.getDetail())) {
 			return;
 		}
 

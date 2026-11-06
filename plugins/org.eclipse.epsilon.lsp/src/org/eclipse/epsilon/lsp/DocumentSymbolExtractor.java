@@ -92,7 +92,7 @@ final class DocumentSymbolExtractor {
 		else if (module instanceof IEgxModule) {
 			addErlDeclarations((IErlModule) module, symbols);
 			for (GenerationRule rule : emptyIfNull(((IEgxModule) module).getDeclaredGenerationRules())) {
-				add(symbols, namedRuleSymbol(rule, SymbolKind.Function, safeToString(rule)));
+				add(symbols, namedRuleSymbol(rule, safeToString(rule), EpsilonSymbolDetails.RULE));
 			}
 		}
 		else if (module instanceof IErlModule) {
@@ -101,7 +101,7 @@ final class DocumentSymbolExtractor {
 		else {
 			StatementBlock main = module.getMain();
 			if (main != null) {
-				add(symbols, symbol("main", SymbolKind.Function, main, null, null));
+				add(symbols, symbol("main", SymbolKind.Object, main, null, EpsilonSymbolDetails.MAIN));
 			}
 		}
 
@@ -124,7 +124,7 @@ final class DocumentSymbolExtractor {
 		for (Import import_ : emptyIfNull(module.getImports())) {
 			if (import_.getPathLiteral() != null) {
 				DocumentSymbol importSymbol = symbol(
-					import_.getPath(), SymbolKind.Module, import_, import_.getPathLiteral(), "import");
+					import_.getPath(), SymbolKind.Object, import_, import_.getPathLiteral(), EpsilonSymbolDetails.IMPORT);
 				if (importSymbol != null) {
 					symbols.add(importSymbol);
 					importSymbols.put(import_, importSymbol);
@@ -135,9 +135,8 @@ final class DocumentSymbolExtractor {
 			if (model.getNameExpression() == null) {
 				continue;
 			}
-			String detail = model.getDriverNameExpression() == null ? null : model.getDriverNameExpression().getName();
 			add(symbols, symbol(model.getNameExpression().getName(), SymbolKind.Object,
-				model, model.getNameExpression(), detail));
+				model, model.getNameExpression(), EpsilonSymbolDetails.MODEL));
 		}
 	}
 
@@ -204,10 +203,10 @@ final class DocumentSymbolExtractor {
 
 	private static void addErlDeclarations(IErlModule module, List<DocumentSymbol> symbols) {
 		for (Pre pre : emptyIfNull(module.getDeclaredPre())) {
-			add(symbols, namedRuleSymbol(pre, SymbolKind.Event, pre.toString()));
+			add(symbols, namedRuleSymbol(pre, pre.toString(), EpsilonSymbolDetails.PRE));
 		}
 		for (Post post : emptyIfNull(module.getDeclaredPost())) {
-			add(symbols, namedRuleSymbol(post, SymbolKind.Event, post.toString()));
+			add(symbols, namedRuleSymbol(post, post.toString(), EpsilonSymbolDetails.POST));
 		}
 	}
 
@@ -224,8 +223,8 @@ final class DocumentSymbolExtractor {
 			for (Constraint constraint : context.getConstraints()) {
 				add(children, constraintSymbol(constraint));
 			}
-			DocumentSymbol contextSymbol = symbol(context.getTypeName(), SymbolKind.Class,
-				context, context.getTypeExpression(), "context");
+			DocumentSymbol contextSymbol = symbol(context.getTypeName(), SymbolKind.Object,
+				context, context.getTypeExpression(), EpsilonSymbolDetails.CONTEXT);
 			if (contextSymbol == null) {
 				symbols.addAll(children);
 			}
@@ -255,9 +254,9 @@ final class DocumentSymbolExtractor {
 		for (EglMarkerSection marker : emptyIfNull(markers)) {
 			String name = safeToString(marker).trim();
 			if (name.isEmpty()) {
-				name = "marker";
+				name = EpsilonSymbolDetails.MARKER;
 			}
-			add(symbols, symbol(name, SymbolKind.String, marker, marker, "marker", -1, 0));
+			add(symbols, symbol(name, SymbolKind.Object, marker, marker, EpsilonSymbolDetails.MARKER, -1, 0));
 		}
 	}
 
@@ -289,13 +288,13 @@ final class DocumentSymbolExtractor {
 		if (constraint.getNameExpression() == null) {
 			return null;
 		}
-		return symbol(constraint.getName(), SymbolKind.Method, constraint,
-			constraint.getNameExpression(), constraint.isCritique() ? "critique" : "constraint");
+		return symbol(constraint.getName(), SymbolKind.Object, constraint, constraint.getNameExpression(),
+			constraint.isCritique() ? EpsilonSymbolDetails.CRITIQUE : EpsilonSymbolDetails.CONSTRAINT);
 	}
 
-	private static DocumentSymbol namedRuleSymbol(NamedRule rule, SymbolKind kind, String detail) {
-		String name = rule.getNameExpression() == null ? detail : rule.getName();
-		return symbol(name, kind, rule, rule.getNameExpression(), detail);
+	private static DocumentSymbol namedRuleSymbol(NamedRule rule, String fallbackName, String detail) {
+		String name = rule.getNameExpression() == null ? fallbackName : rule.getName();
+		return symbol(name, SymbolKind.Object, rule, rule.getNameExpression(), detail);
 	}
 
 	private static DocumentSymbol symbol(String name, SymbolKind kind, ModuleElement element,

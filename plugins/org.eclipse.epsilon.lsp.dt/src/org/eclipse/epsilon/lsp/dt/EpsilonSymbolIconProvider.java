@@ -9,9 +9,11 @@
  *******************************************************************************/
 package org.eclipse.epsilon.lsp.dt;
 
-import java.net.URI;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.eclipse.epsilon.lsp.EpsilonSymbolDetails;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.ResourceLocator;
@@ -33,17 +35,11 @@ public class EpsilonSymbolIconProvider extends SymbolIconProvider {
 
 	protected static final String KEY_PREFIX = "org.eclipse.epsilon.lsp.dt.outline.";
 
-	protected static final String OPERATION = "operation.gif";
-	protected static final String PROGRAM = "program.gif";
-	protected static final String IMPORT = "import.gif";
-	protected static final String MODEL = "model.gif";
-	protected static final String PRE = "pre.gif";
-	protected static final String POST = "post.gif";
-	protected static final String CONTEXT = "context.gif";
-	protected static final String CONSTRAINT = "error.gif";
-	protected static final String CRITIQUE = "critique.gif";
-	protected static final String GENERATION_RULE = "generationrule.gif";
-	protected static final String MARKER = "marker.png";
+	/** Icon of operations (i.e. function/method symbols) */
+	protected static final String OPERATION = "operation";
+
+	/** Names of icons that have been looked up but do not exist */
+	protected static final Set<String> missingIcons = ConcurrentHashMap.newKeySet();
 
 	@Override
 	public Image getImageFor(SymbolKind kind, List<SymbolTag> symbolTags, int severity, Object element) {
@@ -58,71 +54,54 @@ public class EpsilonSymbolIconProvider extends SymbolIconProvider {
 	}
 
 	/**
-	 * Registers the icon in LSP4E's image registry (so that it can be
-	 * decorated with overlays by LSPImages) and returns its key, or null
-	 * if the icon cannot be found.
+	 * Registers icons/outline/[icon].png in LSP4E's image registry (so that
+	 * it can be decorated with overlays by LSPImages) and returns its key,
+	 * or null if there is no such icon.
 	 */
 	protected String getImageKey(String icon) {
+		if (missingIcons.contains(icon)) return null;
 		String key = KEY_PREFIX + icon;
 		ImageRegistry registry = LSPImages.getImageRegistry();
 		if (registry.getDescriptor(key) == null) {
 			ImageDescriptor descriptor = ResourceLocator
-				.imageDescriptorFromBundle(getClass(), "icons/outline/" + icon).orElse(null);
-			if (descriptor == null) return null;
+				.imageDescriptorFromBundle(getClass(), "icons/outline/" + icon + ".png").orElse(null);
+			if (descriptor == null) {
+				missingIcons.add(icon);
+				return null;
+			}
 			registry.put(key, descriptor);
 		}
 		return key;
 	}
 
 	/**
-	 * Maps a symbol to the corresponding legacy icon, using the kinds/details
-	 * assigned to Epsilon module elements by the language server.
+	 * Returns the name of the icon of a symbol. The language server reports
+	 * EOL operations as functions/methods, and all other Epsilon module
+	 * elements as objects whose detail specifies what they are (see
+	 * {@link EpsilonSymbolDetails}); the icon of each such object is named
+	 * after its detail. Unknown details have no icon file, so they
+	 * fall back to LSP4E's default icons.
 	 */
 	@SuppressWarnings("restriction") // DocumentSymbolWithURI is x-internal
 	protected String getIcon(SymbolKind kind, Object element) {
+		if (kind == SymbolKind.Function || kind == SymbolKind.Method) {
+			return OPERATION;
+		}
+		if (kind != SymbolKind.Object) {
+			return null;
+		}
+
 		DocumentSymbol symbol = null;
-		URI uri = null;
 		if (element instanceof DocumentSymbolWithURI) {
 			symbol = ((DocumentSymbolWithURI) element).symbol;
-			uri = ((DocumentSymbolWithURI) element).uri;
 		}
 		else if (element instanceof DocumentSymbol) {
 			symbol = (DocumentSymbol) element;
 		}
-		if (symbol == null || kind == null) return null;
+		if (symbol == null) return null;
 
-		String name = symbol.getName() == null ? "" : symbol.getName();
-		String detail = symbol.getDetail();
-
-		switch (kind) {
-			case Module:
-				return IMPORT;
-			case Object:
-				return MODEL;
-			case Event:
-				return (detail != null ? detail : name).startsWith("post") ? POST : PRE;
-			case Class:
-				return CONTEXT;
-			case String:
-				return MARKER;
-			case Method:
-				if ("constraint".equals(detail)) return CONSTRAINT;
-				if ("critique".equals(detail)) return CRITIQUE;
-				return OPERATION;
-			case Function:
-				// Operations always have a signature as their detail;
-				// main blocks and EGX rules have no detail
-				if (detail == null) {
-					if (isEgx(uri)) return GENERATION_RULE;
-					if ("main".equals(name)) return PROGRAM;
-				}
-				return OPERATION;
-			default:
-				return null;
-		}
-	}
-
-	protected boolean isEgx(URI uri) {
-		return uri != null && uri.getPath() != null && uri.getPath().toLowerCase().endsWith(".egx");
+		String type = EpsilonSymbolDetails.of(symbol.getName(), symbol.getDetail());
+		// Guard against details that are not plain icon names
+		return type != null && type.matches("[a-z]+") ? type : null;
 	}
 }

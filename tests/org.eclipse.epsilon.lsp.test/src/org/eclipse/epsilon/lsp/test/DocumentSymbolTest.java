@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.epsilon.lsp.MapEntryRegistry;
 import org.eclipse.epsilon.lsp.EpsilonLanguageServer;
+import org.eclipse.epsilon.lsp.EpsilonSymbolDetails;
 import org.eclipse.epsilon.lsp.EpsilonWorkspaceService;
 import org.eclipse.lsp4e.outline.SymbolsModel;
 import org.eclipse.lsp4e.outline.SymbolsModel.DocumentSymbolWithURI;
@@ -99,8 +100,12 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 
 		List<DocumentSymbol> symbols = documentSymbols(uri);
 		assertEquals(List.of("library.eol", "main", "openOnly"), names(symbols));
-		assertEquals(SymbolKind.Module, symbols.get(0).getKind());
-		assertEquals(SymbolKind.Function, symbols.get(1).getKind());
+		assertEquals(SymbolKind.Object, symbols.get(0).getKind());
+		assertEquals(EpsilonSymbolDetails.IMPORT, symbols.get(0).getDetail());
+		assertEquals(SymbolKind.Object, symbols.get(1).getKind());
+		assertEquals(EpsilonSymbolDetails.MAIN,
+			EpsilonSymbolDetails.of(symbols.get(1).getName(), symbols.get(1).getDetail()));
+		assertEquals(SymbolKind.Function, symbols.get(2).getKind());
 		assertEquals(new Position(3, 10), symbols.get(2).getSelectionRange().getStart());
 		assertEquals(new Position(3, 18), symbols.get(2).getSelectionRange().getEnd());
 		assertEquals("()", symbols.get(2).getDetail());
@@ -478,6 +483,8 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 
 		List<DocumentSymbol> symbols = documentSymbols(uri);
 		assertEquals(List.of("M", "main"), names(symbols));
+		assertEquals(SymbolKind.Object, symbols.get(0).getKind());
+		assertEquals(EpsilonSymbolDetails.MODEL, symbols.get(0).getDetail());
 		assertTrue(compare(symbols.get(0).getRange().getEnd(), symbols.get(1).getRange().getStart()) <= 0);
 		for (DocumentSymbol symbol : symbols) {
 			assertPositionWithinSource(symbol.getRange().getStart(), source);
@@ -505,14 +512,17 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 
 		List<DocumentSymbol> symbols = documentSymbols(uri);
 		assertEquals(List.of("GlobalConstraint", "Person"), names(symbols));
-		assertEquals("constraint", symbols.get(0).getDetail());
+		assertEquals(SymbolKind.Object, symbols.get(0).getKind());
+		assertEquals(EpsilonSymbolDetails.CONSTRAINT, symbols.get(0).getDetail());
 
 		DocumentSymbol context = symbols.get(1);
-		assertEquals(SymbolKind.Class, context.getKind());
+		assertEquals(SymbolKind.Object, context.getKind());
+		assertEquals(EpsilonSymbolDetails.CONTEXT, context.getDetail());
 		assertEquals(new Position(4, 8), context.getSelectionRange().getStart());
 		assertEquals(new Position(4, 14), context.getSelectionRange().getEnd());
 		assertEquals(List.of("HasName", "NeedsAge"), names(context.getChildren()));
-		assertEquals("critique", context.getChildren().get(1).getDetail());
+		assertEquals(EpsilonSymbolDetails.CONSTRAINT, context.getChildren().get(0).getDetail());
+		assertEquals(EpsilonSymbolDetails.CRITIQUE, context.getChildren().get(1).getDetail());
 	}
 
 	@Test
@@ -526,7 +536,9 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 
 		List<DocumentSymbol> symbols = documentSymbols(uri);
 		assertEquals(List.of("Heading", "render"), names(symbols));
-		assertEquals(SymbolKind.String, symbols.get(0).getKind());
+		assertEquals(SymbolKind.Object, symbols.get(0).getKind());
+		assertEquals(EpsilonSymbolDetails.MARKER, symbols.get(0).getDetail());
+		assertEquals(SymbolKind.Function, symbols.get(1).getKind());
 		assertEquals(new Position(0, 0), symbols.get(0).getRange().getStart());
 		assertEquals(new Position(0, 14), symbols.get(0).getRange().getEnd());
 		assertEquals(new Position(2, 10), symbols.get(1).getSelectionRange().getStart());
@@ -562,8 +574,12 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 
 		List<DocumentSymbol> symbols = documentSymbols(uri);
 		assertEquals(List.of("pre", "Generate", "post", "helper"), names(symbols));
-		assertEquals(List.of(SymbolKind.Event, SymbolKind.Function, SymbolKind.Event, SymbolKind.Function),
+		assertEquals(List.of(SymbolKind.Object, SymbolKind.Object, SymbolKind.Object, SymbolKind.Function),
 			symbols.stream().map(DocumentSymbol::getKind).collect(Collectors.toList()));
+		assertEquals(List.of(EpsilonSymbolDetails.PRE, EpsilonSymbolDetails.RULE, EpsilonSymbolDetails.POST),
+			symbols.subList(0, 3).stream()
+				.map(symbol -> EpsilonSymbolDetails.of(symbol.getName(), symbol.getDetail()))
+				.collect(Collectors.toList()));
 	}
 
 	@Test
@@ -591,7 +607,8 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 			assertTrue(response.stream().allMatch(Either::isLeft));
 			assertEquals(List.of("pre", "Person", "HasName"), response.stream()
 				.map(symbol -> symbol.getLeft().getName()).collect(Collectors.toList()));
-			assertEquals(SymbolKind.Function, response.get(0).getLeft().getKind());
+			// Object is not among the kinds supported by default (File..Array)
+			assertEquals(SymbolKind.Variable, response.get(0).getLeft().getKind());
 			assertNull(response.get(1).getLeft().getContainerName());
 			assertEquals("Person", response.get(2).getLeft().getContainerName());
 		}

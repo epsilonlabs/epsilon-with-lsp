@@ -126,6 +126,15 @@
       </presentationReconciler>
    </extension>
    <extension
+         point="org.eclipse.ui.genericeditor.reconcilers">
+      <!-- Not a real reconciler: installs a sorter so that completion
+           proposals are re-ranked as the user keeps typing -->
+      <reconciler
+            class="org.eclipse.epsilon.lsp.dt.CompletionProposalSorterInstaller"
+            contentType="org.eclipse.epsilon.lsp.contentType.eol">
+      </reconciler>
+   </extension>
+   <extension
          point="org.eclipse.ui.genericeditor.autoEditStrategies">
       <autoEditStrategy
             class="org.eclipse.epsilon.common.dt.editor.autoclose.AutoCloseEditStrategy"

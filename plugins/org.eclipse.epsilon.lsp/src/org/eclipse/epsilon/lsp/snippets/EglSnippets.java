@@ -17,6 +17,7 @@ import org.eclipse.epsilon.egl.parse.EglLexer;
 import org.eclipse.epsilon.egl.parse.EglRecognitionException;
 import org.eclipse.epsilon.egl.parse.EglToken;
 import org.eclipse.epsilon.egl.parse.EglToken.TokenType;
+import org.eclipse.lsp4j.Position;
 
 /**
  * Inside [% %] sections, offers the EOL snippets plus EGL-specific statements.
@@ -74,6 +75,19 @@ public class EglSnippets extends EolSnippets {
 				// Output sections contain an expression, not statements, and comments contain no code
 				return Collections.emptyList();
 		}
+	}
+
+	/**
+	 * Only [% %] and [%= %] sections contain code; template text and comments do not.
+	 */
+	@Override
+	public boolean isInCode(String code, Position position) {
+		int offset = getOffset(code, position);
+		if (offset < 0) {
+			return true;
+		}
+		TokenType section = getSection(code, offset);
+		return section == TokenType.START_TAG || section == TokenType.START_OUTPUT_TAG;
 	}
 
 	/**

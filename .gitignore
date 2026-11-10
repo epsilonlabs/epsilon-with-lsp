@@ -117,3 +117,6 @@ DEPENDENCIES*
 
 # Temporary manifests
 .META-INF_MANIFEST.MF
+
+# AI agent instructions
+AGENTS.md

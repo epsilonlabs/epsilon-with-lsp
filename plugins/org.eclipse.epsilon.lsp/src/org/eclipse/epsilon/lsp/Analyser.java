@@ -191,6 +191,13 @@ public class Analyser {
 			return Collections.emptyList();
 		}
 
+		final String code = readDocumentCode(fileUri);
+		final Snippets snippets = createSnippets(getFileExtension(fileUri));
+		if (snippets != null && !snippets.isInCode(code, lspPosition)) {
+			// e.g. EGL template text, where only static templates are offered
+			return getSnippetCompletions(snippets, code, lspPosition);
+		}
+
 		// LSP positions are 0-based for both line and character. Epsilon's
 		// Position uses 1-based lines and 0-based columns (consistent with
 		// how markersToDiagnostics converts the other way around).
@@ -252,11 +259,15 @@ public class Analyser {
                 + (c.getKind() == EolCompletionKind.PROPERTY ? "0" : "1") + item.getLabel());
             items.add(item);
         }
-		Snippets snippets = createSnippets(getFileExtension(fileUri));
-		if (snippets != null && languageServer.supportsCompletionSnippets()) {
-			items.addAll(snippets.getCompletionItems(readDocumentCode(fileUri), lspPosition));
-		}
+		items.addAll(getSnippetCompletions(snippets, code, lspPosition));
 		return items;
+	}
+
+	private List<CompletionItem> getSnippetCompletions(Snippets snippets, String code, Position lspPosition) {
+		if (snippets == null || !languageServer.supportsCompletionSnippets()) {
+			return Collections.emptyList();
+		}
+		return snippets.getCompletionItems(code, lspPosition);
 	}
 
 	public List<Location> getDeclarations(URI fileUri, Position lspPosition) {

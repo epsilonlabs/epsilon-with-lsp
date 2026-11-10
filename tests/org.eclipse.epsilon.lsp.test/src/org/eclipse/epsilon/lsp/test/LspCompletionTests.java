@@ -309,6 +309,36 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 		}
 	}
 
+	@Test
+	public void eglTemplateTextOffersOnlyStaticTemplates() throws Exception {
+		File template = temporaryFolder.newFile("templateText.egl");
+		Files.writeString(template.toPath(), "[% var greeting = 'hi'; %]\n\n[%= gre %]\n[* *]\n",
+			StandardCharsets.UTF_8);
+
+		for (Boolean snippetSupport : new Boolean[] { true, false }) {
+			initialize(snippetSupport);
+			String uri = template.getCanonicalFile().toURI().toString();
+			try {
+				didOpen(template, 1);
+				// Context-aware completions are not attempted in template text
+				List<String> expected = snippetSupport
+					? List.of("Snippet [% %]", "Snippet [%= %]", "Snippet [* *]", "Snippet [*- *]", "Snippet for")
+					: List.of();
+				assertEquals("snippetSupport=" + snippetSupport, expected, kindsAndLabels(uri, new Position(1, 0)));
+				assertTrue(kindsAndLabels(uri, new Position(2, 7)).contains("Variable greeting"));
+				assertEquals(List.of(), kindsAndLabels(uri, new Position(3, 2)));
+			}
+			finally {
+				docService.didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(uri)));
+			}
+		}
+	}
+
+	private List<String> kindsAndLabels(String uri, Position position) throws Exception {
+		return completions(uri, position).stream()
+			.map(item -> item.getKind() + " " + item.getLabel()).sorted().toList();
+	}
+
 	private void assertSnippetLabelsInclude(String fileName, List<String> expected) throws Exception {
 		File program = temporaryFolder.newFile(fileName);
 		Files.writeString(program.toPath(), "\n", StandardCharsets.UTF_8);

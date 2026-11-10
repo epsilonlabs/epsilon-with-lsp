@@ -48,6 +48,16 @@ public abstract class Snippets {
 		return textBeforeWord.isBlank() ? getSnippets() : Collections.emptyList();
 	}
 
+	/**
+	 * Returns whether the given position is in code, where context-aware
+	 * completions can be offered, as opposed to e.g. the template text of an
+	 * EGL template, where only snippets are offered. By default, the whole
+	 * document is code.
+	 */
+	public boolean isInCode(String code, Position position) {
+		return true;
+	}
+
 	public List<CompletionItem> getCompletionItems(String code, Position position) {
 		int offset = getOffset(code, position);
 		if (offset < 0) {

@@ -11,6 +11,7 @@ package org.eclipse.epsilon.lsp.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.epsilon.lsp.EpsilonLanguageServer;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.junit.Before;
@@ -49,6 +51,11 @@ public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
 		assertNotNull("Initialisation should have completed in 5s", initResults);
 		assertEquals("Should be using full-text synchronisation",
 			TextDocumentSyncKind.Full, initResults.getCapabilities().getTextDocumentSync().getLeft());
+		assertTrue("LSP spec: no diagnostics should be published before responding to initialize",
+			testClient.publishedDiagnostics.isEmpty());
+
+		// The workspace folders are analysed once the client confirms initialisation
+		server.initialized(new InitializedParams());
 
 		docService = server.getTextDocumentService();
     }

@@ -26,6 +26,7 @@ import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
@@ -128,8 +129,18 @@ public class EpsilonLanguageServer implements LanguageServer {
 			new ExecuteCommandOptions(List.of(EpsilonWorkspaceService.OPEN_DOCUMENT_SYMBOL_COMMAND)));
 
         analyser = new Analyser(this);
-        analyser.initialize();
         return CompletableFuture.completedFuture(res);
+    }
+
+    /**
+     * Analyses the Epsilon programs in the workspace folders and publishes
+     * their diagnostics. This is not done in {@link #initialize(InitializeParams)},
+     * as the LSP specification does not allow servers to send notifications
+     * such as diagnostics before they have responded to the initialize request.
+     */
+    @Override
+    public void initialized(InitializedParams params) {
+        analyser.initialize();
     }
 
     @Override

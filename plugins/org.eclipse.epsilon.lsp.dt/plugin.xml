@@ -71,6 +71,15 @@
       </contentTypeMapping>
    </extension>
    <extension
+         point="org.eclipse.ui.startup">
+      <!-- Start the language server with Eclipse, so that problems are
+           reported for all Epsilon programs in the workspace without
+           having to open one of them first -->
+      <startup
+            class="org.eclipse.epsilon.lsp.dt.LanguageServerStartup">
+      </startup>
+   </extension>
+   <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
             path="syntaxes/eol.tmlanguage"

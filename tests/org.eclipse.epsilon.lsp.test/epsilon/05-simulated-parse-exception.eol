@@ -1,0 +1,2 @@
+// SyntaxCheckTest simulates an exception while building the AST of this for loop
+for (i in 1.to(3)) {}

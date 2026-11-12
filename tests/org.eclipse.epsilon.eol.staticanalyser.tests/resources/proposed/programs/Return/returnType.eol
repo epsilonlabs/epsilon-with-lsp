@@ -1,0 +1,98 @@
+operation justReturnGood () {
+	return;
+}
+
+operation intReturnGood () : Integer {
+	var a : Integer = 1;
+	return a;
+}
+
+operation intReturnOneGood () : Integer {
+	return 1;
+}
+
+operation intReturnNoReturnBad () : Integer {  // mark here
+	var a : Integer = 1 ;
+}
+
+
+operation intReturnNoValueBad() : Integer {
+	var a : Integer = 1;
+	return; // mark here
+}
+
+operation intReturnWrongTypeValueBad() : Integer {
+	var a : Integer = 1;
+	return "String"; // mark here
+}
+
+
+operation intReturnIfAllValuesMissing () : Integer { // mark here 
+	var a : Integer = 1;
+	
+	if (a = 1) {
+		var b;
+	}
+	else {
+		var c;
+	}
+}
+
+operation intReturnIfAllValuesMissing () : Integer {
+	var a : Integer = 1;
+	
+	if (a =1) {
+		return; // mark here
+	}
+	else {
+		return; // mark here
+		}
+}
+
+operation intReturnIfAllValuesMissing () : Integer {
+	var a : Integer = 1;
+	var text : String = "text";
+	
+	if (a = 1) {
+		return text; // mark here
+	}
+	else {
+		return "String"; // mark here
+		}
+}
+
+operation intReturnIfOneMissing () : Integer {
+	var a : Integer = 1;
+	
+	if (a = 1) {
+		return; // mark here
+	}
+	else {
+		return a;
+	}
+}
+
+// Correct
+//! [14:36-14:43] This operation should return Integer
+
+// Wrong place -- line 21
+//! [21:8-21:14] This operation should return Integer
+
+
+// Correct
+//! [26:8-26:16] Return type should be Integer instead of String
+
+// Correct
+//! [30:43-30:50] This operation should return Integer
+
+// Wrong place and missing one -- lines 45 & 48
+//! [45:9-45:15] This operation should return Integer
+//! [48:9-48:15] This operation should return Integer
+
+// Correct
+//! [57:9-57:13] Return type should be Integer instead of String
+//! [60:9-60:17] Return type should be Integer instead of String
+
+
+// Wrong -- Line 68 missing 
+//! [68:9-68:15] This operation should return Integer

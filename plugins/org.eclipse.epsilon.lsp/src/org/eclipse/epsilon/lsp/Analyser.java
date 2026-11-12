@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.epsilon.common.module.ModuleElement;
@@ -119,28 +120,39 @@ public class Analyser {
 		}
 		
 		if(module !=null) {
+			Exception parseException = null;
 			try {
-				
 				module.parse(uri);
-				//build dependency graph
-				URI moduleUri = MapEntryRegistry.canonicalFileUri(module.getUri());
-				dependencyGraph.addNode(moduleUri);
-				for(Import i : module.getImports()) {
-					dependencyGraph.putEdge(moduleUri,
-						MapEntryRegistry.canonicalFileUri(i.getImportedModule().getUri()));
-				}
-
-				//parser diagnostics
-				diagnostics = getDiagnostics(module);
-                if(diagnostics.size() == 0) {
-                    EolStaticAnalyser staticAnalyser = createStaticAnalyser(module);
-                    List<ModuleMarker> markers = staticAnalyser.validate(module);
-                    diagnostics.addAll(markersToDiagnostics(markers));
-                }
 			} catch (Exception e) {
-				// Do nothing
+				// The module keeps the problems it has found before failing, so they
+				// are still reported below rather than leaving the document without errors
+				parseException = e;
+				LOGGER.warning("Failed to parse " + uri + ": " + e.getMessage());
 			}
-		} 
+
+			//parser diagnostics
+			diagnostics = getDiagnostics(getReportedParseProblems(module, parseException));
+
+			if (parseException == null) {
+				try {
+					//build dependency graph
+					URI moduleUri = MapEntryRegistry.canonicalFileUri(module.getUri());
+					dependencyGraph.addNode(moduleUri);
+					for(Import i : module.getImports()) {
+						dependencyGraph.putEdge(moduleUri,
+							MapEntryRegistry.canonicalFileUri(i.getImportedModule().getUri()));
+					}
+
+					if(diagnostics.size() == 0) {
+						EolStaticAnalyser staticAnalyser = createStaticAnalyser(module);
+						List<ModuleMarker> markers = staticAnalyser.validate(module);
+						diagnostics.addAll(markersToDiagnostics(markers));
+					}
+				} catch (Exception e) {
+					LOGGER.warning("Failed to analyse " + uri + ": " + e.getMessage());
+				}
+			}
+		}
 
 		URI diagnosticUri = publishedDocumentUris.getOrDefault(documentUri, publishedDocumentUri);
 		languageServer.getClient().publishDiagnostics(
@@ -148,15 +160,34 @@ public class Analyser {
 
 	}
 	
-    protected List<Diagnostic> getDiagnostics(IEolModule module) {
+	/**
+	 * Parsing can throw when the parser has recovered from syntax errors but the
+	 * recovered tree cannot be built into an AST (e.g. <code>for (3 in ...)</code>).
+	 * The module then records the exception as an additional parse problem, which is
+	 * only reported when there are no other problems to explain it.
+	 */
+	protected List<ParseProblem> getReportedParseProblems(IEolModule module, Exception parseException) {
+		List<ParseProblem> problems = module.getParseProblems();
+		if (parseException == null) {
+			return problems;
+		}
+		String exceptionReason = "Exception during parsing: " + parseException.getLocalizedMessage();
+		List<ParseProblem> otherProblems = problems.stream()
+			.filter(problem -> !exceptionReason.equals(problem.getReason()))
+			.collect(Collectors.toList());
+		return otherProblems.isEmpty() ? problems : otherProblems;
+	}
+
+    protected List<Diagnostic> getDiagnostics(List<ParseProblem> problems) {
         List<Diagnostic> diagnostics = new ArrayList<>();
-        for (ParseProblem problem : module.getParseProblems()) {
+        for (ParseProblem problem : problems) {
             Diagnostic diagnostic = new Diagnostic();
             diagnostic.setSeverity(problem.getSeverity() == ParseProblem.ERROR ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning);
             diagnostic.setMessage(problem.getReason());
-            diagnostic.setRange(new Range(
-                    new Position(problem.getLine() - 1, Math.max(problem.getColumn(),0)),
-                    new Position(problem.getLine() - 1, Math.max(problem.getColumn(),0))));
+            // Problems without a location (e.g. exceptions during parsing) have negative
+            // line/column numbers, which are not valid LSP positions
+            Position position = new Position(Math.max(problem.getLine() - 1, 0), Math.max(problem.getColumn(), 0));
+            diagnostic.setRange(new Range(position, new Position(position.getLine(), position.getCharacter())));
             diagnostics.add(diagnostic);
         }
         return diagnostics;

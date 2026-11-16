@@ -36,6 +36,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
@@ -46,6 +47,11 @@ public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
     private static final String INVALID_FOR_ITERATOR_EOL_PATH = "../org.eclipse.epsilon.lsp.test/epsilon/04-invalid-for-iterator.eol";
     private static final String SIMULATED_PARSE_EXCEPTION_EOL_PATH = "../org.eclipse.epsilon.lsp.test/epsilon/05-simulated-parse-exception.eol";
     private static final String FOLDER = "../org.eclipse.epsilon.lsp.test/epsilon/";
+
+	@BeforeClass
+	public static void registerUrlHandler() {
+		TestUrlHandlerRegistrar.registerSingletonMapHandlerOnce();
+	}
 
     @Before
     @Override
@@ -145,6 +151,17 @@ public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
 		// The exception has no location, so it is reported at the start of the document
 		assertEquals(new Range(new Position(0, 0), new Position(0, 0)),
 			getPublishedDiagnostics(fileURI.toString()).get(0).getRange());
+	}
+
+	@Test
+	public void fixingProgramWhoseParsingThrewClearsItsDiagnostics() throws Exception {
+		// Parsing this program throws, so it is not added to the dependency graph
+		final File file = new File(INVALID_FOR_ITERATOR_EOL_PATH);
+		final String fileURI = didOpen(file, 1);
+		assertEquals(5, getPublishedDiagnostics(fileURI).size());
+
+		didChange(file, 2, "var a : Integer = 42;");
+		assertPublishedEmptyDiagnostics(fileURI);
 	}
 
 }

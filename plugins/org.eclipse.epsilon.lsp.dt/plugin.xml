@@ -63,7 +63,9 @@
       <server
             class="org.eclipse.epsilon.lsp.dt.ConnectionProviderSolution"
             id="org.eclipse.epsilon.lsp.server"
-            label="Epsilon Language Server">
+            label="Epsilon Language Server"
+            lastDocumentDisconnectedTimeout="2147483647"
+            singleton="true">
       </server>
       <contentTypeMapping
             contentType="org.eclipse.epsilon.lsp.contentType.eol"

@@ -12,7 +12,8 @@ import junit.framework.Test;
 	SyntaxCheckTest.class,
 	ImportTests.class,
 	LspCompletionTests.class,
-	DocumentSymbolTest.class
+	DocumentSymbolTest.class,
+	WatchedFilesTest.class
 })
 public class EpsilonLanguageServerTestSuite {
 	public static Test suite() {

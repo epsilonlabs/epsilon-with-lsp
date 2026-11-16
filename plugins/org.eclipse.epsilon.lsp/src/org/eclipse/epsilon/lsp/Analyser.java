@@ -12,10 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -66,6 +70,9 @@ public class Analyser {
 //    public static final String LANGUAGE_EPL = "epl";
     public static final String LANGUAGE_EOL = "eol";
 
+    public static final List<String> PROGRAM_EXTENSIONS =
+        List.of(LANGUAGE_EOL, LANGUAGE_EVL, LANGUAGE_EGL, LANGUAGE_EGX);
+
     private static final Logger LOGGER = Logger.getLogger(Analyser.class.getName());
 
     protected final EpsilonLanguageServer languageServer;
@@ -101,12 +108,81 @@ public class Analyser {
 		.putCode(uri.getPath(), code);
 		URI documentUri = MapEntryRegistry.canonicalFileUri(uri);
 		publishedDocumentUris.putIfAbsent(documentUri, toFileUri(uri));
-//		//The transitive closure also includes the node itself
-		for(URI uriDependent : Graphs.transitiveClosure(dependencyGraph).predecessors(documentUri)) {
-			processDocument(withScheme(uriDependent, MapEntryRegistry.PROTOCOL));
+		// The document is not in the dependency graph if it could not be
+		// analysed before (e.g. as parsing it threw an exception)
+		Set<URI> affectedDocumentUris = new LinkedHashSet<>();
+		affectedDocumentUris.add(documentUri);
+		affectedDocumentUris.addAll(getDependents(documentUri));
+		for (URI affectedDocumentUri : affectedDocumentUris) {
+			processDocument(withScheme(affectedDocumentUri, MapEntryRegistry.PROTOCOL));
 		}
 	}
-    
+
+	/**
+	 * Updates the diagnostics after Epsilon programs have been created, changed
+	 * or deleted on disk (e.g. by a version control operation), by re-analysing
+	 * them and the programs that import them. Programs that are open in an editor
+	 * are not re-analysed when they change on disk, as their contents come from
+	 * the editor instead.
+	 */
+	public void checkChangedFiles(Collection<URI> changedFiles, Collection<URI> deletedFiles) {
+		Set<URI> deletedDocumentUris = new HashSet<>();
+		Set<URI> affectedDocumentUris = new LinkedHashSet<>();
+		for (URI deletedFile : deletedFiles) {
+			if (!isEpsilonProgram(deletedFile)) {
+				continue;
+			}
+			URI documentUri = MapEntryRegistry.canonicalFileUri(deletedFile);
+			deletedDocumentUris.add(documentUri);
+			// Programs importing the deleted program now have unresolved imports
+			affectedDocumentUris.addAll(getDependents(documentUri));
+			dependencyGraph.removeNode(documentUri);
+			URI publishedUri = publishedDocumentUris.remove(documentUri);
+			languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(
+				(publishedUri != null ? publishedUri : toFileUri(deletedFile)).toString(),
+				Collections.emptyList()));
+		}
+		for (URI changedFile : changedFiles) {
+			if (!isEpsilonProgram(changedFile) || isOpen(changedFile)) {
+				continue;
+			}
+			URI documentUri = MapEntryRegistry.canonicalFileUri(changedFile);
+			publishedDocumentUris.putIfAbsent(documentUri, toFileUri(changedFile));
+			affectedDocumentUris.add(documentUri);
+			affectedDocumentUris.addAll(getDependents(documentUri));
+		}
+
+		affectedDocumentUris.removeAll(deletedDocumentUris);
+		for (URI documentUri : affectedDocumentUris) {
+			try {
+				// Parse through the mapentry scheme, so that dependents which are
+				// open in an editor are analysed with their unsaved contents
+				processDocument(withScheme(documentUri, MapEntryRegistry.PROTOCOL));
+			} catch (URISyntaxException e) {
+				LOGGER.warning("Failed to analyse " + documentUri + ": " + e.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * Returns the programs that import the given program, directly or
+	 * transitively, including the program itself if it has been analysed.
+	 */
+	private Set<URI> getDependents(URI documentUri) {
+		if (!dependencyGraph.nodes().contains(documentUri)) {
+			return Collections.emptySet();
+		}
+		return Graphs.reachableNodes(Graphs.transpose(dependencyGraph), documentUri);
+	}
+
+	protected boolean isEpsilonProgram(URI uri) {
+		return PROGRAM_EXTENSIONS.contains(getFileExtension(uri));
+	}
+
+	private static boolean isOpen(URI uri) {
+		return uri.getPath() != null && MapEntryRegistry.getInstance().getCode(uri.getPath()) != null;
+	}
+
 	public void processDocument(URI uri){
 		IEolModule module = createModule(getFileExtension(uri));
 		List<Diagnostic> diagnostics = Collections.emptyList();

@@ -17,26 +17,38 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.analyse.DefaultModelFactory;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.DidChangeWatchedFilesCapabilities;
+import org.eclipse.lsp4j.DidChangeWatchedFilesRegistrationOptions;
 import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
+import org.eclipse.lsp4j.FileSystemWatcher;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.Registration;
+import org.eclipse.lsp4j.RegistrationParams;
+import org.eclipse.lsp4j.RelativePattern;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
 public class EpsilonLanguageServer implements LanguageServer {
+
+    public static final String WATCHED_FILES_METHOD = "workspace/didChangeWatchedFiles";
+    public static final String WATCHED_FILES_REGISTRATION_ID = "epsilon.watchedFiles";
+    private static final Logger LOGGER = Logger.getLogger(EpsilonLanguageServer.class.getName());
 
     protected EpsilonTextDocumentService textDocumentService = new EpsilonTextDocumentService(this);
     protected WorkspaceService workspaceService = new EpsilonWorkspaceService(this);
@@ -49,7 +61,9 @@ public class EpsilonLanguageServer implements LanguageServer {
     protected boolean completionSnippetSupport;
     protected boolean hierarchicalDocumentSymbolSupport;
     protected Set<SymbolKind> supportedDocumentSymbolKinds = defaultDocumentSymbolKinds();
-    
+    protected boolean watchedFilesDynamicRegistration;
+    protected boolean watchedFilesRelativePatternSupport;
+
     protected List<WorkspaceFolder> workspaceFolders;
     protected IModelFactory modelFactory = new DefaultModelFactory();
 
@@ -112,6 +126,13 @@ public class EpsilonLanguageServer implements LanguageServer {
             || documentSymbolCapabilities.getSymbolKind().getValueSet().isEmpty()
             ? defaultDocumentSymbolKinds()
             : EnumSet.copyOf(documentSymbolCapabilities.getSymbolKind().getValueSet());
+        DidChangeWatchedFilesCapabilities watchedFilesCapabilities = params.getCapabilities() == null
+            || params.getCapabilities().getWorkspace() == null
+            ? null : params.getCapabilities().getWorkspace().getDidChangeWatchedFiles();
+        watchedFilesDynamicRegistration = watchedFilesCapabilities != null
+            && Boolean.TRUE.equals(watchedFilesCapabilities.getDynamicRegistration());
+        watchedFilesRelativePatternSupport = watchedFilesCapabilities != null
+            && Boolean.TRUE.equals(watchedFilesCapabilities.getRelativePatternSupport());
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
@@ -137,10 +158,55 @@ public class EpsilonLanguageServer implements LanguageServer {
      * their diagnostics. This is not done in {@link #initialize(InitializeParams)},
      * as the LSP specification does not allow servers to send notifications
      * such as diagnostics before they have responded to the initialize request.
+     * The client is also asked to report changes to Epsilon programs on disk,
+     * so that their diagnostics can be kept up to date.
      */
     @Override
     public void initialized(InitializedParams params) {
+        // Registered first, so that changes made during the analysis are reported
+        registerWatchedFiles();
         analyser.initialize();
+    }
+
+    /**
+     * Asks the client to notify the server of created, changed and deleted
+     * Epsilon programs, if the client supports registering this dynamically.
+     */
+    protected void registerWatchedFiles() {
+        if (!watchedFilesDynamicRegistration || client == null) {
+            return;
+        }
+
+        List<FileSystemWatcher> watchers = new ArrayList<>();
+        for (String extension : Analyser.PROGRAM_EXTENSIONS) {
+            String pattern = "**/*." + extension;
+            if (watchedFilesRelativePatternSupport && workspaceFolders != null) {
+                // Patterns relative to each folder do not depend on the client
+                // resolving bare patterns against a root (which LSP4E does not
+                // do for servers that are not tied to a project)
+                for (WorkspaceFolder folder : workspaceFolders) {
+                    watchers.add(new FileSystemWatcher(
+                        Either.forRight(new RelativePattern(Either.forLeft(folder), pattern))));
+                }
+            }
+            else {
+                watchers.add(new FileSystemWatcher(Either.forLeft(pattern)));
+            }
+        }
+
+        Registration registration = new Registration(WATCHED_FILES_REGISTRATION_ID,
+            WATCHED_FILES_METHOD, new DidChangeWatchedFilesRegistrationOptions(watchers));
+        try {
+            // Not waiting for the response, as it is received by the thread running this
+            client.registerCapability(new RegistrationParams(List.of(registration)))
+                .exceptionally(ex -> {
+                    LOGGER.warning("Failed to register for watched file changes: " + ex.getMessage());
+                    return null;
+                });
+        }
+        catch (RuntimeException ex) {
+            LOGGER.warning("Failed to register for watched file changes: " + ex.getMessage());
+        }
     }
 
     @Override

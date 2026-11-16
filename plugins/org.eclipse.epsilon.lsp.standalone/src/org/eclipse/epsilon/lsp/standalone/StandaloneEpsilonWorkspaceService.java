@@ -47,5 +47,8 @@ public class StandaloneEpsilonWorkspaceService extends EpsilonWorkspaceService {
 				standaloneLanguageServer.getEPackageRegistryManager().removeFile(file);
 			}
 		}
+
+		// Re-analyse changed Epsilon programs (after the metamodels are updated)
+		super.didChangeWatchedFiles(params);
 	}
 }

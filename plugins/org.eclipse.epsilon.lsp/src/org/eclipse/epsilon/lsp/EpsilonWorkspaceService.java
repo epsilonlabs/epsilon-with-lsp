@@ -15,6 +15,8 @@ import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.ExecuteCommandParams;
+import org.eclipse.lsp4j.FileChangeType;
+import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -43,6 +45,24 @@ public class EpsilonWorkspaceService implements WorkspaceService {
 
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
+        List<URI> changedFiles = new ArrayList<>();
+        List<URI> deletedFiles = new ArrayList<>();
+        for (FileEvent event : params.getChanges()) {
+            URI uri;
+            try {
+                uri = URI.create(event.getUri());
+            }
+            catch (IllegalArgumentException ex) {
+                continue;
+            }
+            if (event.getType() == FileChangeType.Deleted) {
+                deletedFiles.add(uri);
+            }
+            else {
+                changedFiles.add(uri);
+            }
+        }
+        languageServer.getAnalyser().checkChangedFiles(changedFiles, deletedFiles);
     }
 
 	public static ExecuteCommandParams createOpenDocumentSymbolCommand(

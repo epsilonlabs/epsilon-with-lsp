@@ -5,13 +5,13 @@ import java.util.List;
 
 import org.eclipse.epsilon.common.module.AbstractModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
-import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
-import org.eclipse.epsilon.eol.types.EolCollectionType;
 import org.eclipse.epsilon.eol.types.EolType;
 
 /**
- * A diagnostics calculator that checks whether the parameter type is compatible
- * with the contained type of a collection.
+ * Checks that the element passed to an operation that stores it in a
+ * collection (e.g. <code>add(e)</code>, <code>add(index, e)</code>,
+ * <code>including(e)</code>) is assignable to the contained type of the
+ * collection. The element is expected to be the last parameter.
  */
 public class ParameterTypeIsContainedTypeCallValidator implements IOperationCallValidator {
 
@@ -19,27 +19,11 @@ public class ParameterTypeIsContainedTypeCallValidator implements IOperationCall
 	public List<ModuleMarker> validate(AbstractModuleElement element, EolType contextType,
 			List<EolType> parameterTypes) {
 		List<ModuleMarker> markers = new ArrayList<>();
-
-		if (!(contextType instanceof EolCollectionType)) {
-			return markers;
+		EolType containedType = ElementTypeChecks.getContentType(contextType);
+		EolType parameterType = ElementTypeChecks.getLastParameterType(parameterTypes);
+		if (containedType != null && parameterType != null) {
+			ElementTypeChecks.checkAssignable(markers, element, parameterType, containedType);
 		}
-
-		if (parameterTypes == null || parameterTypes.isEmpty()) {
-			return markers;
-		}
-
-		EolCollectionType collectionType = (EolCollectionType) contextType;
-		EolType containedType = collectionType.getContentType();
-		EolType parameterType = parameterTypes.get(0);
-
-		if (!parameterType.isAssignableTo(containedType)) {
-			ModuleMarker marker = new ModuleMarker(
-					element, "Parameter Type " + parameterType.getName()
-							+ " cannot be assigned to expected parameter type " + containedType.getName(),
-					Severity.Error);
-			markers.add(marker);
-		}
-
 		return markers;
 	}
 }

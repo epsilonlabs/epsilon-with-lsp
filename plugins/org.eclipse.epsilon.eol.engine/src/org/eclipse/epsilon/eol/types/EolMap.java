@@ -20,6 +20,12 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterMapEntryTypesAreKeyAndValueTypesCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToKeyTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToValueTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypesAreKeyAndValueTypesCallValidator;
+
 public class EolMap<K, V> implements Map<K, V> {
 	
 	protected Map<K, V> wrapped;
@@ -67,31 +73,37 @@ public class EolMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToKeyTypeCallValidator.class)
 	public boolean containsKey(Object key) {
 		return wrapped.containsKey(key);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToValueTypeCallValidator.class)
 	public boolean containsValue(Object value) {
 		return wrapped.containsValue(value);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToKeyTypeCallValidator.class)
 	public V get(Object key) {
 		return wrapped.get(key);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypesAreKeyAndValueTypesCallValidator.class)
 	public V put(K key, V value) {
 		return wrapped.put(key, value);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToKeyTypeCallValidator.class)
 	public V remove(Object key) {
 		return wrapped.remove(key);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterMapEntryTypesAreKeyAndValueTypesCallValidator.class)
 	public void putAll(Map<? extends K, ? extends V> m) {
 		wrapped.putAll(m);
 	}
@@ -117,6 +129,7 @@ public class EolMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToKeyTypeCallValidator.class)
 	public V getOrDefault(Object key, V defaultValue) {
 		return wrapped.getOrDefault(key, defaultValue);
 	}
@@ -132,21 +145,25 @@ public class EolMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypesAreKeyAndValueTypesCallValidator.class)
 	public V putIfAbsent(K key, V value) {
 		return wrapped.putIfAbsent(key, value);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToKeyTypeCallValidator.class)
 	public boolean remove(Object key, Object value) {
 		return wrapped.remove(key, value);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypesAreKeyAndValueTypesCallValidator.class)
 	public boolean replace(K key, V oldValue, V newValue) {
 		return wrapped.replace(key, oldValue, newValue);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypesAreKeyAndValueTypesCallValidator.class)
 	public V replace(K key, V value) {
 		return wrapped.replace(key, value);
 	}

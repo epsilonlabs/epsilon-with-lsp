@@ -19,6 +19,9 @@ import java.util.stream.Stream;
 
 import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsComparableToContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToContainedTypeCallValidator;
 
 /**
  * Base class for all EOL collections.
@@ -61,6 +64,7 @@ public abstract class EolCollection<T> implements Collection<T> {
 	}
 
 	@Override
+	@OperationCallValidator(ParameterContentTypeIsContainedTypeCallValidator.class)
 	public boolean addAll(Collection<? extends T> c) {
 		return wrapped.addAll(c);
 	}
@@ -71,11 +75,13 @@ public abstract class EolCollection<T> implements Collection<T> {
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean contains(Object o) {
 		return wrapped.contains(o);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterContentTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean containsAll(Collection<?> c) {
 		return wrapped.containsAll(c);
 	}
@@ -91,16 +97,19 @@ public abstract class EolCollection<T> implements Collection<T> {
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean remove(Object o) {
 		return wrapped.remove(o);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterContentTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean removeAll(Collection<?> c) {
 		return wrapped.removeAll(c);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterContentTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean retainAll(Collection<?> c) {
 		return wrapped.retainAll(c);
 	}

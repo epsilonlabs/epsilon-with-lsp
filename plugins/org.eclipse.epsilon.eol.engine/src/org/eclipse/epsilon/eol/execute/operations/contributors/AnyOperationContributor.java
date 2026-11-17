@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.eclipse.epsilon.eol.analyse.operations.AsTypeReturnTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.IfUndefinedReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.validation.AsTypeCallValidator;
@@ -146,6 +147,7 @@ public class AnyOperationContributor extends OperationContributor {
 		return !isDefined();
 	}
 	
+	@OperationTypeProvider(IfUndefinedReturnTypeProvider.class)
 	public Object ifUndefined(Object alternative) {
 		if (isUndefined()) return alternative;
 		else return getTarget();

@@ -11,6 +11,11 @@ package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.util.Collection;
 
+import org.eclipse.epsilon.eol.analyse.operations.BagOfElementTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.OrderedSetOfElementTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.SequenceOfElementTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.SetOfElementTypeProvider;
 import org.eclipse.epsilon.eol.types.EolBag;
 import org.eclipse.epsilon.eol.types.EolOrderedSet;
 import org.eclipse.epsilon.eol.types.EolSequence;
@@ -23,24 +28,28 @@ public class ScalarOperationContributor extends OperationContributor {
 		return !(target instanceof Collection);
 	}
 	
+	@OperationTypeProvider(SequenceOfElementTypeProvider.class)
 	public EolSequence<Object> asSequence() {
 		EolSequence<Object> sequence = new EolSequence<>();
 		sequence.add(getTarget());
 		return sequence;
 	}
 	
+	@OperationTypeProvider(SetOfElementTypeProvider.class)
 	public EolSet<Object> asSet() {
 		EolSet<Object>set = new EolSet<>();
 		set.add(getTarget());
 		return set;
 	}
 	
+	@OperationTypeProvider(BagOfElementTypeProvider.class)
 	public EolBag<Object> asBag() {
 		EolBag<Object> bag = new EolBag<>();
 		bag.add(getTarget());
 		return bag;
 	}
 	
+	@OperationTypeProvider(OrderedSetOfElementTypeProvider.class)
 	public EolOrderedSet<Object> asOrderedSet() {
 		EolOrderedSet<Object> set = new EolOrderedSet<>();
 		set.add(getTarget());

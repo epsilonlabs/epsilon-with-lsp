@@ -16,10 +16,17 @@ import java.util.stream.StreamSupport;
 import org.eclipse.epsilon.common.util.CollectionUtil;
 import org.eclipse.epsilon.eol.types.EolNativeType;
 import org.eclipse.epsilon.eol.types.EolType;
+import org.eclipse.epsilon.eol.analyse.operations.BagOfElementTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.ConcurrentBagOfElementTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.ConcurrentSetOfElementTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.FlattenReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.OrderedSetOfElementTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.PowersetReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContainedTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.SequenceOfElementTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.SetOfElementTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsComparableToContainedTypeCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsContainedTypeCallValidator;
@@ -141,6 +148,7 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @return
 	 * @since 2.1
 	 */
+	@OperationTypeProvider(ConcurrentBagOfElementTypeProvider.class)
 	public EolConcurrentBag<Object> asConcurrentBag() {
 		EolConcurrentBag<Object> copy = new EolConcurrentBag<>();
 		copy(getIterable(), copy);
@@ -152,30 +160,35 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @return
 	 * @since 2.1
 	 */
+	@OperationTypeProvider(ConcurrentSetOfElementTypeProvider.class)
 	public EolConcurrentSet<Object> asConcurrentSet() {
 		EolConcurrentSet<Object> copy = new EolConcurrentSet<>();
 		copy(getIterable(), copy);
 		return copy;
 	}
 	
+	@OperationTypeProvider(SequenceOfElementTypeProvider.class)
 	public EolSequence<Object> asSequence() {
 		EolSequence<Object> copy = new EolSequence<>();
 		copy(getIterable(), copy);
 		return copy;
 	}
 	
+	@OperationTypeProvider(SetOfElementTypeProvider.class)
 	public EolSet<Object> asSet() {
 		EolSet<Object> copy = new EolSet<>();
 		copy(getIterable(), copy);
 		return copy;
 	}
 	
+	@OperationTypeProvider(BagOfElementTypeProvider.class)
 	public EolBag<Object> asBag() {
 		EolBag<Object> copy = new EolBag<>();
 		copy(getIterable(), copy);
 		return copy;
 	}
 	
+	@OperationTypeProvider(OrderedSetOfElementTypeProvider.class)
 	public EolOrderedSet<Object> asOrderedSet() {
 		EolOrderedSet<Object> copy = new EolOrderedSet<>();
 		copy(getIterable(), copy);
@@ -406,6 +419,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return difference;
 	}
 	
+	@OperationTypeProvider(SequenceOfElementTypeProvider.class)
 	public Collection<Object> first(int number) {
 		Iterator<?> it = getTarget().iterator();
 		ArrayList<Object> result = new ArrayList<>(number);
@@ -522,6 +536,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return min;
 	}
 	
+	@OperationTypeProvider(SequenceOfElementTypeProvider.class)
 	public Collection<Object> invert() {
 		EolSequence<Object> sequence = new EolSequence<>();
 		for (Object o : getTarget()) {
@@ -540,6 +555,7 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 	
+	@OperationTypeProvider(PowersetReturnTypeProvider.class)
 	public Set<Set<Object>> powerset() {	
 		List<Object> originalSet = asSequence();
 		Set<Set<Object>> sets = new HashSet<>();

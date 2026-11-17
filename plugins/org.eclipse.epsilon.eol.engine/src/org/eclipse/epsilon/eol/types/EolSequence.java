@@ -18,6 +18,11 @@ import java.util.ListIterator;
 import java.util.RandomAccess;
 import java.util.function.UnaryOperator;
 
+import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsContainedTypeCallValidator;
+
 @SuppressWarnings("unchecked")
 public class EolSequence<T> extends EolCollection<T> implements List<T>, RandomAccess {
 	
@@ -37,6 +42,7 @@ public class EolSequence<T> extends EolCollection<T> implements List<T>, RandomA
 	}
 	
 	@Override
+	@OperationCallValidator(ParameterContentTypeIsContainedTypeCallValidator.class)
 	public boolean addAll(int index, Collection<? extends T> c) {
 		return ((List<T>) wrapped).addAll(index, c);
 	}
@@ -57,11 +63,13 @@ public class EolSequence<T> extends EolCollection<T> implements List<T>, RandomA
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsContainedTypeCallValidator.class)
 	public T set(int index, T element) {
 		return ((List<T>) wrapped).set(index, element);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsContainedTypeCallValidator.class)
 	public void add(int index, T element) {
 		((List<T>) wrapped).add(index, element);
 	}
@@ -72,11 +80,13 @@ public class EolSequence<T> extends EolCollection<T> implements List<T>, RandomA
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public int indexOf(Object o) {
 		return ((List<T>) wrapped).indexOf(o);
 	}
 
 	@Override
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public int lastIndexOf(Object o) {
 		return ((List<T>) wrapped).lastIndexOf(o);
 	}

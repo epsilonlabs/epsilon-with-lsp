@@ -20,6 +20,11 @@ import org.eclipse.epsilon.eol.analyse.operations.FlattenReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContainedTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsComparableToContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsContainedTypeCallValidator;
 import org.eclipse.epsilon.eol.types.*;
 import org.eclipse.epsilon.eol.types.concurrent.*;
 
@@ -259,6 +264,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return null;
 	}
 
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean includes(Object key) {
 		if (isCollection()) {
 			return getCollection().contains(key);
@@ -274,10 +280,12 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 	
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean excludes(Object o) {
 		return !includes(o);
 	}
 	
+	@OperationCallValidator(ParameterContentTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean includesAll(Collection<?> col) {
 		for (Object item : col) {
 			if (excludes(item)) {
@@ -287,6 +295,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return true;
 	}
 	
+	@OperationCallValidator(ParameterContentTypeIsComparableToContainedTypeCallValidator.class)
 	public boolean excludesAll(Collection<?> col) {
 		for (Object item : col) {
 			if (includes(item)) {
@@ -296,6 +305,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return true;
 	}
 	
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public int count(Object o) {
 		return stream()
 			.filter(item -> Objects.equals(item, o))
@@ -335,6 +345,7 @@ public class IterableOperationContributor extends OperationContributor {
 	}
 	
 	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
+	@OperationCallValidator(ParameterContentTypeIsContainedTypeCallValidator.class)
 	public Collection<Object> includingAll(Collection<?> col) {
 		Collection<Object> result = createCollection();
 		addAll(getTarget(), result);
@@ -343,6 +354,7 @@ public class IterableOperationContributor extends OperationContributor {
 	}
 
 	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
+	@OperationCallValidator(ParameterTypeIsContainedTypeCallValidator.class)
 	public Collection<Object> including(Object o) {
 		Collection<Object> result = createCollection();
 		addAll(getTarget(), result);
@@ -368,6 +380,7 @@ public class IterableOperationContributor extends OperationContributor {
 	}
 
 	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public Collection<Object> excluding(Object o) {
 		Collection<Object> excluding = createCollection();
 		addAll(getTarget(), excluding);
@@ -378,6 +391,7 @@ public class IterableOperationContributor extends OperationContributor {
 	}
 
 	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
+	@OperationCallValidator(ParameterContentTypeIsComparableToContainedTypeCallValidator.class)
 	public Collection<Object> excludingAll(Collection<?> col) {
 		Collection<Object> difference = createCollection();
 		for (Object next : getTarget()) {
@@ -431,6 +445,7 @@ public class IterableOperationContributor extends OperationContributor {
 		}
 	}
 	
+	@OperationCallValidator(ParameterTypeIsComparableToContainedTypeCallValidator.class)
 	public int indexOf(Object o) {
 		if (isList()) {
 			return getList().indexOf(o);

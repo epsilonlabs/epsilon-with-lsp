@@ -1,0 +1,42 @@
+var m : Map<String, Integer>;
+var untyped : Map;
+
+// Operations that store their arguments require them to be assignable to the key and value types
+m.put("a", 1);
+m.put(1, 1);
+m.put("a", "b");
+m.put(1, "b");
+m.putIfAbsent("a", "b");
+m.replace("a", "b");
+m.replace("a", 1, "b");
+m.putAll(Map{"a" = 1});
+m.putAll(Map{1 = 1});
+untyped.put(1, "a");
+
+// Operations that look their argument up only require it to be related to the key or value type
+m.get("a");
+m.get(1);
+m.containsKey(1);
+m.containsValue("a");
+m.remove(1);
+m.remove(1, 1);
+m.getOrDefault(1, 0);
+untyped.get(1);
+Map{"a" = 1, 2 = 3}.get(1);
+Map{"a" = 1, 2 = 3}.get(true);
+
+//![6:2-6:11] Parameter Type Integer cannot be assigned to expected parameter type String
+//![7:2-7:15] Parameter Type String cannot be assigned to expected parameter type Integer
+//![8:2-8:13] Parameter Type Integer cannot be assigned to expected parameter type String
+//![8:2-8:13] Parameter Type String cannot be assigned to expected parameter type Integer
+//![9:2-9:23] Parameter Type String cannot be assigned to expected parameter type Integer
+//![10:2-10:19] Parameter Type String cannot be assigned to expected parameter type Integer
+//![11:2-11:22] Parameter Type String cannot be assigned to expected parameter type Integer
+//![13:2-13:20] Parameter Type Map<Integer, Integer> cannot be assigned to expected parameter type Map<String, Integer>
+//?[18:2-18:8] Parameter type Integer is unrelated to key type String, so it can never match
+//?[19:2-19:16] Parameter type Integer is unrelated to key type String, so it can never match
+//?[20:2-20:20] Parameter type String is unrelated to value type Integer, so it can never match
+//?[21:2-21:11] Parameter type Integer is unrelated to key type String, so it can never match
+//?[22:2-22:14] Parameter type Integer is unrelated to key type String, so it can never match
+//?[23:2-23:20] Parameter type Integer is unrelated to key type String, so it can never match
+//?[26:20-26:29] Parameter type Boolean is unrelated to key type String|Integer, so it can never match

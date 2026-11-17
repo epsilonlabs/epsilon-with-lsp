@@ -10,5 +10,22 @@ p.eClassifiers.add(p); // Should raise an error as an EPackage cannot be added t
 
 p.eClassifiers.first().ePackage = c; // Should raise an error due to type incompatibility
 
+var n : ENamedElement;
+var e : EClass;
+
+// Looking an element up only requires it to be related to EClassifier
+p.eClassifiers.remove(p);
+p.eClassifiers.remove(n);
+p.eClassifiers.remove(e);
+p.eClassifiers.includes(p);
+p.eClassifiers.indexOf(e);
+
+// Storing an element requires it to be assignable to EClassifier
+p.eClassifiers.including(e);
+p.eClassifiers.including(p);
+
 //![9:15-9:21] Parameter Type EPackage cannot be assigned to expected parameter type EClassifier
 //![11:34-11:35] EClassifier cannot be assigned to EPackage
+//?[17:15-17:24] Parameter type EPackage is unrelated to contained type EClassifier, so it can never match
+//?[20:15-20:26] Parameter type EPackage is unrelated to contained type EClassifier, so it can never match
+//![25:15-25:27] Parameter Type EPackage cannot be assigned to expected parameter type EClassifier

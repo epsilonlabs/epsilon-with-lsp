@@ -11,6 +11,8 @@ package org.eclipse.epsilon.eol.execute.operations.contributors;
 
 import java.util.Arrays;
 
+import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.SequenceOfElementTypeProvider;
 import org.eclipse.epsilon.eol.types.EolSequence;
 
 public class ArrayOperationContributor extends OperationContributor {
@@ -20,6 +22,7 @@ public class ArrayOperationContributor extends OperationContributor {
 		return target != null && target.getClass().isArray();
 	}
 	
+	@OperationTypeProvider(SequenceOfElementTypeProvider.class)
 	public EolSequence<Object> asSequence() {
 		EolSequence<Object> sequence = new EolSequence<>();
 		sequence.addAll(Arrays.asList(getTarget()));

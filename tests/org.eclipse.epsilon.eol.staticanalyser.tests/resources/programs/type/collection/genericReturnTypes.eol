@@ -1,0 +1,26 @@
+var ints : Sequence<Integer> = Sequence{1, 2, 3};
+var m : Map<String, Integer> = Map{"a" = 1};
+var untyped : Sequence;
+
+// Methods of the Java collection and map classes return the element, key and value types
+/*Integer*/ints.get(0);
+/*Integer*/ints.set(0, 4);
+/*Sequence<Integer>*/ints.subList(0, 1);
+/*Integer*/ints.getFirst();
+/*Integer*/ints.removeLast();
+/*Integer*/m.get("a");
+/*Integer*/m.put("b", 2);
+/*Integer*/m.remove("a");
+/*Integer*/m.getOrDefault("a", 0);
+/*Set<String>*/m.keySet();
+/*Collection<Integer>*/m.values();
+/*Any*/untyped.get(0);
+
+// Mismatches are reported
+var s : String = m.get("a");
+var strings : Sequence<String> = ints.subList(0, 1);
+var keys : Set<Integer> = m.keySet();
+
+//! [20:17-20:27] Integer cannot be assigned to String
+//! [21:33-21:51] Sequence<Integer> cannot be assigned to Sequence<String>
+//! [22:26-22:36] Set<String> cannot be assigned to Set<Integer>

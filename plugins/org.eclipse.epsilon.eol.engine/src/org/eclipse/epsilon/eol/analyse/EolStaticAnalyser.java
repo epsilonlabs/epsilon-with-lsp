@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -2088,7 +2089,13 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				operationParameterTypes.add(javaTypeToEolType(javaParameterType));
 			}
 		}
-		EolType returnType = javaTypeToEolType(m.getGenericReturnType());
+		// Type parameters in the return type (e.g. the V of Map.get) are resolved
+		// against the context type. Parameter types are left unresolved so that
+		// mismatching arguments are reported by the operation call validators.
+		Type javaReturnType = m.getGenericReturnType();
+		EolType returnType = containsTypeVariable(javaReturnType)
+				? javaTypeToEolType(javaReturnType, getTypeVariableBindings(contextType))
+				: javaTypeToEolType(javaReturnType);
 		Optional<OperationTypeProvider> otp = Optional.ofNullable(m.getAnnotation(OperationTypeProvider.class));
 		Optional<OperationCallValidator> ocv = Optional
 				.ofNullable(m.getAnnotation(OperationCallValidator.class));
@@ -2097,18 +2104,27 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 	}
 
 	public EolType javaTypeToEolType(Type javaType) {
+		return javaTypeToEolType(javaType, Collections.emptyMap());
+	}
+
+	/**
+	 * Converts a Java type to an EOL type, replacing the type variables in the
+	 * provided bindings with the EOL types they are bound to. Unbound type
+	 * variables are converted to Any.
+	 */
+	protected EolType javaTypeToEolType(Type javaType, Map<TypeVariable<?>, EolType> typeVariableBindings) {
 
 		if (javaType instanceof ParameterizedType) {
 			Type rawType = ((ParameterizedType) javaType).getRawType();
 			Type[] typeArgs = ((ParameterizedType) javaType).getActualTypeArguments();
 			EolType eolType = javaClassToEolType((Class<?>) rawType);
 			if (eolType instanceof EolCollectionType) {
-				EolType contentType = javaTypeToEolType(typeArgs[0]);
+				EolType contentType = javaTypeToEolType(typeArgs[0], typeVariableBindings);
 				eolType = new EolCollectionType(eolType.getName(), contentType);
 				return eolType;
 			} else if (eolType instanceof EolMapType) {
-				EolType keyType = javaTypeToEolType(typeArgs[0]);
-				EolType valueType = javaTypeToEolType(typeArgs[1]);
+				EolType keyType = javaTypeToEolType(typeArgs[0], typeVariableBindings);
+				EolType valueType = javaTypeToEolType(typeArgs[1], typeVariableBindings);
 				eolType = new EolMapType(keyType, valueType);
 				return eolType;
 			} else {
@@ -2117,8 +2133,82 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		} else if (javaType instanceof Class<?>) {
 			Class<?> javaClass = (Class<?>) javaType;
 			return javaClassToEolType(javaClass);
+		} else if (javaType instanceof TypeVariable<?>) {
+			EolType boundType = typeVariableBindings.get(javaType);
+			return boundType != null ? boundType : EolAnyType.Instance;
 		} else {
 			return EolAnyType.Instance;
+		}
+	}
+
+	protected boolean containsTypeVariable(Type javaType) {
+		if (javaType instanceof TypeVariable<?>) {
+			return true;
+		}
+		if (javaType instanceof ParameterizedType) {
+			return Arrays.stream(((ParameterizedType) javaType).getActualTypeArguments())
+					.anyMatch(this::containsTypeVariable);
+		}
+		return false;
+	}
+
+	/**
+	 * Binds the type variables of the Java class behind a collection or map
+	 * type, and of all its supertypes, to the content, key and value types of
+	 * that type. For example, for <code>Sequence&lt;Integer&gt;</code>, both
+	 * the <code>T</code> of <code>EolSequence</code> and the <code>E</code> of
+	 * <code>List</code> are bound to Integer.
+	 */
+	protected Map<TypeVariable<?>, EolType> getTypeVariableBindings(EolType contextType) {
+		List<EolType> typeArguments;
+		if (contextType instanceof EolCollectionType) {
+			typeArguments = Arrays.asList(((EolCollectionType) contextType).getContentType());
+		} else if (contextType instanceof EolMapType) {
+			typeArguments = Arrays.asList(((EolMapType) contextType).getKeyType(), ((EolMapType) contextType).getValueType());
+		} else {
+			return Collections.emptyMap();
+		}
+
+		Class<?> javaClass = contextType.getClazz();
+		if (javaClass == null || javaClass.getTypeParameters().length != typeArguments.size()) {
+			return Collections.emptyMap();
+		}
+
+		Map<TypeVariable<?>, EolType> bindings = new HashMap<>();
+		TypeVariable<?>[] typeParameters = javaClass.getTypeParameters();
+		for (int i = 0; i < typeParameters.length; i++) {
+			if (typeArguments.get(i) != null) {
+				bindings.put(typeParameters[i], typeArguments.get(i));
+			}
+		}
+		bindSupertypeVariables(javaClass, bindings, new HashSet<>());
+		return bindings;
+	}
+
+	protected void bindSupertypeVariables(Class<?> javaClass, Map<TypeVariable<?>, EolType> bindings, Set<Class<?>> visited) {
+		if (!visited.add(javaClass)) {
+			return;
+		}
+		List<Type> supertypes = new ArrayList<>();
+		if (javaClass.getGenericSuperclass() != null) {
+			supertypes.add(javaClass.getGenericSuperclass());
+		}
+		supertypes.addAll(Arrays.asList(javaClass.getGenericInterfaces()));
+
+		for (Type supertype : supertypes) {
+			if (supertype instanceof ParameterizedType) {
+				Class<?> rawType = (Class<?>) ((ParameterizedType) supertype).getRawType();
+				TypeVariable<?>[] typeParameters = rawType.getTypeParameters();
+				Type[] typeArguments = ((ParameterizedType) supertype).getActualTypeArguments();
+				for (int i = 0; i < typeParameters.length && i < typeArguments.length; i++) {
+					if (!bindings.containsKey(typeParameters[i])) {
+						bindings.put(typeParameters[i], javaTypeToEolType(typeArguments[i], bindings));
+					}
+				}
+				bindSupertypeVariables(rawType, bindings, visited);
+			} else if (supertype instanceof Class<?>) {
+				bindSupertypeVariables((Class<?>) supertype, bindings, visited);
+			}
 		}
 	}
 

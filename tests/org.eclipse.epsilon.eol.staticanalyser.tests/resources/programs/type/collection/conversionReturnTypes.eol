@@ -1,0 +1,34 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var ints : Sequence<Integer> = Sequence{1, 2, 3};
+var i : Integer = 1;
+
+// Converting a collection keeps its element type
+var names : Set<String> = EClass.all.name.asSet();
+var intSet : Set<Integer> = ints.asSet();
+var intSequence : Sequence<Integer> = intSet.asSequence();
+var intBag : Bag<Integer> = ints.asBag();
+var intOrderedSet : OrderedSet<Integer> = ints.asOrderedSet();
+var inverted : Sequence<Integer> = ints.invert();
+var firstTwo : Sequence<Integer> = ints.first(2);
+var subsets : Set<Set<Integer>> = ints.powerset();
+/*ConcurrentSet<Integer>*/ints.asConcurrentSet();
+/*ConcurrentBag<Integer>*/ints.asConcurrentBag();
+/*Sequence<EClass>*/EClass.all.asSet().asSequence();
+/*Sequence<Any>*/(new Native("java.util.ArrayList")).asSequence();
+
+// Converting a single value wraps it in a collection of its type
+var strings : Set<String> = "a".asSet();
+/*Sequence<Integer>*/i.asSequence();
+/*Bag<EClass>*/EClass.all.first().asBag();
+/*OrderedSet<Map<String, Integer>>*/Map{"a" = 1}.asOrderedSet();
+
+// ifUndefined returns either the target or the alternative
+var name : String = "a".ifUndefined("b");
+/*Real*/i.ifUndefined(2.0);
+/*String|Integer*/"a".ifUndefined(1);
+
+// Mismatched element types are still reported
+var wrong : Set<String> = ints.asSet();
+
+//! [32:26-32:38] Set<Integer> cannot be assigned to Set<String>

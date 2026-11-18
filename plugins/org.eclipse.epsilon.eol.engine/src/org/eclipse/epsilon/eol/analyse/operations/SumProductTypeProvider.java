@@ -11,7 +11,7 @@ import org.eclipse.epsilon.eol.types.EolType;
  * Integers and Reals, and Number otherwise.
  * Used by <code>sum()</code> and <code>product()</code>.
  */
-public class SumProductReturnTypeProvider implements IOperationTypeProvider {
+public class SumProductTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType getType(EolType contextType, List<EolType> parameterTypes) {

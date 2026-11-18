@@ -13,7 +13,7 @@ import org.eclipse.epsilon.eol.types.EolUnionType;
  * is returned as is, otherwise its contents are recursively flattened into a
  * new Sequence.
  */
-public class FlattenReturnTypeProvider implements IOperationTypeProvider {
+public class FlattenTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType getType(EolType contextType, List<EolType> parameterTypes) {

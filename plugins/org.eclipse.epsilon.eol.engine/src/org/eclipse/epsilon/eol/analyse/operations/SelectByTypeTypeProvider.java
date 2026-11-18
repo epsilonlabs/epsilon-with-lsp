@@ -11,7 +11,7 @@ import org.eclipse.epsilon.eol.types.EolTypeLiteral;
  * passed as the argument, or the target's element type if that is more specific.
  * Used by <code>selectByKind(type)</code> and <code>selectByType(type)</code>.
  */
-public class SelectByTypeReturnTypeProvider implements IOperationTypeProvider {
+public class SelectByTypeTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType getType(EolType contextType, List<EolType> parameterTypes) {

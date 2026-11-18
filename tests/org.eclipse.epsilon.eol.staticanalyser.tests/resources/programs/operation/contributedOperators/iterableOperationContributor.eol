@@ -13,8 +13,8 @@ var incSet : Set<Integer> = Set{1,2,3};
 /*Set<Integer>*/ itr.asSet();
 /*Bag<Integer>*/ itr.asBag();
 /*OrderedSet<Integer>*/ itr.asOrderedSet();
-/*Native<java.lang.Number>*/ itr.sum();
-/*Native<java.lang.Number>*/ itr.product();
+/*Integer*/ itr.sum();
+/*Integer*/ itr.product();
 /*Boolean*/ itr.isEmpty();
 /*Boolean*/ itr.notEmpty();
 

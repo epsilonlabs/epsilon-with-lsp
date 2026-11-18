@@ -25,13 +25,16 @@ import org.eclipse.epsilon.eol.analyse.operations.OrderedSetOfElementTypeProvide
 import org.eclipse.epsilon.eol.analyse.operations.PowersetReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContainedTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.SelectByTypeReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.SequenceOfElementTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.SetOfElementTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.SumProductReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsComparableToContainedTypeCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterContentTypeIsContainedTypeCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToContainedTypeCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsContainedTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.TypeLiteralIsRelatedToContainedTypeCallValidator;
 import org.eclipse.epsilon.eol.types.*;
 import org.eclipse.epsilon.eol.types.concurrent.*;
 
@@ -195,6 +198,7 @@ public class IterableOperationContributor extends OperationContributor {
 		return copy;
 	}
 	
+	@OperationTypeProvider(SumProductReturnTypeProvider.class)
 	public Number sum() {
 		return parallelStream()
 			.filter(Number.class::isInstance)
@@ -202,6 +206,7 @@ public class IterableOperationContributor extends OperationContributor {
 			.reduce(0, (i, sum) -> NumberUtil.add(sum, i));
 	}
 	
+	@OperationTypeProvider(SumProductReturnTypeProvider.class)
 	public Number product() {
 		if (isEmpty()) return 0.0f;
 		
@@ -331,7 +336,8 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @return
 	 * @since 2.1
 	 */
-	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(SelectByTypeReturnTypeProvider.class)
+	@OperationCallValidator(TypeLiteralIsRelatedToContainedTypeCallValidator.class)
 	public Collection<Object> selectByKind(org.eclipse.epsilon.eol.types.EolType type) {
 		if (type == null) {
 			type = EolNoType.Instance;
@@ -347,7 +353,8 @@ public class IterableOperationContributor extends OperationContributor {
 	 * @return
 	 * @since 2.1
 	 */
-	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(SelectByTypeReturnTypeProvider.class)
+	@OperationCallValidator(TypeLiteralIsRelatedToContainedTypeCallValidator.class)
 	public Collection<Object> selectByType(org.eclipse.epsilon.eol.types.EolType type) {
 		if (type == null) {
 			type = EolNoType.Instance;

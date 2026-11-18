@@ -15,6 +15,7 @@ import org.eclipse.epsilon.eol.types.EolNativeType;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.analyse.operations.MinMaxReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
+import org.eclipse.epsilon.eol.analyse.operations.PowReturnTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
 import org.eclipse.epsilon.eol.types.NumberUtil;
 
@@ -64,7 +65,7 @@ public class NumberOperationContributor extends OperationContributor {
 	}
 	
 
-	@OperationTypeProvider(ReturnTypeIsContextTypeProvider.class)
+	@OperationTypeProvider(PowReturnTypeProvider.class)
 	public Number pow(Number n) {
 		Double pow = Math.pow(asDouble(), n.doubleValue());
 		if (getTarget() instanceof Integer && n instanceof Integer && NumberUtil.greaterThan(n, 0)) {

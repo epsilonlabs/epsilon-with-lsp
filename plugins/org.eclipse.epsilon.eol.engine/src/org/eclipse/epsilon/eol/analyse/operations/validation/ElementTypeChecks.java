@@ -12,7 +12,9 @@ import org.eclipse.epsilon.eol.types.EolMapType;
 import org.eclipse.epsilon.eol.types.EolModelElementType;
 import org.eclipse.epsilon.eol.types.EolNativeType;
 import org.eclipse.epsilon.eol.types.EolNoType;
+import org.eclipse.epsilon.eol.types.EolTupleType;
 import org.eclipse.epsilon.eol.types.EolType;
+import org.eclipse.epsilon.eol.types.EolTypeLiteral;
 import org.eclipse.epsilon.eol.types.EolUnionType;
 
 /**
@@ -103,6 +105,35 @@ final class ElementTypeChecks {
 		}
 	}
 
+	/**
+	 * @return Whether a value of the first type could be of the second type, as
+	 *         tested by e.g. <code>isKindOf(type)</code> or
+	 *         <code>selectByKind(type)</code>. Two collection types, or two map
+	 *         types, always could: those operations only compare their kinds,
+	 *         and at run time a Sequence is a kind of Bag although the static
+	 *         types are unrelated.
+	 */
+	static boolean canBeOfType(EolType valueType, EolType type) {
+		if (isUnchecked(valueType) || isUnchecked(type)) {
+			return true;
+		}
+		if (valueType instanceof EolUnionType) {
+			return ((EolUnionType) valueType).containedTypes.stream().anyMatch(t -> canBeOfType(t, type));
+		}
+		if (type instanceof EolUnionType) {
+			return ((EolUnionType) type).containedTypes.stream().anyMatch(t -> canBeOfType(valueType, t));
+		}
+		if (valueType instanceof EolCollectionType && type instanceof EolCollectionType
+				|| isMapOrTuple(valueType) && isMapOrTuple(type)) {
+			return true;
+		}
+		return isComparable(valueType, type);
+	}
+
+	private static boolean isMapOrTuple(EolType type) {
+		return type instanceof EolMapType || type instanceof EolTupleType;
+	}
+
 	private static boolean isAssignable(EolType provided, EolType expected) {
 		if (isUnchecked(provided) || isUnchecked(expected)) {
 			return true;
@@ -163,6 +194,14 @@ final class ElementTypeChecks {
 	 */
 	static EolType getValueType(EolType type) {
 		return type instanceof EolMapType ? ((EolMapType) type).getValueType() : null;
+	}
+
+	/**
+	 * @return The type named by the given type literal, or null if it is not a
+	 *         type literal.
+	 */
+	static EolType getLiteralType(EolType type) {
+		return type instanceof EolTypeLiteral ? ((EolTypeLiteral) type).getWrappedType() : null;
 	}
 
 	static EolType getFirstParameterType(List<EolType> parameterTypes) {

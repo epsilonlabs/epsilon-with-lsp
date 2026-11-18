@@ -19,6 +19,10 @@ ints.includingAll(strings);
 reals.add(1);
 anything.add("a");
 anything.addAll(strings);
+ints.addFirst(0);
+ints.addFirst("a");
+ints.addLast(4);
+ints.addLast("a");
 
 // Operations that look their argument up only require it to be related to the contained type
 ints.remove("a");
@@ -52,19 +56,21 @@ tasks.includes("a");
 //![16:5-16:23] Parameter Type Sequence<String> cannot be assigned to expected parameter type Collection<Integer>
 //![17:5-17:19] Parameter Type String cannot be assigned to expected parameter type Integer
 //![18:5-18:26] Parameter Type Sequence<String> cannot be assigned to expected parameter type Collection<Integer>
-//?[24:5-24:16] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[25:5-25:18] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[26:5-26:18] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[27:5-27:18] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[28:5-28:15] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[29:5-29:17] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[30:5-30:21] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[31:5-31:19] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[32:5-32:23] Parameter content type String is unrelated to contained type Integer, so it can never match
-//?[33:5-33:23] Parameter content type String is unrelated to contained type Integer, so it can never match
-//?[34:5-34:25] Parameter content type String is unrelated to contained type Integer, so it can never match
-//?[35:5-35:25] Parameter content type String is unrelated to contained type Integer, so it can never match
-//?[36:5-36:25] Parameter content type String is unrelated to contained type Integer, so it can never match
-//?[37:5-37:26] Parameter content type String is unrelated to contained type Integer, so it can never match
-//?[38:7-38:18] Parameter type String is unrelated to contained type Integer, so it can never match
-//?[39:7-39:19] Parameter type String is unrelated to contained type Integer, so it can never match
+//![23:5-23:18] Parameter Type String cannot be assigned to expected parameter type Integer
+//![25:5-25:17] Parameter Type String cannot be assigned to expected parameter type Integer
+//?[28:5-28:16] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[29:5-29:18] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[30:5-30:18] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[31:5-31:18] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[32:5-32:15] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[33:5-33:17] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[34:5-34:21] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[35:5-35:19] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[36:5-36:23] Parameter content type String is unrelated to contained type Integer, so it can never match
+//?[37:5-37:23] Parameter content type String is unrelated to contained type Integer, so it can never match
+//?[38:5-38:25] Parameter content type String is unrelated to contained type Integer, so it can never match
+//?[39:5-39:25] Parameter content type String is unrelated to contained type Integer, so it can never match
+//?[40:5-40:25] Parameter content type String is unrelated to contained type Integer, so it can never match
+//?[41:5-41:26] Parameter content type String is unrelated to contained type Integer, so it can never match
+//?[42:7-42:18] Parameter type String is unrelated to contained type Integer, so it can never match
+//?[43:7-43:19] Parameter type String is unrelated to contained type Integer, so it can never match

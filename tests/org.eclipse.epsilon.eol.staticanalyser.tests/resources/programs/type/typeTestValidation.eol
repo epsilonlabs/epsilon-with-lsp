@@ -1,0 +1,34 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var s : String = "a";
+var i : Integer = 1;
+var r : Real = 1.5;
+var ints : Sequence<Integer>;
+var e : ENamedElement;
+var p : EPackage;
+var x;
+
+// Type tests on related types can succeed
+s.isKindOf(String);
+i.isKindOf(Real);
+r.isKindOf(Integer);
+e.isKindOf(EClass);
+p.isKindOf(ENamedElement);
+x.isKindOf(Integer);
+
+// Type tests on unrelated types are always false
+s.isKindOf(Integer);
+s.isTypeOf(Integer);
+s.instanceOf(Integer);
+i.isKindOf(Boolean);
+s.isKindOf(EClass);
+p.isKindOf(EClass);
+ints.isKindOf(String);
+
+//?[20:2-20:19] Type Integer is unrelated to String, so this check is always false
+//?[21:2-21:19] Type Integer is unrelated to String, so this check is always false
+//?[22:2-22:21] Type Integer is unrelated to String, so this check is always false
+//?[23:2-23:19] Type Boolean is unrelated to Integer, so this check is always false
+//?[24:2-24:18] Type EClass is unrelated to String, so this check is always false
+//?[25:2-25:18] Type EClass is unrelated to EPackage, so this check is always false
+//?[26:5-26:21] Type String is unrelated to Sequence<Integer>, so this check is always false

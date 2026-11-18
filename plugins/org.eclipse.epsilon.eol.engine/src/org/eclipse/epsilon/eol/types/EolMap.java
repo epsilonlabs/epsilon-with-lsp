@@ -20,10 +20,12 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.eclipse.epsilon.eol.analyse.operations.validation.GetOrDefaultCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterMapEntryTypesAreKeyAndValueTypesCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToKeyTypeCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToValueTypeCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypesAreComparableToKeyAndValueTypesCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypesAreKeyAndValueTypesCallValidator;
 
 public class EolMap<K, V> implements Map<K, V> {
@@ -129,7 +131,7 @@ public class EolMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	@OperationCallValidator(ParameterTypeIsComparableToKeyTypeCallValidator.class)
+	@OperationCallValidator(GetOrDefaultCallValidator.class)
 	public V getOrDefault(Object key, V defaultValue) {
 		return wrapped.getOrDefault(key, defaultValue);
 	}
@@ -151,7 +153,7 @@ public class EolMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	@OperationCallValidator(ParameterTypeIsComparableToKeyTypeCallValidator.class)
+	@OperationCallValidator(ParameterTypesAreComparableToKeyAndValueTypesCallValidator.class)
 	public boolean remove(Object key, Object value) {
 		return wrapped.remove(key, value);
 	}

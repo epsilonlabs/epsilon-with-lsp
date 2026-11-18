@@ -1941,9 +1941,31 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 			}
 		}
 		if (type != null) {
-			setResolvedType(typeExpression, type);
+			setResolvedType(typeExpression, isTypeLiteral(typeExpression) ? new EolTypeLiteral(type) : type);
 		}
 
+	}
+
+	/**
+	 * Whether a type expression is used as a value, as in {@code x.isKindOf(Sequence)}, and so
+	 * evaluates to the type itself, like a type name such as {@code String} does. A type expression
+	 * that declares the type of a variable, parameter, operation, new instance or type argument is
+	 * not, and neither is the target of a call such as {@code Native("java.lang.Math").max(1, 2)},
+	 * which runs against the type it names.
+	 */
+	private static boolean isTypeLiteral(TypeExpression typeExpression) {
+		ModuleElement parent = typeExpression.getParent();
+		if (parent instanceof VariableDeclaration) {
+			return ((VariableDeclaration) parent).getTypeExpression() != typeExpression;
+		}
+		if (parent instanceof NewInstanceExpression) {
+			return ((NewInstanceExpression) parent).getTypeExpression() != typeExpression;
+		}
+		if (parent instanceof FeatureCallExpression) {
+			return ((FeatureCallExpression) parent).getTargetExpression() != typeExpression;
+		}
+		return parent instanceof Expression && !(parent instanceof TypeExpression)
+				|| parent instanceof Statement;
 	}
 
 	@Override

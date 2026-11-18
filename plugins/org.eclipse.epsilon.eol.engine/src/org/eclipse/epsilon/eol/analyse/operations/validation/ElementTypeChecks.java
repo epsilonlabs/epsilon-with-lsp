@@ -108,10 +108,11 @@ final class ElementTypeChecks {
 	/**
 	 * @return Whether a value of the first type could be of the second type, as
 	 *         tested by e.g. <code>isKindOf(type)</code> or
-	 *         <code>selectByKind(type)</code>. Two collection types, or two map
-	 *         types, always could: those operations only compare their kinds,
-	 *         and at run time a Sequence is a kind of Bag although the static
-	 *         types are unrelated.
+	 *         <code>selectByKind(type)</code>, or cast to by
+	 *         <code>asType(type)</code>. Two collection types, or two map
+	 *         types, always could: type tests only compare their kinds, and at
+	 *         run time a Sequence is a kind of Bag although the static types
+	 *         are unrelated.
 	 */
 	static boolean canBeOfType(EolType valueType, EolType type) {
 		if (isUnchecked(valueType) || isUnchecked(type)) {

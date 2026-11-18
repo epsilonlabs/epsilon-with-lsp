@@ -34,7 +34,7 @@ public class AsTypeCallValidator implements IOperationCallValidator {
 		}
 
 		EolType castType = ((EolTypeLiteral) parameterType).getWrappedType();
-		if (!contextType.isAssignableTo(castType) && !castType.isAssignableTo(contextType)) {
+		if (!ElementTypeChecks.canBeOfType(contextType, castType)) {
 			markers.add(new ModuleMarker(element,
 					contextType.getName() + " cannot be cast to " + castType.getName(),
 					Severity.Error));

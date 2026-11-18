@@ -1,0 +1,38 @@
+var ints : Sequence<Integer> = Sequence{1, 2};
+var nested : Sequence<Any> = Sequence{ints, 3};
+var m : Map<String, Integer> = new Map<String, Integer>;
+var tuple : Tuple = new Tuple;
+var s : String = "a";
+
+// Collection and map type names used as values are type literals
+/*EolTypeLiteral<Sequence>*/Sequence;
+/*EolTypeLiteral<Map>*/Map;
+
+// Type tests and casts to them are accepted when the kinds can match
+/*Boolean*/ints.isKindOf(Sequence);
+ints.isKindOf(Bag);
+ints.isTypeOf(Sequence<Integer>);
+ints.instanceOf(Collection);
+m.isKindOf(Map);
+tuple.isKindOf(Map);
+1.isKindOf(Native("java.lang.Integer"));
+/*Sequence<Sequence<Any>>*/nested.selectByKind(Sequence);
+/*Bag<Any>*/ints.asType(Bag);
+
+// ... and reported when they cannot
+s.isKindOf(Sequence);
+ints.isKindOf(Map);
+ints.selectByKind(Sequence);
+s.asType(Sequence);
+var copy : Sequence<Integer> = Sequence;
+
+// Declared types, and the targets of calls, are the types themselves
+var declared : Sequence<Integer> = new Sequence<Integer>;
+/*Sequence<Integer>*/declared;
+/*Integer*/Native("java.lang.Integer").parseInt("1");
+
+//?[23:2-23:20] Type Sequence<Any> is unrelated to String, so this check is always false
+//?[24:5-24:18] Type Map<Any, Any> is unrelated to Sequence<Integer>, so this check is always false
+//?[25:5-25:27] Type Sequence<Any> is unrelated to contained type Integer, so no element can match
+//![26:2-26:18] String cannot be cast to Sequence
+//![27:31-27:39] EolTypeLiteral<Sequence> cannot be assigned to Sequence<Integer>

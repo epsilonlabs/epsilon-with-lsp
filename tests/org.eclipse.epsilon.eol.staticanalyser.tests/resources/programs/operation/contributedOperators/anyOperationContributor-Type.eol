@@ -25,18 +25,18 @@ var aSequence : Sequence<Any> = Sequence {1, 2, 3};
 
 /*Sequence<Any>*/ aSequence;
 
-var Set : Set<Any> = Set {1, 2, 3};
+var aSet : Set<Any> = Set {1, 2, 3};
 
-/*Set<Any>*/ Set;
+/*Set<Any>*/ aSet;
 
-var OrderedSet : OrderedSet<Any> = OrderedSet {1, 2, 3};
+var aOrderedSet : OrderedSet<Any> = OrderedSet {1, 2, 3};
 
-/*OrderedSet<Any>*/ OrderedSet;
+/*OrderedSet<Any>*/ aOrderedSet;
 
-var ConcurrentBag : ConcurrentBag<Any> = ConcurrentBag {1, 2, 3};
+var aConcurrentBag : ConcurrentBag<Any> = ConcurrentBag {1, 2, 3};
 
-/*ConcurrentBag<Any>*/ ConcurrentBag;
+/*ConcurrentBag<Any>*/ aConcurrentBag;
 
-var ConcurrentSet : ConcurrentSet<Any> = ConcurrentSet {1, 2, 3};
+var aConcurrentSet : ConcurrentSet<Any> = ConcurrentSet {1, 2, 3};
 
-/*ConcurrentSet<Any>*/ ConcurrentSet;
+/*ConcurrentSet<Any>*/ aConcurrentSet;

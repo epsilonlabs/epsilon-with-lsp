@@ -74,6 +74,26 @@ public class EolSequence<T> extends EolCollection<T> implements List<T>, RandomA
 		((List<T>) wrapped).add(index, element);
 	}
 
+	/**
+	 * Same as List.addFirst in Java 21+, declared here so that the element is
+	 * validated by the static analyser. Not marked as an override because the
+	 * bundle still supports Java 8.
+	 */
+	@OperationCallValidator(ParameterTypeIsContainedTypeCallValidator.class)
+	public void addFirst(T element) {
+		add(0, element);
+	}
+
+	/**
+	 * Same as List.addLast in Java 21+, declared here so that the element is
+	 * validated by the static analyser. Not marked as an override because the
+	 * bundle still supports Java 8.
+	 */
+	@OperationCallValidator(ParameterTypeIsContainedTypeCallValidator.class)
+	public void addLast(T element) {
+		add(element);
+	}
+
 	@Override
 	public T remove(int index) {
 		return ((List<T>) wrapped).remove(index);

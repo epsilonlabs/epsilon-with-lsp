@@ -1,0 +1,21 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+var elements : Sequence<ENamedElement>;
+var classifiers : Set<EClassifier>;
+var untyped : Sequence;
+var ints : Sequence<Integer>;
+
+// The selected type replaces the element type, unless the element type is more specific
+/*Sequence<EClass>*/elements.selectByKind(EClass);
+/*Sequence<EClass>*/elements.selectByType(EClass);
+/*Set<EClass>*/classifiers.selectByKind(EClass);
+/*Sequence<String>*/untyped.selectByKind(String);
+/*Sequence<Integer>*/ints.selectByKind(Real);
+var classes : Sequence<EClass> = elements.selectByKind(EClass);
+
+// Selecting an unrelated type never selects anything
+ints.selectByKind(String);
+elements.selectByType(EAnnotation);
+
+//?[17:5-17:25] Type String is unrelated to contained type Integer, so no element can match
+//?[18:9-18:34] Type EAnnotation is unrelated to contained type ENamedElement, so no element can match

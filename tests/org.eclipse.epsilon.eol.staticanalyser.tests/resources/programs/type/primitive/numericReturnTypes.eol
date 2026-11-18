@@ -1,0 +1,27 @@
+var ints : Sequence<Integer> = Sequence{1, 2, 3};
+var reals : Sequence<Real> = Sequence{1.5};
+var strings : Sequence<String>;
+var untyped : Sequence;
+var i : Integer = 2;
+var r : Real = 0.5;
+var n = untyped.first();
+
+// sum and product keep the numeric type of the elements
+/*Integer*/ints.sum();
+/*Integer*/ints.product();
+/*Real*/reals.sum();
+/*Real*/reals.product();
+/*Native<java.lang.Number>*/strings.sum();
+/*Native<java.lang.Number>*/untyped.sum();
+var total : Integer = ints.sum();
+
+// pow returns an Integer only when both numbers are Integers
+/*Integer*/i.pow(2);
+/*Real*/i.pow(r);
+/*Real*/r.pow(2);
+/*Real*/r.pow(r);
+/*Integer|Real*/i.pow(n);
+/*Any*/n.pow(2);
+var p : Integer = i.pow(r);
+
+//?[25:18-25:26] Real may not be assigned to Integer

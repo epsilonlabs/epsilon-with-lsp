@@ -6,3 +6,6 @@ model ECore driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
 /*Boolean*/1.isTypeOf(Real);
 /*Boolean*/1.isTypeOf(String);
 
+//?[3:13-3:35] Type ECore!EClass is unrelated to Integer, so this check is always false
+//?[4:13-4:30] Type Boolean is unrelated to Integer, so this check is always false
+//?[7:13-7:29] Type String is unrelated to Integer, so this check is always false

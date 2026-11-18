@@ -20,6 +20,7 @@ import org.eclipse.epsilon.eol.analyse.operations.OperationTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.ReturnTypeIsContextTypeProvider;
 import org.eclipse.epsilon.eol.analyse.operations.validation.AsTypeCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.TypeLiteralIsRelatedToContextTypeCallValidator;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.execute.introspection.IPropertyGetter;
 import org.eclipse.epsilon.eol.execute.introspection.IUndefined;
@@ -92,14 +93,17 @@ public class AnyOperationContributor extends OperationContributor {
 		return null;
 	}
 	
+	@OperationCallValidator(TypeLiteralIsRelatedToContextTypeCallValidator.class)
 	public boolean instanceOf(EolType type) {
 		return isKindOf(type);
 	}
 	
+	@OperationCallValidator(TypeLiteralIsRelatedToContextTypeCallValidator.class)
 	public boolean isTypeOf(EolType type) {
 		return type.isType(getTarget());
 	}
 	
+	@OperationCallValidator(TypeLiteralIsRelatedToContextTypeCallValidator.class)
 	public boolean isKindOf(EolType type) {
 		return type.isKind(getTarget());
 	}

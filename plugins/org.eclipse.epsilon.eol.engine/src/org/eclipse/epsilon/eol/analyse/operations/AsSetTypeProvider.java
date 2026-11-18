@@ -6,15 +6,15 @@ import org.eclipse.epsilon.eol.types.EolCollectionType;
 import org.eclipse.epsilon.eol.types.EolType;
 
 /**
- * Returns a ConcurrentSet of the elements of the target collection, or of the target
+ * Returns a Set of the elements of the target collection, or of the target
  * itself if it is not a collection.
- * Used by operations such as <code>asConcurrentSet()</code>.
+ * Used by <code>asSet()</code>.
  */
-public class ConcurrentSetOfElementTypeProvider implements IOperationTypeProvider {
+public class AsSetTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType getType(EolType contextType, List<EolType> parameterTypes) {
-		return ElementTypes.collectionOf(EolCollectionType.ConcurrentSet, contextType);
+		return ElementTypes.collectionOf(EolCollectionType.Set, contextType);
 	}
 
 }

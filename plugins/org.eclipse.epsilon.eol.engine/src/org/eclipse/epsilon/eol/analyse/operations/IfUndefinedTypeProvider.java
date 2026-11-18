@@ -13,7 +13,7 @@ import org.eclipse.epsilon.eol.types.EolUnionType;
  * Returns the type of <code>ifUndefined(alternative)</code>, which is either
  * the target or the alternative.
  */
-public class IfUndefinedReturnTypeProvider implements IOperationTypeProvider {
+public class IfUndefinedTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType getType(EolType contextType, List<EolType> parameterTypes) {

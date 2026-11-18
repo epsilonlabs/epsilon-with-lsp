@@ -6,7 +6,7 @@ import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.types.EolTypeLiteral;
 
-public class AsTypeReturnTypeProvider implements IOperationTypeProvider {
+public class AsTypeTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType getType(EolType contextType, List<EolType> parameterTypes) {

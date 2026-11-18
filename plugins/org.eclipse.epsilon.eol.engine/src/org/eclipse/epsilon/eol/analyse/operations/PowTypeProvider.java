@@ -12,7 +12,7 @@ import org.eclipse.epsilon.eol.types.EolUnionType;
  * either number is a Real.
  * Used by <code>pow(n)</code>.
  */
-public class PowReturnTypeProvider implements IOperationTypeProvider {
+public class PowTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType getType(EolType contextType, List<EolType> parameterTypes) {

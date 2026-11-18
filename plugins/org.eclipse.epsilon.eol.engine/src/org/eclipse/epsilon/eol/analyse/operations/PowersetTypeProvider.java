@@ -9,7 +9,7 @@ import org.eclipse.epsilon.eol.types.EolType;
  * Returns a set of sets of the elements of the target collection, as computed
  * by <code>powerset()</code>.
  */
-public class PowersetReturnTypeProvider implements IOperationTypeProvider {
+public class PowersetTypeProvider implements IOperationTypeProvider {
 
 	@Override
 	public EolType getType(EolType contextType, List<EolType> parameterTypes) {

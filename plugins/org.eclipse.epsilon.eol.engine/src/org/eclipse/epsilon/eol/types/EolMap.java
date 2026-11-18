@@ -20,13 +20,13 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.eclipse.epsilon.eol.analyse.operations.validation.ContainsValueCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.GetOrDefaultCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.OperationCallValidator;
-import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterMapEntryTypesAreKeyAndValueTypesCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToKeyTypeCallValidator;
-import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypeIsComparableToValueTypeCallValidator;
-import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypesAreComparableToKeyAndValueTypesCallValidator;
 import org.eclipse.epsilon.eol.analyse.operations.validation.ParameterTypesAreKeyAndValueTypesCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.PutAllCallValidator;
+import org.eclipse.epsilon.eol.analyse.operations.validation.RemoveCallValidator;
 
 public class EolMap<K, V> implements Map<K, V> {
 	
@@ -81,7 +81,7 @@ public class EolMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	@OperationCallValidator(ParameterTypeIsComparableToValueTypeCallValidator.class)
+	@OperationCallValidator(ContainsValueCallValidator.class)
 	public boolean containsValue(Object value) {
 		return wrapped.containsValue(value);
 	}
@@ -105,7 +105,7 @@ public class EolMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	@OperationCallValidator(ParameterMapEntryTypesAreKeyAndValueTypesCallValidator.class)
+	@OperationCallValidator(PutAllCallValidator.class)
 	public void putAll(Map<? extends K, ? extends V> m) {
 		wrapped.putAll(m);
 	}
@@ -153,7 +153,7 @@ public class EolMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	@OperationCallValidator(ParameterTypesAreComparableToKeyAndValueTypesCallValidator.class)
+	@OperationCallValidator(RemoveCallValidator.class)
 	public boolean remove(Object key, Object value) {
 		return wrapped.remove(key, value);
 	}

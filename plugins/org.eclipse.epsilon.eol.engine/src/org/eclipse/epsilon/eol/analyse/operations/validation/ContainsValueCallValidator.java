@@ -8,21 +8,19 @@ import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.eol.types.EolType;
 
 /**
- * Checks that the entries of the map passed to an operation that stores them
- * in another map (e.g. <code>putAll(m)</code>) are assignable to the key and
- * value types of the latter. The map is expected to be the first parameter.
+ * Checks that the value passed to <code>containsValue(v)</code> could be equal
+ * to a value of the target map.
  */
-public class ParameterMapEntryTypesAreKeyAndValueTypesCallValidator implements IOperationCallValidator {
+public class ContainsValueCallValidator implements IOperationCallValidator {
 
 	@Override
 	public List<ModuleMarker> validate(AbstractModuleElement element, EolType contextType,
 			List<EolType> parameterTypes) {
 		List<ModuleMarker> markers = new ArrayList<>();
-		EolType keyType = ElementTypeChecks.getKeyType(contextType);
 		EolType valueType = ElementTypeChecks.getValueType(contextType);
 		EolType parameterType = ElementTypeChecks.getFirstParameterType(parameterTypes);
-		if (keyType != null && valueType != null && parameterType != null) {
-			ElementTypeChecks.checkEntriesAssignable(markers, element, parameterType, keyType, valueType);
+		if (valueType != null && parameterType != null) {
+			ElementTypeChecks.checkComparable(markers, element, parameterType, valueType, "value");
 		}
 		return markers;
 	}

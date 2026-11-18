@@ -8,11 +8,12 @@ import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.eol.types.EolType;
 
 /**
- * Checks that the key and value passed to an operation that looks up an entry
- * of a map (e.g. <code>remove(k, v)</code>) could be equal to a key and a value
- * of the map. The key and value are expected to be the first and last parameters.
+ * Checks that the key and value passed to a map's <code>remove(k, v)</code>
+ * could be equal to a key and a value of the map. The single-parameter
+ * <code>remove</code> of maps and collections use the generic key and element
+ * checks instead.
  */
-public class ParameterTypesAreComparableToKeyAndValueTypesCallValidator implements IOperationCallValidator {
+public class RemoveCallValidator implements IOperationCallValidator {
 
 	@Override
 	public List<ModuleMarker> validate(AbstractModuleElement element, EolType contextType,

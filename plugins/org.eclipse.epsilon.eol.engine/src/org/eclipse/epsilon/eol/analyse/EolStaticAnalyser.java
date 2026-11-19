@@ -3239,14 +3239,24 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 				continue;
 			}
 
+			// Enumerations cannot declare the type of a variable, but their names start enumeration
+			// literals such as Colour#RED, so they are only proposed outside type expressions
+			boolean includeEnumerations = !typeCompletion.typeExpression;
 			if (typeCompletion.hasPackageQualifier()) {
 				org.eclipse.epsilon.eol.m3.Package pkg = resolvePackage(metamodel, typeCompletion.packageNames);
 				if (pkg != null) {
 					addPackageTypeCompletions(completions, pkg, typeCompletion.prefix);
+					if (includeEnumerations) {
+						addEnumerationCompletions(completions, pkg.getDataTypes(), typeCompletion.prefix);
+					}
 				}
 			}
 			else {
 				addTypeCompletions(completions, metamodel.getTypes(), metamodel.getSubPackages(), typeCompletion.prefix);
+				if (includeEnumerations) {
+					addEnumerationCompletions(completions, metamodel.getDataTypes(), metamodel.getSubPackages(),
+							typeCompletion.prefix);
+				}
 			}
 		}
 	}
@@ -3333,6 +3343,46 @@ public class EolStaticAnalyser implements IModuleValidator, IEolVisitor {
 		}
 		for (org.eclipse.epsilon.eol.m3.Package subPackage : subPackages) {
 			addTypeCompletions(completions, subPackage.getTypes(), subPackage.getSubPackages(), prefix);
+		}
+	}
+
+	private void addEnumerationCompletions(Map<String, EolCompletion> completions,
+			List<? extends IDataType> dataTypes, List<org.eclipse.epsilon.eol.m3.Package> subPackages, String prefix) {
+		addEnumerationCompletions(completions, dataTypes, prefix);
+		for (org.eclipse.epsilon.eol.m3.Package subPackage : subPackages) {
+			addEnumerationCompletions(completions, subPackage.getDataTypes(), subPackage.getSubPackages(), prefix);
+		}
+	}
+
+	private void addEnumerationCompletions(Map<String, EolCompletion> completions,
+			List<? extends IDataType> dataTypes, String prefix) {
+		for (IDataType dataType : dataTypes) {
+			String name = dataType.getName();
+			if (!(dataType instanceof IEnum) || name == null || !name.startsWith(prefix)) {
+				continue;
+			}
+			// The name of an enumeration only starts an expression as part of one of its literals,
+			// so the completion has the type of the literals rather than that of a type literal
+			completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.ENUM,
+					new EolDataType(dataType, name), "enumeration"));
+			if (name.equals(prefix)) {
+				addEnumerationLiteralCompletions(completions, (IEnum) dataType, name);
+			}
+		}
+	}
+
+	/**
+	 * Proposes the literals of an enumeration whose name has been typed in full, e.g. Colour#RED after
+	 * Colour. Each replaces the typed name, by which clients also filter it, and is labelled by the part
+	 * that it adds (#RED).
+	 */
+	private void addEnumerationLiteralCompletions(Map<String, EolCompletion> completions, IEnum enumeration,
+			String enumerationName) {
+		EolType enumType = new EolDataType(enumeration, enumerationName);
+		for (String literal : enumeration.getLiterals()) {
+			String name = enumerationName + "#" + literal;
+			completions.putIfAbsent(name, new EolCompletion(name, EolCompletionKind.ENUM_LITERAL, enumType,
+					"enum literal", "#" + literal));
 		}
 	}
 

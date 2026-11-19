@@ -1,0 +1,10 @@
+// Enumeration names start enumeration literals (e.g. Colour#RED), which are proposed once the name is typed in full,
+// but are not types that variables can be declared with
+model M driver EMF {nsuri="sa"};
+
+var colour = Col/*@Collection, Colour*/
+var size = M!S/*@Size*/
+var qualified = sa::Col/*@Colour*/
+var typed : Col/*@Collection*/
+var literal = Colour/*@Colour, Colour#BLUE, Colour#RED*/
+var qualifiedLiteral = M!Size/*@Size, Size#LARGE, Size#SMALL*/

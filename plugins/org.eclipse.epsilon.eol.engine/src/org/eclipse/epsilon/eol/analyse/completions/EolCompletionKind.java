@@ -9,5 +9,6 @@ public enum EolCompletionKind {
 	TYPE,
 	MODEL,
 	PACKAGE,
+	ENUM,
 	ENUM_LITERAL
 }

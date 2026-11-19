@@ -350,7 +350,7 @@ public class Analyser {
 		final List<EolCompletion> completions = staticAnalyser.getCompletions(module, epsilonPosition);
         final List<CompletionItem> items = new ArrayList<>(completions.size());
         for (EolCompletion c : completions) {
-            final CompletionItem item = new CompletionItem(toCompletionItemLabel(c));
+            final CompletionItem item = new CompletionItem(c.getLabel());
             item.setKind(toCompletionItemKind(c.getKind()));
             item.setDetail(c.getDetail());
             boolean snippet = c.getKind() == EolCompletionKind.OPERATION
@@ -593,13 +593,6 @@ public class Analyser {
 		return analyser;
 	}
 
-	private static String toCompletionItemLabel(EolCompletion completion) {
-		if (completion.getKind() == EolCompletionKind.OPERATION || completion.getKind() == EolCompletionKind.PROPERTY) {
-			return completion.getLabel();
-		}
-		return completion.getName();
-	}
-
 	private static String toCompletionItemInsertText(EolCompletion completion, boolean snippet) {
 		if (completion.getKind() == EolCompletionKind.OPERATION) {
 			if (!snippet) {
@@ -701,6 +694,8 @@ public class Analyser {
                 return CompletionItemKind.Module;
             case PACKAGE:
                 return CompletionItemKind.Folder;
+            case ENUM:
+                return CompletionItemKind.Enum;
             case ENUM_LITERAL:
                 return CompletionItemKind.EnumMember;
             default:

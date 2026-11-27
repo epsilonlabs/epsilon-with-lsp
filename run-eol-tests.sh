@@ -15,7 +15,7 @@ PLUGINS="$PROJECT/plugins"
 TESTS="$PROJECT/tests/org.eclipse.epsilon.eol.staticanalyser.tests"
 TYCHO_CACHE="$HOME/.m2/repository/.cache/tycho"
 P2_BUNDLES="$HOME/.m2/repository/p2/osgi/bundle"
-BUILD_PROJECTS="plugins/org.eclipse.epsilon.common,plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.erl.engine,plugins/org.eclipse.epsilon.egl.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,plugins/org.eclipse.epsilon.flexmi,plugins/org.eclipse.epsilon.lsp,tests/org.eclipse.epsilon.eol.staticanalyser.tests,tests/org.eclipse.epsilon.lsp.test"
+BUILD_PROJECTS="plugins/org.eclipse.epsilon.common,plugins/org.eclipse.epsilon.eol.engine,plugins/org.eclipse.epsilon.erl.engine,plugins/org.eclipse.epsilon.egl.engine,plugins/org.eclipse.epsilon.emc.emf,plugins/org.eclipse.epsilon.emc.plainxml,plugins/org.eclipse.epsilon.emc.bibtex,plugins/org.eclipse.epsilon.evl.engine,plugins/org.eclipse.epsilon.etl.engine,plugins/org.eclipse.epsilon.ecl.engine,plugins/org.eclipse.epsilon.eml.engine,plugins/org.eclipse.epsilon.flock.engine,plugins/org.eclipse.epsilon.pinset.engine,plugins/org.eclipse.epsilon.epl.engine,plugins/org.eclipse.epsilon.emg.engine,plugins/org.eclipse.epsilon.flexmi,plugins/org.eclipse.epsilon.lsp,tests/org.eclipse.epsilon.eol.staticanalyser.tests,tests/org.eclipse.epsilon.lsp.test"
 
 # --- Step 1: Explicitly rebuild the plugins used by the tests (avoids stale JARs) ---
 
@@ -50,6 +50,7 @@ for jar in \
   "com.google.guava.failureaccess_*.jar" \
   "com.google.gson_*.jar" \
   "org.apache.commons.lang3_*.jar" \
+  "org.apache.commons.math3_*.jar" \
   "org.yaml.snakeyaml_*.jar"; do
   # Tycho 5 stores resolved bundles in Maven layout; prefer those over older
   # downloads in the transport cache, which can contain stale platform versions.
@@ -82,6 +83,9 @@ CP="$CP:$PLUGINS/org.eclipse.epsilon.evl.engine/target/org.eclipse.epsilon.evl.e
 CP="$CP:$PLUGINS/org.eclipse.epsilon.erl.engine/target/org.eclipse.epsilon.erl.engine-2.10.0-SNAPSHOT.jar"
 CP="$CP:$PLUGINS/org.eclipse.epsilon.emc.bibtex/target/org.eclipse.epsilon.emc.bibtex-2.10.0-SNAPSHOT.jar"
 CP="$CP:$PLUGINS/org.eclipse.epsilon.egl.engine/target/org.eclipse.epsilon.egl.engine-2.10.0-SNAPSHOT.jar"
+for engine in etl ecl eml flock pinset epl emg; do
+  CP="$CP:$PLUGINS/org.eclipse.epsilon.$engine.engine/target/org.eclipse.epsilon.$engine.engine-2.10.0-SNAPSHOT.jar"
+done
 CP="$CP:$PLUGINS/org.eclipse.epsilon.lsp/target/org.eclipse.epsilon.lsp-2.10.0-SNAPSHOT.jar"
 CP="$CP:$PLUGINS/org.eclipse.epsilon.flexmi/target/org.eclipse.epsilon.flexmi-2.10.0-SNAPSHOT.jar"
 CP="$CP:$PROJECT/tests/org.eclipse.epsilon.lsp.test/target/classes"

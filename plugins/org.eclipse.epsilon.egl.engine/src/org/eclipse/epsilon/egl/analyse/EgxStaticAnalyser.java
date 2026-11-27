@@ -7,24 +7,21 @@ import java.util.List;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
-import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
 import org.eclipse.epsilon.egl.EgxModule;
 import org.eclipse.epsilon.egl.dom.GenerationRule;
 import org.eclipse.epsilon.egl.dom.IEgxVisitor;
-import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.execute.context.Variable;
 import org.eclipse.epsilon.eol.types.EolNativeType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
-import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.ReturnStatement;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
-import org.eclipse.epsilon.erl.dom.Post;
-import org.eclipse.epsilon.erl.dom.Pre;
+import org.eclipse.epsilon.erl.IErlModule;
+import org.eclipse.epsilon.erl.analyse.ErlStaticAnalyser;
 
-public class EgxStaticAnalyser extends EolStaticAnalyser implements IEgxVisitor {
+public class EgxStaticAnalyser extends ErlStaticAnalyser implements IEgxVisitor {
 
 	public EgxStaticAnalyser(IModelFactory modelFactory) {
 		super(modelFactory);
@@ -39,38 +36,14 @@ public class EgxStaticAnalyser extends EolStaticAnalyser implements IEgxVisitor 
 		if (!(imodule instanceof EgxModule))
 			return Collections.emptyList();
 
-		this.module = (EgxModule) imodule;
-		EgxModule egxModule = (EgxModule) imodule;
+		return super.validate(imodule);
+	}
 
-		super.preValidate(egxModule);
-
-		for (Pre pre : egxModule.getPre()) {
-			pre.accept(this);
-		}
-
-		super.mainValidate();
-
-		for (GenerationRule rule : egxModule.getDeclaredGenerationRules()) {
+	@Override
+	protected void validateRules(IErlModule module) {
+		for (GenerationRule rule : ((EgxModule) module).getDeclaredGenerationRules()) {
 			rule.accept(this);
 		}
-
-		for (Post post : egxModule.getPost()) {
-			post.accept(this);
-		}
-
-		super.postValidate();
-
-		return markers;
-	}
-
-	@Override
-	public void visit(Pre pre) {
-		pre.getBody().accept(this);
-	}
-
-	@Override
-	public void visit(Post post) {
-		post.getBody().accept(this);
 	}
 
 	@Override
@@ -132,18 +105,6 @@ public class EgxStaticAnalyser extends EolStaticAnalyser implements IEgxVisitor 
 		}
 
 		context.getFrameStack().leaveLocal(rule);
-	}
-
-	private void checkBoolean(ExecutableBlock<Boolean> block) {
-		if (block != null) {
-			block.accept(this);
-			if (block.getBody() instanceof Expression) {
-				if (!getResolvedType((Expression) block.getBody()).equals(EolPrimitiveType.Boolean)) {
-					markers.add(new ModuleMarker(block, "Expression type should be Boolean instead of "
-							+ getResolvedType((Expression) block.getBody()), Severity.Error));
-				}
-			}
-		}
 	}
 
 	@Override

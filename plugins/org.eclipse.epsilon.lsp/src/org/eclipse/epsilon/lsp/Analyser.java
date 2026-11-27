@@ -28,10 +28,16 @@ import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.parse.Region;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
+import org.eclipse.epsilon.ecl.EclModule;
+import org.eclipse.epsilon.ecl.analyse.EclStaticAnalyser;
 import org.eclipse.epsilon.egl.EglModule;
 import org.eclipse.epsilon.egl.EgxModule;
 import org.eclipse.epsilon.egl.analyse.EglStaticAnalyser;
 import org.eclipse.epsilon.egl.analyse.EgxStaticAnalyser;
+import org.eclipse.epsilon.emg.EmgModule;
+import org.eclipse.epsilon.emg.analyse.EmgStaticAnalyser;
+import org.eclipse.epsilon.eml.EmlModule;
+import org.eclipse.epsilon.eml.analyse.EmlStaticAnalyser;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
@@ -39,13 +45,27 @@ import org.eclipse.epsilon.eol.analyse.completions.EolCompletion;
 import org.eclipse.epsilon.eol.analyse.completions.EolCompletionKind;
 import org.eclipse.epsilon.eol.analyse.completions.EolCompletionParseRepairer;
 import org.eclipse.epsilon.eol.dom.Import;
+import org.eclipse.epsilon.epl.EplModule;
+import org.eclipse.epsilon.epl.analyse.EplStaticAnalyser;
+import org.eclipse.epsilon.etl.EtlModule;
+import org.eclipse.epsilon.etl.analyse.EtlStaticAnalyser;
 import org.eclipse.epsilon.evl.EvlModule;
 import org.eclipse.epsilon.evl.analyse.EvlStaticAnalyser;
+import org.eclipse.epsilon.flock.FlockModule;
+import org.eclipse.epsilon.flock.analyse.FlockStaticAnalyser;
+import org.eclipse.epsilon.lsp.snippets.EclSnippets;
 import org.eclipse.epsilon.lsp.snippets.EglSnippets;
 import org.eclipse.epsilon.lsp.snippets.EgxSnippets;
+import org.eclipse.epsilon.lsp.snippets.EmlSnippets;
 import org.eclipse.epsilon.lsp.snippets.EolSnippets;
+import org.eclipse.epsilon.lsp.snippets.EplSnippets;
+import org.eclipse.epsilon.lsp.snippets.ErlSnippets;
+import org.eclipse.epsilon.lsp.snippets.EtlSnippets;
 import org.eclipse.epsilon.lsp.snippets.EvlSnippets;
+import org.eclipse.epsilon.lsp.snippets.FlockSnippets;
 import org.eclipse.epsilon.lsp.snippets.Snippets;
+import org.eclipse.epsilon.pinset.PinsetModule;
+import org.eclipse.epsilon.pinset.analyse.PinsetStaticAnalyser;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Diagnostic;
@@ -60,18 +80,27 @@ import org.eclipse.lsp4j.WorkspaceFolder;
 
 public class Analyser {
     public static final String LANGUAGE_EVL = "evl";
-//    public static final String LANGUAGE_ETL = "etl";
+    public static final String LANGUAGE_ETL = "etl";
     public static final String LANGUAGE_EGL = "egl";
     public static final String LANGUAGE_EGX = "egx";
-//    public static final String LANGUAGE_ECL = "ecl";
-//    public static final String LANGUAGE_EML = "eml";
-//    public static final String LANGUAGE_FLOCK = "mig";
-//    public static final String LANGUAGE_PINSET = "pinset";
-//    public static final String LANGUAGE_EPL = "epl";
+    public static final String LANGUAGE_ECL = "ecl";
+    public static final String LANGUAGE_EML = "eml";
+    public static final String LANGUAGE_FLOCK = "mig";
+    public static final String LANGUAGE_PINSET = "pinset";
+    public static final String LANGUAGE_EPL = "epl";
+    public static final String LANGUAGE_EMG = "emg";
     public static final String LANGUAGE_EOL = "eol";
 
     public static final List<String> PROGRAM_EXTENSIONS =
-        List.of(LANGUAGE_EOL, LANGUAGE_EVL, LANGUAGE_EGL, LANGUAGE_EGX);
+        List.of(LANGUAGE_EOL, LANGUAGE_EVL, LANGUAGE_EGL, LANGUAGE_EGX, LANGUAGE_ETL, LANGUAGE_ECL,
+            LANGUAGE_EML, LANGUAGE_FLOCK, LANGUAGE_PINSET, LANGUAGE_EPL, LANGUAGE_EMG);
+
+    /**
+     * Returns whether a path or URI ends with the extension of one of the supported languages.
+     */
+    public static boolean hasProgramExtension(String pathOrUri) {
+        return PROGRAM_EXTENSIONS.stream().anyMatch(extension -> pathOrUri.endsWith("." + extension));
+    }
 
     private static final Logger LOGGER = Logger.getLogger(Analyser.class.getName());
 
@@ -90,8 +119,7 @@ public class Analyser {
 		for (WorkspaceFolder wf : languageServer.workspaceFolders) {
 			Path path = Paths.get(URI.create(wf.getUri()));
 			try (Stream<Path> stream = Files.walk(path)) {
-				stream.filter(Files::isRegularFile).filter(f -> f.toString().endsWith(".eol")
-						|| f.toString().endsWith(".evl") || f.toString().endsWith(".egl") || f.toString().endsWith(".egx")).forEach(p -> {
+				stream.filter(Files::isRegularFile).filter(f -> hasProgramExtension(f.toString())).forEach(p -> {
 							processDocument(p.toUri());
 						});
 
@@ -586,6 +614,29 @@ public class Analyser {
 		else if (module instanceof EgxModule) {
 			analyser = new EgxStaticAnalyser(languageServer.getModelFactory());
 		}
+		// EML modules are also ETL modules, so they are checked first
+		else if (module instanceof EmlModule) {
+			analyser = new EmlStaticAnalyser(languageServer.getModelFactory());
+		}
+		else if (module instanceof EtlModule) {
+			analyser = new EtlStaticAnalyser(languageServer.getModelFactory());
+		}
+		else if (module instanceof EclModule) {
+			analyser = new EclStaticAnalyser(languageServer.getModelFactory());
+		}
+		else if (module instanceof FlockModule) {
+			analyser = new FlockStaticAnalyser(languageServer.getModelFactory());
+		}
+		else if (module instanceof PinsetModule) {
+			analyser = new PinsetStaticAnalyser(languageServer.getModelFactory());
+		}
+		// EMG modules are also EPL modules, so they are checked first
+		else if (module instanceof EmgModule) {
+			analyser = new EmgStaticAnalyser(languageServer.getModelFactory());
+		}
+		else if (module instanceof EplModule) {
+			analyser = new EplStaticAnalyser(languageServer.getModelFactory());
+		}
 		else {
 			analyser = new EolStaticAnalyser(languageServer.getModelFactory());
 		}
@@ -706,14 +757,15 @@ public class Analyser {
     protected IEolModule createModule(String languageId) {
         switch (languageId) {
             case LANGUAGE_EVL: return new EvlModule();
-//            case LANGUAGE_ETL: return new EtlModule();
+            case LANGUAGE_ETL: return new EtlModule();
             case LANGUAGE_EGL: return new EglModule();
             case LANGUAGE_EGX: return new EgxModule();
-//            case LANGUAGE_ECL: return new EclModule();
-//            case LANGUAGE_EML: return new EmlModule();
-//            case LANGUAGE_FLOCK:  return new FlockModule();
-//            case LANGUAGE_PINSET: return new PinsetModule();
-//            case LANGUAGE_EPL: return new EplModule();
+            case LANGUAGE_ECL: return new EclModule();
+            case LANGUAGE_EML: return new EmlModule();
+            case LANGUAGE_FLOCK: return new FlockModule();
+            case LANGUAGE_PINSET: return new PinsetModule();
+            case LANGUAGE_EPL: return new EplModule();
+            case LANGUAGE_EMG: return new EmgModule();
             case LANGUAGE_EOL: return new EolModule();
             default:
                 LOGGER.warning("Unknown language " + languageId);
@@ -724,8 +776,15 @@ public class Analyser {
     protected Snippets createSnippets(String languageId) {
         switch (languageId) {
             case LANGUAGE_EVL: return new EvlSnippets();
+            case LANGUAGE_ETL: return new EtlSnippets();
             case LANGUAGE_EGL: return new EglSnippets();
             case LANGUAGE_EGX: return new EgxSnippets();
+            case LANGUAGE_ECL: return new EclSnippets();
+            case LANGUAGE_EML: return new EmlSnippets();
+            case LANGUAGE_FLOCK: return new FlockSnippets();
+            case LANGUAGE_PINSET: return new ErlSnippets();
+            case LANGUAGE_EPL:
+            case LANGUAGE_EMG: return new EplSnippets();
             case LANGUAGE_EOL: return new EolSnippets();
             default: return null;
         }

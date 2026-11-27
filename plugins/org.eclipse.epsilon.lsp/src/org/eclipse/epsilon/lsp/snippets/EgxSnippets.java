@@ -11,7 +11,7 @@ package org.eclipse.epsilon.lsp.snippets;
 
 import java.util.List;
 
-public class EgxSnippets extends EolSnippets {
+public class EgxSnippets extends ErlSnippets {
 
 	@Override
 	protected void addSnippets(List<Snippet> snippets) {
@@ -19,9 +19,5 @@ public class EgxSnippets extends EolSnippets {
 		snippets.add(new Snippet("transform", "transform rule",
 			"rule ${1:rulename}\n\ttransform s : ${2:sourcemodel}!${3:sourcetype} {\n\n"
 			+ "\ttemplate : \"$4\"\n\n\tparameters : Map{}\n\n\ttarget : \"$0\"\n}"));
-		snippets.add(new Snippet("pre", "block executed before the rules",
-			"pre ${1:name} {\n\t$0\n}"));
-		snippets.add(new Snippet("post", "block executed after the rules",
-			"post ${1:name} {\n\t$0\n}"));
 	}
 }

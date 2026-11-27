@@ -1,0 +1,9 @@
+import 'preAndPostLibrary.evl';
+
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+context EClass {
+	constraint UsesImportedVariable {
+		check : self.eStructuralFeatures.size() <= maxFeatures
+	}
+}

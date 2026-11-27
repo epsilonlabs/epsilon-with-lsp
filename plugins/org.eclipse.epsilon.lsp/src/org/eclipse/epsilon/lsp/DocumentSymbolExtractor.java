@@ -10,7 +10,6 @@
 package org.eclipse.epsilon.lsp;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,23 +24,40 @@ import java.util.Set;
 
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.parse.Region;
+import org.eclipse.epsilon.ecl.IEclModule;
+import org.eclipse.epsilon.ecl.dom.MatchRule;
 import org.eclipse.epsilon.egl.IEglModule;
 import org.eclipse.epsilon.egl.IEgxModule;
 import org.eclipse.epsilon.egl.dom.GenerationRule;
 import org.eclipse.epsilon.egl.model.EglMarkerSection;
+import org.eclipse.epsilon.eml.IEmlModule;
+import org.eclipse.epsilon.eml.dom.MergeRule;
 import org.eclipse.epsilon.eol.IEolModule;
 import org.eclipse.epsilon.eol.dom.Import;
 import org.eclipse.epsilon.eol.dom.ModelDeclaration;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.StatementBlock;
+import org.eclipse.epsilon.epl.IEplModule;
+import org.eclipse.epsilon.epl.dom.Pattern;
 import org.eclipse.epsilon.erl.IErlModule;
 import org.eclipse.epsilon.erl.dom.NamedRule;
 import org.eclipse.epsilon.erl.dom.Post;
 import org.eclipse.epsilon.erl.dom.Pre;
+import org.eclipse.epsilon.etl.IEtlModule;
+import org.eclipse.epsilon.etl.dom.TransformationRule;
 import org.eclipse.epsilon.evl.IEvlModule;
 import org.eclipse.epsilon.evl.dom.Constraint;
 import org.eclipse.epsilon.evl.dom.ConstraintContext;
 import org.eclipse.epsilon.evl.dom.GlobalConstraintContext;
+import org.eclipse.epsilon.flock.IFlockModule;
+import org.eclipse.epsilon.flock.model.domain.MigrationStrategy;
+import org.eclipse.epsilon.flock.model.domain.rules.MigrateRule;
+import org.eclipse.epsilon.flock.model.domain.typemappings.Deletion;
+import org.eclipse.epsilon.flock.model.domain.typemappings.PackageDeletion;
+import org.eclipse.epsilon.flock.model.domain.typemappings.PackageRetyping;
+import org.eclipse.epsilon.flock.model.domain.typemappings.Retyping;
+import org.eclipse.epsilon.pinset.DatasetRule;
+import org.eclipse.epsilon.pinset.PinsetModule;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -97,6 +113,7 @@ final class DocumentSymbolExtractor {
 		}
 		else if (module instanceof IErlModule) {
 			addErlDeclarations((IErlModule) module, symbols);
+			addRuleDeclarations((IErlModule) module, symbols);
 		}
 		else {
 			StatementBlock main = module.getMain();
@@ -208,6 +225,74 @@ final class DocumentSymbolExtractor {
 		for (Post post : emptyIfNull(module.getDeclaredPost())) {
 			add(symbols, namedRuleSymbol(post, post.toString(), EpsilonSymbolDetails.POST));
 		}
+	}
+
+	/**
+	 * Adds the rules of the rule-based languages whose outlines have no other symbols.
+	 */
+	private static void addRuleDeclarations(IErlModule module, List<DocumentSymbol> symbols) {
+		if (module instanceof IEtlModule) {
+			for (TransformationRule rule : emptyIfNull(((IEtlModule) module).getDeclaredTransformationRules())) {
+				add(symbols, ruleSymbol(rule));
+			}
+		}
+		if (module instanceof IEmlModule) {
+			for (MergeRule rule : emptyIfNull(((IEmlModule) module).getDeclaredMergeRules())) {
+				add(symbols, ruleSymbol(rule));
+			}
+		}
+		if (module instanceof IEclModule) {
+			for (MatchRule rule : emptyIfNull(((IEclModule) module).getDeclaredMatchRules())) {
+				add(symbols, ruleSymbol(rule));
+			}
+		}
+		if (module instanceof IEplModule) {
+			for (Pattern pattern : emptyIfNull(((IEplModule) module).getDeclaredPatterns())) {
+				add(symbols, ruleSymbol(pattern));
+			}
+		}
+		if (module instanceof IFlockModule) {
+			MigrationStrategy strategy = ((IFlockModule) module).getStrategy();
+			if (strategy != null) {
+				for (ModuleElement construct : emptyIfNull(strategy.getTypeMappingsAndRules())) {
+					add(symbols, symbol(flockConstructName(construct), SymbolKind.Object, construct, null,
+						EpsilonSymbolDetails.RULE));
+				}
+			}
+		}
+		if (module instanceof PinsetModule) {
+			for (DatasetRule rule : emptyIfNull(((PinsetModule) module).getDatasetRules())) {
+				add(symbols, symbol(rule.getName(), SymbolKind.Object, rule, null, EpsilonSymbolDetails.RULE));
+			}
+		}
+	}
+
+	private static DocumentSymbol ruleSymbol(NamedRule rule) {
+		return namedRuleSymbol(rule, safeToString(rule), EpsilonSymbolDetails.RULE);
+	}
+
+	/**
+	 * Flock constructs have no names, so they are named after what they migrate.
+	 */
+	private static String flockConstructName(ModuleElement construct) {
+		if (construct instanceof MigrateRule) {
+			return "migrate " + ((MigrateRule) construct).getOriginalType();
+		}
+		if (construct instanceof Retyping) {
+			Retyping retyping = (Retyping) construct;
+			return "retype " + retyping.getOriginalType() + " to " + retyping.getEvolvedType();
+		}
+		if (construct instanceof Deletion) {
+			return "delete " + ((Deletion) construct).getOriginalType();
+		}
+		if (construct instanceof PackageRetyping) {
+			PackageRetyping retyping = (PackageRetyping) construct;
+			return "retype package " + retyping.getOriginalPackage() + " to " + retyping.getEvolvedPackage();
+		}
+		if (construct instanceof PackageDeletion) {
+			return "delete package " + ((PackageDeletion) construct).getOriginalPackage();
+		}
+		return safeToString(construct);
 	}
 
 	private static void addEvlDeclarations(IEvlModule module, List<DocumentSymbol> symbols) {

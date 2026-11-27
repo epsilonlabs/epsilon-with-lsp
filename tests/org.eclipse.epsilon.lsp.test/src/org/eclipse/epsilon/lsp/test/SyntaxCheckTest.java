@@ -15,6 +15,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +103,17 @@ public class SyntaxCheckTest extends AbstractEpsilonLanguageServerTest {
 		List<String> messages = new ArrayList<String>();
 		messages.add("String cannot be assigned to Integer");
 		assertPublishedExprectedDiagnostics(fileURI, messages);
+	}
+
+	@Test
+	public void staticAnalysisErrorsAreReportedForRuleBasedLanguages() throws Exception {
+		Path folder = Files.createTempDirectory("epsilon-lsp-languages");
+		for (String extension : List.of("etl", "ecl", "eml", "mig", "pinset", "epl", "emg")) {
+			File program = folder.resolve("static-analysis-error." + extension).toFile();
+			Files.writeString(program.toPath(), "pre {\n  var count : Integer = \"one\";\n}\n", StandardCharsets.UTF_8);
+			String fileURI = didOpen(program, 1);
+			assertPublishedExprectedDiagnostics(fileURI, List.of("String cannot be assigned to Integer"));
+		}
 	}
 
 	@Test

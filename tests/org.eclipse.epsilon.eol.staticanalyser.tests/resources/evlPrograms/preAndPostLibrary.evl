@@ -1,0 +1,20 @@
+model M driver EMF {nsuri="http://www.eclipse.org/emf/2002/Ecore"};
+
+pre {
+	var maxFeatures = 10;
+	var wrong : Integer = "ten";
+}
+
+context EClass {
+	constraint NotTooManyFeatures {
+		check : 1
+	}
+}
+
+post {
+	var alsoWrong : String = 1;
+}
+
+//![5:23-5:28] String cannot be assigned to Integer
+//![10:2-10:11] Expression type should be Boolean instead of Integer
+//![15:26-15:27] Integer cannot be assigned to String

@@ -31,6 +31,55 @@
             name="EGX Content Type"
             priority="normal">
       </content-type>
+      <content-type
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
+            file-extensions="etl"
+            id="org.eclipse.epsilon.lsp.contentType.etl"
+            name="ETL Content Type"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
+            file-extensions="ecl"
+            id="org.eclipse.epsilon.lsp.contentType.ecl"
+            name="ECL Content Type"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
+            file-extensions="eml"
+            id="org.eclipse.epsilon.lsp.contentType.eml"
+            name="EML Content Type"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
+            file-extensions="mig"
+            id="org.eclipse.epsilon.lsp.contentType.flock"
+            name="Flock Content Type"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
+            file-extensions="pinset"
+            id="org.eclipse.epsilon.lsp.contentType.pinset"
+            name="Pinset Content Type"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
+            file-extensions="epl"
+            id="org.eclipse.epsilon.lsp.contentType.epl"
+            name="EPL Content Type"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.epsilon.lsp.contentType.eol"
+            file-extensions="emg"
+            id="org.eclipse.epsilon.lsp.contentType.emg"
+            name="EMG Content Type"
+            priority="normal">
+      </content-type>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -56,6 +105,34 @@
       <icon
             contentType="org.eclipse.epsilon.lsp.contentType.egx"
             icon="icons/egx.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.etl"
+            icon="icons/etl.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.ecl"
+            icon="icons/ecl.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.eml"
+            icon="icons/eml.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.flock"
+            icon="icons/flock.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.pinset"
+            icon="icons/pinset.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.epl"
+            icon="icons/epl.png">
+      </icon>
+      <icon
+            contentType="org.eclipse.epsilon.lsp.contentType.emg"
+            icon="icons/emg.png">
       </icon>
    </extension>
    <extension
@@ -114,6 +191,62 @@
       <scopeNameContentTypeBinding
             contentTypeId="org.eclipse.epsilon.lsp.contentType.egx"
             scopeName="source.epsilon.egx">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="syntaxes/etl.tmlanguage"
+            scopeName="source.epsilon.etl">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.etl"
+            scopeName="source.epsilon.etl">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="syntaxes/ecl.tmlanguage"
+            scopeName="source.epsilon.ecl">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.ecl"
+            scopeName="source.epsilon.ecl">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="syntaxes/eml.tmlanguage"
+            scopeName="source.epsilon.eml">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.eml"
+            scopeName="source.epsilon.eml">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="syntaxes/flock.tmlanguage"
+            scopeName="source.epsilon.flock">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.flock"
+            scopeName="source.epsilon.flock">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="syntaxes/pinset.tmlanguage"
+            scopeName="source.epsilon.pinset">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.pinset"
+            scopeName="source.epsilon.pinset">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="syntaxes/epl.tmlanguage"
+            scopeName="source.epsilon.epl">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.epl"
+            scopeName="source.epsilon.epl">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="syntaxes/emg.tmlanguage"
+            scopeName="source.epsilon.emg">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.epsilon.lsp.contentType.emg"
+            scopeName="source.epsilon.emg">
       </scopeNameContentTypeBinding>
    </extension>
    <extension

@@ -8,9 +8,6 @@ import java.util.Optional;
 import org.eclipse.epsilon.common.module.IModule;
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
-import org.eclipse.epsilon.common.module.ModuleMarker.Severity;
-import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.analyse.EolStaticAnalyser;
 import org.eclipse.epsilon.eol.analyse.IModelFactory;
 import org.eclipse.epsilon.eol.analyse.SimpleOperation;
 import org.eclipse.epsilon.eol.execute.context.FrameType;
@@ -19,17 +16,16 @@ import org.eclipse.epsilon.eol.types.EolAnyType;
 import org.eclipse.epsilon.eol.types.EolPrimitiveType;
 import org.eclipse.epsilon.eol.types.EolType;
 import org.eclipse.epsilon.eol.dom.ExecutableBlock;
-import org.eclipse.epsilon.eol.dom.Expression;
 import org.eclipse.epsilon.eol.dom.ReturnStatement;
-import org.eclipse.epsilon.erl.dom.Post;
-import org.eclipse.epsilon.erl.dom.Pre;
+import org.eclipse.epsilon.erl.IErlModule;
+import org.eclipse.epsilon.erl.analyse.ErlStaticAnalyser;
 import org.eclipse.epsilon.evl.EvlModule;
 import org.eclipse.epsilon.evl.dom.Constraint;
 import org.eclipse.epsilon.evl.dom.ConstraintContext;
 import org.eclipse.epsilon.evl.dom.Fix;
 import org.eclipse.epsilon.evl.dom.IEvlVisitor;
 
-public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor {
+public class EvlStaticAnalyser extends ErlStaticAnalyser implements IEvlVisitor {
 	
 	public EvlStaticAnalyser(IModelFactory modelFactory) {
 		super(modelFactory);
@@ -44,11 +40,11 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		if (!(imodule instanceof EvlModule))
 			return Collections.emptyList();
 
-		this.module = (EolModule) imodule;
-		EvlModule evlModule = (EvlModule) imodule;
+		return super.validate(imodule);
+	}
 
-		super.preValidate(evlModule);
-
+	@Override
+	protected void registerBuiltins(IErlModule module) {
 		// Register EVL built-in operations (satisfies, satisfiesAll, satisfiesOne)
 		// These are runtime operations from EvlOperationFactory that the static analyser
 		// needs to know about. They can be called on any object with one or more String
@@ -66,31 +62,13 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 				Optional.empty()
 			));
 		}
+	}
 
-		for (Pre pre : evlModule.getPre()) {
-			pre.accept(this);
-		}
-		super.mainValidate();
-
-		for (ConstraintContext cc : evlModule.getConstraintContexts()) {
+	@Override
+	protected void validateRules(IErlModule module) {
+		for (ConstraintContext cc : ((EvlModule) module).getDeclaredConstraintContexts()) {
 			cc.accept(this);
 		}
-		for (Post post : evlModule.getPost()) {
-			post.accept(this);
-		}
-		super.postValidate();
-
-		return markers;
-	}
-
-	@Override
-	public void visit(Post post) {
-		post.getBody().accept(this);
-	}
-
-	@Override
-	public void visit(Pre pre) {
-		pre.getBody().accept(this);
 	}
 
 	@Override
@@ -134,18 +112,6 @@ public class EvlStaticAnalyser extends EolStaticAnalyser implements IEvlVisitor 
 		}
 	}
 
-	private void checkBoolean(ExecutableBlock<Boolean> block) {
-		if (block != null) {
-			block.accept(this);
-			if (block.getBody() instanceof Expression) {
-				if (!getResolvedType((Expression)block.getBody()).equals(EolPrimitiveType.Boolean)) {
-					markers.add(new ModuleMarker(block, "Expression type should be Boolean instead of " 
-							+ getResolvedType((Expression)block.getBody()), Severity.Error));
-				}
-			}
-		}
-	}
-	
 	@Override
 	public EolType expectedReturnType(ReturnStatement returnStatement) {
 		ModuleElement parent = returnStatement.getParent();

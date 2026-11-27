@@ -17,5 +17,6 @@ Export-Package: org.eclipse.epsilon.emg;
    org.eclipse.epsilon.emg.random,
    org.eclipse.epsilon.epl,
    org.eclipse.epsilon.eol.execute.context",
+ org.eclipse.epsilon.emg.analyse,
  org.eclipse.epsilon.emg.execute.operations.contributors;uses:="org.eclipse.epsilon.eol.execute.operations.contributors,org.eclipse.epsilon.emg.random,org.eclipse.epsilon.emg",
  org.eclipse.epsilon.emg.random;uses:="org.apache.commons.math3.random,org.eclipse.epsilon.eol.execute.context"

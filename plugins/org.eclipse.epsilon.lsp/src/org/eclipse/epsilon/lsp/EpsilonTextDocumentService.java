@@ -64,7 +64,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
     public void didOpen(DidOpenTextDocumentParams params) {
         final TextDocumentItem doc = params.getTextDocument();
         
-        if (doc.getUri().endsWith(".eol") || doc.getUri().endsWith(".evl") || doc.getUri().endsWith(".egl") || doc.getUri().endsWith(".egx")) {
+        if (Analyser.hasProgramExtension(doc.getUri())) {
             URI uri = URI.create(doc.getUri());
             if (uri.getPath() != null) {
                 MapEntryRegistry.getInstance().putCode(uri.getPath(), doc.getText());
@@ -163,7 +163,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
         // Only the Epsilon languages are handled by the static analyser;
         // for anything else we return an empty completion list so that the
         // client does not keep waiting.
-        if (!(uriString.endsWith(".eol") || uriString.endsWith(".evl") || uriString.endsWith(".egl") || uriString.endsWith(".egx"))) {
+        if (!Analyser.hasProgramExtension(uriString)) {
             return CompletableFuture.completedFuture(Either.forLeft(Collections.<CompletionItem>emptyList()));
         }
 
@@ -182,7 +182,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(DocumentSymbolParams params) {
 		final String uriString = params.getTextDocument().getUri();
-		if (!(uriString.endsWith(".eol") || uriString.endsWith(".evl") || uriString.endsWith(".egl") || uriString.endsWith(".egx"))) {
+		if (!Analyser.hasProgramExtension(uriString)) {
 			return CompletableFuture.completedFuture(Collections.emptyList());
 		}
 
@@ -247,7 +247,7 @@ public class EpsilonTextDocumentService implements TextDocumentService {
 
 	private CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> declarationOrDefinition(
 			String uriString, Position position) {
-		if (!(uriString.endsWith(".eol") || uriString.endsWith(".evl") || uriString.endsWith(".egl") || uriString.endsWith(".egx"))) {
+		if (!Analyser.hasProgramExtension(uriString)) {
 			return CompletableFuture.completedFuture(Either.forLeft(Collections.<Location>emptyList()));
 		}
 

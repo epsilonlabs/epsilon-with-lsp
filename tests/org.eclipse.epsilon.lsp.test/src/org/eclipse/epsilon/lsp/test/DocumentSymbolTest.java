@@ -583,6 +583,91 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 	}
 
 	@Test
+	public void etlRulesAreSymbols() throws Exception {
+		String source = "pre {\n"
+			+ "}\n"
+			+ "rule Tree2Node\n"
+			+ "  transform t : Tree\n"
+			+ "  to n : Node {\n"
+			+ "}\n"
+			+ "post {\n"
+			+ "}\n"
+			+ "operation helper() {\n"
+			+ "}\n";
+		List<DocumentSymbol> symbols = documentSymbols(createAndOpen("outline.etl", "etl", source));
+		assertEquals(List.of("pre", "Tree2Node", "post", "helper"), names(symbols));
+		assertEquals(List.of(EpsilonSymbolDetails.PRE, EpsilonSymbolDetails.RULE, EpsilonSymbolDetails.POST),
+			details(symbols.subList(0, 3)));
+	}
+
+	@Test
+	public void eclRulesAreSymbols() throws Exception {
+		String source = "pre {\n"
+			+ "}\n"
+			+ "rule SameName\n"
+			+ "  match l : Left!Node\n"
+			+ "  with r : Right!Node {\n"
+			+ "  compare : l.name = r.name\n"
+			+ "}\n";
+		List<DocumentSymbol> symbols = documentSymbols(createAndOpen("outline.ecl", "ecl", source));
+		assertEquals(List.of("pre", "SameName"), names(symbols));
+		assertEquals(List.of(EpsilonSymbolDetails.PRE, EpsilonSymbolDetails.RULE), details(symbols));
+	}
+
+	@Test
+	public void emlMergeAndTransformationRulesAreSymbols() throws Exception {
+		String source = "rule MergeNodes\n"
+			+ "  merge l : Left!Node\n"
+			+ "  with r : Right!Node\n"
+			+ "  into t : Target!Node {\n"
+			+ "}\n"
+			+ "rule CopyNode\n"
+			+ "  transform s : Source!Node\n"
+			+ "  to t : Target!Node {\n"
+			+ "}\n";
+		List<DocumentSymbol> symbols = documentSymbols(createAndOpen("outline.eml", "eml", source));
+		assertEquals(List.of("MergeNodes", "CopyNode"), names(symbols));
+		assertEquals(List.of(EpsilonSymbolDetails.RULE, EpsilonSymbolDetails.RULE), details(symbols));
+	}
+
+	@Test
+	public void flockConstructsAreNamedAfterWhatTheyMigrate() throws Exception {
+		String source = "retype Node to Leaf\n"
+			+ "delete Edge\n"
+			+ "retype package graph to tree\n"
+			+ "delete package old\n"
+			+ "migrate Tree {\n"
+			+ "}\n";
+		List<DocumentSymbol> symbols = documentSymbols(createAndOpen("outline.mig", "mig", source));
+		assertEquals(List.of("retype Node to Leaf", "delete Edge", "retype package graph to tree",
+			"delete package old", "migrate Tree"), names(symbols));
+		assertTrue(details(symbols).stream().allMatch(EpsilonSymbolDetails.RULE::equals));
+	}
+
+	@Test
+	public void pinsetDatasetsAreSymbols() throws Exception {
+		String source = "dataset Persons over p : Person {\n"
+			+ "  column name : p.name\n"
+			+ "}\n";
+		List<DocumentSymbol> symbols = documentSymbols(createAndOpen("outline.pinset", "pinset", source));
+		assertEquals(List.of("Persons"), names(symbols));
+		assertEquals(List.of(EpsilonSymbolDetails.RULE), details(symbols));
+	}
+
+	@Test
+	public void eplAndEmgPatternsAreSymbols() throws Exception {
+		String source = "pattern Parent\n"
+			+ "  p : Node {\n"
+			+ "  match : p.children.notEmpty()\n"
+			+ "}\n";
+		for (String language : List.of("epl", "emg")) {
+			List<DocumentSymbol> symbols = documentSymbols(createAndOpen("outline." + language, language, source));
+			assertEquals(language, List.of("Parent"), names(symbols));
+			assertEquals(language, List.of(EpsilonSymbolDetails.RULE), details(symbols));
+		}
+	}
+
+	@Test
 	public void unsupportedDocumentsReturnNoSymbols() throws Exception {
 		assertTrue(documentSymbols("file:///tmp/outline.txt").isEmpty());
 	}
@@ -702,6 +787,12 @@ public class DocumentSymbolTest extends AbstractEpsilonLanguageServerTest {
 
 	private List<String> names(List<DocumentSymbol> symbols) {
 		return symbols.stream().map(DocumentSymbol::getName).collect(Collectors.toList());
+	}
+
+	private List<String> details(List<DocumentSymbol> symbols) {
+		return symbols.stream()
+			.map(symbol -> EpsilonSymbolDetails.of(symbol.getName(), symbol.getDetail()))
+			.collect(Collectors.toList());
 	}
 
 	private int compare(Position first, Position second) {

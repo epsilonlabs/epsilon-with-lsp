@@ -268,6 +268,18 @@ public class LspCompletionTests extends AbstractEpsilonLanguageServerTest {
 	}
 
 	@Test
+	public void ruleBasedLanguageSnippetsIncludeEolSnippets() throws Exception {
+		initialize(true);
+		assertSnippetLabelsInclude("snippets.etl", List.of("common transform", "for", "post", "pre", "transform"));
+		assertSnippetLabelsInclude("snippets.ecl", List.of("common match", "do", "for", "match", "post", "pre"));
+		assertSnippetLabelsInclude("snippets.eml", List.of("common merge", "merge", "post", "pre", "transform"));
+		assertSnippetLabelsInclude("snippets.mig", List.of("for", "migrate", "post", "pre"));
+		assertSnippetLabelsInclude("snippets.pinset", List.of("for", "post", "pre"));
+		assertSnippetLabelsInclude("snippets.epl", List.of("for", "pattern", "post", "pre"));
+		assertSnippetLabelsInclude("snippets.emg", List.of("for", "pattern", "post", "pre"));
+	}
+
+	@Test
 	public void eglSnippetsDependOnTheSection() throws Exception {
 		File template = temporaryFolder.newFile("snippets.egl");
 		Files.writeString(template.toPath(), "Hello \n[%\n\n%]\n[%=  %]\n[% gen\n", StandardCharsets.UTF_8);
